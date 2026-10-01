@@ -83,8 +83,122 @@ function readJson(file: string): any {
  * - Fixtures (`"fixture": true`, e.g. dummy) are never rewritten.
  * - An item with no local bench result keeps the `measured` it already has.
  */
-export function mergeAllEvidence(options: { check?: boolean } = {}): boolean {
+export function verifyItemEvidence(
+  itemDir: string,
+  benchDir: string,
+  options: { check?: boolean } = {}
+): { ok: boolean; errors: string[] } {
   const check = options.check === true;
+  const itemName = path.basename(itemDir);
+  const declaredFile = path.join(itemDir, "meta.declared.json");
+  if (!fs.existsSync(declaredFile)) {
+    return { ok: true, errors: [] };
+  }
+
+  const declared = readJson(declaredFile);
+  if (declared.fixture === true) {
+    return { ok: true, errors: [] };
+  }
+
+  const outputFile = path.join(itemDir, "meta.json");
+  const existing = fs.existsSync(outputFile) ? readJson(outputFile) : null;
+  const itemBenchDir = path.join(benchDir, itemName);
+  const releaseFiles = fs.existsSync(itemBenchDir)
+    ? fs.readdirSync(itemBenchDir).filter((f) => f.startsWith("release-") && f.endsWith(".json"))
+    : [];
+
+  const errors: string[] = [];
+
+  if (check) {
+    const expected = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
+    if (!existing || JSON.stringify(existing) !== JSON.stringify(expected)) {
+      errors.push(
+        `[${itemName}] meta.json is out of sync with meta.declared.json. Run 'pnpm meta' locally and commit the result.`
+      );
+      return { ok: false, errors };
+    }
+
+    if (existing.measured !== undefined) {
+      if (releaseFiles.length === 0) {
+        errors.push(
+          `[${itemName}] meta.json contains 'measured' data, but no committed release snapshot exists at bench/results/${itemName}/release-*.json (Hard Rule 6).`
+        );
+        return { ok: false, errors };
+      }
+
+      const versionMatch = `release-${declared.item.version}.json`;
+      const chosenFile = releaseFiles.includes(versionMatch) ? versionMatch : releaseFiles.sort().reverse()[0];
+      const snapshotRaw = readJson(path.join(itemBenchDir, chosenFile));
+      const snapshotMeasured = snapshotRaw.measured || snapshotRaw;
+
+      if (JSON.stringify(existing.measured) !== JSON.stringify(snapshotMeasured)) {
+        errors.push(
+          `[${itemName}] Hand-edited 'measured' data detected in meta.json. Values do not match committed release snapshot bench/results/${itemName}/${chosenFile} (Hard Rule 6).`
+        );
+        return { ok: false, errors };
+      }
+
+      const contradictions = validateMeasuredAgainstDeclared(declared, existing.measured, itemName);
+      if (contradictions.length > 0) {
+        errors.push(...contradictions);
+        return { ok: false, errors };
+      }
+    } else {
+      if (releaseFiles.length > 0) {
+        errors.push(
+          `[${itemName}] Release snapshot exists at bench/results/${itemName}/${releaseFiles[0]}, but meta.json is missing 'measured' data. Run 'pnpm meta' to merge.`
+        );
+        return { ok: false, errors };
+      }
+    }
+    return { ok: true, errors: [] };
+  }
+
+  // Non-check mode: merge evidence
+  let measuredData: any = null;
+  const latestBenchFile = path.join(itemBenchDir, "latest.json");
+  if (fs.existsSync(latestBenchFile)) {
+    try {
+      const benchResult = readJson(latestBenchFile);
+      measuredData = benchResult.measured || benchResult;
+    } catch (err: any) {
+      errors.push(`Failed to parse bench result for ${itemName}: ${err.message}`);
+      return { ok: false, errors };
+    }
+  } else if (releaseFiles.length > 0) {
+    const versionMatch = `release-${declared.item.version}.json`;
+    const chosenFile = releaseFiles.includes(versionMatch) ? versionMatch : releaseFiles.sort().reverse()[0];
+    try {
+      const benchResult = readJson(path.join(itemBenchDir, chosenFile));
+      measuredData = benchResult.measured || benchResult;
+    } catch {}
+  }
+
+  if (measuredData) {
+    const contradictions = validateMeasuredAgainstDeclared(declared, measuredData, itemName);
+    if (contradictions.length > 0) {
+      errors.push(...contradictions);
+      return { ok: false, errors };
+    }
+    fs.writeFileSync(outputFile, JSON.stringify({ ...declared, measured: measuredData }, null, 2) + "\n", "utf8");
+  } else {
+    const combined = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
+    fs.writeFileSync(outputFile, JSON.stringify(combined, null, 2) + "\n", "utf8");
+  }
+
+  return { ok: true, errors: [] };
+}
+
+/**
+ * Merge bench evidence into each item's meta.json.
+ *
+ * - `check: true` is the CI mode: committed data only. Nothing is read from
+ *   bench/results and nothing is written; it fails if meta.json is not exactly
+ *   `meta.declared.json` + the `measured` block verified against committed release snapshot.
+ * - Fixtures (`"fixture": true`, e.g. dummy) are never rewritten.
+ * - An item with no local bench result keeps the `measured` it already has.
+ */
+export function mergeAllEvidence(options: { check?: boolean } = {}): boolean {
   const projectRoot = process.cwd();
   const itemsDir = path.join(projectRoot, "registry", "items");
   const benchDir = path.join(projectRoot, "bench", "results");
@@ -98,66 +212,15 @@ export function mergeAllEvidence(options: { check?: boolean } = {}): boolean {
   const items = fs.readdirSync(itemsDir, { withFileTypes: true });
   for (const item of items) {
     if (!item.isDirectory()) continue;
-    const declaredFile = path.join(itemsDir, item.name, "meta.declared.json");
-    if (!fs.existsSync(declaredFile)) continue;
-
-    const declared = readJson(declaredFile);
-    if (declared.fixture === true) {
-      console.log(`ℹ Skipping fixture ${item.name} (never rewritten by pnpm meta)`);
-      continue;
-    }
-
-    const outputFile = path.join(itemsDir, item.name, "meta.json");
-    const existing = fs.existsSync(outputFile) ? readJson(outputFile) : null;
-
-    if (check) {
-      const expected = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
-      if (!existing || JSON.stringify(existing) !== JSON.stringify(expected)) {
-        hasErrors = true;
-        console.error(
-          `❌ ${item.name}: meta.json is out of sync with meta.declared.json. Run 'pnpm meta' locally and commit the result.`
-        );
-      } else {
-        console.log(`✔ ${item.name}: meta.json matches declared metadata + committed measured evidence`);
+    const itemDir = path.join(itemsDir, item.name);
+    const res = verifyItemEvidence(itemDir, benchDir, options);
+    if (!res.ok) {
+      hasErrors = true;
+      for (const err of res.errors) {
+        console.error(`❌ ${err}`);
       }
-      continue;
-    }
-
-    const latestBenchFile = path.join(benchDir, item.name, "latest.json");
-    let measuredData: any = null;
-    if (fs.existsSync(latestBenchFile)) {
-      try {
-        const benchResult = readJson(latestBenchFile);
-        // bench result can be the measured object directly or contain a 'measured' field
-        measuredData = benchResult.measured || benchResult;
-      } catch (err: any) {
-        console.error(`❌ Failed to parse bench result for ${item.name}: ${err.message}`);
-        hasErrors = true;
-        continue;
-      }
-    }
-
-    if (measuredData) {
-      const contradictions = validateMeasuredAgainstDeclared(declared, measuredData, item.name);
-      if (contradictions.length > 0) {
-        hasErrors = true;
-        console.error(`❌ Contradiction check failed for ${item.name}:`);
-        for (const err of contradictions) {
-          console.error(`   - ${err}`);
-        }
-        continue;
-      }
-      fs.writeFileSync(outputFile, JSON.stringify({ ...declared, measured: measuredData }, null, 2) + "\n", "utf8");
-      console.log(`✔ Merged evidence for ${item.name} -> meta.json`);
     } else {
-      // No local bench results: keep the committed measured block, never drop it.
-      const combined = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
-      fs.writeFileSync(outputFile, JSON.stringify(combined, null, 2) + "\n", "utf8");
-      console.log(
-        `ℹ No bench results for ${item.name} (bench/results/${item.name}/latest.json); kept ${
-          existing?.measured !== undefined ? "committed measured data" : "declared metadata only"
-        }`
-      );
+      console.log(`✔ ${item.name}: evidence verified / merged successfully.`);
     }
   }
 

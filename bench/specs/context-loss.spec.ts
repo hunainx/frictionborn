@@ -22,9 +22,11 @@ test.describe("WebGL context loss and lease budget", () => {
     await expect(canvas).toHaveCount(1, { timeout: 10000 });
 
     await page.evaluate(() => {
-      const gl = (window as any).__gls[(window as any).__gls.length - 1];
-      (window as any).__ext = gl.getExtension("WEBGL_lose_context");
-      (window as any).__ext.loseContext();
+      const gls = (window as any).__gls || [];
+      const gl = gls.find((g: any) => g.canvas.isConnected) || gls[gls.length - 1];
+      const ext = gl.getExtension("WEBGL_lose_context");
+      (window as any).__ext = ext;
+      ext.loseContext();
     });
     // Poster only: the lost canvas is hidden from view
     await expect(canvas.first()).toBeHidden();

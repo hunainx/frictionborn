@@ -1,5 +1,10 @@
 /* Original — Frictionborn Motion bench harness styles */
 :root {
+  --background: #0D0F12;
+  --foreground: #E9EBF0;
+  --primary: #FB923C;
+  --accent: #3B82F6;
+
   --bg: #0D0F12;
   --surface: #15181D;
   --ink: #E9EBF0;
@@ -16,6 +21,21 @@
   --fb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --fb-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
+
+html.light, html[data-theme="light"] {
+  --background: #F4F5F7;
+  --foreground: #111318;
+  --primary: #C2410C;
+  --accent: #2563EB;
+
+  --bg: #F4F5F7;
+  --surface: #FFFFFF;
+  --ink: #111318;
+  --muted: #5B6272;
+  --line: #DCDFE5;
+  --signal: #C2410C;
+}
+
 
 * {
   box-sizing: border-box;

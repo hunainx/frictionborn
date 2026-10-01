@@ -15,32 +15,41 @@ export default function ItemBenchPage({
   const resolvedParams = use(params);
   const resolvedQuery = use(searchParams);
   const name = resolvedParams.name;
-  const tier = resolvedQuery.tier || "3";
+  const tier = resolvedQuery.tier;
   const isOffscreen = resolvedQuery.offscreen === "1";
   const isLeakTest = resolvedQuery.leak === "1";
 
   const [mounted, setMounted] = useState(true);
   const [cycleCount, setCycleCount] = useState(0);
 
-  // Set data-fb-tier on root element
+  // Set data-fb-tier on root element ONLY when explicitly passed in query
   useEffect(() => {
-    document.documentElement.setAttribute("data-fb-tier", tier);
-    return () => {
-      document.documentElement.removeAttribute("data-fb-tier");
-    };
+    if (tier !== undefined) {
+      document.documentElement.setAttribute("data-fb-tier", tier);
+      return () => {
+        document.documentElement.removeAttribute("data-fb-tier");
+      };
+    }
   }, [tier]);
 
-  // Leak test cycle: mount/unmount 10 times ending unmounted
+  // Reset probe listeners at start of leak testing so only component listener growth is measured
   useEffect(() => {
-    if (isLeakTest && cycleCount < 10) {
+    if (isLeakTest && typeof window !== "undefined") {
+      (window as any).__FB_PROBES__?.listenerCounter?.reset();
+    }
+  }, [isLeakTest]);
+
+  // Leak test cycle: mount/unmount 50 times ending unmounted per PRD 6.0
+  useEffect(() => {
+    if (isLeakTest && cycleCount < 50) {
       const timer = setTimeout(() => {
-        if (cycleCount + 1 >= 10) {
+        if (cycleCount + 1 >= 50) {
           setMounted(false);
         } else {
           setMounted((m) => !m);
         }
         setCycleCount((c) => c + 1);
-      }, 100);
+      }, 20);
       return () => clearTimeout(timer);
     }
   }, [isLeakTest, cycleCount]);
@@ -62,7 +71,7 @@ export default function ItemBenchPage({
   return (
     <div
       data-testid="bench-container"
-      data-leak-done={cycleCount >= 10 ? "true" : undefined}
+      data-leak-done={cycleCount >= 50 ? "true" : undefined}
       data-fb-tier={tier}
       style={{
         maxWidth: 1000,

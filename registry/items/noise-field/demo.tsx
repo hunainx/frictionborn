@@ -1,33 +1,60 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NoiseField } from "./noise-field";
 import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 const PALETTES = [
   {
-    name: "Ember Dark",
-    colors: ["#0D0F12", "#FB923C", "#2563EB"] as [string, string, string],
+    name: "Host Theme",
+    colors: ["var(--background)", "var(--primary)", "var(--accent)"] as [string, string, string],
   },
   {
-    name: "Obsidian Violet",
-    colors: ["#0A0B0E", "#8B5CF6", "#EC4899"] as [string, string, string],
+    name: "Indigo / Rose",
+    colors: ["#0B0F19", "#6366F1", "#EC4899"] as [string, string, string],
   },
   {
-    name: "Deep Emerald",
-    colors: ["#06110D", "#10B981", "#065F46"] as [string, string, string],
+    name: "Emerald / Cyan",
+    colors: ["#06110D", "#10B981", "#06B6D4"] as [string, string, string],
   },
 ];
 
 export default function NoiseFieldDemo() {
   const [selectedPalette, setSelectedPalette] = useState(0);
   const [activeTier, setActiveTier] = useState<number | undefined>(undefined);
+  const [isLight, setIsLight] = useState(false);
+  const [copied, setCopied] = useState(false);
   const isPaused = usePaused();
   const systemReduced = useReducedMotion();
   const [manualReduced, setManualReduced] = useState(false);
 
   const effectiveReduced = systemReduced || manualReduced;
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      setIsLight(document.documentElement.classList.contains("light"));
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (typeof document === "undefined") return;
+    const next = !isLight;
+    setIsLight(next);
+    if (next) {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  };
+
+  const handleCopy = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText("npx shadcn@latest add @frictionborn/noise-field");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <div
@@ -44,7 +71,7 @@ export default function NoiseFieldDemo() {
         flexDirection: "column",
       }}
     >
-      {/* Top Engineering Control Bar */}
+      {/* Engineering Control Bar (<= 120px on mobile) */}
       <div
         style={{
           position: "relative",
@@ -53,38 +80,59 @@ export default function NoiseFieldDemo() {
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "1rem",
-          padding: "1rem 1.5rem",
-          backgroundColor: "rgba(21, 24, 29, 0.75)",
-          backdropFilter: "blur(12px)",
+          gap: "0.5rem",
+          padding: "0.75rem 1rem",
+          backgroundColor: "var(--surface, #15181D)",
           borderBottom: "1px solid var(--line, #262B33)",
+          maxHeight: "120px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span
             style={{
               width: "8px",
               height: "8px",
               borderRadius: "999px",
-              backgroundColor: isPaused ? "var(--degraded, #FBBF24)" : "var(--pass, #4ADE80)",
+              backgroundColor: isPaused
+                ? "var(--degraded, #FBBF24)"
+                : effectiveReduced
+                ? "var(--muted, #9AA1AF)"
+                : "var(--pass, #4ADE80)",
               display: "inline-block",
             }}
           />
           <span
             className="mono"
-            style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted, #9AA1AF)" }}
+            style={{
+              fontSize: "12px",
+              fontWeight: 500,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "var(--ink, #E9EBF0)",
+            }}
           >
-            NoiseField · Specimen Preview
+            NoiseField
           </span>
         </div>
 
-        {/* Live Controls */}
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+        {/* Interactive Controls */}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.5rem" }}>
           {/* Palette Selector */}
-          <div style={{ display: "flex", gap: "0.25rem", background: "rgba(0,0,0,0.4)", padding: "2px", borderRadius: "6px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "2px",
+              background: "rgba(0, 0, 0, 0.2)",
+              padding: "2px",
+              borderRadius: "6px",
+              border: "1px solid var(--line, #262B33)",
+            }}
+          >
             {PALETTES.map((p, idx) => (
               <button
                 key={p.name}
+                type="button"
+                aria-pressed={selectedPalette === idx}
                 onClick={() => setSelectedPalette(idx)}
                 style={{
                   padding: "4px 8px",
@@ -93,8 +141,9 @@ export default function NoiseFieldDemo() {
                   border: "none",
                   cursor: "pointer",
                   background: selectedPalette === idx ? "var(--signal, #FB923C)" : "transparent",
-                  color: selectedPalette === idx ? "#000" : "var(--ink, #E9EBF0)",
+                  color: selectedPalette === idx ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
                   fontWeight: selectedPalette === idx ? 600 : 400,
+                  minHeight: "28px",
                 }}
               >
                 {p.name}
@@ -102,8 +151,17 @@ export default function NoiseFieldDemo() {
             ))}
           </div>
 
-          {/* Tier Overrides */}
-          <div style={{ display: "flex", gap: "0.25rem", background: "rgba(0,0,0,0.4)", padding: "2px", borderRadius: "6px" }}>
+          {/* Tier Selector */}
+          <div
+            style={{
+              display: "flex",
+              gap: "2px",
+              background: "rgba(0, 0, 0, 0.2)",
+              padding: "2px",
+              borderRadius: "6px",
+              border: "1px solid var(--line, #262B33)",
+            }}
+          >
             {[
               { label: "Auto", val: undefined },
               { label: "T0", val: 0 },
@@ -113,6 +171,8 @@ export default function NoiseFieldDemo() {
             ].map((t) => (
               <button
                 key={t.label}
+                type="button"
+                aria-pressed={activeTier === t.val}
                 onClick={() => setActiveTier(t.val)}
                 style={{
                   padding: "4px 8px",
@@ -123,6 +183,7 @@ export default function NoiseFieldDemo() {
                   background: activeTier === t.val ? "var(--line, #262B33)" : "transparent",
                   color: activeTier === t.val ? "var(--signal, #FB923C)" : "var(--muted, #9AA1AF)",
                   fontWeight: activeTier === t.val ? 600 : 400,
+                  minHeight: "28px",
                 }}
               >
                 {t.label}
@@ -130,48 +191,84 @@ export default function NoiseFieldDemo() {
             ))}
           </div>
 
+          {/* Theme Toggle (Dark / Light) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              padding: "4px 10px",
+              fontSize: "11px",
+              borderRadius: "4px",
+              border: "1px solid var(--line, #262B33)",
+              background: "transparent",
+              color: "var(--ink, #E9EBF0)",
+              cursor: "pointer",
+              fontWeight: 500,
+              minHeight: "28px",
+            }}
+          >
+            {isLight ? "Theme: Light" : "Theme: Dark"}
+          </button>
+
           {/* Reduced Motion Toggle */}
           <button
+            type="button"
+            aria-pressed={effectiveReduced}
             onClick={() => setManualReduced((r) => !r)}
             style={{
               padding: "4px 10px",
               fontSize: "11px",
               borderRadius: "4px",
               border: "1px solid var(--line, #262B33)",
-              background: effectiveReduced ? "var(--signal, #FB923C)" : "rgba(0,0,0,0.4)",
-              color: effectiveReduced ? "#000" : "var(--ink, #E9EBF0)",
+              background: effectiveReduced ? "var(--signal, #FB923C)" : "transparent",
+              color: effectiveReduced ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
+              minHeight: "28px",
             }}
           >
-            {effectiveReduced ? "Reduced Motion: ON" : "Reduced Motion: OFF"}
+            {effectiveReduced ? "Motion: Static" : "Motion: Fluid"}
           </button>
 
-          {/* Global Pause Control (WCAG 2.2.2) */}
+          {/* Pause / Resume */}
           <button
+            type="button"
+            aria-pressed={isPaused}
             onClick={() => (isPaused ? resumeAll() : pauseAll())}
             style={{
               padding: "4px 10px",
               fontSize: "11px",
               borderRadius: "4px",
               border: "1px solid var(--line, #262B33)",
-              background: isPaused ? "var(--degraded, #FBBF24)" : "rgba(0,0,0,0.4)",
-              color: isPaused ? "#000" : "var(--ink, #E9EBF0)",
+              background: isPaused ? "var(--degraded, #FBBF24)" : "transparent",
+              color: isPaused ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
+              minHeight: "28px",
             }}
           >
-            {isPaused ? "Resume (WCAG)" : "Pause (WCAG)"}
+            {isPaused ? "Resume" : "Pause"}
           </button>
         </div>
       </div>
 
       {/* Main NoiseField Visual Canvas */}
-      <div style={{ position: "relative", flex: 1, minHeight: "560px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        id="demo-mount-point"
+        style={{
+          position: "relative",
+          flex: 1,
+          minHeight: "560px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <NoiseField
           colors={PALETTES[selectedPalette].colors}
           maxTier={activeTier}
           paused={isPaused}
+          reducedMotion={effectiveReduced}
           scrim={true}
           style={{ position: "absolute", inset: 0 }}
         >
@@ -185,86 +282,72 @@ export default function NoiseFieldDemo() {
               height: "100%",
               padding: "2rem",
               textAlign: "center",
-              maxWidth: "760px",
+              maxWidth: "680px",
               margin: "0 auto",
             }}
           >
-            <div
-              className="mono"
-              style={{
-                fontSize: "12px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "var(--signal, #FB923C)",
-                marginBottom: "1rem",
-                padding: "4px 12px",
-                borderRadius: "999px",
-                background: "rgba(251, 146, 60, 0.1)",
-                border: "1px solid rgba(251, 146, 60, 0.25)",
-              }}
-            >
-              Verified Background Shader · T{activeTier ?? 3}
-            </div>
-
             <h1
               style={{
-                fontSize: "clamp(2rem, 5vw, 3.5rem)",
+                fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
                 fontWeight: 600,
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                color: "#FFFFFF",
-                textShadow: "0 2px 20px rgba(0, 0, 0, 0.6)",
-                marginBottom: "1.25rem",
+                letterSpacing: "-0.025em",
+                lineHeight: 1.15,
+                color: "var(--foreground, #E9EBF0)",
+                marginBottom: "1rem",
               }}
             >
-              Calculated Atmosphere
+              Engineered Motion for High-Signal Interfaces
             </h1>
 
             <p
               style={{
-                fontSize: "clamp(0.95rem, 2vw, 1.15rem)",
+                fontSize: "clamp(0.95rem, 1.8vw, 1.1rem)",
                 lineHeight: 1.6,
-                color: "var(--ink, #E9EBF0)",
-                maxWidth: "580px",
+                color: "var(--foreground, #E9EBF0)",
+                opacity: 0.9,
+                maxWidth: "520px",
                 marginBottom: "2rem",
-                textShadow: "0 1px 8px rgba(0, 0, 0, 0.8)",
               }}
             >
-              Procedural WebGL2 domain-warped noise calibrated for continuous
-              low-contrast ambient flow, zero idle frames when offscreen, and immediate
-              CSS poster fallbacks.
+              Calibrated kinetic backdrops built for zero layout shift and automated tier scaling.
             </p>
 
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center" }}>
-              <button
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <a
+                href="#docs"
                 style={{
-                  padding: "10px 22px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  borderRadius: "6px",
-                  backgroundColor: "var(--signal, #FB923C)",
-                  color: "#0D0F12",
-                  border: "none",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 14px rgba(251, 146, 60, 0.35)",
-                }}
-              >
-                Inspect Spec Sheet
-              </button>
-              <button
-                style={{
-                  padding: "10px 22px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "10px 20px",
                   fontSize: "14px",
                   fontWeight: 500,
                   borderRadius: "6px",
-                  backgroundColor: "rgba(21, 24, 29, 0.8)",
-                  color: "#FFFFFF",
-                  border: "1px solid var(--line, #262B33)",
+                  backgroundColor: "var(--signal, #FB923C)",
+                  color: "var(--bg, #0D0F12)",
+                  border: "none",
                   cursor: "pointer",
-                  backdropFilter: "blur(8px)",
+                  textDecoration: "none",
                 }}
               >
-                Copy shadcn Snippet
+                Explore Components
+              </a>
+              <button
+                type="button"
+                onClick={handleCopy}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "10px 20px",
+                  fontSize: "14px",
+                  fontWeight: 500,
+                  borderRadius: "6px",
+                  backgroundColor: "var(--surface, #15181D)",
+                  color: "var(--ink, #E9EBF0)",
+                  border: "1px solid var(--line, #262B33)",
+                  cursor: "pointer",
+                }}
+              >
+                {copied ? "Copied Command!" : "Copy shadcn Command"}
               </button>
             </div>
           </div>
@@ -279,16 +362,22 @@ export default function NoiseFieldDemo() {
           zIndex: 10,
           display: "flex",
           justifyContent: "space-between",
-          padding: "0.6rem 1.5rem",
+          padding: "0.6rem 1rem",
           fontSize: "11px",
           color: "var(--muted, #9AA1AF)",
           borderTop: "1px solid var(--line, #262B33)",
-          backgroundColor: "rgba(13, 15, 18, 0.8)",
+          backgroundColor: "var(--surface, #15181D)",
         }}
       >
-        <span>Engine: WebGL2 · GLSL 3.00 ES</span>
-        <span>Loop: while-visible · Target: 60 FPS</span>
-        <span>Contexts: 1 / 4 Leases</span>
+        <span>Engine: WebGL2 (GLSL 300 es) · 2D Simplex</span>
+        <span>
+          Status:{" "}
+          {isPaused
+            ? "Paused"
+            : effectiveReduced
+            ? "Static Poster (Reduced Motion)"
+            : "Active Loop"}
+        </span>
       </div>
     </div>
   );

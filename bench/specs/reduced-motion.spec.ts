@@ -1,5 +1,6 @@
 // Original — Frictionborn Motion reduced motion spec
 import { test, expect } from "@playwright/test";
+import { recordMeasurement } from "../record-measurement.ts";
 
 const item = process.env.BENCH_ITEM || "noise-field";
 
@@ -25,7 +26,17 @@ test.describe("Reduced motion spec", () => {
     });
 
     // 0 running animations and 0 reducedMotion frames
-    expect(metrics.frameStats?.reducedMotionFrames).toBe(0);
+    const rmFrames = metrics.frameStats?.reducedMotionFrames ?? 0;
+    expect(rmFrames).toBe(0);
     expect(metrics.animStats?.runningCount).toBe(0);
+
+    // Decision D-A: WebGL items must render poster only (0 canvases, static mode)
+    if (item === "noise-field") {
+      const canvasCount = await page.locator("canvas").count();
+      expect(canvasCount).toBe(0);
+      await expect(page.locator("[data-frictionborn-poster]")).toBeVisible();
+    }
+
+    recordMeasurement(item, { framesWhenIdle: { reducedMotion: rmFrames } });
   });
 });

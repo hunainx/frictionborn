@@ -97,6 +97,11 @@ export function buildRegistry(): void {
           const targetSub = baseSubDir ? baseSubDir.replace(/\\/g, "/") + "/" : "";
           const target = `components/ui/${targetSub}${filename}`;
 
+          // Finding 19: Validate that target stays strictly inside components/ui/
+          if (!target.startsWith("components/ui/") || target.includes("..")) {
+            throw new Error(`Invalid registry file target: ${target} must stay inside components/ui/`);
+          }
+
           files.push({
             path: relPath,
             content,

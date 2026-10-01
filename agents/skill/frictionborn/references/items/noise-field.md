@@ -1,6 +1,6 @@
 # noise-field — Specification Sheet
 
-> background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> still-frame, mobile -> tier 1 poster)
+> background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster)
 
 ## Overview
 
@@ -37,17 +37,17 @@
 
 - **Animation Loop**: `while-visible` (managed via runtime `useFrame`)
 - **WebGL Contexts**: `1`
-- **Reduced Motion**: Mode `still-frame` — Renders exactly one still frame of the noise field with zero subsequent animation loop.
+- **Reduced Motion**: Mode `static` — Renders static CSS gradient poster matching shader palette with zero WebGL allocation and zero rAF loops.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Static CSS gradient poster generated from identical color props
-- **Tier 1** (Mid-range mobile): Static CSS gradient poster for coarse pointers and low-power devices
-- **Tier 2** (Standard desktop / modern mobile): WebGL2 rendered at DPR <= 1.5 with 0.75 render scale
-- **Tier 3** (High performance GPU): Full WebGL2 rendered at DPR <= 2.0 with high-precision domain warping
+- **Tier 0** (Low-end / Battery saver): Static CSS gradient poster matching shader palette
+- **Tier 1** (Mid-range mobile): Static CSS gradient poster for coarse pointers on low-end hardware
+- **Tier 2** (Standard desktop / modern mobile): WebGL2 rendered at DPR <= 1.5 with 2 octaves and 0.75 render scale
+- **Tier 3** (High performance GPU): Full WebGL2 rendered at DPR <= 2.0 with 4 octaves and high-precision flow
 
 ### Input Interactions
 - **Pointer**: Ambient animation with optional time/paused override
-- **Touch**: Falls back to Tier 1 poster or low-dpr WebGL without touch listeners
+- **Touch**: Falls back to Tier 1 poster on low-end hardware, or Tier 2 WebGL without touch listeners
 - **Keyboard**: None; container is non-interactive aria-hidden decorative surface
 
 ## Accessibility (a11y)
@@ -70,11 +70,11 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `colors` | `[string, string, string]` | `"[\"#0D0F12\", \"#FB923C\", \"#3B82F6\"]"` | Three-color palette interpolated across procedural noise field and poster. |
+| `colors` | `[string, string, string]` | `"[\"var(--background)\", \"var(--primary)\", \"var(--accent)\"]"` | Three-color palette interpolated across procedural noise field and poster. |
 | `speed` | `number` | `1` | Multiplies animation evolution rate. Ambient defaults keep cycle >= 8 seconds. |
 | `scale` | `number` | `1.8` | Domain frequency scale for the procedural noise octaves. |
 | `intensity` | `number` | `1` | Color vibrancy and octave blending contrast. |
-| `scrim` | `boolean` | `true` | Renders radial dark contrast scrim preserving >= 4.5:1 text contrast. |
+| `scrim` | `boolean` | `true` | Renders radial contrast scrim preserving >= 4.5:1 text contrast. |
 | `paused` | `boolean` | `false` | Freezes animation loop; used for deterministic screenshots and global pause. |
 | `time` | `number` | `"undefined"` | Overrides internal clock with fixed time value for deterministic visual tests. |
 | `maxTier` | `number` | `3` | Hard ceiling on device capability tier (0 to 3). |
@@ -92,7 +92,7 @@ import { NoiseField } from "@/components/ui/noise-field";
 
 export default function Hero() {
   return (
-    <NoiseField colors={["#0D0F12", "#FB923C", "#1E293B"]} className="min-h-[600px] flex items-center justify-center">
+    <NoiseField colors={["var(--background)", "var(--primary)", "var(--accent)"]} className="min-h-[600px] flex items-center justify-center">
       <h1 className="text-5xl font-bold tracking-tight text-white">Engineered Motion</h1>
     </NoiseField>
   );
@@ -106,14 +106,14 @@ export default function Hero() {
 
 ### How to Verify
 - Confirm static CSS gradient poster renders in server HTML before hydration with zero CLS.
-- Confirm that when prefers-reduced-motion is active, exactly one still frame is rendered and the rAF loop does not cycle.
+- Confirm that when prefers-reduced-motion is active, static poster renders with zero WebGL contexts allocated and zero rAF cycles.
 - Confirm context lease is properly released when scrolled out of view.
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `0d63865` (2026-10-01)
-- **Size**: 1.8 KB initial / 1.87 KB deferred (gzip, via gzip-9)
-- **Cumulative Layout Shift (CLS)**: `0`
+- **Bench Commit**: `018423e` (2026-10-01)
+- **Size**: 2.75 KB initial / 3.5 KB deferred (gzip, via gzip-9)
+- **Cumulative Layout Shift (CLS)**: `0.0017`
 - **Frames When Idle**:
   - Off-screen: 0 frames
   - Hidden tab: 0 frames
@@ -123,13 +123,14 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-01 | Full WebGL2 / DOM animation verified |
-| Chromium Mobile (Pixel 7 DPR 3) | playwright | 3 | pass | 2026-10-01 | Touch and viewport responsive |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-01 | Clean rAF loop settling |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-01 | Safari WebKit rendering verified |
-| WebKit Mobile (iPhone 14) | playwright | 3 | pass | 2026-10-01 | Mobile Safari touch behavior |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-01 | 14 passed, 0 failed; all specs verified |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-01 | 14 passed, 0 failed; all specs verified |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-01 | 13 passed, 0 failed; all specs verified |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-01 | 13 passed, 0 failed; all specs verified |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-01 | 13 passed, 0 failed; all specs verified |
 
 ## License & Provenance
 
 - **Code License**: MIT
-- **Origin**: Original implementation for Frictionborn Motion.
+- **Derived From**:
+  - undefined: [https://github.com/stegu/webgl-noise](https://github.com/stegu/webgl-noise) (MIT)

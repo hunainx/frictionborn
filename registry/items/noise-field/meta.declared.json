@@ -3,7 +3,7 @@
   "item": {
     "name": "noise-field",
     "version": "0.1.0",
-    "summary": "background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> still-frame, mobile -> tier 1 poster)",
+    "summary": "background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster)",
     "slot": "background",
     "kind": "webgl"
   },
@@ -52,18 +52,18 @@
     "loop": "while-visible",
     "webglContexts": 1,
     "tiers": {
-      "0": "Static CSS gradient poster generated from identical color props",
-      "1": "Static CSS gradient poster for coarse pointers and low-power devices",
-      "2": "WebGL2 rendered at DPR <= 1.5 with 0.75 render scale",
-      "3": "Full WebGL2 rendered at DPR <= 2.0 with high-precision domain warping"
+      "0": "Static CSS gradient poster matching shader palette",
+      "1": "Static CSS gradient poster for coarse pointers on low-end hardware",
+      "2": "WebGL2 rendered at DPR <= 1.5 with 2 octaves and 0.75 render scale",
+      "3": "Full WebGL2 rendered at DPR <= 2.0 with 4 octaves and high-precision flow"
     },
     "reducedMotion": {
-      "mode": "still-frame",
-      "description": "Renders exactly one still frame of the noise field with zero subsequent animation loop."
+      "mode": "static",
+      "description": "Renders static CSS gradient poster matching shader palette with zero WebGL allocation and zero rAF loops."
     },
     "input": {
       "pointer": "Ambient animation with optional time/paused override",
-      "touch": "Falls back to Tier 1 poster or low-dpr WebGL without touch listeners",
+      "touch": "Falls back to Tier 1 poster on low-end hardware, or Tier 2 WebGL without touch listeners",
       "keyboard": "None; container is non-interactive aria-hidden decorative surface"
     }
   },
@@ -95,7 +95,7 @@
     {
       "name": "colors",
       "type": "[string, string, string]",
-      "default": "[\"#0D0F12\", \"#FB923C\", \"#3B82F6\"]",
+      "default": "[\"var(--background)\", \"var(--primary)\", \"var(--accent)\"]",
       "effect": "Three-color palette interpolated across procedural noise field and poster."
     },
     {
@@ -120,7 +120,7 @@
       "name": "scrim",
       "type": "boolean",
       "default": true,
-      "effect": "Renders radial dark contrast scrim preserving >= 4.5:1 text contrast."
+      "effect": "Renders radial contrast scrim preserving >= 4.5:1 text contrast."
     },
     {
       "name": "paused",
@@ -143,7 +143,7 @@
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/noise-field",
-    "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField colors={[\"#0D0F12\", \"#FB923C\", \"#1E293B\"]} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-white\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
+    "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField colors={[\"var(--background)\", \"var(--primary)\", \"var(--accent)\"]} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-white\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
     "mistakes": [
       "Do not remove the scrim prop when rendering body text over the canvas, or text contrast will fall below WCAG AA 4.5:1.",
       "Do not combine multiple NoiseField components in the same viewport; follow the one signature moment principle.",
@@ -151,14 +151,23 @@
     ],
     "verify": [
       "Confirm static CSS gradient poster renders in server HTML before hydration with zero CLS.",
-      "Confirm that when prefers-reduced-motion is active, exactly one still frame is rendered and the rAF loop does not cycle.",
+      "Confirm that when prefers-reduced-motion is active, static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
       "Confirm context lease is properly released when scrolled out of view."
     ]
   },
   "license": {
     "code": "MIT",
-    "derivedFrom": [],
-    "notices": [],
+    "derivedFrom": [
+      {
+        "name": "webgl-noise",
+        "author": "Ian McEwan (Ashima Arts), Stefan Gustavson",
+        "license": "MIT",
+        "url": "https://github.com/stegu/webgl-noise"
+      }
+    ],
+    "notices": [
+      "Includes 2D Simplex Noise from stegu/webgl-noise (MIT Copyright 2011 Ashima Arts, Stefan Gustavson)."
+    ],
     "assets": []
   }
 }

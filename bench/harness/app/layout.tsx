@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-fb-tier="3" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Inject probes synchronously before any application scripts run */}
         <script src="/probes.js" />

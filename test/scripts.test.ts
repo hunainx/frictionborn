@@ -204,6 +204,135 @@ describe("scripts/merge-evidence", () => {
   });
 });
 
+describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
+  it("passes check mode when meta.json matches committed release snapshot exactly", async () => {
+    const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
+    const { default: fs } = await import("node:fs");
+    const { default: path } = await import("node:path");
+    const { default: os } = await import("node:os");
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
+    try {
+      const itemDir = path.join(tmpDir, "registry", "test-item");
+      const benchDir = path.join(tmpDir, "bench", "results");
+      const itemBenchDir = path.join(benchDir, "test-item");
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(itemBenchDir, { recursive: true });
+
+      const measured = {
+        commit: "a1b2c3d",
+        date: "2026-10-01",
+        sizeKB: { initial: 1.5, deferred: 0, method: "gzip-9" },
+        cls: 0,
+        framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+        axe: { serious: 0, critical: 0 },
+        devices: [],
+      };
+
+      fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
+      fs.writeFileSync(
+        path.join(itemDir, "meta.json"),
+        JSON.stringify({ ...VALID_DECLARED_SAMPLE, measured }, null, 2)
+      );
+      fs.writeFileSync(
+        path.join(itemBenchDir, "release-0.1.0.json"),
+        JSON.stringify(measured, null, 2)
+      );
+
+      const res = verifyItemEvidence(itemDir, benchDir, { check: true });
+      expect(res.ok).toBe(true);
+      expect(res.errors).toHaveLength(0);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("fails check mode when a single number in meta.json is modified (Finding 11 guard)", async () => {
+    const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
+    const { default: fs } = await import("node:fs");
+    const { default: path } = await import("node:path");
+    const { default: os } = await import("node:os");
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
+    try {
+      const itemDir = path.join(tmpDir, "registry", "test-item");
+      const benchDir = path.join(tmpDir, "bench", "results");
+      const itemBenchDir = path.join(benchDir, "test-item");
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(itemBenchDir, { recursive: true });
+
+      const snapshotMeasured = {
+        commit: "a1b2c3d",
+        date: "2026-10-01",
+        sizeKB: { initial: 1.5, deferred: 0, method: "gzip-9" },
+        cls: 0,
+        framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+        axe: { serious: 0, critical: 0 },
+        devices: [],
+      };
+
+      // Hand-edit a single number: change cls from 0 to 0.005
+      const tamperedMeasured = {
+        ...snapshotMeasured,
+        cls: 0.005,
+      };
+
+      fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
+      fs.writeFileSync(
+        path.join(itemDir, "meta.json"),
+        JSON.stringify({ ...VALID_DECLARED_SAMPLE, measured: tamperedMeasured }, null, 2)
+      );
+      fs.writeFileSync(
+        path.join(itemBenchDir, "release-0.1.0.json"),
+        JSON.stringify(snapshotMeasured, null, 2)
+      );
+
+      const res = verifyItemEvidence(itemDir, benchDir, { check: true });
+      expect(res.ok).toBe(false);
+      expect(res.errors.some((e: string) => e.includes("Hand-edited 'measured' data detected"))).toBe(true);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it("fails check mode when meta.json has measured data but no release snapshot exists", async () => {
+    const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
+    const { default: fs } = await import("node:fs");
+    const { default: path } = await import("node:path");
+    const { default: os } = await import("node:os");
+
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
+    try {
+      const itemDir = path.join(tmpDir, "registry", "test-item");
+      const benchDir = path.join(tmpDir, "bench", "results");
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(path.join(benchDir, "test-item"), { recursive: true });
+
+      const measured = {
+        commit: "a1b2c3d",
+        date: "2026-10-01",
+        sizeKB: { initial: 1.5, deferred: 0, method: "gzip-9" },
+        cls: 0,
+        framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+        axe: { serious: 0, critical: 0 },
+        devices: [],
+      };
+
+      fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
+      fs.writeFileSync(
+        path.join(itemDir, "meta.json"),
+        JSON.stringify({ ...VALID_DECLARED_SAMPLE, measured }, null, 2)
+      );
+
+      const res = verifyItemEvidence(itemDir, benchDir, { check: true });
+      expect(res.ok).toBe(false);
+      expect(res.errors.some((e: string) => e.includes("no committed release snapshot exists"))).toBe(true);
+    } finally {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("scripts/build-catalog", () => {
   it("generates markdown spec sheet, catalog, and llms.txt", () => {
     const spec = generateItemSpecSheet(VALID_DECLARED_SAMPLE);

@@ -12,7 +12,13 @@ test.describe("Server-rendered output spec", () => {
     // Static item attribute must be in server HTML
     expect(html).toContain(`data-frictionborn-item="${item}"`);
 
-    // Rule 1: No opacity: 0 on server HTML elements without data-motion="ok"
-    expect(html).not.toMatch(/style="[^"]*opacity:\s*0[^"]*"/);
+    // Rule 1: No unconditional opacity: 0 on server HTML elements or style rules without data-motion="ok"
+    expect(html).not.toMatch(/style="[^"]*opacity:\s*0(?![.\d])[^"]*"/);
+    const styleMatches = html.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];
+    for (const styleTag of styleMatches) {
+      if (/\bopacity:\s*0(?![.\d])/i.test(styleTag)) {
+        expect(styleTag).toMatch(/data-motion="ok"/);
+      }
+    }
   });
 });

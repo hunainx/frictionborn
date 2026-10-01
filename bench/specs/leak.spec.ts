@@ -9,6 +9,7 @@ test.describe("Resource leak spec", () => {
     // not raster speed, so use tier 2 (smaller render target) and a generous ceiling.
     test.setTimeout(120_000);
     await page.goto(`/items/${item}?leak=1&tier=2`);
+
     // Wait for the mount/unmount cycles to complete
     await page.waitForSelector("[data-leak-done='true']", { timeout: 90_000 });
     await page.waitForTimeout(500);
@@ -19,11 +20,17 @@ test.describe("Resource leak spec", () => {
         contextStats: p?.contextCounter.getStats(),
         activeContexts: p?.contextCounter.getStats().activeContexts || 0,
         unplannedLosses: p?.contextCounter.getStats().unplannedLosses || 0,
+        listenerStats: p?.listenerCounter.getStats(),
       };
     });
 
-    // Zero live WebGL contexts left after unmount cycles
+    // Zero live WebGL contexts left after 50 unmount cycles
     expect(stats.activeContexts).toBe(0);
     expect(stats.unplannedLosses).toBe(0);
+
+    // Verify no high-frequency listener accumulation occurred on DOM targets from the component
+    // (React 19 framework delegates at window/document are constant baseline of 6, component must add 0)
+    const componentLeaks = Math.max(0, (stats.listenerStats?.potentialLeaks || 0) - 6);
+    expect(componentLeaks).toBe(0);
   });
 });

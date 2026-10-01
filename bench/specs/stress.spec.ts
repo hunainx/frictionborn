@@ -19,6 +19,10 @@ test.describe("Tier override and stress spec", () => {
         document.documentElement.getAttribute("data-fb-tier")
       );
       expect(currentTier).toBe(tier);
+
+      // Verify the component itself reacted and set its data-tier
+      const componentTier = await page.locator(`[data-frictionborn-item='${item}']`).getAttribute("data-tier");
+      expect(componentTier).toBe(tier);
     });
   }
 });

@@ -6,8 +6,8 @@ coverage/
 playwright-report/
 test-results/
 bench/results/**
+!bench/results/**/
 !bench/results/**/release-*.json
-!bench/results/release-*/**
 .env*
 !.env.example
 *.log

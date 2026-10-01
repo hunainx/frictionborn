@@ -16,41 +16,39 @@ export interface ItemSizeResult {
 
 export function measureItemSize(itemDir: string): ItemSizeResult {
   const itemName = path.basename(itemDir);
-  let initialBytes = 0;
-  let deferredBytes = 0;
 
-  // Initial code: <item>.tsx, <item>.module.css
+  // Initial code: <item>.tsx, <item>.module.css, <item>.css
   const mainTsx = path.join(itemDir, `${itemName}.tsx`);
   const mainCss = path.join(itemDir, `${itemName}.module.css`);
+  const altCss = path.join(itemDir, `${itemName}.css`);
 
-  if (fs.existsSync(mainTsx)) {
-    initialBytes += fs.readFileSync(mainTsx).length;
-  }
-  if (fs.existsSync(mainCss)) {
-    initialBytes += fs.readFileSync(mainCss).length;
-  }
+  const initialBuffers: Buffer[] = [];
+  if (fs.existsSync(mainTsx)) initialBuffers.push(fs.readFileSync(mainTsx));
+  if (fs.existsSync(mainCss)) initialBuffers.push(fs.readFileSync(mainCss));
+  if (fs.existsSync(altCss)) initialBuffers.push(fs.readFileSync(altCss));
 
-  // Deferred code: <item>.gl.tsx, shaders/
+  const initialConcat = Buffer.concat(initialBuffers);
+  const initialBytes = initialConcat.length;
+
+  // Deferred code: <item>.gl.tsx, <item>.glsl.ts, shaders/
+  const deferredBuffers: Buffer[] = [];
   const glTsx = path.join(itemDir, `${itemName}.gl.tsx`);
+  const glslTs = path.join(itemDir, `${itemName}.glsl.ts`);
   const shadersDir = path.join(itemDir, "shaders");
 
-  if (fs.existsSync(glTsx)) {
-    deferredBytes += fs.readFileSync(glTsx).length;
-  }
+  if (fs.existsSync(glTsx)) deferredBuffers.push(fs.readFileSync(glTsx));
+  if (fs.existsSync(glslTs)) deferredBuffers.push(fs.readFileSync(glslTs));
   if (fs.existsSync(shadersDir)) {
     for (const f of fs.readdirSync(shadersDir)) {
-      deferredBytes += fs.readFileSync(path.join(shadersDir, f)).length;
+      deferredBuffers.push(fs.readFileSync(path.join(shadersDir, f)));
     }
   }
 
-  const initialGzipped = zlib.gzipSync(
-    fs.existsSync(mainTsx) ? fs.readFileSync(mainTsx) : Buffer.alloc(0),
-    { level: 9 }
-  );
-  const deferredGzipped = zlib.gzipSync(
-    fs.existsSync(glTsx) ? fs.readFileSync(glTsx) : Buffer.alloc(0),
-    { level: 9 }
-  );
+  const deferredConcat = Buffer.concat(deferredBuffers);
+  const deferredBytes = deferredConcat.length;
+
+  const initialGzipped = zlib.gzipSync(initialConcat, { level: 9 });
+  const deferredGzipped = zlib.gzipSync(deferredConcat, { level: 9 });
 
   return {
     itemName,

@@ -9,7 +9,7 @@
 - **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
 
 ## Components
-- **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> still-frame, mobile -> tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
+- **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
 
 ## Runtime Usage
 ```tsx

@@ -1,6 +1,7 @@
 // Original — Frictionborn Motion accessibility spec
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { recordMeasurement } from "../record-measurement.ts";
 
 const item = process.env.BENCH_ITEM || "noise-field";
 
@@ -19,6 +20,13 @@ test.describe("Accessibility spec", () => {
     const criticalViolations = accessibilityScanResults.violations.filter(
       (v) => v.impact === "critical"
     );
+
+    recordMeasurement(item, {
+      axe: {
+        serious: seriousViolations.length,
+        critical: criticalViolations.length,
+      },
+    });
 
     expect(seriousViolations).toHaveLength(0);
     expect(criticalViolations).toHaveLength(0);

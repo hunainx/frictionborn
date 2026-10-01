@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useFrame } from "./frame.js";
 
 export interface FrameGuardOptions {
-  onDowngrade: () => void;
+  onDowngrade?: () => void;
   active?: boolean;
 }
 
@@ -36,7 +36,7 @@ export function useFrameGuard(options: FrameGuardOptions): void {
 
           if (p75 > 25) {
             downgradedRef.current = true;
-            onDowngradeRef.current();
+            onDowngradeRef.current?.();
           }
         }
         // Reset window for next 2s period if not downgraded
