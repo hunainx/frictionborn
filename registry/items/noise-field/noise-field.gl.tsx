@@ -202,6 +202,7 @@ export default function NoiseFieldGL({
         height: "100%",
         overflow: "hidden",
         pointerEvents: "none",
+        zIndex: 2, // above the poster (z 1), below the scrim (z 3)
         visibility: suspended ? "hidden" : "visible",
       }}
     />
