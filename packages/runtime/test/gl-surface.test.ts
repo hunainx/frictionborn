@@ -160,4 +160,16 @@ describe("createSurface (@frictionborn/runtime/gl)", () => {
     expect(mockGl.deleteVertexArray).toHaveBeenCalled();
     expect(loseContextMock.loseContext).toHaveBeenCalled();
   });
+
+  it("resizes and draws cleanly", () => {
+    const surface = createSurface(canvas, { maxDpr: 2 });
+    const { width, height, dpr } = surface.resize();
+    expect(width).toBe(1600);
+    expect(height).toBe(1200);
+    expect(dpr).toBe(2);
+
+    surface.draw();
+    expect(mockGl.drawArrays).toHaveBeenCalledWith(mockGl.TRIANGLES, 0, 3);
+    surface.dispose();
+  });
 });

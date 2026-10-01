@@ -28,18 +28,34 @@ const SERVER_CAPABILITY: Capability = {
 
 let cachedClientCapability: Capability | null = null;
 let lastCheckKey = "";
+let cachedWebGL2: boolean | null = null;
+
+export function _resetCapabilityCacheForTesting(): void {
+  cachedWebGL2 = null;
+  cachedClientCapability = null;
+  lastCheckKey = "";
+}
 
 function checkWebGL2(): boolean {
+  if (cachedWebGL2 !== null) return cachedWebGL2;
   try {
-    if (!window.WebGL2RenderingContext) return false;
+    if (typeof window === "undefined" || !window.WebGL2RenderingContext) {
+      cachedWebGL2 = false;
+      return false;
+    }
     const canvas = document.createElement("canvas");
     const gl = canvas.getContext("webgl2", { powerPreference: "low-power" });
-    if (!gl) return false;
+    if (!gl) {
+      cachedWebGL2 = false;
+      return false;
+    }
     // Immediately dispose detection context so it doesn't hold GPU resources or count as active
     const ext = gl.getExtension("WEBGL_lose_context");
     ext?.loseContext();
+    cachedWebGL2 = true;
     return true;
   } catch {
+    cachedWebGL2 = false;
     return false;
   }
 }
@@ -194,8 +210,9 @@ function subscribe(callback: () => void): () => void {
 }
 
 function getSnapshot(): Capability {
+  const nav = typeof navigator !== "undefined" ? (navigator as any) : {};
   const currentKey = typeof document !== "undefined"
-    ? `${document.documentElement.getAttribute("data-fb-tier")}|${window.innerWidth}|${window.matchMedia?.("(prefers-reduced-motion: reduce)").matches}|${window.matchMedia?.("(pointer: fine)").matches}|${window.matchMedia?.("(hover: hover)").matches}`
+    ? `${document.documentElement.getAttribute("data-fb-tier")}|${window.innerWidth}|${window.matchMedia?.("(prefers-reduced-motion: reduce)").matches}|${window.matchMedia?.("(pointer: fine)").matches}|${window.matchMedia?.("(pointer: coarse)").matches}|${window.matchMedia?.("(hover: hover)").matches}|${nav.deviceMemory}|${nav.hardwareConcurrency}`
     : "";
   if (!cachedClientCapability || currentKey !== lastCheckKey) {
     lastCheckKey = currentKey;

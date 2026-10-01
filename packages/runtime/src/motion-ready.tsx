@@ -16,3 +16,13 @@ export function MotionReadyScript({ nonce }: MotionReadyScriptProps = {}): React
     />
   );
 }
+
+export function initMotionReady(): void {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  try {
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.setAttribute("data-motion", "ok");
+    }
+  } catch {}
+}
+
