@@ -9,15 +9,18 @@
     ".": {
       "types": "./dist/index.d.mts",
       "react-server": "./dist/server.mjs",
-      "import": "./dist/index.mjs"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
     },
     "./server": {
       "types": "./dist/server.d.mts",
-      "import": "./dist/server.mjs"
+      "import": "./dist/server.mjs",
+      "default": "./dist/server.mjs"
     },
     "./gl": {
       "types": "./dist/gl/surface.d.mts",
-      "import": "./dist/gl/surface.mjs"
+      "import": "./dist/gl/surface.mjs",
+      "default": "./dist/gl/surface.mjs"
     }
   },
   "files": [
