@@ -34,10 +34,8 @@ export function buildRegistry(): void {
   const itemsDir = path.join(root, "registry", "items");
   const publicDir = path.join(root, "public");
   const publicRDir = path.join(publicDir, "r");
-  const harnessPublicRDir = path.join(root, "bench", "harness", "public", "r");
 
   fs.mkdirSync(publicRDir, { recursive: true });
-  fs.mkdirSync(harnessPublicRDir, { recursive: true });
 
   const registryItems: RegistryItem[] = [];
 
@@ -137,9 +135,7 @@ export function buildRegistry(): void {
     // Write individual item JSON to public/r/<item>.json
     const outJson = JSON.stringify(item, null, 2) + "\n";
     const itemOutPath = path.join(publicRDir, `${itemName}.json`);
-    const harnessOutPath = path.join(harnessPublicRDir, `${itemName}.json`);
     fs.writeFileSync(itemOutPath, outJson, "utf8");
-    fs.writeFileSync(harnessOutPath, outJson, "utf8");
 
     // Copy spec sheet markdown if exists to public/r/<item>.md
     const specSheetPath = path.join(
@@ -154,7 +150,6 @@ export function buildRegistry(): void {
     if (fs.existsSync(specSheetPath)) {
       const specContent = fs.readFileSync(specSheetPath, "utf8");
       fs.writeFileSync(path.join(publicRDir, `${itemName}.md`), specContent, "utf8");
-      fs.writeFileSync(path.join(harnessPublicRDir, `${itemName}.md`), specContent, "utf8");
     }
 
     console.log(`✔ Built registry item: /r/${itemName}.json (${files.length} files)`);
@@ -171,7 +166,6 @@ export function buildRegistry(): void {
   const registryIndexJson = JSON.stringify(registryIndex, null, 2) + "\n";
   fs.writeFileSync(path.join(publicDir, "registry.json"), registryIndexJson, "utf8");
   fs.writeFileSync(path.join(publicRDir, "index.json"), registryIndexJson, "utf8");
-  fs.writeFileSync(path.join(harnessPublicRDir, "index.json"), registryIndexJson, "utf8");
 
   // Copy llms.txt to public/ and public/r/
   const llmsPath = path.join(root, "llms.txt");
@@ -179,7 +173,6 @@ export function buildRegistry(): void {
     const llmsContent = fs.readFileSync(llmsPath, "utf8");
     fs.writeFileSync(path.join(publicDir, "llms.txt"), llmsContent, "utf8");
     fs.writeFileSync(path.join(publicRDir, "llms.txt"), llmsContent, "utf8");
-    fs.writeFileSync(path.join(harnessPublicRDir, "llms.txt"), llmsContent, "utf8");
   }
 
   console.log(`✔ Registry build complete: ${registryItems.length} public items published.`);
