@@ -17,6 +17,8 @@ export interface Surface {
   dispose: () => void;
 }
 
+export type SurfaceInstance = Surface;
+
 const FULLSCREEN_TRIANGLE = new Float32Array([
   -1, -1,
    3, -1,
@@ -46,7 +48,7 @@ function compileShader(
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const info = gl.getShaderInfoLog(shader) || "Unknown shader compile error";
+    const info = gl.getShaderInfoLog(shader) || "Unknown error";
     gl.deleteShader(shader);
 
     // Format with line numbers for readable debugging

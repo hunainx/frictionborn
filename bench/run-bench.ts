@@ -46,7 +46,7 @@ export function runBench(itemName = "dummy"): boolean {
     execSync("npx playwright test", {
       stdio: "inherit",
       cwd: projectRoot,
-      env: { ...process.env, CI: "1" },
+      env: { ...process.env, CI: "1", BENCH_ITEM: itemName },
     });
   } catch (err) {
     console.error("Playwright run exited with test failures or errors");

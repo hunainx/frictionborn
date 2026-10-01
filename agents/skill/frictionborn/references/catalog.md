@@ -6,6 +6,7 @@ Verified motion and WebGL components with strict zero-slop budgets, server-safe 
 
 | Component | Slot | Kind | Reduced Motion | Server Output | Summary |
 |---|---|---|---|---|---|
+| [noise-field](items/noise-field.md) | `background` | `webgl` | `still-frame` | `poster` | background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> still-frame, mobile -> tier 1 poster) |
 
 ## Architectural Guarantees
 

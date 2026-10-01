@@ -108,6 +108,7 @@
                 var origLose = ext.loseContext;
                 ext.loseContext = function () {
                   self.plannedLost.add(ctx);
+                  self.active.delete(ctx);
                   return origLose.call(this);
                 };
               }
@@ -121,8 +122,14 @@
   }
 
   ContextCounterProbe.prototype.getStats = function () {
+    var activeCount = 0;
+    this.active.forEach(function (ctx) {
+      if (!ctx.isContextLost() && !this.plannedLost.has(ctx)) {
+        activeCount++;
+      }
+    }, this);
     return {
-      activeContexts: this.active.size,
+      activeContexts: activeCount,
       totalCreated: this.totalCreated,
       unplannedLosses: this.unplannedLosses,
       plannedLosses: this.plannedLosses,

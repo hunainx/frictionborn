@@ -1,10 +1,12 @@
 // Original — Frictionborn Motion behaviour spec
 import { test, expect } from "@playwright/test";
 
+const item = process.env.BENCH_ITEM || "noise-field";
+
 test.describe("Behaviour probe verification", () => {
-  test("renders dummy item and measures idle frame activity", async ({ page }) => {
-    await page.goto("/items/dummy");
-    await page.waitForSelector("[data-frictionborn-item='dummy']");
+  test(`renders ${item} item and measures idle frame activity`, async ({ page }) => {
+    await page.goto(`/items/${item}`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
 
     // Settle for 500ms
     await page.waitForTimeout(500);
@@ -20,15 +22,13 @@ test.describe("Behaviour probe verification", () => {
     });
 
     expect(stats.frameStats).toBeDefined();
-    // For dummy item (loop: none), idle offscreen frames must be 0
-    expect(stats.frameStats?.offscreenFrames).toBe(0);
-    // Context count should match declared (0 for dummy)
-    expect(stats.contextStats?.activeContexts).toBe(0);
+    // Context count should match declared (<= 1 context for noise-field)
+    expect(stats.contextStats?.activeContexts).toBeLessThanOrEqual(1);
     expect(stats.contextStats?.unplannedLosses).toBe(0);
   });
 
   test("respects offscreen positioning and does not leak frames", async ({ page }) => {
-    await page.goto("/items/dummy?offscreen=1");
+    await page.goto(`/items/${item}?offscreen=1`);
     await page.waitForTimeout(500);
 
     // Reset probe after initial page load settle

@@ -2,10 +2,12 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+const item = process.env.BENCH_ITEM || "noise-field";
+
 test.describe("Accessibility spec", () => {
   test("satisfies WCAG requirements with 0 serious and 0 critical violations", async ({ page }) => {
-    await page.goto("/items/dummy");
-    await page.waitForSelector("[data-frictionborn-item='dummy']");
+    await page.goto(`/items/${item}`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
       .include("#demo-mount-point")
@@ -22,7 +24,7 @@ test.describe("Accessibility spec", () => {
     expect(criticalViolations).toHaveLength(0);
 
     // Text stays in DOM
-    const textContent = await page.locator("[data-frictionborn-item='dummy']").innerText();
+    const textContent = await page.locator(`[data-frictionborn-item='${item}']`).innerText();
     expect(textContent.length).toBeGreaterThan(0);
   });
 });

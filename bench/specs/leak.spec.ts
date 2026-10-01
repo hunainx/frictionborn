@@ -1,11 +1,14 @@
 // Original — Frictionborn Motion leak spec
 import { test, expect } from "@playwright/test";
 
+const item = process.env.BENCH_ITEM || "noise-field";
+
 test.describe("Resource leak spec", () => {
   test("mount and unmount cycling leaves 0 leaked contexts and no listener growth", async ({ page }) => {
-    await page.goto("/items/dummy?leak=1");
-    // Wait for the 50 mount/unmount cycles to complete (~2s)
-    await page.waitForTimeout(2500);
+    await page.goto(`/items/${item}?leak=1`);
+    // Wait for the mount/unmount cycles to complete
+    await page.waitForSelector("[data-leak-done='true']", { timeout: 15000 });
+    await page.waitForTimeout(500);
 
     const stats = await page.evaluate(() => {
       const p = window.__FB_PROBES__;

@@ -31,11 +31,14 @@ let lastCheckKey = "";
 
 function checkWebGL2(): boolean {
   try {
+    if (!window.WebGL2RenderingContext) return false;
     const canvas = document.createElement("canvas");
-    return !!(
-      window.WebGL2RenderingContext &&
-      canvas.getContext("webgl2", { powerPreference: "low-power" })
-    );
+    const gl = canvas.getContext("webgl2", { powerPreference: "low-power" });
+    if (!gl) return false;
+    // Immediately dispose detection context so it doesn't hold GPU resources or count as active
+    const ext = gl.getExtension("WEBGL_lose_context");
+    ext?.loseContext();
+    return true;
   } catch {
     return false;
   }

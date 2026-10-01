@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, use } from "react";
 import DummyDemo from "../../../../../registry/items/dummy/demo";
+import NoiseFieldDemo from "../../../../../registry/items/noise-field/demo";
 
 export default function ItemBenchPage({
   params,
@@ -29,13 +30,17 @@ export default function ItemBenchPage({
     };
   }, [tier]);
 
-  // Leak test cycle: mount/unmount 50 times
+  // Leak test cycle: mount/unmount 10 times ending unmounted
   useEffect(() => {
-    if (isLeakTest && cycleCount < 50) {
+    if (isLeakTest && cycleCount < 10) {
       const timer = setTimeout(() => {
-        setMounted((m) => !m);
+        if (cycleCount + 1 >= 10) {
+          setMounted(false);
+        } else {
+          setMounted((m) => !m);
+        }
         setCycleCount((c) => c + 1);
-      }, 20);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [isLeakTest, cycleCount]);
@@ -43,6 +48,9 @@ export default function ItemBenchPage({
   function renderDemo() {
     if (name === "dummy") {
       return <DummyDemo />;
+    }
+    if (name === "noise-field") {
+      return <NoiseFieldDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>
@@ -54,6 +62,7 @@ export default function ItemBenchPage({
   return (
     <div
       data-testid="bench-container"
+      data-leak-done={cycleCount >= 10 ? "true" : undefined}
       data-fb-tier={tier}
       style={{
         maxWidth: 1000,

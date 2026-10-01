@@ -1,0 +1,225 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "noise-field",
+    "version": "0.1.0",
+    "summary": "background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> still-frame, mobile -> tier 1 poster)",
+    "slot": "background",
+    "kind": "webgl"
+  },
+  "intent": {
+    "useWhen": [
+      "Hero sections requiring a calm, generative ambient backdrop",
+      "Modern dark-theme landing pages needing tactile organic motion",
+      "Brand surfaces looking for rich visual texture without video overhead"
+    ],
+    "avoidWhen": [
+      "Dense reading passages or documentation tables without high-contrast scrim",
+      "Battery-saver mode or low-tier mobile devices where static poster is preferred",
+      "Pages already running a background canvas effect (one signature moment per viewport)"
+    ],
+    "alternatives": [
+      {
+        "name": "mesh-gradient",
+        "when": "When soft blurred liquid color transitions are preferred over domain-warped noise"
+      },
+      {
+        "name": "particle-field",
+        "when": "When discrete starry or kinetic depth points are needed instead of a continuous field"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "poster",
+    "clientOnly": true,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "next-pages",
+        "vite-react",
+        "react-router"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "while-visible",
+    "webglContexts": 1,
+    "tiers": {
+      "0": "Static CSS gradient poster generated from identical color props",
+      "1": "Static CSS gradient poster for coarse pointers and low-power devices",
+      "2": "WebGL2 rendered at DPR <= 1.5 with 0.75 render scale",
+      "3": "Full WebGL2 rendered at DPR <= 2.0 with high-precision domain warping"
+    },
+    "reducedMotion": {
+      "mode": "still-frame",
+      "description": "Renders exactly one still frame of the noise field with zero subsequent animation loop."
+    },
+    "input": {
+      "pointer": "Ambient animation with optional time/paused override",
+      "touch": "Falls back to Tier 1 poster or low-dpr WebGL without touch listeners",
+      "keyboard": "None; container is non-interactive aria-hidden decorative surface"
+    }
+  },
+  "a11y": {
+    "role": "decorative",
+    "hiddenFromAT": true,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "2.2.2",
+      "2.3.1"
+    ],
+    "notes": "Canvas element is marked aria-hidden='true'. The built-in scrim preserves >= 4.5:1 WCAG AA contrast for any overlaid text elements."
+  },
+  "composition": {
+    "maxPerPage": 2,
+    "singleton": false,
+    "conflictsWith": [
+      "mesh-gradient",
+      "particle-field"
+    ],
+    "pairsWith": [
+      "text-reveal",
+      "magnetic-button",
+      "ambient-hero"
+    ]
+  },
+  "props": [
+    {
+      "name": "colors",
+      "type": "[string, string, string]",
+      "default": "[\"#0D0F12\", \"#FB923C\", \"#3B82F6\"]",
+      "effect": "Three-color palette interpolated across procedural noise field and poster."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "effect": "Multiplies animation evolution rate. Ambient defaults keep cycle >= 8 seconds."
+    },
+    {
+      "name": "scale",
+      "type": "number",
+      "default": 1.8,
+      "effect": "Domain frequency scale for the procedural noise octaves."
+    },
+    {
+      "name": "intensity",
+      "type": "number",
+      "default": 1,
+      "effect": "Color vibrancy and octave blending contrast."
+    },
+    {
+      "name": "scrim",
+      "type": "boolean",
+      "default": true,
+      "effect": "Renders radial dark contrast scrim preserving >= 4.5:1 text contrast."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Freezes animation loop; used for deterministic screenshots and global pause."
+    },
+    {
+      "name": "time",
+      "type": "number",
+      "default": "undefined",
+      "effect": "Overrides internal clock with fixed time value for deterministic visual tests."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on device capability tier (0 to 3)."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/noise-field",
+    "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField colors={[\"#0D0F12\", \"#FB923C\", \"#1E293B\"]} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-white\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
+    "mistakes": [
+      "Do not remove the scrim prop when rendering body text over the canvas, or text contrast will fall below WCAG AA 4.5:1.",
+      "Do not combine multiple NoiseField components in the same viewport; follow the one signature moment principle.",
+      "Never call requestAnimationFrame directly to animate NoiseField props; let the runtime handle the loop."
+    ],
+    "verify": [
+      "Confirm static CSS gradient poster renders in server HTML before hydration with zero CLS.",
+      "Confirm that when prefers-reduced-motion is active, exactly one still frame is rendered and the rAF loop does not cycle.",
+      "Confirm context lease is properly released when scrolled out of view."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "0d63865",
+    "date": "2026-10-01",
+    "sizeKB": {
+      "initial": 1.8,
+      "deferred": 1.87,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Full WebGL2 / DOM animation verified"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 DPR 3)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Touch and viewport responsive"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Clean rAF loop settling"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Safari WebKit rendering verified"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Mobile Safari touch behavior"
+      }
+    ]
+  }
+}
