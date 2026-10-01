@@ -4,6 +4,10 @@
 import React, { useEffect, useState, use } from "react";
 import DummyDemo from "../../../../../registry/items/dummy/demo";
 import NoiseFieldDemo from "../../../../../registry/items/noise-field/demo";
+import TextRevealDemo from "../../../../../registry/items/text-reveal/demo";
+import ScrollRevealDemo from "../../../../../registry/items/scroll-reveal/demo";
+import MagneticButtonDemo from "../../../../../registry/items/magnetic-button/demo";
+import MarqueeDemo from "../../../../../registry/items/marquee/demo";
 
 export default function ItemBenchPage({
   params,
@@ -60,6 +64,18 @@ export default function ItemBenchPage({
     }
     if (name === "noise-field") {
       return <NoiseFieldDemo />;
+    }
+    if (name === "text-reveal") {
+      return <TextRevealDemo />;
+    }
+    if (name === "scroll-reveal") {
+      return <ScrollRevealDemo />;
+    }
+    if (name === "magnetic-button") {
+      return <MagneticButtonDemo />;
+    }
+    if (name === "marquee") {
+      return <MarqueeDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>

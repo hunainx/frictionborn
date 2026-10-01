@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "magnetic-button",
+    "version": "0.1.0",
+    "summary": "cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners)",
+    "slot": "cta",
+    "kind": "dom"
+  },
+  "intent": {
+    "useWhen": [
+      "High-priority call-to-action buttons in hero and conversion sections",
+      "Interactive icon triggers and primary action links",
+      "Header navigation actions seeking tactile physical response"
+    ],
+    "avoidWhen": [
+      "Dense lists of repeating table buttons or compact toolbar grids",
+      "Touch-first mobile interfaces with coarse pointer navigation",
+      "Disabled or read-only interactive elements"
+    ],
+    "alternatives": [
+      {
+        "name": "text-reveal",
+        "when": "When animating entrance typography rather than interactive hover responses"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "no",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "next-pages",
+        "vite-react",
+        "react-router"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "Static unadorned button without pointer listeners or translation",
+      "1": "Static button with zero pointer listeners on coarse touch devices",
+      "2": "Gentle magnetic attraction with reduced pull radius (10px)",
+      "3": "Full spring physics loop on fine pointer hover with settling to zero rAF"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "Button retains static position without magnetic cursor tracking."
+    },
+    "input": {
+      "pointer": "Cursor attraction with physical spring settling within 0.01px tolerance",
+      "touch": "Zero pointer listeners attached on coarse/touch screens",
+      "keyboard": "Focus snaps button to origin immediately; focus rings remain unclipped"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "not-needed",
+    "wcag": [
+      "2.1.1",
+      "2.4.7",
+      "2.5.3"
+    ],
+    "notes": "Preserves native keyboard semantics, focus rings are not clipped by overflow, and keyboard focus immediately resets translation to origin."
+  },
+  "composition": {
+    "maxPerPage": 10,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "noise-field",
+      "text-reveal",
+      "ambient-hero"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactElement",
+      "default": "undefined",
+      "effect": "Interactive element (button or link) wrapped by magnetic controller."
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 16,
+      "effect": "Maximum pull translation in pixels."
+    },
+    {
+      "name": "tension",
+      "type": "number",
+      "default": 180,
+      "effect": "Spring stiffness coefficient."
+    },
+    {
+      "name": "damping",
+      "type": "number",
+      "default": 16,
+      "effect": "Spring velocity damping coefficient."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "\"\"",
+      "effect": "Additional CSS classes applied to the outer wrapper."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on device capability tier."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/magnetic-button",
+    "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton strength={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-white font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
+    "mistakes": [
+      "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",
+      "Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links."
+    ],
+    "verify": [
+      "Verify button is immediately clickable and focusable in server HTML.",
+      "Verify keyboard tabbing triggers focus ring cleanly without clipped edges.",
+      "Verify that on touch screens, zero pointer listeners are registered."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

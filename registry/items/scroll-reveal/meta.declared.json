@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "scroll-reveal",
+    "version": "0.1.0",
+    "summary": "media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px)",
+    "slot": "media",
+    "kind": "dom"
+  },
+  "intent": {
+    "useWhen": [
+      "Feature cards, images, and marketing content blocks entering the viewport",
+      "Staggered grid items revealing progressively during downward scroll",
+      "Sections where scroll-triggered visibility enhances progressive narrative"
+    ],
+    "avoidWhen": [
+      "Above-the-fold hero elements that must paint immediately for LCP",
+      "Sticky navigation bars or persistent floating controls",
+      "Dense data tables and interactive form fields"
+    ],
+    "alternatives": [
+      {
+        "name": "text-reveal",
+        "when": "When revealing headline text tokens rather than containers or media elements"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "next-pages",
+        "vite-react",
+        "react-router"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "none",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "Static fully-visible content rendered without transitions",
+      "1": "Single-threshold intersection observer with reduced 12px distance",
+      "2": "Pooled intersection observer with standard 24px travel distance",
+      "3": "Native animation-timeline: view() with zero JS overhead where supported"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "Content is rendered in its final visible state without transition delays or scroll triggers."
+    },
+    "input": {
+      "pointer": "Scroll-linked entrance triggered as container enters viewport",
+      "touch": "Same scroll trigger with mobile travel distance capped at 12px",
+      "keyboard": "Focus-within guard forces element visible immediately when tabbed into"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "not-needed",
+    "wcag": [
+      "1.3.1",
+      "1.4.3",
+      "2.2.2"
+    ],
+    "notes": "Focus guard forces any element containing active focus visible immediately, preventing keyboard traps during scroll."
+  },
+  "composition": {
+    "maxPerPage": 20,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "noise-field",
+      "text-reveal",
+      "magnetic-button"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": "undefined",
+      "effect": "Content elements wrapped and revealed on scroll."
+    },
+    {
+      "name": "as",
+      "type": "React.ElementType",
+      "default": "\"div\"",
+      "effect": "HTML tag rendered as root container."
+    },
+    {
+      "name": "animation",
+      "type": "\"fade-up\" | \"fade\" | \"scale-up\"",
+      "default": "\"fade-up\"",
+      "effect": "Visual entrance curve variant."
+    },
+    {
+      "name": "distance",
+      "type": "number",
+      "default": 24,
+      "effect": "Vertical travel distance in pixels."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 400,
+      "effect": "Transition duration in ms."
+    },
+    {
+      "name": "once",
+      "type": "boolean",
+      "default": true,
+      "effect": "When true, entrance triggers once and remains visible."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on device capability tier."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/scroll-reveal",
+    "usage": "import { ScrollReveal } from \"@/components/ui/scroll-reveal\";\n\nexport default function CardGrid() {\n  return (\n    <ScrollReveal animation=\"fade-up\" distance={24}>\n      <div className=\"rounded-lg border p-6\">\n        <h3>Feature Title</h3>\n        <p>Feature description.</p>\n      </div>\n    </ScrollReveal>\n  );\n}",
+    "mistakes": [
+      "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",
+      "Do not nest ScrollReveal components inside each other; keep entrance containers flat."
+    ],
+    "verify": [
+      "Verify content is visible in server HTML without JavaScript execution.",
+      "Verify tabbing into hidden cards forces them visible immediately via focus guard.",
+      "Verify reduced motion renders final visible content with zero animation delays."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}
