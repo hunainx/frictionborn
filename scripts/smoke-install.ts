@@ -100,6 +100,8 @@ export async function runSmokeTest(): Promise<void> {
         module: "ESNext",
         moduleResolution: "bundler",
         jsx: "react-jsx",
+        strict: true,
+        skipLibCheck: true,
         baseUrl: ".",
         paths: {
           "@/*": ["./*"],

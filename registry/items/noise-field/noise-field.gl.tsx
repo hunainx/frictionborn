@@ -66,7 +66,7 @@ export default function NoiseFieldGL({
   const timeRef = useRef<number>(time ?? 0);
 
   // Monitor frame timings and trigger downgrade if performance degrades
-  useFrameGuard({ onDowngrade, active: !paused && !reducedMotion }); // @frictionborn-guard
+  useFrameGuard({ onDowngrade: () => onDowngrade?.(), active: !paused && !reducedMotion }); // @frictionborn-guard
 
   const maxDpr = tier >= 3 ? 2.0 : 1.5;
   const renderScale = tier >= 3 ? 1.0 : 0.75;
