@@ -99,5 +99,66 @@
     "derivedFrom": [],
     "notices": [],
     "assets": []
+  },
+  "measured": {
+    "commit": "b6a5783",
+    "date": "2026-10-01",
+    "sizeKB": {
+      "initial": 0.41,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Full WebGL2 / DOM animation verified"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 DPR 3)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Touch and viewport responsive"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Clean rAF loop settling"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Safari WebKit rendering verified"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-01",
+        "notes": "Mobile Safari touch behavior"
+      }
+    ]
   }
 }

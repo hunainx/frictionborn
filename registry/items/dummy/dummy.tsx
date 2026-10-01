@@ -10,7 +10,8 @@ export interface DummyProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Dummy({ children, className = "", ...props }: DummyProps) {
   const reduced = useReducedMotion();
-  const [ref, inView] = useInView<HTMLDivElement>();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const inView = useInView(ref);
 
   return (
     <div

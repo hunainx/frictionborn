@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { Dummy } from "./dummy.js";
+import { Dummy } from "./dummy";
 
 export default function DummyDemo() {
   return (

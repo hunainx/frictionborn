@@ -89,6 +89,26 @@ export default function Page() {
 - Confirm static HTML output contains the child content before JavaScript hydration.
 - Confirm no rAF calls are executed when idle or off-screen.
 
+## Measured Bench Evidence
+
+- **Bench Commit**: `b6a5783` (2026-10-01)
+- **Size**: 0.41 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Cumulative Layout Shift (CLS)**: `0`
+- **Frames When Idle**:
+  - Off-screen: 0 frames
+  - Hidden tab: 0 frames
+  - Reduced motion: 0 frames
+- **axe-core Violations**: Serious: 0, Critical: 0
+
+### Verified Devices
+| Environment | Via | Tier | Result | Date | Notes |
+|---|---|---|---|---|---|
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-01 | Full WebGL2 / DOM animation verified |
+| Chromium Mobile (Pixel 7 DPR 3) | playwright | 3 | pass | 2026-10-01 | Touch and viewport responsive |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-01 | Clean rAF loop settling |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-01 | Safari WebKit rendering verified |
+| WebKit Mobile (iPhone 14) | playwright | 3 | pass | 2026-10-01 | Mobile Safari touch behavior |
+
 ## License & Provenance
 
 - **Code License**: MIT

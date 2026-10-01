@@ -7,22 +7,27 @@
     "dev": "echo \"dev: docs site + harness (M1/M2)\"",
     "build": "turbo run build",
     "test": "vitest run",
-    "bench": "echo \"bench: Playwright bench (step 3)\"",
+    "bench": "node --experimental-strip-types bench/run-bench.ts",
     "size": "size-limit",
     "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts",
     "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",
     "registry:build": "echo \"registry:build: shadcn build (step 5)\""
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@changesets/cli": "2.31.1",
     "@eslint/js": "9.39.5",
+    "@frictionborn/runtime": "workspace:*",
+    "@playwright/test": "1.63.0",
     "@size-limit/preset-small-lib": "11.2.0",
     "@testing-library/react": "16.3.3",
     "@types/node": "22.20.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "axe-core": "4.13.0",
     "eslint": "9.39.5",
     "jsdom": "26.1.0",
+    "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "size-limit": "11.2.0",
@@ -36,7 +41,10 @@
       "path": "packages/runtime/dist/index.mjs",
       "limit": "5 KB",
       "gzip": true,
-      "ignore": ["react", "react-dom"]
+      "ignore": [
+        "react",
+        "react-dom"
+      ]
     },
     {
       "name": "@frictionborn/runtime/gl",
