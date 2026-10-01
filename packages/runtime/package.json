@@ -1,0 +1,36 @@
+{
+  "name": "@frictionborn/runtime",
+  "version": "0.1.0",
+  "description": "Tiny verified motion runtime for Frictionborn Motion components",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./gl": {
+      "types": "./dist/gl/surface.d.mts",
+      "import": "./dist/gl/surface.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.10",
+    "tsdown": "^0.23.0",
+    "typescript": "^5.8.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "frictionborn",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.24.0",
+  "scripts": {
+    "dev": "echo \"dev: docs site + harness (M1/M2)\"",
+    "build": "turbo run build",
+    "test": "vitest run",
+    "bench": "echo \"bench: Playwright bench (step 3)\"",
+    "size": "size-limit",
+    "lint": "eslint .",
+    "meta": "echo \"meta: catalog + evidence (step 2)\"",
+    "registry:build": "echo \"registry:build: shadcn build (step 5)\""
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.12",
+    "@eslint/js": "^9.21.0",
+    "@size-limit/preset-small-lib": "^11.2.0",
+    "@testing-library/react": "^16.2.0",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.21.0",
+    "jsdom": "^26.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "size-limit": "^11.2.0",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7"
+  },
+  "size-limit": [
+    {
+      "name": "@frictionborn/runtime (core)",
+      "path": "packages/runtime/dist/index.mjs",
+      "limit": "5 KB",
+      "gzip": true,
+      "ignore": ["react", "react-dom"]
+    }
+  ]
+}
