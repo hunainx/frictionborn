@@ -1,5 +1,6 @@
 {
   "schemaVersion": "0.1",
+  "fixture": true,
   "item": {
     "name": "dummy",
     "version": "0.1.0",

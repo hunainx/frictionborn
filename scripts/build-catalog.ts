@@ -225,6 +225,14 @@ export function buildCatalog(): boolean {
         if (targetFile) {
           try {
             const meta = JSON.parse(fs.readFileSync(targetFile, "utf8"));
+            if (meta.fixture === true) {
+              // Internal test fixture: delete any stale public spec sheet and exclude from catalog
+              const staleSpec = path.join(itemsRefDir, `${entry.name}.md`);
+              if (fs.existsSync(staleSpec)) {
+                fs.unlinkSync(staleSpec);
+              }
+              continue;
+            }
             loadedItems.push(meta);
 
             // Generate individual spec sheet

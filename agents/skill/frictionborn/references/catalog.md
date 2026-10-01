@@ -6,7 +6,6 @@ Verified motion and WebGL components with strict zero-slop budgets, server-safe 
 
 | Component | Slot | Kind | Reduced Motion | Server Output | Summary |
 |---|---|---|---|---|---|
-| [dummy](items/dummy.md) | `background` | `dom` | `static` | `static-layout` | Sample dummy item for pipeline verification, testing bench probes, and spec generation. |
 
 ## Architectural Guarantees
 

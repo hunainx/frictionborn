@@ -7,6 +7,7 @@
   "required": ["schemaVersion", "item", "intent", "runtime", "dependencies", "behavior", "a11y", "composition", "props", "agent", "license"],
   "properties": {
     "schemaVersion": { "const": "0.1" },
+    "fixture": { "type": "boolean", "description": "When true, item is an internal test fixture excluded from public catalog and distribution." },
     "item": {
       "type": "object",
       "additionalProperties": false,

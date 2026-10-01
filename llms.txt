@@ -9,7 +9,6 @@
 - **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
 
 ## Components
-- **dummy**: Sample dummy item for pipeline verification, testing bench probes, and spec generation. (Install: `npx shadcn@latest add @frictionborn/dummy`)
 
 ## Runtime Usage
 ```tsx
