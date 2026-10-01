@@ -1,3 +1,4 @@
+// Original — Frictionborn Motion
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
 import { glBudget } from "../src/gl-budget.js";

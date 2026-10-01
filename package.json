@@ -9,8 +9,8 @@
     "test": "vitest run",
     "bench": "echo \"bench: Playwright bench (step 3)\"",
     "size": "size-limit",
-    "lint": "eslint .",
-    "meta": "echo \"meta: catalog + evidence (step 2)\"",
+    "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts",
+    "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",
     "registry:build": "echo \"registry:build: shadcn build (step 5)\""
   },
   "devDependencies": {

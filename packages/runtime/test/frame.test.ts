@@ -1,3 +1,4 @@
+// Original — Frictionborn Motion
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { subscribeFrame } from "../src/frame.js";

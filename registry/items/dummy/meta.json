@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "dummy",
+    "version": "0.1.0",
+    "summary": "Sample dummy item for pipeline verification, testing bench probes, and spec generation.",
+    "slot": "background",
+    "kind": "dom"
+  },
+  "intent": {
+    "useWhen": [
+      "Testing pipeline and metadata verification",
+      "Benchmarking harness probes and CI gates"
+    ],
+    "avoidWhen": [
+      "Production motion surfaces where rich visual effects are needed"
+    ],
+    "alternatives": []
+  },
+  "runtime": {
+    "serverOutput": "static-layout",
+    "clientOnly": false,
+    "lazyLoaded": "no",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "none",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "Static layout placeholder",
+      "1": "Static layout placeholder",
+      "2": "Full CSS animation",
+      "3": "Full CSS animation"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "Renders static layout with all animations paused immediately."
+    },
+    "input": {
+      "pointer": "None",
+      "touch": "None",
+      "keyboard": "None"
+    }
+  },
+  "a11y": {
+    "role": "decorative",
+    "hiddenFromAT": true,
+    "textStaysInDom": true,
+    "pauseControl": "not-needed",
+    "wcag": [
+      "2.2.2"
+    ]
+  },
+  "composition": {
+    "maxPerPage": 10,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": []
+  },
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Applies custom Tailwind CSS utility classes."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Children rendered inside the container."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/dummy",
+    "usage": "import { Dummy } from \"@/components/ui/dummy\";\n\nexport default function Page() {\n  return <Dummy className=\"p-4\">Content</Dummy>;\n}",
+    "mistakes": [
+      "Do not attempt to animate directly using requestAnimationFrame; use useFrame from @frictionborn/runtime.",
+      "Do not remove the data-motion attribute from the parent container."
+    ],
+    "verify": [
+      "Confirm static HTML output contains the child content before JavaScript hydration.",
+      "Confirm no rAF calls are executed when idle or off-screen."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

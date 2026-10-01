@@ -1,3 +1,4 @@
+// Original — Frictionborn Motion
 import { describe, it, expect, beforeEach } from "vitest";
 import { pauseAll, resumeAll, getIsPaused } from "../src/pause.js";
 

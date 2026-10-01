@@ -1,0 +1,17 @@
+# Frictionborn Motion
+
+> Frictionborn Motion is a library of verified motion and WebGL UI components built for React 19 and Next.js 16, engineered for zero visual slop, static server rendering, and zero-idle resource usage.
+
+## Core Principles
+- **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].
+- **Single Frame Loop**: All components use useFrame from @frictionborn/runtime. Direct requestAnimationFrame is forbidden.
+- **Strict WebGL Leases**: Max 4 WebGL contexts active per page. WebGL code is dynamically loaded only when in view and lease granted.
+- **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
+
+## Components
+- **dummy**: Sample dummy item for pipeline verification, testing bench probes, and spec generation. (Install: `npx shadcn@latest add @frictionborn/dummy`)
+
+## Runtime Usage
+```tsx
+import { MotionReadyScript, useFrame, useReducedMotion } from "@frictionborn/runtime";
+```
