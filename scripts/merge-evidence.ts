@@ -70,7 +70,21 @@ export function validateMeasuredAgainstDeclared(declared: any, measured: any, it
   return errors;
 }
 
-export function mergeAllEvidence(): boolean {
+function readJson(file: string): any {
+  return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+/**
+ * Merge bench evidence into each item's meta.json.
+ *
+ * - `check: true` is the CI mode: committed data only. Nothing is read from
+ *   bench/results and nothing is written; it fails if meta.json is not exactly
+ *   `meta.declared.json` + the `measured` block already committed in meta.json.
+ * - Fixtures (`"fixture": true`, e.g. dummy) are never rewritten.
+ * - An item with no local bench result keeps the `measured` it already has.
+ */
+export function mergeAllEvidence(options: { check?: boolean } = {}): boolean {
+  const check = options.check === true;
   const projectRoot = process.cwd();
   const itemsDir = path.join(projectRoot, "registry", "items");
   const benchDir = path.join(projectRoot, "bench", "results");
@@ -83,51 +97,67 @@ export function mergeAllEvidence(): boolean {
 
   const items = fs.readdirSync(itemsDir, { withFileTypes: true });
   for (const item of items) {
-    if (item.isDirectory()) {
-      const declaredFile = path.join(itemsDir, item.name, "meta.declared.json");
-      if (!fs.existsSync(declaredFile)) continue;
+    if (!item.isDirectory()) continue;
+    const declaredFile = path.join(itemsDir, item.name, "meta.declared.json");
+    if (!fs.existsSync(declaredFile)) continue;
 
-      const declared = JSON.parse(fs.readFileSync(declaredFile, "utf8"));
-      const itemBenchDir = path.join(benchDir, item.name);
-      const latestBenchFile = path.join(itemBenchDir, "latest.json");
+    const declared = readJson(declaredFile);
+    if (declared.fixture === true) {
+      console.log(`ℹ Skipping fixture ${item.name} (never rewritten by pnpm meta)`);
+      continue;
+    }
 
-      let measuredData: any = null;
-      if (fs.existsSync(latestBenchFile)) {
-        try {
-          const benchResult = JSON.parse(fs.readFileSync(latestBenchFile, "utf8"));
-          // bench result can be the measured object directly or contain a 'measured' field
-          measuredData = benchResult.measured || benchResult;
-        } catch (err: any) {
-          console.error(`❌ Failed to parse bench result for ${item.name}: ${err.message}`);
-          hasErrors = true;
-          continue;
-        }
-      }
+    const outputFile = path.join(itemsDir, item.name, "meta.json");
+    const existing = fs.existsSync(outputFile) ? readJson(outputFile) : null;
 
-      if (measuredData) {
-        const contradictions = validateMeasuredAgainstDeclared(declared, measuredData, item.name);
-        if (contradictions.length > 0) {
-          hasErrors = true;
-          console.error(`❌ Contradiction check failed for ${item.name}:`);
-          for (const err of contradictions) {
-            console.error(`   - ${err}`);
-          }
-        } else {
-          // Merge
-          const combined = {
-            ...declared,
-            measured: measuredData,
-          };
-          const outputFile = path.join(itemsDir, item.name, "meta.json");
-          fs.writeFileSync(outputFile, JSON.stringify(combined, null, 2) + "\n", "utf8");
-          console.log(`✔ Merged evidence for ${item.name} -> meta.json`);
-        }
+    if (check) {
+      const expected = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
+      if (!existing || JSON.stringify(existing) !== JSON.stringify(expected)) {
+        hasErrors = true;
+        console.error(
+          `❌ ${item.name}: meta.json is out of sync with meta.declared.json. Run 'pnpm meta' locally and commit the result.`
+        );
       } else {
-        // No bench results yet; create meta.json without measured or leave as-is
-        const outputFile = path.join(itemsDir, item.name, "meta.json");
-        fs.writeFileSync(outputFile, JSON.stringify(declared, null, 2) + "\n", "utf8");
-        console.log(`ℹ No bench results found for ${item.name} (bench/results/${item.name}/latest.json) - generated meta.json from declared`);
+        console.log(`✔ ${item.name}: meta.json matches declared metadata + committed measured evidence`);
       }
+      continue;
+    }
+
+    const latestBenchFile = path.join(benchDir, item.name, "latest.json");
+    let measuredData: any = null;
+    if (fs.existsSync(latestBenchFile)) {
+      try {
+        const benchResult = readJson(latestBenchFile);
+        // bench result can be the measured object directly or contain a 'measured' field
+        measuredData = benchResult.measured || benchResult;
+      } catch (err: any) {
+        console.error(`❌ Failed to parse bench result for ${item.name}: ${err.message}`);
+        hasErrors = true;
+        continue;
+      }
+    }
+
+    if (measuredData) {
+      const contradictions = validateMeasuredAgainstDeclared(declared, measuredData, item.name);
+      if (contradictions.length > 0) {
+        hasErrors = true;
+        console.error(`❌ Contradiction check failed for ${item.name}:`);
+        for (const err of contradictions) {
+          console.error(`   - ${err}`);
+        }
+        continue;
+      }
+      fs.writeFileSync(outputFile, JSON.stringify({ ...declared, measured: measuredData }, null, 2) + "\n", "utf8");
+      console.log(`✔ Merged evidence for ${item.name} -> meta.json`);
+    } else {
+      // No local bench results: keep the committed measured block, never drop it.
+      const combined = existing?.measured !== undefined ? { ...declared, measured: existing.measured } : declared;
+      fs.writeFileSync(outputFile, JSON.stringify(combined, null, 2) + "\n", "utf8");
+      console.log(
+        `ℹ No bench results for ${item.name} (bench/results/${item.name}/latest.json); kept ${
+          existing?.measured !== undefined ? "committed measured data" : "declared metadata only"
+        }`
+      );
     }
   }
 
@@ -135,6 +165,6 @@ export function mergeAllEvidence(): boolean {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const ok = mergeAllEvidence();
+  const ok = mergeAllEvidence({ check: process.argv.includes("--check") });
   process.exit(ok ? 0 : 1);
 }

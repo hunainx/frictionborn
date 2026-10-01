@@ -11,6 +11,8 @@
     "size": "size-limit",
     "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts",
     "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",
+    "meta:check": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts --check && node --experimental-strip-types scripts/build-catalog.ts",
+    "screenshots": "playwright test --config playwright.screenshots.config.ts",
     "registry:build": "node --experimental-strip-types scripts/build-registry.ts",
     "smoke:install": "node --experimental-strip-types scripts/smoke-install.ts"
   },
