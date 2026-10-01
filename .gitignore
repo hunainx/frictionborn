@@ -11,6 +11,8 @@ bench/results/**/*.json
 !.env.example
 *.log
 .DS_Store
+__pycache__/
+*.pyc
 # fonts must never be committed (see ASSETS.md)
 *.woff
 *.woff2
