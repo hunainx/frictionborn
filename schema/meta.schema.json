@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://frictionborn.com/schema/meta-0.1.json",
+  "title": "Frictionborn component metadata (meta.frictionborn)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "item", "intent", "runtime", "dependencies", "behavior", "a11y", "composition", "props", "agent", "license"],
+  "properties": {
+    "schemaVersion": { "const": "0.1" },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "summary", "slot", "kind"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "summary": { "type": "string", "maxLength": 160, "description": "Becomes the shadcn description. Must state slot, what it is, client-only or not, weight, reduced-motion result, mobile result." },
+        "slot": { "enum": ["background", "headline", "cta", "media", "scroll-section", "strip", "page-provider", "composition"] },
+        "kind": { "enum": ["webgl", "dom", "scroll-provider", "composition"] }
+      }
+    },
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["useWhen", "avoidWhen"],
+      "properties": {
+        "useWhen": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "avoidWhen": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "alternatives": {
+          "type": "array",
+          "items": { "type": "object", "required": ["name", "when"], "properties": { "name": { "type": "string" }, "when": { "type": "string" } }, "additionalProperties": false }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["serverOutput", "clientOnly", "lazyLoaded", "requires"],
+      "properties": {
+        "serverOutput": { "enum": ["poster", "final-state", "static-layout", "nothing"] },
+        "clientOnly": { "type": "boolean" },
+        "lazyLoaded": { "enum": ["no", "in-view", "idle"] },
+        "requires": {
+          "type": "object",
+          "properties": {
+            "react": { "type": "string" },
+            "frameworks": { "type": "array", "items": { "enum": ["next-app-router", "next-pages", "vite-react", "react-router"] } },
+            "tailwind": { "type": "string" }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["npm", "registry"],
+      "properties": {
+        "npm": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["name", "version", "license"],
+            "properties": { "name": { "type": "string" }, "version": { "type": "string" }, "license": { "type": "string" } }
+          }
+        },
+        "registry": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loop", "webglContexts", "tiers", "reducedMotion", "input"],
+      "properties": {
+        "loop": { "enum": ["none", "on-interaction", "while-visible"] },
+        "webglContexts": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "tiers": {
+          "type": "object", "additionalProperties": false, "required": ["0", "1", "2", "3"],
+          "properties": { "0": { "type": "string" }, "1": { "type": "string" }, "2": { "type": "string" }, "3": { "type": "string" } }
+        },
+        "reducedMotion": {
+          "type": "object", "additionalProperties": false, "required": ["mode", "description"],
+          "properties": { "mode": { "enum": ["static", "still-frame", "opacity-only", "off"] }, "description": { "type": "string" } }
+        },
+        "input": {
+          "type": "object", "additionalProperties": false, "required": ["pointer", "touch", "keyboard"],
+          "properties": { "pointer": { "type": "string" }, "touch": { "type": "string" }, "keyboard": { "type": "string" } }
+        }
+      }
+    },
+    "a11y": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "hiddenFromAT", "textStaysInDom", "pauseControl", "wcag"],
+      "properties": {
+        "role": { "enum": ["decorative", "content", "interactive"] },
+        "hiddenFromAT": { "type": "boolean" },
+        "textStaysInDom": { "type": "boolean" },
+        "pauseControl": { "enum": ["built-in", "via-runtime", "not-needed"] },
+        "wcag": { "type": "array", "items": { "type": "string", "pattern": "^\\d\\.\\d\\.\\d+$" } },
+        "notes": { "type": "string" }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxPerPage", "singleton", "conflictsWith", "pairsWith"],
+      "properties": {
+        "maxPerPage": { "type": "integer", "minimum": 1 },
+        "singleton": { "type": "boolean" },
+        "conflictsWith": { "type": "array", "items": { "type": "string" } },
+        "pairsWith": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "props": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "type", "default", "effect"],
+        "properties": { "name": { "type": "string" }, "type": { "type": "string" }, "default": {}, "effect": { "type": "string" } }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["install", "usage", "mistakes", "verify"],
+      "properties": {
+        "install": { "type": "string" },
+        "usage": { "type": "string" },
+        "mistakes": { "type": "array", "items": { "type": "string" } },
+        "verify": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "measured": {
+      "description": "Written ONLY by scripts/merge-evidence.ts from bench results. CI rejects hand edits.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "date", "sizeKB", "cls", "framesWhenIdle", "axe"],
+      "properties": {
+        "commit": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "sizeKB": { "type": "object", "required": ["initial", "deferred", "method"], "properties": { "initial": { "type": "number" }, "deferred": { "type": "number" }, "method": { "type": "string" } } },
+        "cls": { "type": "number" },
+        "initMs": { "type": "object", "properties": { "bucket": { "enum": ["<10", "<50", "<100", ">=100"] }, "env": { "type": "string" } } },
+        "interactionMs": { "type": "object", "properties": { "bucket": { "enum": ["<16", "<50", ">=50"] }, "env": { "type": "string" } } },
+        "framesWhenIdle": { "type": "object", "required": ["offscreen", "hiddenTab", "reducedMotion"], "properties": { "offscreen": { "type": "integer" }, "hiddenTab": { "type": "integer" }, "reducedMotion": { "type": "integer" } } },
+        "contextLossRecovers": { "type": "boolean" },
+        "axe": { "type": "object", "required": ["serious", "critical"], "properties": { "serious": { "type": "integer" }, "critical": { "type": "integer" } } },
+        "devices": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["env", "via", "tier", "result", "date"],
+            "properties": {
+              "env": { "type": "string" }, "via": { "enum": ["browserstack", "own-device", "playwright"] },
+              "tier": { "type": "integer", "minimum": 0, "maximum": 3 },
+              "result": { "enum": ["pass", "degraded-as-designed", "fail"] },
+              "date": { "type": "string", "format": "date" }, "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "derivedFrom", "notices", "assets"],
+      "properties": {
+        "code": { "const": "MIT" },
+        "derivedFrom": { "type": "array", "items": { "type": "object", "required": ["what", "url", "license"], "properties": { "what": { "type": "string" }, "url": { "type": "string" }, "license": { "enum": ["MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Zlib", "Apache-2.0", "CC0-1.0", "Unlicense"] } } } },
+        "notices": { "type": "array", "items": { "type": "string" } },
+        "assets": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
