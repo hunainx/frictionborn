@@ -52,4 +52,23 @@ describe("useFrame / subscribeFrame", () => {
 
     unsubscribe();
   });
+
+  it("stops the shared rAF loop when no subscribers remain", () => {
+    const cancelSpy = vi.spyOn(window, "cancelAnimationFrame");
+    let count = 0;
+
+    const unsub = subscribeFrame(() => {
+      count++;
+    });
+
+    vi.advanceTimersByTime(16);
+    expect(count).toBeGreaterThan(0);
+
+    unsub();
+    expect(cancelSpy).toHaveBeenCalled();
+
+    const countAfterUnsub = count;
+    vi.advanceTimersByTime(32);
+    expect(count).toBe(countAfterUnsub);
+  });
 });
