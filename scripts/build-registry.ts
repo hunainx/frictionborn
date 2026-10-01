@@ -93,7 +93,8 @@ export function buildRegistry(): void {
 
           const fullPath = path.join(dir, filename);
           const relPath = path.relative(root, fullPath).replace(/\\/g, "/");
-          const content = fs.readFileSync(fullPath, "utf8");
+          // Normalise line endings so output is identical on Windows (autocrlf) and Linux CI
+          const content = fs.readFileSync(fullPath, "utf8").replace(/\r\n/g, "\n");
 
           const targetSub = baseSubDir ? baseSubDir.replace(/\\/g, "/") + "/" : "";
           const target = `components/ui/${targetSub}${filename}`;
