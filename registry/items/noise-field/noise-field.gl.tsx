@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { createSurface, type Surface } from "@frictionborn/runtime/gl";
 import { useFrame, useFrameGuard } from "@frictionborn/runtime";
 import { vertexShaderSource, fragmentShaderSource } from "./shaders/noise.glsl";
@@ -15,6 +15,7 @@ export interface NoiseFieldGLProps {
   time?: number;
   tier?: number;
   reducedMotion?: boolean;
+  suspended?: boolean;
   onContextLost?: () => void;
   onContextRestored?: () => void;
   onDowngrade?: () => void;
@@ -46,6 +47,7 @@ export default function NoiseFieldGL({
   time,
   tier = 3,
   reducedMotion = false,
+  suspended = false,
   onContextLost,
   onContextRestored,
   onDowngrade,
@@ -66,7 +68,7 @@ export default function NoiseFieldGL({
   const timeRef = useRef<number>(time ?? 0);
 
   // Monitor frame timings and trigger downgrade if performance degrades
-  useFrameGuard({ onDowngrade: () => onDowngrade?.(), active: !paused && !reducedMotion }); // @frictionborn-guard
+  useFrameGuard({ onDowngrade: () => onDowngrade?.(), active: !paused && !reducedMotion && !suspended }); // @frictionborn-guard
 
   const maxDpr = tier >= 3 ? 2.0 : 1.5;
   const renderScale = tier >= 3 ? 1.0 : 0.75;
@@ -186,7 +188,7 @@ export default function NoiseFieldGL({
       }
       renderFrame(timeRef.current);
     },
-    { active: !paused && !reducedMotion } // @frictionborn-guard
+    { active: !paused && !reducedMotion && !suspended } // @frictionborn-guard
   );
 
   return (
@@ -200,6 +202,7 @@ export default function NoiseFieldGL({
         height: "100%",
         overflow: "hidden",
         pointerEvents: "none",
+        visibility: suspended ? "hidden" : "visible",
       }}
     />
   );

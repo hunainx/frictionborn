@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy } from "react";
 import {
   useCapability,
   useHydrated,
@@ -40,6 +40,8 @@ export function NoiseField({
   ...props
 }: NoiseFieldProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const leaseId = `noise-field:${useId()}`; // one lease per instance, never shared
+  const [glKey, setGlKey] = useState(0);
   const hydrated = useHydrated(); // @frictionborn-guard
   const cap = useCapability(); // @frictionborn-guard
   const reduced = useReducedMotion(); // @frictionborn-guard
@@ -60,10 +62,17 @@ export function NoiseField({
   // Context lease acquisition (PRD 6.0 + 6.1)
   useEffect(() => {
     // Only acquire WebGL context if hydrated, visible, tier >= 2, and context is healthy
-    const shouldAcquire = hydrated && inView && effectiveTier >= 2 && !contextLost;
+    const shouldAcquire = hydrated && inView && effectiveTier >= 2;
 
     if (shouldAcquire && !leaseRef.current) {
-      const newLease = glBudget.acquire({ id: "noise-field", priority: 1 }); // @frictionborn-guard
+      const newLease = glBudget.acquire({
+        id: leaseId,
+        priority: 1,
+        onEvict: () => {
+          leaseRef.current = null;
+          setHasLease(false);
+        },
+      }); // @frictionborn-guard
       if (newLease) {
         leaseRef.current = newLease;
         setHasLease(true);
@@ -73,7 +82,7 @@ export function NoiseField({
       leaseRef.current = null;
       setHasLease(false);
     }
-  }, [hydrated, inView, effectiveTier, contextLost]);
+  }, [hydrated, inView, effectiveTier, leaseId]);
 
   useEffect(() => {
     return () => {
@@ -98,20 +107,18 @@ export function NoiseField({
     setEffectiveTier((prev) => Math.max(0, prev - 1)); // @frictionborn-guard
   }, []);
 
+  // Lost context: hide the canvas (poster shows through) but keep the lease and the mounted
+  // surface so the browser's `webglcontextrestored` event can reach us; on restore remount fresh.
   const handleContextLost = useCallback(() => {
     setContextLost(true); // @frictionborn-guard
-    if (leaseRef.current) {
-      leaseRef.current.release();
-      leaseRef.current = null;
-      setHasLease(false);
-    }
   }, []);
 
   const handleContextRestored = useCallback(() => {
     setContextLost(false); // @frictionborn-guard
+    setGlKey((k) => k + 1);
   }, []);
 
-  const canRenderWebGL = hydrated && inView && effectiveTier >= 2 && hasLease && !contextLost;
+  const canRenderWebGL = hydrated && inView && effectiveTier >= 2 && hasLease;
 
   return (
     <div
@@ -131,6 +138,8 @@ export function NoiseField({
       {canRenderWebGL && (
         <Suspense fallback={null}>
           <NoiseFieldGL
+            key={glKey}
+            suspended={contextLost}
             colors={colors}
             speed={speed}
             scale={scale}
