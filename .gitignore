@@ -7,8 +7,6 @@ playwright-report/
 test-results/
 bench/results/**/*.json
 !bench/results/release-*/**
-experiment/results/raw/
-experiment/prompts/heldout/
 .env*
 !.env.example
 *.log
