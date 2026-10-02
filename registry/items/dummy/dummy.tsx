@@ -2,7 +2,7 @@
 "use client";
 
 import React from "react";
-import { useReducedMotion, useInView } from "@frictionborn/runtime";
+import { useReducedMotion, useInView, useCapability } from "@frictionborn/runtime";
 
 export interface DummyProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
@@ -10,6 +10,7 @@ export interface DummyProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Dummy({ children, className = "", ...props }: DummyProps) {
   const reduced = useReducedMotion();
+  const capability = useCapability();
   const ref = React.useRef<HTMLDivElement>(null);
   const inView = useInView(ref);
 
@@ -17,6 +18,7 @@ export function Dummy({ children, className = "", ...props }: DummyProps) {
     <div
       ref={ref}
       data-frictionborn-item="dummy"
+      data-tier={capability.tier}
       data-in-view={inView}
       data-reduced-motion={reduced}
       className={`relative overflow-hidden transition-opacity duration-300 ${className}`}
