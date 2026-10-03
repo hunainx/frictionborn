@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, cleanup } from "@testing-library/react";
 import {
   SmoothScroll,
   _resetSmoothScrollSingletonForTesting,
@@ -52,6 +52,7 @@ describe("SmoothScroll", () => {
   });
 
   afterEach(() => {
+    cleanup(); // unmount: the shared frame loop now really runs and must not outlive the test
     vi.restoreAllMocks();
   });
 

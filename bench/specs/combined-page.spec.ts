@@ -54,7 +54,7 @@ test.describe("Combined Page Integration (SmoothScroll + StickyScrollStory + Noi
     await page.waitForTimeout(1000);
 
     const hiddenFrames = await page.evaluate(() => {
-      return window.__FB_PROBES__?.frameCounter.getStats()?.hiddenFrames ?? 0;
+      return window.__FB_PROBES__?.frameCounter.getStats()?.hiddenTabFrames ?? -1;
     });
 
     // PRD 6.0: Zero animation frames when tab is hidden

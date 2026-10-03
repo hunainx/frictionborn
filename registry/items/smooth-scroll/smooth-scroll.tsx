@@ -9,7 +9,6 @@ import {
   useCapability,
   useHydrated,
   usePaused,
-  useInView,
 } from "@frictionborn/runtime";
 
 export interface SmoothScrollProps {
@@ -26,6 +25,12 @@ export interface SmoothScrollProps {
   prevent?: (node: HTMLElement) => boolean;
 }
 
+// Module-level so its identity is stable: an inline default would change every render and make the
+// Lenis effect below tear down and rebuild the instance (killing the animation it just started)
+const defaultEasing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
+
+const DIALOG_SELECTOR = '[role="dialog"], [aria-modal="true"], dialog[open], [data-lenis-prevent]';
+
 let activeSingleton = false;
 
 export function _resetSmoothScrollSingletonForTesting(): void {
@@ -35,7 +40,7 @@ export function _resetSmoothScrollSingletonForTesting(): void {
 export function SmoothScroll({
   children,
   duration = 1.2,
-  easing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  easing = defaultEasing,
   orientation = "vertical",
   gestureOrientation = "vertical",
   smoothWheel = true,
@@ -50,24 +55,37 @@ export function SmoothScroll({
   const prefersReduced = useReducedMotion(); // @frictionborn-guard
   const capability = useCapability(); // @frictionborn-guard
   const isPaused = usePaused(); // @frictionborn-guard
-  const inView = useInView(containerRef); // @frictionborn-guard
+  // No in-view gate: this wrapper is display:contents (never intersects) and a page-level scroll engine
+  // must run wherever the page is. Idle cost is zero because the loop stops once Lenis reports settled.
 
   const lenisRef = useRef<Lenis | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [isScrolling, setIsScrolling] = useState(true);
   const settleTimerRef = useRef<any>(null);
   const isMasterRef = useRef(false);
+  // Callbacks may be inline lambdas; read them through refs so they never re-create Lenis
+  const easingRef = useRef(easing);
+  easingRef.current = easing;
+  const onScrollRef = useRef(onScroll);
+  onScrollRef.current = onScroll;
+  const preventRef = useRef(prevent);
+  preventRef.current = prevent;
 
   // Decision 16: SmoothScroll is disabled on reduced motion and coarse pointers (mobile/touch)
   const isCoarsePointer = capability.pointer === "coarse";
   const shouldEnable = isHydrated && enabled && !prefersReduced && !isCoarsePointer;
 
+  // Wake the shared loop on input; it stops again as soon as Lenis reports it is no longer scrolling
+  const needsClockResetRef = useRef(true);
   const wakeLoop = useCallback(() => {
+    // The shared loop was idle: Lenis would see one huge frame delta and jump instead of easing
+    needsClockResetRef.current = true;
     setIsScrolling(true);
     if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+    // Safety net only: if no frame ever confirms a settle (e.g. no scroll resulted), go idle after 10 s
     settleTimerRef.current = setTimeout(() => {
       setIsScrolling(false);
-    }, 400);
+    }, 10000);
   }, []);
 
   useEffect(() => {
@@ -93,22 +111,24 @@ export function SmoothScroll({
 
     const lenis = new Lenis({
       duration,
-      easing,
+      easing: (t: number) => easingRef.current(t),
       orientation,
       gestureOrientation,
       smoothWheel,
       touchMultiplier,
       infinite,
       autoRaf: false, // strictly driven by runtime useFrame
-      prevent,
+      // Nested scrollers and open dialogs keep native wheel scrolling (PRD 6.10)
+      allowNestedScroll: true,
+      prevent: (node: HTMLElement) =>
+        !!preventRef.current?.(node) ||
+        (typeof node.matches === "function" && node.matches(DIALOG_SELECTOR)),
     });
 
     lenisRef.current = lenis;
     setIsActive(true);
 
-    if (onScroll) {
-      lenis.on("scroll", onScroll);
-    }
+    lenis.on("scroll", (e: any) => onScrollRef.current?.(e));
 
     return () => {
       if (isMasterRef.current) {
@@ -122,14 +142,11 @@ export function SmoothScroll({
   }, [
     shouldEnable,
     duration,
-    easing,
     orientation,
     gestureOrientation,
     smoothWheel,
     touchMultiplier,
     infinite,
-    prevent,
-    onScroll,
   ]);
 
   // Wake loop on wheel, scroll or keyboard navigation events
@@ -158,11 +175,20 @@ export function SmoothScroll({
   // Stepped strictly via the shared useFrame loop (zero direct rAF calls, zero idle frames)
   useFrame(
     ({ time }) => {
-      if (lenisRef.current && !isPaused && inView) {
-        lenisRef.current.raf(time);
+      const lenis = lenisRef.current;
+      if (lenis && !isPaused) {
+        if (needsClockResetRef.current) {
+          needsClockResetRef.current = false;
+          (lenis as any).time = 0; // next raf() computes delta 0 instead of the idle gap
+        }
+        lenis.raf(time);
+        if (!lenis.isScrolling) {
+          if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
+          setIsScrolling(false);
+        }
       }
     },
-    { active: isActive && !isPaused && inView && isScrolling }
+    { active: isActive && !isPaused && isScrolling }
   );
 
   return (
