@@ -34,5 +34,20 @@ test.describe("WebGL context loss and lease budget", () => {
     await page.evaluate(() => (window as any).__ext.restoreContext());
     await expect(page.locator(`[data-frictionborn-item='${item}'] canvas`)).toHaveCount(1);
     await expect(page.locator(`[data-frictionborn-item='${item}'] canvas`).first()).toBeVisible({ timeout: 10000 });
+
+    // "Visible" is not "resumed": a restored but never re-initialised canvas is visible and blank (Paper does
+    // not handle webglcontextrestored). The pixels must change again.
+    const restored = page.locator(`[data-frictionborn-item='${item}'] canvas`).first();
+    await expect
+      .poll(
+        async () => {
+          const a = await restored.screenshot();
+          await page.waitForTimeout(400);
+          const b = await restored.screenshot();
+          return a.equals(b);
+        },
+        { timeout: 10000, message: "canvas must be animating again after the context is restored" }
+      )
+      .toBe(false);
   });
 });

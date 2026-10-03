@@ -2,7 +2,7 @@
 // Notice: Powered by Paper Shaders
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { MeshGradient as PaperMeshGradient } from "@paper-design/shaders-react";
 import { useFrameGuard } from "@frictionborn/runtime";
 
@@ -38,6 +38,8 @@ export default function MeshGradientGL({
   onContextRestored,
 }: MeshGradientGLProps) {
   const mountWrapperRef = useRef<HTMLDivElement | null>(null);
+  // Paper does not handle webglcontextrestored: remounting its component builds a fresh context and program
+  const [mountKey, setMountKey] = useState(0);
 
   // Guard frame budget — auto-downgrades if render cost exceeds 25ms p75
   useFrameGuard({
@@ -68,6 +70,7 @@ export default function MeshGradientGL({
 
       canvas.addEventListener("webglcontextrestored", () => {
         canvas.style.display = "block";
+        setMountKey((k) => k + 1);
         onContextRestored?.();
       });
     };
@@ -103,6 +106,7 @@ export default function MeshGradientGL({
       }}
     >
       <PaperMeshGradient
+        key={mountKey}
         colors={colors}
         speed={paused || reducedMotion ? 0 : speed}
         distortion={distortion}
