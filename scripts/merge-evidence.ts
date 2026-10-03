@@ -157,7 +157,17 @@ export function verifyItemEvidence(
   // Non-check mode: merge evidence
   let measuredData: any = null;
   const latestBenchFile = path.join(itemBenchDir, "latest.json");
-  if (fs.existsSync(latestBenchFile)) {
+  if (releaseFiles.length > 0) {
+    const versionMatch = `release-${declared.item.version}.json`;
+    const chosenFile = releaseFiles.includes(versionMatch) ? versionMatch : releaseFiles.sort().reverse()[0];
+    try {
+      const benchResult = readJson(path.join(itemBenchDir, chosenFile));
+      measuredData = benchResult.measured || benchResult;
+    } catch (err: any) {
+      errors.push(`Failed to parse release snapshot for ${itemName}: ${err.message}`);
+      return { ok: false, errors };
+    }
+  } else if (fs.existsSync(latestBenchFile)) {
     try {
       const benchResult = readJson(latestBenchFile);
       measuredData = benchResult.measured || benchResult;
@@ -165,13 +175,6 @@ export function verifyItemEvidence(
       errors.push(`Failed to parse bench result for ${itemName}: ${err.message}`);
       return { ok: false, errors };
     }
-  } else if (releaseFiles.length > 0) {
-    const versionMatch = `release-${declared.item.version}.json`;
-    const chosenFile = releaseFiles.includes(versionMatch) ? versionMatch : releaseFiles.sort().reverse()[0];
-    try {
-      const benchResult = readJson(path.join(itemBenchDir, chosenFile));
-      measuredData = benchResult.measured || benchResult;
-    } catch {}
   }
 
   if (measuredData) {

@@ -187,7 +187,6 @@ export async function runSmokeTest(): Promise<void> {
 
     // 5. Create smoke consumer file importing installed components
     const consumerSrc = `// Smoke consumer test
-import React from "react";
 import { NoiseField } from "./components/ui/noise-field";
 import { TextReveal } from "./components/ui/text-reveal";
 import { ScrollReveal } from "./components/ui/scroll-reveal";
@@ -195,6 +194,8 @@ import { MagneticButton } from "./components/ui/magnetic-button";
 import { Marquee } from "./components/ui/marquee";
 import { SmoothScroll } from "./components/ui/smooth-scroll";
 import { StickyScrollStory } from "./components/ui/sticky-scroll-story";
+import { ParticleField } from "./components/ui/particle-field";
+import { MeshGradient } from "./components/ui/mesh-gradient";
 
 export default function TestPage() {
   return (
@@ -203,8 +204,12 @@ export default function TestPage() {
         <NoiseField colors={["#0D0F12", "#FB923C", "#3B82F6"]}>
           <TextReveal as="h1">Frictionborn Smoke Test OK</TextReveal>
         </NoiseField>
+        <ParticleField count={50} />
+        <MeshGradient speed={0.2} />
         <ScrollReveal>
-          <MagneticButton>Action</MagneticButton>
+          <MagneticButton>
+            <button type="button">Action</button>
+          </MagneticButton>
         </ScrollReveal>
         <Marquee>
           <span>Token Alpha</span>
