@@ -97,10 +97,18 @@ export function TextReveal({
     });
   }, [children, by]);
 
+  // Words only (no whitespace tokens): line groups index into this list
+  const words = useMemo(() => tokens.filter((t: any) => !t.isSpace), [tokens]);
+
   // Line splitting after fonts load
   const [lineGroups, setLineGroups] = useState<number[][]>([]);
+  // Width or text changed: drop the grouping so the flat word spans render and can be re-measured
   useEffect(() => {
-    if (by !== "line" || !fontsLoaded || !containerRef.current) return;
+    if (by === "line") setLineGroups([]);
+  }, [by, containerWidth, children, replayKey]);
+
+  useEffect(() => {
+    if (by !== "line" || !fontsLoaded || lineGroups.length > 0 || !containerRef.current) return;
     const wordElements = containerRef.current.querySelectorAll<HTMLElement>("[data-tr-word]");
     if (wordElements.length === 0) return;
 
@@ -121,7 +129,7 @@ export function TextReveal({
     });
     if (currentLine.length > 0) lines.push(currentLine);
     setLineGroups(lines);
-  }, [by, fontsLoaded, containerWidth, children, replayKey]);
+  }, [by, fontsLoaded, lineGroups.length, children, replayKey]);
 
   // If reduced motion is preferred or server-side rendering, render plain static text immediately
   const shouldAnimate = hydrated && !prefersReduced && tier > 0;
@@ -262,7 +270,7 @@ export function TextReveal({
                           } as React.CSSProperties
                         }
                       >
-                        {indices.map((wIdx) => tokens[wIdx]?.text).join(" ")}
+                        {indices.map((wIdx) => words[wIdx]?.text).join(" ")}
                       </span>
                     </span>
                   ))}
