@@ -103,10 +103,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider.
 - Do not import Lenis directly or create separate requestAnimationFrame loops.
 - Do not use on dashboards, forms-heavy pages, or data-dense web applications.
-- Do not gate SmoothScroll with `useInView`: SmoothScroll is a page-level provider with `display: contents` (never intersects). Idle animation frames are eliminated because the frame loop deactivates once Lenis settles (Decision 17 / D-D).
-
-### Guards
-- `@frictionborn-guard`: `useHydrated()`, `useReducedMotion()`, `useCapability()`, `usePaused()`. Omits `useInView()` per Decision 17.
 
 ### How to Verify
 - Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.
