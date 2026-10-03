@@ -30,6 +30,7 @@
 - **Server Output**: `final-state` (No layout shift, accessible fallback in static HTML)
 - **Client Only**: `false`
 - **Lazy Loaded**: `no`
+- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
 - **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
 
 ## Behavior & Tiers

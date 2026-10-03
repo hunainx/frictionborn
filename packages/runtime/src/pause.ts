@@ -28,6 +28,14 @@ export function resumeAll(): void {
   }
 }
 
+export function subscribePaused(callback: (paused: boolean) => void): () => void {
+  const handler = () => callback(isPaused);
+  listeners.add(handler);
+  return () => {
+    listeners.delete(handler);
+  };
+}
+
 function subscribe(callback: () => void): () => void {
   listeners.add(callback);
   return () => {

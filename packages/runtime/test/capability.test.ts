@@ -112,5 +112,28 @@ describe("useCapability", () => {
     expect(result.current.maxDpr).toBe(1);
     expect(result.current.reasons).toContain("low-end-hardware");
   });
+
+  it("caches WebGL2 detection and does not recreate context on multiple evaluations", () => {
+    let contextCreationCount = 0;
+    (window as any).WebGL2RenderingContext = function () {};
+    HTMLCanvasElement.prototype.getContext = ((type: string) => {
+      if (type === "webgl2") {
+        contextCreationCount++;
+        return {
+          getExtension: () => ({ loseContext: () => {} }),
+        };
+      }
+      return null;
+    }) as any;
+
+    const { result: r1 } = renderHook(() => useCapability());
+    expect(r1.current.webgl2).toBe(true);
+    expect(contextCreationCount).toBe(1);
+
+    // Subsequent call without resetting cache must NOT recreate context
+    const { result: r2 } = renderHook(() => useCapability());
+    expect(r2.current.webgl2).toBe(true);
+    expect(contextCreationCount).toBe(1);
+  });
 });
 

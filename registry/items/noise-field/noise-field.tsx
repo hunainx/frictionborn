@@ -92,7 +92,9 @@ export function NoiseField({
   const instanceId = useRef("noise-field-" + Math.random().toString(36).slice(2, 8));
   const [contextLost, setContextLost] = useState(false);
   const [glKey, setGlKey] = useState(0);
-  const [effectiveTier, setEffectiveTier] = useState<number>(3);
+  const [effectiveTier, setEffectiveTier] = useState<number>(() =>
+    hydrated ? Math.min(cap.tier, maxTier) : 0
+  );
 
   // Resolved RGB arrays for WebGL uniforms
   const [rgbColors, setRgbColors] = useState<[[number, number, number], [number, number, number], [number, number, number]]>([
@@ -128,8 +130,10 @@ export function NoiseField({
   const computedTier = Math.min(cap.tier, maxTier);
 
   useEffect(() => {
-    setEffectiveTier(computedTier);
-  }, [computedTier]);
+    if (hydrated) {
+      setEffectiveTier(computedTier);
+    }
+  }, [hydrated, computedTier]);
 
   // Context lease acquisition (PRD 6.0 + 6.1 + Decision D-A: reduced motion = no WebGL)
   useEffect(() => {

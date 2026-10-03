@@ -1,6 +1,6 @@
 // Original — Frictionborn Motion useFrame (single shared rAF loop)
 import { useEffect, useRef } from "react";
-import { getIsPaused } from "./pause.js";
+import { getIsPaused, subscribePaused } from "./pause.js";
 
 export interface FrameState {
   time: number;
@@ -20,7 +20,7 @@ let isTabVisible = true;
 let visibilityListenerAttached = false;
 
 function loop(currentTime: number) {
-  if (subscribers.size === 0 || !isTabVisible) {
+  if (subscribers.size === 0 || !isTabVisible || getIsPaused()) {
     rafId = null;
     return;
   }
@@ -33,22 +33,20 @@ function loop(currentTime: number) {
   const dt = Math.min(50, Math.max(0, currentTime - lastTime));
   lastTime = currentTime;
 
-  if (!getIsPaused()) {
-    const state: FrameState = { time: currentTime, dt };
-    // Clone set to prevent issues if callbacks add/remove subscribers during iteration
-    const currentSubscribers = Array.from(subscribers);
-    for (const callback of currentSubscribers) {
-      if (subscribers.has(callback)) {
-        try {
-          callback(state);
-        } catch (err) {
-          console.error("Error in Frictionborn useFrame callback:", err);
-        }
+  const state: FrameState = { time: currentTime, dt };
+  // Clone set to prevent issues if callbacks add/remove subscribers during iteration
+  const currentSubscribers = Array.from(subscribers);
+  for (const callback of currentSubscribers) {
+    if (subscribers.has(callback)) {
+      try {
+        callback(state);
+      } catch (err) {
+        console.error("Error in Frictionborn useFrame callback:", err);
       }
     }
   }
 
-  if (subscribers.size > 0 && isTabVisible) {
+  if (subscribers.size > 0 && isTabVisible && !getIsPaused()) {
     rafId = requestAnimationFrame(loop);
   } else {
     rafId = null;
@@ -57,10 +55,21 @@ function loop(currentTime: number) {
 
 function startLoop() {
   if (typeof window === "undefined" || rafId !== null) return;
-  if (!isTabVisible || subscribers.size === 0) return;
+  if (!isTabVisible || subscribers.size === 0 || getIsPaused()) return;
 
   lastTime = performance.now();
   rafId = requestAnimationFrame(loop);
+}
+
+if (typeof window !== "undefined") {
+  subscribePaused((paused) => {
+    if (!paused) {
+      startLoop();
+    } else if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  });
 }
 
 function stopLoop() {

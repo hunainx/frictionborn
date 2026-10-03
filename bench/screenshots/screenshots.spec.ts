@@ -35,4 +35,20 @@ test.describe("Capture component screenshots", () => {
       await page.screenshot({ path: path.join(outDir, "reduced-motion.png") });
     });
   }
+
+  test("captures fresh Next 16 install preview", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/items/noise-field");
+    await page.waitForSelector("[data-frictionborn-item='noise-field']");
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.resolve(process.cwd(), "docs/audit/install-next16.png") });
+  });
+
+  test("captures fresh Vite install preview", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/items/text-reveal");
+    await page.waitForSelector("[data-frictionborn-item='text-reveal']");
+    await page.waitForTimeout(1000);
+    await page.screenshot({ path: path.resolve(process.cwd(), "docs/audit/install-vite.png") });
+  });
 });

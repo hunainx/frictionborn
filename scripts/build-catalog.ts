@@ -47,6 +47,7 @@ export function generateItemSpecSheet(meta: any): string {
   md += `- **Server Output**: \`${runtime.serverOutput}\` (No layout shift, accessible fallback in static HTML)\n`;
   md += `- **Client Only**: \`${runtime.clientOnly}\`\n`;
   md += `- **Lazy Loaded**: \`${runtime.lazyLoaded}\`\n`;
+  md += `- **Client Reveal Gate**: Requires \`[data-motion="ok"]\` attribute set by \`<MotionReadyScript />\` (Next.js) or \`initMotionReady()\` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.\n`;
   if (runtime.requires) {
     md += `- **Requirements**: React \`${runtime.requires.react || ">=19"}\`, Frameworks: ${(runtime.requires.frameworks || []).join(", ") || "Next.js / Vite"}\n`;
   }

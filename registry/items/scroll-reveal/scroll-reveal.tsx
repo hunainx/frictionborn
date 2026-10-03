@@ -46,14 +46,6 @@ export function ScrollReveal({
     }
   }, [inView]);
 
-  // Support check for animation-timeline: view()
-  const [supportsViewTimeline, setSupportsViewTimeline] = useState(false);
-  useEffect(() => {
-    if (typeof CSS !== "undefined" && typeof CSS.supports === "function") {
-      setSupportsViewTimeline(CSS.supports("animation-timeline", "view()"));
-    }
-  }, []);
-
   const effectiveDistance = resolvedTier <= 1 ? Math.min(distance, 12) : distance;
   const isRevealed = reducedMotionActive || resolvedTier === 0 || (once ? hasEntered : inView);
 

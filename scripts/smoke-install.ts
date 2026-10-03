@@ -101,6 +101,8 @@ export async function runSmokeTest(): Promise<void> {
         moduleResolution: "bundler",
         jsx: "react-jsx",
         strict: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
         skipLibCheck: true,
         baseUrl: ".",
         paths: {
@@ -167,14 +169,14 @@ export async function runSmokeTest(): Promise<void> {
 
     // 4. Create smoke consumer file importing installed components
     const consumerSrc = `// Smoke consumer test
-import React from "react";
 import { NoiseField } from "./components/ui/noise-field";
+import { TextReveal } from "./components/ui/text-reveal";
 
 export default function TestPage() {
   return (
     <div style={{ width: 800, height: 600 }}>
       <NoiseField colors={["#0D0F12", "#FB923C", "#3B82F6"]}>
-        <h1>Frictionborn Smoke Test OK</h1>
+        <TextReveal as="h1">Frictionborn Smoke Test OK</TextReveal>
       </NoiseField>
     </div>
   );
