@@ -65,8 +65,15 @@ export interface NoiseFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 }
 
+// Stable default: a fresh array each render would re-trigger the colour resolver forever
+const DEFAULT_COLORS: [string, string, string] = [
+  "var(--background, Canvas)",
+  "var(--primary, CanvasText)",
+  "var(--accent, GrayText)",
+];
+
 export function NoiseField({
-  colors = ["var(--background, #0D0F12)", "var(--primary, #FB923C)", "var(--accent, #3B82F6)"],
+  colors = DEFAULT_COLORS,
   speed = 1.0,
   scale = 1.8,
   intensity = 1.0,
@@ -103,13 +110,15 @@ export function NoiseField({
     [0.23, 0.51, 0.96],
   ]);
 
+  // Key on the values, not the array identity (callers often pass an inline literal)
+  const colorKey = colors.join("|");
   const updateResolvedColors = useCallback(() => {
     const el = containerRef.current;
     const c0 = resolveColorToRgb(el, colors[0], [0.05, 0.06, 0.08]);
     const c1 = resolveColorToRgb(el, colors[1], [0.98, 0.57, 0.24]);
     const c2 = resolveColorToRgb(el, colors[2], [0.23, 0.51, 0.96]);
     setRgbColors([c0, c1, c2]);
-  }, [colors]);
+  }, [colorKey]);
 
   // Resolve colors on mount, prop change, and HTML theme attribute mutations
   useEffect(() => {
