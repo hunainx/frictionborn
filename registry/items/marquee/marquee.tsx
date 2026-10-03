@@ -119,67 +119,75 @@ export function Marquee({
         }
       `}</style>
 
-      {/* Accessible Pause/Play Toggle Button (WCAG 2.2.2) */}
+      {/* Marquee Viewport */}
+      <div
+        className="fb-marquee-viewport"
+        style={{
+          flex: 1,
+          minWidth: 0,
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {/* Marquee Content Wrap */}
+        <div
+          data-pause-hover={pauseOnHover ? "true" : undefined}
+          data-pause-focus={pauseOnFocus ? "true" : undefined}
+          style={
+            {
+              display: "flex",
+              width: "max-content",
+              overflow: prefersReduced ? "auto" : "visible",
+              "--fb-mq-gap": formattedGap,
+              "--fb-mq-dur": `${duration}s`,
+            } as React.CSSProperties
+          }
+        >
+          {/* Original items (interactive, accessible to screen readers) */}
+          <div
+            ref={trackRef}
+            className={`fb-marquee-track ${direction === "left" ? "anim-left" : "anim-right"}`}
+            style={{ paddingRight: formattedGap }}
+          >
+            {children}
+          </div>
+
+          {/* Inert duplicate copy (aria-hidden and inert so screen readers & keyboard only visit items once) */}
+          {(!prefersReduced && hydrated && tier > 0) && (
+            <div
+              aria-hidden="true"
+              inert={true as any}
+              className={`fb-marquee-track ${direction === "left" ? "anim-left" : "anim-right"}`}
+            >
+              {children}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Accessible Pause/Play Toggle Button (WCAG 2.2.2) - positioned outside scrolling track */}
       {showPauseButton && hydrated && !prefersReduced && (
         <button
           type="button"
           onClick={() => setLocalPaused((p) => !p)}
           aria-label={localPaused ? "Play scrolling ticker" : "Pause scrolling ticker"}
           style={{
-            position: "absolute",
-            right: "0.75rem",
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 10,
+            flexShrink: 0,
             padding: "0.375rem 0.625rem",
             fontSize: "0.75rem",
             fontWeight: 500,
             borderRadius: "4px",
-            border: "1px solid var(--border, GrayText)",
-            background: "var(--background, Canvas)",
-            color: "var(--foreground, CanvasText)",
+            border: "1px solid var(--border, currentColor)",
+            background: "var(--background, transparent)",
+            color: "var(--foreground, inherit)",
             cursor: "pointer",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+            marginRight: "0.5rem",
           }}
         >
           {localPaused ? "Play" : "Pause"}
         </button>
       )}
-
-      {/* Marquee Content Wrap */}
-      <div
-        data-pause-hover={pauseOnHover ? "true" : undefined}
-        data-pause-focus={pauseOnFocus ? "true" : undefined}
-        style={
-          {
-            display: "flex",
-            width: "max-content",
-            overflow: prefersReduced ? "auto" : "visible",
-            "--fb-mq-gap": formattedGap,
-            "--fb-mq-dur": `${duration}s`,
-          } as React.CSSProperties
-        }
-      >
-        {/* Original items (interactive, accessible to screen readers) */}
-        <div
-          ref={trackRef}
-          className={`fb-marquee-track ${direction === "left" ? "anim-left" : "anim-right"}`}
-          style={{ paddingRight: formattedGap }}
-        >
-          {children}
-        </div>
-
-        {/* Inert duplicate copy (aria-hidden and inert so screen readers & keyboard only visit items once) */}
-        {(!prefersReduced && hydrated && tier > 0) && (
-          <div
-            aria-hidden="true"
-            inert={true as any}
-            className={`fb-marquee-track ${direction === "left" ? "anim-left" : "anim-right"}`}
-          >
-            {children}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
