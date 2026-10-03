@@ -21,18 +21,53 @@ export default function RootLayout({
         <MotionReadyScript />
       </head>
       <body className="antialiased min-h-screen flex flex-col">
-        <header className="border-b border-[#262B33] bg-[#15181D]/80 backdrop-blur px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="h-3 w-3 rounded-full bg-[#FB923C]" />
-            <a href="/" className="font-semibold tracking-tight text-[#E9EBF0] hover:text-[#FB923C] transition-colors">
+        <header
+          style={{
+            borderBottom: "1px solid var(--line, #262B33)",
+            backgroundColor: "var(--surface, #15181D)",
+            padding: "0.75rem 1.25rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "0.75rem",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <span
+              style={{
+                width: "10px",
+                height: "10px",
+                borderRadius: "999px",
+                backgroundColor: "var(--signal, #FB923C)",
+                display: "inline-block",
+                flexShrink: 0,
+              }}
+            />
+            <a
+              href="/"
+              style={{
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                letterSpacing: "-0.01em",
+                color: "var(--ink, #E9EBF0)",
+                textDecoration: "none",
+              }}
+            >
               Frictionborn Motion · Bench Harness
             </a>
           </div>
-          <div className="text-xs text-[#9AA1AF] mono">
+          <div
+            className="mono"
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--muted, #9AA1AF)",
+            }}
+          >
             Next 16 · React 19 · WebGL2 Probes
           </div>
         </header>
-        <main className="flex-1 p-6">{children}</main>
+        <main style={{ flex: 1, padding: "1.5rem" }}>{children}</main>
       </body>
     </html>
   );

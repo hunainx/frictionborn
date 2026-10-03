@@ -115,7 +115,9 @@ export default function ItemBenchPage({
         }}
       >
         <div>
-          <h1 style={{ fontSize: "1.25rem", fontWeight: 600 }}>Item Benchmark: {name}</h1>
+          <span style={{ fontSize: "1.25rem", fontWeight: 600, display: "block" }}>
+            Item Benchmark: {name}
+          </span>
           <span className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
             Tier: {tier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/50
           </span>

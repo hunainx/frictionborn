@@ -71,7 +71,7 @@ export default function NoiseFieldDemo() {
         flexDirection: "column",
       }}
     >
-      {/* Engineering Control Bar (<= 120px on mobile) */}
+      {/* Engineering Control Bar */}
       <div
         style={{
           position: "relative",
@@ -80,39 +80,37 @@ export default function NoiseFieldDemo() {
           flexWrap: "wrap",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "0.5rem",
+          gap: "0.75rem",
           padding: "0.75rem 1rem",
           backgroundColor: "var(--surface, #15181D)",
           borderBottom: "1px solid var(--line, #262B33)",
-          maxHeight: "120px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
           <span
+            aria-hidden="true"
             style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "999px",
-              backgroundColor: isPaused
+              width: "7px",
+              height: "7px",
+              borderRadius: "50%",
+              background: isPaused
                 ? "var(--degraded, #FBBF24)"
                 : effectiveReduced
                 ? "var(--muted, #9AA1AF)"
                 : "var(--pass, #4ADE80)",
-              display: "inline-block",
             }}
           />
-          <span
+          <strong
             className="mono"
             style={{
-              fontSize: "12px",
-              fontWeight: 500,
+              fontSize: "11px",
+              letterSpacing: "0.08em",
               textTransform: "uppercase",
-              letterSpacing: "0.06em",
               color: "var(--ink, #E9EBF0)",
             }}
           >
             NoiseField
-          </span>
+          </strong>
         </div>
 
         {/* Interactive Controls */}
@@ -121,11 +119,12 @@ export default function NoiseFieldDemo() {
           <div
             style={{
               display: "flex",
-              gap: "2px",
+              gap: "4px",
               background: "rgba(0, 0, 0, 0.2)",
               padding: "2px",
               borderRadius: "6px",
               border: "1px solid var(--line, #262B33)",
+              flexWrap: "wrap",
             }}
           >
             {PALETTES.map((p, idx) => (
@@ -135,15 +134,18 @@ export default function NoiseFieldDemo() {
                 aria-pressed={selectedPalette === idx}
                 onClick={() => setSelectedPalette(idx)}
                 style={{
-                  padding: "4px 8px",
-                  fontSize: "11px",
+                  padding: "0.375rem 0.625rem",
+                  fontSize: "12px",
                   borderRadius: "4px",
                   border: "none",
                   cursor: "pointer",
                   background: selectedPalette === idx ? "var(--signal, #FB923C)" : "transparent",
                   color: selectedPalette === idx ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
                   fontWeight: selectedPalette === idx ? 600 : 400,
-                  minHeight: "28px",
+                  minHeight: "44px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {p.name}
@@ -155,11 +157,12 @@ export default function NoiseFieldDemo() {
           <div
             style={{
               display: "flex",
-              gap: "2px",
+              gap: "4px",
               background: "rgba(0, 0, 0, 0.2)",
               padding: "2px",
               borderRadius: "6px",
               border: "1px solid var(--line, #262B33)",
+              flexWrap: "wrap",
             }}
           >
             {[
@@ -175,15 +178,19 @@ export default function NoiseFieldDemo() {
                 aria-pressed={activeTier === t.val}
                 onClick={() => setActiveTier(t.val)}
                 style={{
-                  padding: "4px 8px",
-                  fontSize: "11px",
+                  padding: "0.375rem 0.625rem",
+                  fontSize: "12px",
                   borderRadius: "4px",
                   border: "none",
                   cursor: "pointer",
                   background: activeTier === t.val ? "var(--line, #262B33)" : "transparent",
                   color: activeTier === t.val ? "var(--signal, #FB923C)" : "var(--muted, #9AA1AF)",
                   fontWeight: activeTier === t.val ? 600 : 400,
-                  minHeight: "28px",
+                  minHeight: "44px",
+                  minWidth: "44px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 {t.label}
@@ -196,15 +203,18 @@ export default function NoiseFieldDemo() {
             type="button"
             onClick={toggleTheme}
             style={{
-              padding: "4px 10px",
-              fontSize: "11px",
+              padding: "0.375rem 0.75rem",
+              fontSize: "12px",
               borderRadius: "4px",
               border: "1px solid var(--line, #262B33)",
               background: "transparent",
               color: "var(--ink, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
-              minHeight: "28px",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {isLight ? "Theme: Light" : "Theme: Dark"}
@@ -216,15 +226,18 @@ export default function NoiseFieldDemo() {
             aria-pressed={effectiveReduced}
             onClick={() => setManualReduced((r) => !r)}
             style={{
-              padding: "4px 10px",
-              fontSize: "11px",
+              padding: "0.375rem 0.75rem",
+              fontSize: "12px",
               borderRadius: "4px",
               border: "1px solid var(--line, #262B33)",
               background: effectiveReduced ? "var(--signal, #FB923C)" : "transparent",
               color: effectiveReduced ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
-              minHeight: "28px",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {effectiveReduced ? "Motion: Static" : "Motion: Fluid"}
@@ -236,15 +249,18 @@ export default function NoiseFieldDemo() {
             aria-pressed={isPaused}
             onClick={() => (isPaused ? resumeAll() : pauseAll())}
             style={{
-              padding: "4px 10px",
-              fontSize: "11px",
+              padding: "0.375rem 0.75rem",
+              fontSize: "12px",
               borderRadius: "4px",
               border: "1px solid var(--line, #262B33)",
               background: isPaused ? "var(--degraded, #FBBF24)" : "transparent",
               color: isPaused ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
-              minHeight: "28px",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {isPaused ? "Resume" : "Pause"}
