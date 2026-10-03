@@ -155,7 +155,8 @@ export function ParticleFieldGL({
   // Calculate actual particle count clamped by tier
   // Tier 3: up to count (default ~2000, max 4000)
   // Tier 2: ~35% count
-  const effectiveCount = Math.round(tier >= 3 ? Math.min(count, 4000) : count * 0.35);
+  // The index buffer holds 4000 particles, so clamp after the tier scale
+  const effectiveCount = Math.min(4000, Math.round(tier >= 3 ? count : count * 0.35));
 
   useEffect(() => {
     const container = containerRef.current;

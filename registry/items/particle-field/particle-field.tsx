@@ -7,28 +7,12 @@ import {
   useHydrated,
   useReducedMotion,
   useInView,
+  resolveCssColor,
   glBudget,
   type Lease,
 } from "@frictionborn/runtime";
 
 const ParticleFieldGL = lazy(() => import("./particle-field.gl"));
-
-function parseColorToRgb(spec: string, fallback: [number, number, number] = [0.98, 0.57, 0.24]): [number, number, number] {
-  if (typeof document === "undefined") return fallback;
-  try {
-    const probe = document.createElement("canvas");
-    probe.width = 1;
-    probe.height = 1;
-    const ctx = probe.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return fallback;
-    ctx.fillStyle = spec;
-    ctx.fillRect(0, 0, 1, 1);
-    const d = ctx.getImageData(0, 0, 1, 1).data;
-    return [d[0] / 255, d[1] / 255, d[2] / 255];
-  } catch {
-    return fallback;
-  }
-}
 
 export interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
@@ -42,7 +26,8 @@ export interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement>
   children?: React.ReactNode;
 }
 
-const DEFAULT_COLOR = "var(--primary, #FB923C)";
+const DEFAULT_COLOR = "var(--primary, CanvasText)";
+const NEUTRAL_RGB: [number, number, number] = [0.5, 0.5, 0.5];
 
 export function ParticleField({
   color = DEFAULT_COLOR,
@@ -73,10 +58,14 @@ export function ParticleField({
     isHydrated ? Math.min(capability.tier, maxTier) : 0
   );
 
-  const [resolvedRgb, setResolvedRgb] = useState<[number, number, number]>([0.98, 0.57, 0.24]);
+  const [resolvedRgb, setResolvedRgb] = useState<[number, number, number]>(NEUTRAL_RGB);
 
   const updateColor = useCallback(() => {
-    setResolvedRgb(parseColorToRgb(color, [0.98, 0.57, 0.24]));
+    const next = resolveCssColor(containerRef.current, color) ?? NEUTRAL_RGB;
+    // Keep the previous array when nothing changed so unrelated <html> mutations do not re-render
+    setResolvedRgb((prev) =>
+      prev[0] === next[0] && prev[1] === next[1] && prev[2] === next[2] ? prev : next
+    );
   }, [color]);
 
   useEffect(() => {
@@ -149,8 +138,9 @@ export function ParticleField({
 
   const shouldBeInteractive = interactive && capability.pointer === "fine";
 
-  const dotColorRgba = `rgba(${Math.round(resolvedRgb[0] * 255)}, ${Math.round(resolvedRgb[1] * 255)}, ${Math.round(resolvedRgb[2] * 255)}, 0.18)`;
-  const posterBackground = `radial-gradient(circle at 50% 50%, ${dotColorRgba} 1.2px, transparent 1.2px)`;
+  // Pure CSS from the same colour prop, so the server poster already matches the host theme
+  const dotColor = `color-mix(in srgb, ${color} 18%, transparent)`;
+  const posterBackground = `radial-gradient(circle at 50% 50%, ${dotColor} 1.2px, transparent 1.2px)`;
 
   const shouldRenderGL = hasLease && !motionDisabled && activeTier >= 2;
 
@@ -166,7 +156,7 @@ export function ParticleField({
         height: "100%",
         minHeight: "240px",
         overflow: "hidden",
-        backgroundColor: "var(--background, #0D0F12)",
+        backgroundColor: "var(--background, Canvas)",
         ...style,
       }}
       {...props}
@@ -206,7 +196,8 @@ export function ParticleField({
           style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(to bottom, rgba(13, 15, 18, 0.4) 0%, rgba(13, 15, 18, 0.75) 100%)",
+            background:
+              "linear-gradient(to bottom, color-mix(in srgb, var(--background, Canvas) 40%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 75%, transparent) 100%)",
             pointerEvents: "none",
             zIndex: 1,
           }}

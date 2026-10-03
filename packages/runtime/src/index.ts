@@ -9,3 +9,4 @@ export { glBudget, type Lease, type AcquireOptions } from "./gl-budget.js";
 export { pauseAll, resumeAll, usePaused, getIsPaused } from "./pause.js";
 export { MotionReadyScript, initMotionReady, type MotionReadyScriptProps } from "./motion-ready.js";
 export { tokens, type MotionTokens } from "./tokens.js";
+export { resolveCssColor } from "./color.js";
