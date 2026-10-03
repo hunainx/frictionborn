@@ -8,6 +8,8 @@ import TextRevealDemo from "../../../../../registry/items/text-reveal/demo";
 import ScrollRevealDemo from "../../../../../registry/items/scroll-reveal/demo";
 import MagneticButtonDemo from "../../../../../registry/items/magnetic-button/demo";
 import MarqueeDemo from "../../../../../registry/items/marquee/demo";
+import SmoothScrollDemo from "../../../../../registry/items/smooth-scroll/demo";
+import StickyScrollStoryDemo from "../../../../../registry/items/sticky-scroll-story/demo";
 
 export default function ItemBenchPage({
   params,
@@ -76,6 +78,12 @@ export default function ItemBenchPage({
     }
     if (name === "marquee") {
       return <MarqueeDemo />;
+    }
+    if (name === "smooth-scroll") {
+      return <SmoothScrollDemo />;
+    }
+    if (name === "sticky-scroll-story") {
+      return <StickyScrollStoryDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>

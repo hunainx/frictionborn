@@ -18,7 +18,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npx next dev bench/harness -p 3100",
+    command: process.platform === "win32" ? "npx.cmd next dev bench/harness -p 3100" : "npx next dev bench/harness -p 3100",
     url: "http://localhost:3100",
     reuseExistingServer: true,
     timeout: 60000,

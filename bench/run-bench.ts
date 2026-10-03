@@ -58,7 +58,8 @@ export function runBench(itemName = "dummy"): boolean {
 
   let playwrightSucceeded = true;
   try {
-    execSync("npx playwright test", {
+    const cmd = process.platform === "win32" ? "npx.cmd playwright test" : "npx playwright test";
+    execSync(cmd, {
       stdio: "inherit",
       cwd: projectRoot,
       env: { ...process.env, CI: "1", BENCH_ITEM: itemName },

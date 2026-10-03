@@ -3,7 +3,15 @@ import { test } from "@playwright/test";
 import path from "node:path";
 import fs from "node:fs";
 
-const items = ["noise-field", "text-reveal", "scroll-reveal", "magnetic-button", "marquee"];
+const items = [
+  "noise-field",
+  "text-reveal",
+  "scroll-reveal",
+  "magnetic-button",
+  "marquee",
+  "smooth-scroll",
+  "sticky-scroll-story",
+];
 
 test.describe("Capture component screenshots", () => {
   for (const item of items) {

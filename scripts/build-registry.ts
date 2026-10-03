@@ -117,8 +117,9 @@ export function buildRegistry(): void {
     const dependencies = ["@frictionborn/runtime"];
     if (Array.isArray(meta.dependencies?.npm)) {
       for (const dep of meta.dependencies.npm) {
-        if (!dependencies.includes(dep)) {
-          dependencies.push(dep);
+        const depStr = typeof dep === "string" ? dep : `${dep.name}@${dep.version}`;
+        if (!dependencies.includes(depStr)) {
+          dependencies.push(depStr);
         }
       }
     }

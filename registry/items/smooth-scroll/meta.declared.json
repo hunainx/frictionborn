@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "smooth-scroll",
+    "version": "0.1.0",
+    "summary": "page-provider: Lenis provider stepped strictly via useFrame with autoRaf false (dom, server-safe, singleton, reduced motion -> off, mobile -> off)",
+    "slot": "page-provider",
+    "kind": "scroll-provider"
+  },
+  "intent": {
+    "useWhen": [
+      "Marketing landing pages requiring unified cinematic scroll feel",
+      "Editorial feature stories paired with sticky scroll narratives",
+      "Desktop viewports with fine pointers and high-refresh displays"
+    ],
+    "avoidWhen": [
+      "Dashboards and data-dense productivity software",
+      "Documentation sites and code-heavy portals",
+      "Forms-heavy pages and modal-only checkout flows",
+      "Touchscreens and mobile devices (automatically disabled)"
+    ],
+    "alternatives": [
+      {
+        "name": "native-scroll",
+        "when": "When standard browser compositor scrolling is sufficient without kinetic interpolation"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "static-layout",
+    "clientOnly": false,
+    "lazyLoaded": "no",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "next-pages",
+        "vite-react",
+        "react-router"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [
+      {
+        "name": "lenis",
+        "version": "1.3.26",
+        "license": "MIT"
+      }
+    ],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "Disabled completely; native browser scrolling only",
+      "1": "Disabled on coarse pointers and touchscreens; native touch momentum preserved",
+      "2": "Standard smooth inertial scrolling stepped strictly via useFrame",
+      "3": "High-precision smooth scrolling with fine pointer optimization"
+    },
+    "reducedMotion": {
+      "mode": "off",
+      "description": "Disabled completely; 100% native platform momentum scrolling."
+    },
+    "input": {
+      "pointer": "Wheel and keyboard events mediated via Lenis on fine pointers",
+      "touch": "Native touch momentum scrolling 100% preserved; Lenis is inactive on coarse pointers",
+      "keyboard": "Full support for Space, PageUp, PageDown, Arrow keys, Home, and End"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "not-needed",
+    "wcag": [
+      "2.1.1",
+      "2.2.2",
+      "2.3.3"
+    ],
+    "notes": "Native keyboard scrolling is fully preserved. When reduced motion is preferred, smooth scrolling is turned off completely, delegating all scroll behavior to the native platform compositor."
+  },
+  "composition": {
+    "maxPerPage": 1,
+    "singleton": true,
+    "conflictsWith": [
+      "smooth-scroll"
+    ],
+    "pairsWith": [
+      "sticky-scroll-story",
+      "scroll-reveal",
+      "noise-field"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": "undefined",
+      "effect": "Child components wrapped inside the smooth scroll provider."
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "default": 1.2,
+      "effect": "Scroll easing duration in seconds."
+    },
+    {
+      "name": "orientation",
+      "type": "\"vertical\" | \"horizontal\"",
+      "default": "\"vertical\"",
+      "effect": "Primary scroll orientation."
+    },
+    {
+      "name": "smoothWheel",
+      "type": "boolean",
+      "default": true,
+      "effect": "Whether to interpolate mouse wheel deltas."
+    },
+    {
+      "name": "enabled",
+      "type": "boolean",
+      "default": true,
+      "effect": "Master toggle to enable or disable smooth scrolling."
+    },
+    {
+      "name": "onScroll",
+      "type": "(e: any) => void",
+      "default": "undefined",
+      "effect": "Callback invoked synchronously on every scroll update."
+    },
+    {
+      "name": "prevent",
+      "type": "(node: HTMLElement) => boolean",
+      "default": "undefined",
+      "effect": "Predicate to bypass smooth scrolling for specific nested DOM elements."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/smooth-scroll",
+    "usage": "import { SmoothScroll } from \"@/components/ui/smooth-scroll\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <SmoothScroll>\n      {children}\n    </SmoothScroll>\n  );\n}",
+    "mistakes": [
+      "Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider.",
+      "Do not import Lenis directly or create separate requestAnimationFrame loops.",
+      "Do not use on dashboards, forms-heavy pages, or data-dense web applications."
+    ],
+    "verify": [
+      "Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.",
+      "Verify hash anchors (#section-id) jump smoothly without layout offsets.",
+      "Verify reduced motion disables Lenis and returns 100% control to the platform."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [
+      {
+        "what": "Lenis smooth scroll engine",
+        "url": "https://github.com/darkroomengineering/lenis",
+        "license": "MIT"
+      }
+    ],
+    "notices": [],
+    "assets": []
+  }
+}
