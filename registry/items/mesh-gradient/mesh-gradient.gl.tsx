@@ -47,8 +47,22 @@ export default function MeshGradientGL({
     active: !paused && !reducedMotion && !suspended,
   }); // @frictionborn-guard
 
-  // Decision 15 (D-B): Tier 2 & mobile capped to max DPR 1.5
-  const targetPixelRatio = tier <= 2 ? 1.0 : 1.5;
+  // Decision 15 (D-B): Tier 2 & mobile capped to DPR 1.5, tier 3 to 2. Paper's minPixelRatio is a floor (it
+  // supersamples low-DPI screens and never lowers a high-DPI one), so the cap is a pixel budget instead:
+  // css width x height x cap^2. Paper scales its canvas down uniformly to stay inside it.
+  const [pixelBudget, setPixelBudget] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = mountWrapperRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const cap = tier >= 3 ? 2 : 1.5;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setPixelBudget(Math.ceil(width * height * cap * cap));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [tier]);
 
   // Intercept WebGL context loss from Paper Shaders canvas
   useEffect(() => {
@@ -113,7 +127,8 @@ export default function MeshGradientGL({
         swirl={swirl}
         grainMixer={grainMixer}
         grainOverlay={grainOverlay}
-        minPixelRatio={targetPixelRatio}
+        minPixelRatio={1}
+        maxPixelCount={pixelBudget}
         style={{ width: "100%", height: "100%" }}
       />
     </div>
