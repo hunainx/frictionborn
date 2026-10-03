@@ -1,6 +1,5 @@
 // Original — Frictionborn Motion context-loss and lease-budget spec (PRD 6.1)
 import { test, expect } from "@playwright/test";
-import { createHash } from "node:crypto";
 
 const item = process.env.BENCH_ITEM || "noise-field";
 
@@ -37,23 +36,36 @@ test.describe("WebGL context loss and lease budget", () => {
     await expect(page.locator(`[data-frictionborn-item='${item}'] canvas`).first()).toBeVisible({ timeout: 10000 });
 
     // "Visible" is not "resumed": a restored but never re-initialised canvas is visible and blank (Paper does
-    // not handle webglcontextrestored). The pixels must change again.
-    const restored = page.locator(`[data-frictionborn-item='${item}'] canvas`).first();
-    const hash = (b: Buffer) => createHash("md5").update(b).digest("hex").slice(0, 8);
+    // not handle webglcontextrestored). The pixels must change again. Pixels are read in-page, right after the
+    // app's own draw in the same frame (before compositing, so the drawing buffer is still valid): an element
+    // screenshot needs a full composited frame and took longer than 10 s under SwiftShader on 2-vCPU CI.
+    const sample = () =>
+      page.evaluate(
+        () =>
+          new Promise<string>((resolve) => {
+            requestAnimationFrame(() => {
+              const canvas = document.querySelector("[data-frictionborn-item] canvas") as HTMLCanvasElement | null;
+              const gl = ((window as any).__gls || []).find((g: any) => g.canvas === canvas);
+              if (!canvas || !gl || gl.isContextLost()) return resolve("no-live-context");
+              const px = new Uint8Array(canvas.width * canvas.height * 4);
+              gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, px);
+              let h = 2166136261;
+              for (let i = 0; i < px.length; i += 7) h = Math.imul(h ^ px[i], 16777619);
+              resolve(`${h >>> 0}:${px.some((v) => v !== 0) ? "painted" : "blank"}`);
+            });
+          })
+      );
     await expect
       .poll(
         async () => {
-          const f0 = await page.evaluate(() => window.__FB_PROBES__?.frameCounter.getStats().totalFrames ?? -1);
-          const a = await restored.screenshot();
+          const a = await sample();
           await page.waitForTimeout(400);
-          const b = await restored.screenshot();
-          const f1 = await page.evaluate(() => window.__FB_PROBES__?.frameCounter.getStats().totalFrames ?? -1);
-          // Diagnostics for slow CI runners: frames requested and the screenshot hashes of each attempt
-          console.log(`[context-loss ${item}] rAF +${f1 - f0}, shots ${hash(a)} ${hash(b)} (${a.length} B)`);
-          return a.equals(b);
+          const b = await sample();
+          console.log(`[context-loss ${item}] ${a} -> ${b}`);
+          return a !== b && !a.startsWith("no-live") && !b.startsWith("no-live") && b.endsWith("painted");
         },
-        { timeout: 10000, message: "canvas must be animating again after the context is restored" }
+        { timeout: 20000, message: "canvas must be painting new pixels again after the context is restored" }
       )
-      .toBe(false);
+      .toBe(true);
   });
 });
