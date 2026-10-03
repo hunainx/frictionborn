@@ -7,22 +7,18 @@ import {
   useHydrated,
   useReducedMotion,
   useInView,
+  resolveCssColor,
   glBudget,
   type Lease,
 } from "@frictionborn/runtime";
 
 const MeshGradientGL = lazy(() => import("./mesh-gradient.gl"));
 
-function extractCssColor(elem: HTMLElement | null, tokenSpec: string, fallbackColor: string): string {
-  if (typeof window === "undefined" || !tokenSpec) return fallbackColor;
-  if (!tokenSpec.startsWith("var(")) return tokenSpec;
-  const match = tokenSpec.match(/var\((--[^,\s)]+)(?:,\s*([^)]+))?\)/);
-  if (!match) return fallbackColor;
-  const prop = match[1];
-  const def = match[2] || fallbackColor;
-  const style = elem ? window.getComputedStyle(elem) : window.getComputedStyle(document.documentElement);
-  const computed = style.getPropertyValue(prop).trim();
-  return computed || def;
+// Paper only parses hex/rgb/hsl, while Tailwind v4 / shadcn tokens serialise as lab() or oklch()
+function resolveColorToHex(element: HTMLElement | null, spec: string, fallback: string): string {
+  const rgb = resolveCssColor(element, spec);
+  if (!rgb) return fallback;
+  return "#" + rgb.map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("");
 }
 
 export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -39,12 +35,14 @@ export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> 
   children?: React.ReactNode;
 }
 
+// Host tokens with CSS system-colour fallbacks (no brand palette); module-level so the identity is stable
 const DEFAULT_MESH_TOKENS = [
-  "var(--background, #0B0E14)",
-  "var(--primary, #38BDF8)",
-  "var(--accent, #818CF8)",
-  "var(--muted, #1E293B)",
+  "var(--background, Canvas)",
+  "var(--primary, CanvasText)",
+  "var(--accent, GrayText)",
+  "var(--muted, ButtonFace)",
 ];
+const NEUTRAL_HEX = ["#808080", "#808080", "#808080", "#808080"];
 
 export function MeshGradient({
   colors = DEFAULT_MESH_TOKENS,
@@ -75,17 +73,16 @@ export function MeshGradient({
   const [contextSevered, setContextSevered] = useState(false);
 
   const [effectiveTier, setEffectiveTier] = useState<number>(0);
-  const [activeColors, setActiveColors] = useState<string[]>([
-    "#0B0E14",
-    "#38BDF8",
-    "#818CF8",
-    "#1E293B",
-  ]);
+  // Resolved hex colours for the WebGL layer only (the poster and scrim use the CSS tokens directly)
+  const [activeColors, setActiveColors] = useState<string[]>(NEUTRAL_HEX);
 
   const refreshColors = useCallback(() => {
     const el = hostElementRef.current;
-    const defaults = ["#0B0E14", "#38BDF8", "#818CF8", "#1E293B"];
-    setActiveColors(colors.map((c, i) => extractCssColor(el, c, defaults[i % defaults.length])));
+    const next = colors.map((c) => resolveColorToHex(el, c, "#808080"));
+    // Keep the previous array when nothing changed so unrelated <html> mutations do not re-render
+    setActiveColors((prev) =>
+      prev.length === next.length && prev.every((v, i) => v === next[i]) ? prev : next
+    );
   }, [colors]);
 
   useEffect(() => {
@@ -155,14 +152,9 @@ export function MeshGradient({
     setContextSevered(false); // @frictionborn-guard
   }, []);
 
-  const [bgBase, cAccent1, cAccent2, cMuted] = [
-    activeColors[0] || "#0B0E14",
-    activeColors[1] || "#38BDF8",
-    activeColors[2] || "#818CF8",
-    activeColors[3] || "#1E293B",
-  ];
-
-  const posterArt = `radial-gradient(circle at 20% 30%, ${cAccent1}40 0%, transparent 60%), radial-gradient(circle at 80% 70%, ${cAccent2}35 0%, transparent 55%), radial-gradient(circle at 50% 50%, ${cMuted}50 0%, transparent 70%), ${bgBase}`;
+  // Pure CSS from the same colour props: the server poster already follows the host theme (CLS 0, no flash)
+  const bgBase = colors[0];
+  const posterArt = `radial-gradient(circle at 20% 30%, color-mix(in srgb, ${colors[1] ?? colors[0]} 25%, transparent) 0%, transparent 60%), radial-gradient(circle at 80% 70%, color-mix(in srgb, ${colors[2] ?? colors[0]} 21%, transparent) 0%, transparent 55%), radial-gradient(circle at 50% 50%, color-mix(in srgb, ${colors[3] ?? colors[0]} 31%, transparent) 0%, transparent 70%), ${bgBase}`;
 
   const renderWebGLMesh = hasContextLease && !suppressMotion && effectiveTier >= 2;
 
@@ -223,7 +215,7 @@ export function MeshGradient({
           style={{
             position: "absolute",
             inset: 0,
-            background: `radial-gradient(circle at center, ${bgBase}33 0%, ${bgBase}cc 100%)`,
+            background: `radial-gradient(circle at center, color-mix(in srgb, ${bgBase} 20%, transparent) 0%, color-mix(in srgb, ${bgBase} 80%, transparent) 100%)`,
             pointerEvents: "none",
             zIndex: 2,
           }}

@@ -7,7 +7,7 @@ import { MeshGradient as PaperMeshGradient } from "@paper-design/shaders-react";
 import { useFrameGuard } from "@frictionborn/runtime";
 
 export interface MeshGradientGLProps {
-  colors?: string[];
+  colors: string[];
   speed?: number;
   distortion?: number;
   swirl?: number;
@@ -23,7 +23,7 @@ export interface MeshGradientGLProps {
 }
 
 export default function MeshGradientGL({
-  colors = ["#0B0E14", "#38BDF8", "#818CF8", "#1E293B"],
+  colors,
   speed = 0.35,
   distortion = 0.5,
   swirl = 0.25,
