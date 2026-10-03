@@ -22,6 +22,7 @@ export interface StickyScrollStoryProps {
   className?: string;
   style?: React.CSSProperties;
   mediaPosition?: "left" | "right";
+  onStepChange?: (stepId: string) => void;
 }
 
 export function StickyScrollStory({
@@ -29,12 +30,15 @@ export function StickyScrollStory({
   className = "",
   style,
   mediaPosition = "right",
+  onStepChange,
 }: StickyScrollStoryProps) {
   const [activeStep, setActiveStep] = useState(0);
   const hydrated = useHydrated(); // @frictionborn-guard
   const prefersReduced = useReducedMotion(); // @frictionborn-guard
   const capability = useCapability(); // @frictionborn-guard
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const onStepChangeRef = useRef(onStepChange);
+  onStepChangeRef.current = onStepChange;
 
   // Zero window scroll listeners: use IntersectionObserver to detect active step in viewport
   useEffect(() => {
@@ -49,6 +53,9 @@ export function StickyScrollStory({
               const idx = parseInt(indexStr, 10);
               if (!isNaN(idx)) {
                 setActiveStep(idx);
+                if (onStepChangeRef.current && steps[idx]) {
+                  onStepChangeRef.current(steps[idx].id);
+                }
               }
             }
           }
