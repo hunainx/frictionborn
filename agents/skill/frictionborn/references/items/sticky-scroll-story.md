@@ -111,8 +111,8 @@ export default function StorySection() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `97a198a` (2026-10-03)
-- **Size**: 2.46 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `d5e811d` (2026-10-03)
+- **Size**: 2.58 KB initial / 0.02 KB deferred (gzip, via gzip-9)
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames

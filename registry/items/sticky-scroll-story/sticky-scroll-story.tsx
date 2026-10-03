@@ -112,8 +112,10 @@ export function StickyScrollStory({
           transition: opacity 250ms cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* Hide inactive media once hydrated (incl. reduced motion, which swaps instantly); server HTML stays unhidden */
-        .fb-sss-container[data-hydrated="true"] .fb-sss-media-slot[data-active="false"] {
+        /* Hidden-before-reveal only under data-motion=ok (AGENTS rule 1); reduced motion never gets data-motion=ok,
+           so once hydrated it hides inactive media too (instant swap). Server HTML stays unhidden. */
+        html[data-motion="ok"] .fb-sss-media-slot[data-active="false"],
+        .fb-sss-container[data-hydrated="true"][data-reduced="true"] .fb-sss-media-slot[data-active="false"] {
           opacity: 0;
           pointer-events: none;
         }
@@ -172,6 +174,7 @@ export function StickyScrollStory({
       <div
         className="fb-sss-container"
         data-hydrated={hydrated ? "true" : "false"}
+        data-reduced={prefersReduced ? "true" : "false"}
         style={{
           direction: mediaPosition === "left" ? "rtl" : "ltr",
         }}
@@ -211,7 +214,7 @@ export function StickyScrollStory({
                       fontSize: "11px",
                       textTransform: "uppercase",
                       letterSpacing: "0.08em",
-                      color: isActive ? "var(--primary, currentColor)" : "var(--muted-foreground, GrayText)",
+                      color: isActive ? "var(--primary, currentColor)" : "var(--muted-foreground, color-mix(in srgb, currentColor 72%, transparent))",
                       marginBottom: "0.5rem",
                     }}
                   >
@@ -232,7 +235,7 @@ export function StickyScrollStory({
                   style={{
                     fontSize: "16px",
                     lineHeight: 1.6,
-                    color: "var(--muted-foreground, GrayText)",
+                    color: "var(--muted-foreground, color-mix(in srgb, currentColor 72%, transparent))",
                     margin: 0,
                     maxWidth: "520px",
                   }}
