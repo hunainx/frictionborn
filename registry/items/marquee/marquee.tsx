@@ -135,9 +135,9 @@ export function Marquee({
             fontSize: "0.75rem",
             fontWeight: 500,
             borderRadius: "4px",
-            border: "1px solid var(--line)",
-            background: "var(--surface)",
-            color: "var(--ink)",
+            border: "1px solid var(--border, GrayText)",
+            background: "var(--background, Canvas)",
+            color: "var(--foreground, CanvasText)",
             cursor: "pointer",
             boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
           }}

@@ -112,7 +112,8 @@ export function StickyScrollStory({
           transition: opacity 250ms cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        html[data-motion="ok"] .fb-sss-media-slot[data-active="false"] {
+        /* Hide inactive media once hydrated (incl. reduced motion, which swaps instantly); server HTML stays unhidden */
+        .fb-sss-container[data-hydrated="true"] .fb-sss-media-slot[data-active="false"] {
           opacity: 0;
           pointer-events: none;
         }
@@ -170,6 +171,7 @@ export function StickyScrollStory({
 
       <div
         className="fb-sss-container"
+        data-hydrated={hydrated ? "true" : "false"}
         style={{
           direction: mediaPosition === "left" ? "rtl" : "ltr",
         }}
@@ -196,7 +198,7 @@ export function StickyScrollStory({
                 className="fb-sss-step-card"
                 style={{
                   opacity: 1,
-                  borderLeft: isActive ? "3px solid var(--signal, #FB923C)" : "3px solid transparent",
+                  borderLeft: isActive ? "3px solid var(--primary, currentColor)" : "3px solid transparent",
                   paddingLeft: "1.25rem",
                   transition: prefersReduced ? "none" : "border-color 200ms ease",
                 }}
@@ -209,7 +211,7 @@ export function StickyScrollStory({
                       fontSize: "11px",
                       textTransform: "uppercase",
                       letterSpacing: "0.08em",
-                      color: isActive ? "var(--signal, #FB923C)" : "var(--muted, #9AA1AF)",
+                      color: isActive ? "var(--primary, currentColor)" : "var(--muted-foreground, GrayText)",
                       marginBottom: "0.5rem",
                     }}
                   >
@@ -222,7 +224,6 @@ export function StickyScrollStory({
                     fontWeight: 600,
                     letterSpacing: "-0.02em",
                     margin: "0 0 1rem 0",
-                    color: "var(--foreground, #E9EBF0)",
                   }}
                 >
                   {step.title}
@@ -231,7 +232,7 @@ export function StickyScrollStory({
                   style={{
                     fontSize: "16px",
                     lineHeight: 1.6,
-                    color: "var(--muted, #9AA1AF)",
+                    color: "var(--muted-foreground, GrayText)",
                     margin: 0,
                     maxWidth: "520px",
                   }}
@@ -240,7 +241,7 @@ export function StickyScrollStory({
                 </p>
 
                 {/* Mobile Inline Media (Rendered below narrative on phones without sticky position jumps) */}
-                <div className="fb-sss-mobile-media" aria-hidden="true">
+                <div className="fb-sss-mobile-media">
                   {step.media.type === "image" && step.media.src ? (
                     <img
                       src={step.media.src}
@@ -269,8 +270,8 @@ export function StickyScrollStory({
           className="fb-sss-media-col"
           style={{
             direction: "ltr",
-            border: "1px solid var(--line, #262B33)",
-            backgroundColor: "var(--surface, #15181D)",
+            border: "1px solid var(--border, color-mix(in srgb, currentColor 20%, transparent))",
+            backgroundColor: "var(--card, transparent)",
           }}
         >
           {steps.map((step, idx) => {
