@@ -42,6 +42,19 @@ test.describe("Capture component screenshots", () => {
       await page.waitForTimeout(1000);
       await page.screenshot({ path: path.join(outDir, "reduced-motion.png") });
     });
+
+    test(`captures ${item} light mode preview (1440x900)`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(`/items/${item}`);
+      await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+      await page.evaluate(() => {
+        document.documentElement.classList.add("light");
+        document.documentElement.setAttribute("data-theme", "light");
+      });
+      await page.waitForTimeout(1000);
+      await page.screenshot({ path: path.join(outDir, "light.png") });
+    });
   }
 
   test("captures fresh Next 16 install preview", async ({ page }) => {
