@@ -7,15 +7,15 @@ import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/
 
 const PALETTES = [
   {
-    name: "Host Theme",
+    name: "Spectral Core",
     colors: ["var(--background)", "var(--primary)", "var(--accent)"] as [string, string, string],
   },
   {
-    name: "Indigo / Rose",
+    name: "Deep Space",
     colors: ["#0B0F19", "#6366F1", "#EC4899"] as [string, string, string],
   },
   {
-    name: "Emerald / Cyan",
+    name: "Atmospheric",
     colors: ["#06110D", "#10B981", "#06B6D4"] as [string, string, string],
   },
 ];
@@ -24,7 +24,6 @@ export default function NoiseFieldDemo() {
   const [selectedPalette, setSelectedPalette] = useState(0);
   const [activeTier, setActiveTier] = useState<number | undefined>(undefined);
   const [isLight, setIsLight] = useState(false);
-  const [copied, setCopied] = useState(false);
   const isPaused = usePaused();
   const systemReduced = useReducedMotion();
   const [manualReduced, setManualReduced] = useState(false);
@@ -45,14 +44,6 @@ export default function NoiseFieldDemo() {
       document.documentElement.classList.add("light");
     } else {
       document.documentElement.classList.remove("light");
-    }
-  };
-
-  const handleCopy = () => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText("npx shadcn@latest add @frictionborn/noise-field");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -302,6 +293,19 @@ export default function NoiseFieldDemo() {
               margin: "0 auto",
             }}
           >
+            <span
+              className="mono"
+              style={{
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "var(--primary, #FB923C)",
+                display: "block",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Quantum Optical Instrumentation
+            </span>
             <h1
               style={{
                 fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
@@ -312,7 +316,7 @@ export default function NoiseFieldDemo() {
                 marginBottom: "1rem",
               }}
             >
-              Engineered Motion for High-Signal Interfaces
+              Aetheric Instruments
             </h1>
 
             <p
@@ -321,16 +325,17 @@ export default function NoiseFieldDemo() {
                 lineHeight: 1.6,
                 color: "var(--foreground, #E9EBF0)",
                 opacity: 0.9,
-                maxWidth: "520px",
+                maxWidth: "540px",
                 marginBottom: "2rem",
               }}
             >
-              Calibrated kinetic backdrops built for zero layout shift and automated tier scaling.
+              Sub-angstrom laser interferometry and quantum optical telemetry systems
+              engineered for planetary and orbital observation.
             </p>
 
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
               <a
-                href="#docs"
+                href="#instrumentation"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -338,18 +343,18 @@ export default function NoiseFieldDemo() {
                   fontSize: "14px",
                   fontWeight: 500,
                   borderRadius: "6px",
-                  backgroundColor: "var(--signal, #FB923C)",
-                  color: "var(--bg, #0D0F12)",
+                  backgroundColor: "var(--primary, #FB923C)",
+                  color: "var(--background, #0D0F12)",
                   border: "none",
                   cursor: "pointer",
                   textDecoration: "none",
+                  minHeight: "44px",
                 }}
               >
-                Explore Components
+                Explore Instrumentation
               </a>
-              <button
-                type="button"
-                onClick={handleCopy}
+              <a
+                href="#telemetry"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -358,13 +363,15 @@ export default function NoiseFieldDemo() {
                   fontWeight: 500,
                   borderRadius: "6px",
                   backgroundColor: "var(--surface, #15181D)",
-                  color: "var(--ink, #E9EBF0)",
-                  border: "1px solid var(--line, #262B33)",
+                  color: "var(--foreground, #E9EBF0)",
+                  border: "1px solid var(--border, #262B33)",
                   cursor: "pointer",
+                  textDecoration: "none",
+                  minHeight: "44px",
                 }}
               >
-                {copied ? "Copied Command!" : "Copy shadcn Command"}
-              </button>
+                Live Observatory Feeds
+              </a>
             </div>
           </div>
         </NoiseField>

@@ -5,87 +5,256 @@ import React, { useState } from "react";
 import { MagneticButton } from "./magnetic-button";
 
 export default function MagneticButtonDemo() {
-  const [pullPixels, setPullPixels] = useState(16);
+  const [magneticRadius, setMagneticRadius] = useState(16);
 
   return (
     <section
+      aria-label="Aetheric Instruments Beam Alignment Deck"
       style={{
-        padding: "4rem 2rem",
+        padding: "3.5rem 1.5rem",
         textAlign: "center",
-        background: "var(--background)",
+        maxWidth: 860,
+        margin: "0 auto",
+        color: "var(--foreground, #E9EBF0)",
       }}
     >
-      <div style={{ marginBottom: "2.5rem" }}>
-        <h2 style={{ fontSize: "1.5rem", color: "var(--ink)", margin: "0 0 0.5rem 0" }}>
-          Magnetic Attraction Zone
-        </h2>
-        <p style={{ margin: 0, color: "var(--muted)", fontSize: "0.95rem" }}>
-          Fine pointer cursor tracking with spring physics settling to 0 rAF.
+      <header style={{ marginBottom: "2.5rem" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: "var(--primary, #FB923C)",
+            }}
+          />
+          <span
+            className="mono"
+            style={{
+              fontSize: "0.75rem",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "var(--muted-foreground, #9AA1AF)",
+            }}
+          >
+            Aetheric Instruments · Optical Beam Guidance
+          </span>
+        </div>
+
+        <h1
+          style={{
+            fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            margin: "0 0 0.75rem 0",
+            color: "var(--foreground, #E9EBF0)",
+          }}
+        >
+          Orbital Beam Axis Calibration
+        </h1>
+        <p
+          style={{
+            margin: "0 auto",
+            maxWidth: "600px",
+            fontSize: "0.95rem",
+            lineHeight: 1.6,
+            color: "var(--muted-foreground, #9AA1AF)",
+          }}
+        >
+          Piezoelectric steerable mirror matrix compensating for spacecraft thermal jitter
+          during deep-space coherent laser communication locks.
         </p>
+      </header>
+
+      {/* Optical Alignment Target Reticle (SVG) */}
+      <div
+        style={{
+          margin: "0 auto 2.5rem auto",
+          width: "200px",
+          height: "200px",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <svg
+          viewBox="0 0 200 200"
+          width="200"
+          height="200"
+          style={{ position: "absolute", inset: 0, opacity: 0.8 }}
+          aria-hidden="true"
+        >
+          <circle
+            cx="100"
+            cy="100"
+            r="90"
+            fill="none"
+            stroke="var(--border, #262B33)"
+            strokeWidth="1"
+            strokeDasharray="4 4"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="60"
+            fill="none"
+            stroke="var(--border, #262B33)"
+            strokeWidth="1"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="30"
+            fill="none"
+            stroke="var(--primary, #FB923C)"
+            strokeWidth="1.5"
+            opacity="0.6"
+          />
+          <line
+            x1="10"
+            y1="100"
+            x2="190"
+            y2="100"
+            stroke="var(--border, #262B33)"
+            strokeWidth="1"
+          />
+          <line
+            x1="100"
+            y1="10"
+            x2="100"
+            y2="190"
+            stroke="var(--border, #262B33)"
+            strokeWidth="1"
+          />
+          <circle
+            cx="100"
+            cy="100"
+            r="3"
+            fill="var(--primary, #FB923C)"
+          />
+        </svg>
+
+        <span
+          className="mono"
+          style={{
+            fontSize: "11px",
+            color: "var(--muted-foreground, #9AA1AF)",
+            backgroundColor: "var(--background, #0D0F12)",
+            padding: "2px 6px",
+            borderRadius: "4px",
+            border: "1px solid var(--border, #262B33)",
+            position: "relative",
+            zIndex: 2,
+          }}
+        >
+          Target: 0.00 μrad
+        </span>
       </div>
 
-      <div style={{ display: "inline-flex", gap: "1.25rem", alignItems: "center" }}>
-        <MagneticButton strength={pullPixels}>
+      {/* Magnetic Action Buttons */}
+      <div
+        style={{
+          display: "inline-flex",
+          gap: "1.25rem",
+          alignItems: "center",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
+        <MagneticButton strength={magneticRadius}>
           <button
             type="button"
             style={{
-              padding: "1rem 2rem",
-              borderRadius: "2rem",
-              background: "var(--ink)",
-              color: "var(--surface)",
-              fontSize: "1rem",
+              padding: "0.875rem 2rem",
+              borderRadius: "6px",
+              background: "var(--primary, #FB923C)",
+              color: "var(--background, #0D0F12)",
+              fontSize: "0.95rem",
               fontWeight: 600,
               border: "none",
               cursor: "pointer",
-              outlineOffset: "4px",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            Launch Runner
+            Lock Optical Axis
           </button>
         </MagneticButton>
 
-        <MagneticButton strength={Math.round(pullPixels * 0.6)}>
-          <a
-            href="#docs"
+        <MagneticButton strength={Math.round(magneticRadius * 0.6)}>
+          <button
+            type="button"
             style={{
-              display: "inline-block",
-              padding: "1rem 1.75rem",
-              borderRadius: "2rem",
-              border: "1px solid var(--line)",
-              color: "var(--ink)",
-              textDecoration: "none",
+              padding: "0.875rem 1.75rem",
+              borderRadius: "6px",
+              border: "1px solid var(--border, #262B33)",
+              background: "transparent",
+              color: "var(--foreground, #E9EBF0)",
               fontSize: "0.95rem",
               fontWeight: 500,
-              background: "var(--surface)",
-              outlineOffset: "4px",
+              cursor: "pointer",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            Read Specification
-          </a>
+            Recalibrate Gimbal
+          </button>
         </MagneticButton>
       </div>
 
-      <div style={{ marginTop: "3rem" }}>
-        <span style={{ fontSize: "0.8rem", color: "var(--muted)", marginRight: "0.75rem" }}>
-          Spring Displacement:
+      {/* Sensitivity Switcher */}
+      <div
+        style={{
+          marginTop: "2.5rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "0.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <span
+          className="mono"
+          style={{
+            fontSize: "0.8rem",
+            color: "var(--muted-foreground, #9AA1AF)",
+            marginRight: "0.5rem",
+          }}
+        >
+          Magnetic Attraction Radius:
         </span>
-        {[10, 18, 28].map((val) => (
+        {[10, 16, 24].map((rad) => (
           <button
-            key={val}
+            key={rad}
             type="button"
-            onClick={() => setPullPixels(val)}
+            onClick={() => setMagneticRadius(rad)}
+            aria-pressed={magneticRadius === rad}
             style={{
-              margin: "0 0.25rem",
-              padding: "0.2rem 0.6rem",
-              fontSize: "0.8rem",
-              borderRadius: 4,
-              border: "1px solid var(--line)",
-              background: pullPixels === val ? "var(--ink)" : "var(--surface)",
-              color: pullPixels === val ? "var(--surface)" : "var(--ink)",
+              padding: "0.25rem 0.625rem",
+              fontSize: "0.75rem",
+              borderRadius: "4px",
+              border: "1px solid var(--border, #262B33)",
+              background: magneticRadius === rad ? "var(--primary, #FB923C)" : "transparent",
+              color: magneticRadius === rad ? "var(--background, #0D0F12)" : "var(--foreground, #E9EBF0)",
               cursor: "pointer",
+              fontWeight: 500,
+              minHeight: "32px",
             }}
           >
-            {val}px
+            {rad}px
           </button>
         ))}
       </div>
