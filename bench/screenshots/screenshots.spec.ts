@@ -11,6 +11,8 @@ const items = [
   "marquee",
   "smooth-scroll",
   "sticky-scroll-story",
+  "particle-field",
+  "mesh-gradient",
 ];
 
 test.describe("Capture component screenshots", () => {

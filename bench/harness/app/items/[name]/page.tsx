@@ -10,6 +10,8 @@ import MagneticButtonDemo from "../../../../../registry/items/magnetic-button/de
 import MarqueeDemo from "../../../../../registry/items/marquee/demo";
 import SmoothScrollDemo from "../../../../../registry/items/smooth-scroll/demo";
 import StickyScrollStoryDemo from "../../../../../registry/items/sticky-scroll-story/demo";
+import ParticleFieldDemo from "../../../../../registry/items/particle-field/demo";
+import MeshGradientDemo from "../../../../../registry/items/mesh-gradient/demo";
 
 export default function ItemBenchPage({
   params,
@@ -84,6 +86,12 @@ export default function ItemBenchPage({
     }
     if (name === "sticky-scroll-story") {
       return <StickyScrollStoryDemo />;
+    }
+    if (name === "particle-field") {
+      return <ParticleFieldDemo />;
+    }
+    if (name === "mesh-gradient") {
+      return <MeshGradientDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>
