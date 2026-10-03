@@ -16,6 +16,96 @@ export interface ScrollRevealProps {
   maxTier?: number;
 }
 
+const SCROLL_REVEAL_STYLES = `
+  @supports (animation-timeline: view()) {
+    [data-motion="ok"] .fb-sr-track {
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+      animation-fill-mode: both;
+      will-change: transform, opacity;
+    }
+    [data-motion="ok"] .fb-sr-track[data-anim="fade"] {
+      animation-name: fb-sr-v-fade;
+    }
+    [data-motion="ok"] .fb-sr-track[data-anim="fade-up"] {
+      animation-name: fb-sr-v-fade-up;
+    }
+    [data-motion="ok"] .fb-sr-track[data-anim="scale-up"] {
+      animation-name: fb-sr-v-scale-up;
+    }
+  }
+
+  @keyframes fb-sr-v-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fb-sr-v-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(var(--fb-sr-dist, 24px));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fb-sr-v-scale-up {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(calc(var(--fb-sr-dist, 24px) / 2));
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @supports not (animation-timeline: view()) {
+    [data-motion="ok"] .fb-sr-track {
+      opacity: 0;
+      transform: var(--fb-sr-initial-transform, translateY(24px));
+      transition: opacity var(--fb-sr-duration, 400ms) cubic-bezier(0.22, 1, 0.36, 1),
+                  transform var(--fb-sr-duration, 400ms) cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: opacity, transform;
+    }
+    [data-motion="ok"] .fb-sr-track.is-visible {
+      opacity: 1;
+      transform: none;
+      will-change: auto;
+    }
+  }
+
+  /* Focus guard: anything with focus is forced visible */
+  [data-motion="ok"] .fb-sr-track:focus-within,
+  [data-motion="ok"] .fb-sr-track:has(:focus) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-motion="ok"] .fb-sr-track {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+`;
+
+let clientStylesInjected = false;
+function ensureStylesInjected() {
+  if (typeof document === "undefined" || clientStylesInjected) return;
+  if (!document.getElementById("fb-scroll-reveal-style")) {
+    const el = document.createElement("style");
+    el.id = "fb-scroll-reveal-style";
+    el.textContent = SCROLL_REVEAL_STYLES;
+    document.head.appendChild(el);
+  }
+  clientStylesInjected = true;
+}
+
 export function ScrollReveal({
   children,
   as: Component = "div",
@@ -41,6 +131,7 @@ export function ScrollReveal({
 
   const [hasEntered, setHasEntered] = useState(false);
   useEffect(() => {
+    ensureStylesInjected();
     if (inView) {
       setHasEntered(true);
     }
@@ -69,47 +160,20 @@ export function ScrollReveal({
         ...style,
       }}
     >
-      <style>{`
-        [data-motion="ok"] .fb-sr-hidden {
-          opacity: 0;
-          transform: var(--fb-sr-initial-transform, translateY(24px));
-          transition: opacity var(--fb-sr-duration, 400ms) cubic-bezier(0.22, 1, 0.36, 1),
-                      transform var(--fb-sr-duration, 400ms) cubic-bezier(0.22, 1, 0.36, 1);
-          will-change: opacity, transform;
-        }
-
-        [data-motion="ok"] .fb-sr-hidden.is-visible {
-          opacity: 1;
-          transform: none;
-          will-change: auto;
-        }
-
-        /* Focus guard: anything with focus is forced visible */
-        [data-motion="ok"] .fb-sr-hidden:focus-within,
-        [data-motion="ok"] .fb-sr-hidden:has(:focus) {
-          opacity: 1 !important;
-          transform: none !important;
-          transition: none !important;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          [data-motion="ok"] .fb-sr-hidden {
-            opacity: 1 !important;
-            transform: none !important;
-            transition: none !important;
-            animation: none !important;
-          }
-        }
-      `}</style>
+      <style href="fb-scroll-reveal" precedence="default">
+        {SCROLL_REVEAL_STYLES}
+      </style>
 
       <div
         className={
           isClientHydrated && !reducedMotionActive && resolvedTier > 0
-            ? `fb-sr-hidden ${isRevealed ? "is-visible" : ""}`
+            ? `fb-sr-track ${isRevealed ? "is-visible" : ""}`
             : ""
         }
+        data-anim={animation}
         style={
           {
+            "--fb-sr-dist": `${effectiveDistance}px`,
             "--fb-sr-initial-transform": initialTransform,
             "--fb-sr-duration": `${duration}ms`,
           } as React.CSSProperties
