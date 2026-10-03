@@ -76,6 +76,7 @@ export function SmoothScroll({
   const shouldEnable = isHydrated && enabled && !prefersReduced && !isCoarsePointer;
 
   // Wake the shared loop on input; it stops again as soon as Lenis reports it is no longer scrolling
+  const idleFramesRef = useRef(0);
   const needsClockResetRef = useRef(true);
   const wakeLoop = useCallback(() => {
     // The shared loop was idle: Lenis would see one huge frame delta and jump instead of easing
@@ -182,7 +183,12 @@ export function SmoothScroll({
           (lenis as any).time = 0; // next raf() computes delta 0 instead of the idle gap
         }
         lenis.raf(time);
-        if (!lenis.isScrolling) {
+        // Idle only when Lenis is neither scrolling nor animating for several consecutive frames
+        // (browsers differ in when native scroll events flip isScrolling; never stop mid-animation)
+        const busy = !!lenis.isScrolling || !!(lenis as any).animate?.isRunning;
+        idleFramesRef.current = busy ? 0 : idleFramesRef.current + 1;
+        if (idleFramesRef.current >= 3) {
+          idleFramesRef.current = 0;
           if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
           setIsScrolling(false);
         }

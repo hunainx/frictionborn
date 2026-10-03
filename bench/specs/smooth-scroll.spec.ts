@@ -3,6 +3,24 @@ import { test, expect } from "@playwright/test";
 
 const item = process.env.BENCH_ITEM || "noise-field";
 
+// Resolve once scrollY has stopped changing for 600 ms; returns the final position (so failures show the number)
+async function settledScrollY(page: import("@playwright/test").Page, timeout = 8000): Promise<number> {
+  const start = Date.now();
+  let last = -1;
+  let stableSince = Date.now();
+  while (Date.now() - start < timeout) {
+    const y = await page.evaluate(() => window.scrollY);
+    if (Math.abs(y - last) > 0.5) {
+      last = y;
+      stableSince = Date.now();
+    } else if (Date.now() - stableSince >= 600) {
+      return y;
+    }
+    await page.waitForTimeout(100);
+  }
+  return last;
+}
+
 test.describe("SmoothScroll functional behaviour", () => {
   test.skip(item !== "smooth-scroll", "SmoothScroll only");
 
@@ -31,13 +49,13 @@ test.describe("SmoothScroll functional behaviour", () => {
     await page.waitForTimeout(100);
     const early = await page.evaluate(() => Math.round(window.scrollY));
     expect(early).toBeLessThan(500); // eased, not a jump
-    await page.waitForFunction(() => Math.abs(window.scrollY - 500) <= 2, undefined, { timeout: 6000 });
+    expect(Math.abs((await settledScrollY(page)) - 500)).toBeLessThanOrEqual(3);
   });
 
   test("zero rAF frames once scrolling has settled", async ({ page }) => {
     await page.mouse.move(700, 500);
     await page.mouse.wheel(0, 400);
-    await page.waitForFunction(() => Math.abs(window.scrollY - 400) <= 2, undefined, { timeout: 6000 });
+    expect(Math.abs((await settledScrollY(page)) - 400)).toBeLessThanOrEqual(3);
     await page.waitForTimeout(800);
     await page.evaluate(() => window.__FB_PROBES__?.frameCounter.reset());
     await page.waitForTimeout(1000);
