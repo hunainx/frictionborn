@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import React from "react";
-import { render, cleanup } from "@testing-library/react";
+import { render, cleanup, act } from "@testing-library/react";
 import {
   SmoothScroll,
   _resetSmoothScrollSingletonForTesting,
@@ -137,5 +137,26 @@ describe("SmoothScroll", () => {
     const activeAfter = lenisInstances.filter((i) => !i.destroyed);
     expect(activeAfter.length).toBe(1);
     expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("requests no animation frames after mount, and only wakes the loop on input", async () => {
+    // Regression: the loop used to start busy, so a freshly hydrated page ran a burst of 4-7 frames that
+    // landed inside the bench's off-screen sampling window on slow WebKit (CI run 37145259430)
+    const raf = vi.spyOn(window, "requestAnimationFrame");
+    render(
+      <SmoothScroll>
+        <div>Idle</div>
+      </SmoothScroll>
+    );
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 100));
+    });
+    expect(raf).not.toHaveBeenCalled();
+
+    await act(async () => {
+      window.dispatchEvent(new Event("wheel"));
+      await new Promise((r) => setTimeout(r, 50));
+    });
+    expect(raf).toHaveBeenCalled();
   });
 });

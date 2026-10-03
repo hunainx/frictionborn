@@ -60,7 +60,9 @@ export function SmoothScroll({
 
   const lenisRef = useRef<Lenis | null>(null);
   const [isActive, setIsActive] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(true);
+  // Starts idle: Lenis has nothing to animate until the first wheel/key/touch/scroll input wakes the loop,
+  // so a freshly hydrated (or off-screen) page requests zero frames
+  const [isScrolling, setIsScrolling] = useState(false);
   const settleTimerRef = useRef<any>(null);
   const isMasterRef = useRef(false);
   // Callbacks may be inline lambdas; read them through refs so they never re-create Lenis
@@ -158,11 +160,6 @@ export function SmoothScroll({
     window.addEventListener("keydown", wakeLoop, { passive: true });
     window.addEventListener("touchmove", wakeLoop, { passive: true });
     window.addEventListener("scroll", wakeLoop, { passive: true });
-
-    // Initial settle after mounting
-    settleTimerRef.current = setTimeout(() => {
-      setIsScrolling(false);
-    }, 500);
 
     return () => {
       window.removeEventListener("wheel", wakeLoop);
