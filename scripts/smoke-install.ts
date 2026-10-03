@@ -69,7 +69,7 @@ export async function runSmokeTest(): Promise<void> {
   console.log(`Created smoke test harness directory: ${tempDir}`);
 
   try {
-    // 1. Setup minimal consumer project configuration
+    // 1. Setup minimal consumer project configuration with exact pins (Audit Finding N17)
     const runtimeUrl = `file:${runtimePkgDir.replace(/\\/g, "/")}`;
     const packageJson = {
       name: "smoke-consumer",
@@ -78,13 +78,13 @@ export async function runSmokeTest(): Promise<void> {
       type: "module",
       dependencies: {
         "@frictionborn/runtime": runtimeUrl,
-        react: "^19.0.0",
-        "react-dom": "^19.0.0",
+        react: "19.3.0",
+        "react-dom": "19.3.0",
       },
       devDependencies: {
-        "@types/react": "^19.0.0",
-        "@types/react-dom": "^19.0.0",
-        typescript: "^5.0.0",
+        "@types/react": "19.3.0",
+        "@types/react-dom": "19.3.0",
+        typescript: "5.9.3",
       },
     };
 
@@ -93,6 +93,9 @@ export async function runSmokeTest(): Promise<void> {
       JSON.stringify(packageJson, null, 2),
       "utf8"
     );
+
+    // Enforce exact save in npm for installed registry dependencies (Audit N17)
+    fs.writeFileSync(path.join(tempDir, ".npmrc"), "save-exact=true\n", "utf8");
 
     const tsConfig = {
       compilerOptions: {
@@ -167,24 +170,59 @@ export async function runSmokeTest(): Promise<void> {
       console.log(`✔ Successfully installed ${itemName} into consumer project.`);
     }
 
-    // 4. Create smoke consumer file importing installed components
+    // 4. Inspect consumer package.json to verify exact dependency pinning (Audit N17)
+    const consumerPkg = JSON.parse(
+      fs.readFileSync(path.join(tempDir, "package.json"), "utf8")
+    );
+    console.log("Consumer package.json dependencies:", consumerPkg.dependencies);
+    for (const [depName, depVer] of Object.entries<string>(consumerPkg.dependencies || {})) {
+      if (depName === "@frictionborn/runtime") continue;
+      if (depVer.startsWith("^") || depVer.startsWith("~")) {
+        throw new Error(
+          `Audit Finding N17 Violation: Consumer dependency "${depName}" is not pinned exactly: "${depVer}"`
+        );
+      }
+    }
+    console.log("✔ Verified all consumer dependencies are pinned exactly without ^ or ~.");
+
+    // 5. Create smoke consumer file importing installed components
     const consumerSrc = `// Smoke consumer test
+import React from "react";
 import { NoiseField } from "./components/ui/noise-field";
 import { TextReveal } from "./components/ui/text-reveal";
+import { ScrollReveal } from "./components/ui/scroll-reveal";
+import { MagneticButton } from "./components/ui/magnetic-button";
+import { Marquee } from "./components/ui/marquee";
+import { SmoothScroll } from "./components/ui/smooth-scroll";
+import { StickyScrollStory } from "./components/ui/sticky-scroll-story";
 
 export default function TestPage() {
   return (
-    <div style={{ width: 800, height: 600 }}>
-      <NoiseField colors={["#0D0F12", "#FB923C", "#3B82F6"]}>
-        <TextReveal as="h1">Frictionborn Smoke Test OK</TextReveal>
-      </NoiseField>
-    </div>
+    <SmoothScroll>
+      <div style={{ width: 800, height: 600 }}>
+        <NoiseField colors={["#0D0F12", "#FB923C", "#3B82F6"]}>
+          <TextReveal as="h1">Frictionborn Smoke Test OK</TextReveal>
+        </NoiseField>
+        <ScrollReveal>
+          <MagneticButton>Action</MagneticButton>
+        </ScrollReveal>
+        <Marquee>
+          <span>Token Alpha</span>
+          <span>Token Beta</span>
+        </Marquee>
+        <StickyScrollStory
+          steps={[
+            { id: "1", title: "Step 1", description: "Desc 1", media: <div>Media 1</div> },
+          ]}
+        />
+      </div>
+    </SmoothScroll>
   );
 }
 `;
     fs.writeFileSync(path.join(tempDir, "smoke-consumer.tsx"), consumerSrc, "utf8");
 
-    // 5. Run TypeScript compiler to ensure 0 compile/type errors
+    // 6. Run TypeScript compiler to ensure 0 compile/type errors
     console.log("==> Running TypeScript check on installed components...");
     await runCommand("npx tsc --noEmit", tempDir);
     console.log("✔ TypeScript verification passed with 0 errors!");
