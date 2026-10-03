@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion TextReveal
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo, useId } from "react";
 import { useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
 export interface TextRevealProps {
@@ -30,10 +30,32 @@ export function TextReveal({
   replayKey,
 }: TextRevealProps) {
   const containerRef = useRef<HTMLElement>(null);
+  const id = useId();
   const hydrated = useHydrated();
   const prefersReduced = useReducedMotion();
   const { tier: rawTier } = useCapability();
   const tier = Math.min(rawTier, maxTier);
+
+  // Check if this component was pre-rendered in SSR HTML
+  const isSsrInitial = useRef<boolean | null>(null);
+  if (isSsrInitial.current === null) {
+    if (typeof document !== "undefined") {
+      const el = document.getElementById(id);
+      isSsrInitial.current = Boolean(el && el.getAttribute("data-ssr") === "true");
+    } else {
+      isSsrInitial.current = true;
+    }
+  }
+
+  // When replayKey changes, allow animated re-reveal even if initially SSR-rendered
+  const prevReplayRef = useRef(replayKey);
+  if (prevReplayRef.current !== replayKey) {
+    prevReplayRef.current = replayKey;
+    isSsrInitial.current = false;
+  }
+
+  const isSsrPainted = isSsrInitial.current && replayKey === undefined;
+  const shouldAnimate = hydrated && !prefersReduced && tier > 0 && !isSsrPainted;
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -131,13 +153,12 @@ export function TextReveal({
     setLineGroups(lines);
   }, [by, fontsLoaded, lineGroups.length, children, replayKey]);
 
-  // If reduced motion is preferred or server-side rendering, render plain static text immediately
-  const shouldAnimate = hydrated && !prefersReduced && tier > 0;
-
   return (
     <Component
       ref={containerRef as any}
+      id={id}
       data-frictionborn-item="text-reveal"
+      data-ssr={!hydrated ? "true" : undefined}
       data-tier={tier}
       className={`fb-text-reveal ${className}`}
       style={{
