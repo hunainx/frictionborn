@@ -4,7 +4,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { MeshGradient as PaperMeshGradient } from "@paper-design/shaders-react";
-import { useFrameGuard } from "@frictionborn/runtime";
+import { useFrameGuard, usePaused } from "@frictionborn/runtime";
 
 export interface MeshGradientGLProps {
   colors: string[];
@@ -41,10 +41,13 @@ export default function MeshGradientGL({
   // Paper does not handle webglcontextrestored: remounting its component builds a fresh context and program
   const [mountKey, setMountKey] = useState(0);
 
+  // Paper runs its own render loop, so the runtime's global pause (pauseAll) has to reach it as speed 0
+  const globalPaused = usePaused();
+
   // Guard frame budget — auto-downgrades if render cost exceeds 25ms p75
   useFrameGuard({
     onDowngrade: onDowngrade ?? (() => {}),
-    active: !paused && !reducedMotion && !suspended,
+    active: !paused && !globalPaused && !reducedMotion && !suspended,
   }); // @frictionborn-guard
 
   // Decision 15 (D-B): Tier 2 & mobile capped to DPR 1.5, tier 3 to 2. Paper's minPixelRatio is a floor (it
@@ -122,7 +125,7 @@ export default function MeshGradientGL({
       <PaperMeshGradient
         key={mountKey}
         colors={colors}
-        speed={paused || reducedMotion ? 0 : speed}
+        speed={paused || globalPaused || reducedMotion ? 0 : speed}
         distortion={distortion}
         swirl={swirl}
         grainMixer={grainMixer}
