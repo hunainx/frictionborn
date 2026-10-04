@@ -36,4 +36,16 @@ test.describe("Accessibility spec", () => {
     const textContent = await page.locator(`[data-frictionborn-item='${item}']`).first().innerText();
     expect(textContent.length).toBeGreaterThan(0);
   });
+
+  // Reduced motion renders different DOM (Marquee's hand-scrollable row, static posters): the default-mode scan above
+  // never saw its serious `scrollable-region-focusable` violation.
+  test("reduced motion: 0 serious and 0 critical violations", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto(`/items/${item}`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForTimeout(1000);
+    const results = await new AxeBuilder({ page }).include("#demo-mount-point").analyze();
+    const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(bad.map((v) => `${v.id} (${v.impact}) on ${v.nodes[0]?.target?.join(" ")}`)).toEqual([]);
+  });
 });
