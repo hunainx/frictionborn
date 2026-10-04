@@ -44,4 +44,74 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
       expect(activeContexts).toBeLessThanOrEqual(2);
     }
   });
+
+  test("leases follow visibility during scroll-through top-to-bottom and back (S8-8)", async ({
+    page,
+  }) => {
+    await page.goto("/stress-gl?scroll=1");
+    await page.waitForSelector("[data-layout='stacked']");
+    await page.waitForTimeout(600);
+
+    const isFine = await page.evaluate(() => window.matchMedia("(pointer: fine)").matches);
+    const maxCeiling = isFine ? 4 : 2;
+
+    const getContextCount = async () => {
+      return await page.evaluate(() => {
+        return window.__FB_PROBES__?.contextCounter.getStats().activeContexts ?? 0;
+      });
+    };
+
+    // 1. Initial position: at top
+    let count = await getContextCount();
+    expect(count).toBeLessThanOrEqual(maxCeiling);
+
+    // Item 1 is in view at top and should have live canvas
+    const item1 = page.locator("[data-testid='gl-item-1']");
+    await expect(item1.locator("canvas")).toBeVisible({ timeout: 5000 });
+
+    // 2. Scroll through: scroll down to item 3 (middle)
+    const item3 = page.locator("[data-testid='gl-item-3']");
+    await item3.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(600);
+
+    count = await getContextCount();
+    expect(count).toBeLessThanOrEqual(maxCeiling);
+    await expect(item3.locator("canvas")).toBeVisible({ timeout: 5000 });
+
+    // 3. Scroll all the way to the bottom: item 6
+    const item6 = page.locator("[data-testid='gl-item-6']");
+    await item6.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(600);
+
+    count = await getContextCount();
+    expect(count).toBeLessThanOrEqual(maxCeiling);
+
+    // Item 6 is visible and live at the bottom
+    await expect(item6.locator("canvas")).toBeVisible({ timeout: 5000 });
+
+    // Item 1 is now far off-screen; verify it surrendered its lease
+    const item1HasCanvas = await item1.locator("canvas").count();
+    expect(item1HasCanvas).toBe(0);
+
+    // 4. Scroll back to top
+    await item1.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(600);
+
+    count = await getContextCount();
+    expect(count).toBeLessThanOrEqual(maxCeiling);
+
+    // Item 1 re-acquired its lease and is live again
+    await expect(item1.locator("canvas")).toBeVisible({ timeout: 5000 });
+
+    // Item 6 is now off-screen and surrendered its lease
+    const item6HasCanvas = await item6.locator("canvas").count();
+    expect(item6HasCanvas).toBe(0);
+
+    // Unplanned context losses must remain 0
+    const unplannedLosses = await page.evaluate(
+      () => window.__FB_PROBES__?.contextCounter.getStats().unplannedLosses ?? 0
+    );
+    expect(unplannedLosses).toBe(0);
+  });
 });
+
