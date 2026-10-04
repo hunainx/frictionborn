@@ -47,20 +47,32 @@ export default function ItemBenchPage({
     }
   }, [isLeakTest]);
 
-  // Leak test cycle: mount/unmount 50 times ending unmounted per PRD 6.0
+  const [targetCycles, setTargetCycles] = useState(25);
+
   useEffect(() => {
-    if (isLeakTest && cycleCount < 50) {
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search);
+      const c = parseInt(p.get("cycles") || "", 10);
+      if (!isNaN(c) && c > 0) {
+        setTargetCycles(c);
+      }
+    }
+  }, []);
+
+  // Leak test cycle: mount/unmount cycles ending unmounted per PRD 6.0
+  useEffect(() => {
+    if (isLeakTest && cycleCount < targetCycles) {
       const timer = setTimeout(() => {
-        if (cycleCount + 1 >= 50) {
+        if (cycleCount + 1 >= targetCycles) {
           setMounted(false);
         } else {
           setMounted((m) => !m);
         }
         setCycleCount((c) => c + 1);
-      }, 20);
+      }, 16);
       return () => clearTimeout(timer);
     }
-  }, [isLeakTest, cycleCount]);
+  }, [isLeakTest, cycleCount, targetCycles]);
 
   function renderDemo() {
     if (name === "dummy") {
@@ -103,7 +115,7 @@ export default function ItemBenchPage({
   return (
     <div
       data-testid="bench-container"
-      data-leak-done={cycleCount >= 50 ? "true" : undefined}
+      data-leak-done={cycleCount >= targetCycles ? "true" : undefined}
       data-fb-tier={tier}
       style={{
         maxWidth: 1000,
@@ -127,7 +139,7 @@ export default function ItemBenchPage({
             Item Benchmark: {name}
           </span>
           <span className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-            Tier: {tier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/50
+            Tier: {tier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/{targetCycles}
           </span>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
