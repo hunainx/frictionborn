@@ -222,13 +222,13 @@ export function DistortionImage({
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const parentInteractive = el.closest("a, button");
+    const parentInteractive = el.closest<HTMLElement>("a, button");
     if (!parentInteractive) return;
 
     const handleParentFocus = () => {
       let visible = true;
       try {
-        visible = (parentInteractive as HTMLElement).matches(":focus-visible");
+        visible = parentInteractive.matches(":focus-visible");
       } catch {
         // fallback
       }
@@ -243,11 +243,11 @@ export function DistortionImage({
       }
     };
 
-    parentInteractive.addEventListener("focus", handleParentFocus);
-    parentInteractive.addEventListener("blur", handleParentBlur);
+    parentInteractive.addEventListener("focus", handleParentFocus as EventListener);
+    parentInteractive.addEventListener("blur", handleParentBlur as EventListener);
     return () => {
-      parentInteractive.removeEventListener("focus", handleParentFocus);
-      parentInteractive.removeEventListener("blur", handleParentBlur);
+      parentInteractive.removeEventListener("focus", handleParentFocus as EventListener);
+      parentInteractive.removeEventListener("blur", handleParentBlur as EventListener);
     };
   }, [activate, deactivate]);
 
