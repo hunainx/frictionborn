@@ -5,7 +5,7 @@ const item = process.env.BENCH_ITEM || "noise-field";
 
 // Items whose demo creates a context on mount, so the cycles below create real contexts. DistortionImage only creates
 // one on hover/focus: its leak cycles live in distortion-image.spec.ts, where every cycle acquires leases first.
-const CONTEXT_ON_MOUNT_ITEMS = ["noise-field", "particle-field", "mesh-gradient"];
+const CONTEXT_ON_MOUNT_ITEMS = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero"];
 
 test.describe("Resource leak spec", () => {
   test("mount and unmount cycling leaves 0 leaked contexts and no listener growth", async ({ page }, testInfo) => {

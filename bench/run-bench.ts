@@ -83,6 +83,10 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
       specs.push("bench/specs/smooth-scroll.spec.ts");
     } else if (itemName === "text-reveal") {
       specs.push("bench/specs/text-reveal-flash.spec.ts");
+    } else if (itemName === "ambient-hero") {
+      specs.push("bench/specs/ambient-hero.spec.ts");
+    } else if (itemName === "scroll-showcase") {
+      specs.push("bench/specs/scroll-showcase.spec.ts");
     }
     const specFiles = specs.join(" ");
     const cmd = project ? `${base} --project=${project} ${specFiles}` : `${base} ${specFiles}`;

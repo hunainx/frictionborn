@@ -13,6 +13,8 @@ import StickyScrollStoryDemo from "../../../../../registry/items/sticky-scroll-s
 import ParticleFieldDemo from "../../../../../registry/items/particle-field/demo";
 import MeshGradientDemo from "../../../../../registry/items/mesh-gradient/demo";
 import DistortionImageDemo from "../../../../../registry/items/distortion-image/demo";
+import AmbientHeroDemo from "../../../../../registry/items/ambient-hero/demo";
+import ScrollShowcaseDemo from "../../../../../registry/items/scroll-showcase/demo";
 
 export default function ItemBenchPage({
   params,
@@ -75,7 +77,7 @@ export default function ItemBenchPage({
 
       // If mounted, wait for canvas to appear if this is a WebGL item, up to a reasonable deadline,
       // ensuring contexts are actually created on all browser engines (including WebKit) before unmounting.
-      const isGl = ["noise-field", "particle-field", "mesh-gradient"].includes(name);
+      const isGl = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero"].includes(name);
       if (isGl) {
         const deadline = performance.now() + 1000;
         while (!cancelled && performance.now() < deadline && !document.querySelector("#demo-mount-point canvas")) {
@@ -129,6 +131,12 @@ export default function ItemBenchPage({
     }
     if (name === "distortion-image") {
       return <DistortionImageDemo />;
+    }
+    if (name === "ambient-hero") {
+      return <AmbientHeroDemo />;
+    }
+    if (name === "scroll-showcase") {
+      return <ScrollShowcaseDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>

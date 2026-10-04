@@ -48,7 +48,7 @@
 ### Input Interactions
 - **Pointer**: Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up
 - **Touch**: Touch pointers fall back to plain static image with zero WebGL allocation
-- **Keyboard**: The wrapper is a tab stop (tabindex 0). Focus draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents) and starts the effect; released 3 s after blur or the last interaction. The canvas is aria-hidden
+- **Keyboard**: The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple effect and draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents); exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden
 
 ## Accessibility (a11y)
 
@@ -57,7 +57,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `via-runtime`
 - **WCAG Criteria**: 1.1.1, 2.2.2, 2.3.1
-- **Notes**: The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets two tab stops (the link, then the wrapper): put the link inside the component's children instead of around it.
+- **Notes**: The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets exactly one tab stop (the link itself). Keyboard activation is supported whether the image is wrapped in an <a> or contains a covering <a> inside its children.
 
 ## Composition
 
@@ -77,7 +77,8 @@
 | `strength` | `number` | `0.25` | Displacement ripple magnitude on hover. |
 | `speed` | `number` | `1` | Frequency and wave propagation rate during interaction. |
 | `maxTier` | `number` | `3` | Hard ceiling on device capability tier (0 to 3). |
-| `crossOrigin` | `"anonymous" | "use-credentials" | ""` | `"undefined"` | CORS mode for cross-origin image texture loading. |
+| `crossOrigin` | `"anonymous" | "use-credentials" | ""` | `"undefined"` | CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors. |
+| `fetchPriority` | `"high" | "low" | "auto"` | `"undefined"` | Native fetchpriority attribute forwarded to the underlying img element. |
 | `loading` | `"eager" | "lazy"` | `"\"lazy\""` | Native browser image loading attribute. |
 | `decoding` | `"async" | "auto" | "sync"` | `"\"async\""` | Native browser image decoding behavior. |
 | `srcSet` | `string` | `"undefined"` | Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture. |
@@ -111,7 +112,7 @@ export default function GalleryCard() {
 ```
 
 ### Common Mistakes to Avoid
-- Do not omit crossOrigin='anonymous' when loading images from a different origin, or WebGL will fall back to static image due to browser canvas tainting.
+- Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.
 - Do not set position: absolute on the underlying img without specifying container dimensions; let the image define layout to avoid CLS.
 - Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops.
 

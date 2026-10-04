@@ -102,10 +102,11 @@ export function buildRegistry(): void {
             throw new Error(`Invalid registry file target: ${target} must stay inside components/ui/`);
           }
 
+          const itemType = meta.item.kind === "composition" ? "registry:block" : "registry:ui";
           files.push({
             path: relPath,
             content,
-            type: "registry:ui",
+            type: itemType,
             target,
           });
         }
@@ -124,10 +125,11 @@ export function buildRegistry(): void {
       }
     }
 
+    const itemType = meta.item.kind === "composition" ? "registry:block" : "registry:ui";
     const item: RegistryItem = {
       $schema: "https://ui.shadcn.com/schema/registry-item.json",
       name: meta.item.name,
-      type: "registry:ui",
+      type: itemType,
       title: toTitle(meta.item.name),
       description: meta.item.summary || "",
       dependencies,

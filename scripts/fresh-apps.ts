@@ -141,6 +141,8 @@ function generatePage(items: string[], framework: Framework): string {
   if (has("smooth-scroll")) imports.push('import { SmoothScroll } from "@/components/ui/smooth-scroll";');
   if (has("sticky-scroll-story")) imports.push('import { StickyScrollStory } from "@/components/ui/sticky-scroll-story";');
   if (has("distortion-image")) imports.push('import { DistortionImage } from "@/components/ui/distortion-image";');
+  if (has("ambient-hero")) imports.push('import { AmbientHero } from "@/components/ui/ambient-hero";');
+  if (has("scroll-showcase")) imports.push('import { ScrollShowcase } from "@/components/ui/scroll-showcase";');
 
   const gl = (id: string, el: string) => `
         <div data-testid="gl-item-${id}" style={{ width: "100%", height: "260px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
@@ -184,6 +186,7 @@ function generatePage(items: string[], framework: Framework): string {
 export default function FreshAppView() {${nextImageSetup}
   const content = (
     <main style={{ boxSizing: "border-box", width: "100%", padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+      ${has("ambient-hero") ? `<div data-testid="composition-ambient-hero" style={{ marginBottom: "2.5rem" }}><AmbientHero /></div>` : ""}
       <header style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0 }}>Fresh app check</h1>
         <p style={{ color: "var(--muted-foreground)", margin: "0.5rem 0 0 0" }}>Every item, default props, real shadcn tokens.</p>
@@ -206,6 +209,7 @@ export default function FreshAppView() {${nextImageSetup}
             ]} /></div>`
             : ""
         }
+        ${has("scroll-showcase") ? `<div data-testid="composition-scroll-showcase"><ScrollShowcase /></div>` : ""}
       </div>
     </main>
   );
@@ -478,7 +482,7 @@ async function checkPage(
 
   if (mode.reduced) {
     // Reduced motion: static poster / plain image everywhere, even while hovering and focusing.
-    for (const id of [...GENERATIVE, "gl-item-distortion-default"]) {
+    for (const id of [...GENERATIVE, "gl-item-distortion-default", "composition-ambient-hero"]) {
       const el = page.locator(`[data-testid='${id}']`);
       if (await el.count()) {
         await el.scrollIntoViewIfNeeded();
@@ -508,9 +512,40 @@ async function checkPage(
       if (!passesGate(r, false)) problems.push(`${label} ${id} failed the pixel gate (blank or flat canvas): ${JSON.stringify(r && { std: r.std, coverage: r.coverage })}`);
     }
 
+    // 1b. ambient-hero composition: real pixels on its ambient background canvas
+    if (items.includes("ambient-hero")) {
+      const compId = "composition-ambient-hero";
+      const el = page.locator(`[data-testid='${compId}']`);
+      if (await el.count()) {
+        await el.evaluate((e) => e.scrollIntoView({ block: "start" }));
+        try {
+          await el.locator("canvas").waitFor({ state: "visible", timeout: 10000 });
+        } catch {
+          problems.push(`${label} ${compId} never showed a canvas: ${await describeItem(page, compId)}`);
+        }
+        await page.waitForTimeout(500);
+        const r = await readCanvas(page, `[data-testid='${compId}']`, false);
+        summary.readbacks[compId] = { std: r?.std ?? 0, coverage: r?.coverage ?? 0, imageDiff: null };
+        console.log(`    ${compId}: std=${r?.std.toFixed(1)} coverage=${((r?.coverage ?? 0) * 100).toFixed(1)}%`);
+        if (!passesGate(r, false)) problems.push(`${label} ${compId} failed the pixel gate (blank or flat canvas): ${JSON.stringify(r && { std: r.std, coverage: r.coverage })}`);
+      }
+    }
+
+    // 1c. scroll-showcase composition: semantic heading hierarchy
+    if (items.includes("scroll-showcase")) {
+      const showCaseId = "composition-scroll-showcase";
+      const el = page.locator(`[data-testid='${showCaseId}']`);
+      if (await el.count()) {
+        await el.evaluate((e) => e.scrollIntoView({ block: "start" }));
+        const headings = await el.locator("h2, h3, h4").count();
+        console.log(`    ${showCaseId}: found ${headings} semantic headings`);
+        if (headings < 3) problems.push(`${label} ${showCaseId} missing expected semantic headings (found ${headings})`);
+      }
+    }
+
     // 2. idle main thread with the generative items running in view
     if (!mode.mobile) {
-      const first = GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
+      const first = items.includes("ambient-hero") ? "composition-ambient-hero" : GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
       if (first) await page.locator(`[data-testid='${first}']`).scrollIntoViewIfNeeded();
       const cdp = await context.newCDPSession(page);
       await cdp.send("Performance.enable");
@@ -680,7 +715,28 @@ export async function runFreshAppsCheck(): Promise<void> {
     .readdirSync(publicRDir)
     .filter((f) => f.endsWith(".json") && f !== "index.json")
     .map((f) => f.replace(/\.json$/, ""));
-  console.log(`==> ${items.length} public items: ${items.join(", ")}`);
+
+  // Sort items so primitive dependencies are installed before compositions
+  const COMPOSITIONS = ["ambient-hero", "scroll-showcase"];
+  items.sort((a, b) => {
+    const aComp = COMPOSITIONS.includes(a);
+    const bComp = COMPOSITIONS.includes(b);
+    if (aComp === bComp) return a.localeCompare(b);
+    return aComp ? 1 : -1;
+  });
+  console.log(`==> ${items.length} public items (ordered): ${items.join(", ")}`);
+
+  const configureRegistries = (appDir: string) => {
+    const compJsonPath = path.join(appDir, "components.json");
+    if (fs.existsSync(compJsonPath)) {
+      const cj = JSON.parse(fs.readFileSync(compJsonPath, "utf8"));
+      cj.registries = {
+        ...(cj.registries ?? {}),
+        "@frictionborn": `http://127.0.0.1:${REGISTRY_PORT}/r/{name}.json`,
+      };
+      fs.writeFileSync(compJsonPath, JSON.stringify(cj, null, 2), "utf8");
+    }
+  };
 
   const publicDir = path.join(root, "public");
   const registryServer = http.createServer((req, res) => {
@@ -725,6 +781,7 @@ export async function runFreshAppsCheck(): Promise<void> {
     const nextDir = path.join(tempRoot, "fresh-next");
     console.log(`==> shadcn init (${SHADCN})`);
     await run(`npx --yes ${SHADCN} init --defaults --yes`, nextDir);
+    configureRegistries(nextDir);
     console.log("==> install the packed runtime, then shadcn add every public item from the local registry");
     await run(`pnpm add "file:${runtimeTarball}"`, nextDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, nextDir);
@@ -775,6 +832,7 @@ export default defineConfig({
     }
     console.log(`==> shadcn init (${SHADCN})`);
     await run(`npx --yes ${SHADCN} init --defaults --yes`, viteDir);
+    configureRegistries(viteDir);
     await run(`pnpm add "file:${runtimeTarball}"`, viteDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, viteDir);
     copyArt(path.join(viteDir, "public"));

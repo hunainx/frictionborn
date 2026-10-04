@@ -17,6 +17,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/components/ui/noise-field": ["../../registry/items/noise-field/noise-field.tsx"],
+      "@/components/ui/mesh-gradient": ["../../registry/items/mesh-gradient/mesh-gradient.tsx"],
+      "@/components/ui/particle-field": ["../../registry/items/particle-field/particle-field.tsx"],
+      "@/components/ui/text-reveal": ["../../registry/items/text-reveal/text-reveal.tsx"],
+      "@/components/ui/magnetic-button": ["../../registry/items/magnetic-button/magnetic-button.tsx"],
+      "@/components/ui/scroll-reveal": ["../../registry/items/scroll-reveal/scroll-reveal.tsx"],
+      "@/components/ui/sticky-scroll-story": ["../../registry/items/sticky-scroll-story/sticky-scroll-story.tsx"],
+      "@/components/ui/marquee": ["../../registry/items/marquee/marquee.tsx"],
+      "@/components/ui/smooth-scroll": ["../../registry/items/smooth-scroll/smooth-scroll.tsx"],
+      "@/components/ui/distortion-image": ["../../registry/items/distortion-image/distortion-image.tsx"],
+      "@/components/ui/ambient-hero": ["../../registry/items/ambient-hero/ambient-hero.tsx"],
+      "@/components/ui/scroll-showcase": ["../../registry/items/scroll-showcase/scroll-showcase.tsx"]
+    },
     "plugins": [
       {
         "name": "next"

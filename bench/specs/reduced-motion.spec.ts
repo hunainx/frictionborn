@@ -31,7 +31,7 @@ test.describe("Reduced motion spec", () => {
     expect(metrics.animStats?.runningCount).toBe(0);
 
     // Decision D-A: WebGL items must render poster only (0 canvases, static mode)
-    if (["noise-field", "particle-field", "mesh-gradient", "distortion-image"].includes(item)) {
+    if (["noise-field", "particle-field", "mesh-gradient", "distortion-image", "ambient-hero"].includes(item)) {
       const canvasCount = await page.locator("canvas").count();
       expect(canvasCount).toBe(0);
       await expect(page.locator("[data-frictionborn-poster]").first()).toBeVisible();

@@ -138,6 +138,9 @@ export async function runSmokeTest(): Promise<void> {
         lib: "@/lib",
         hooks: "@/hooks",
       },
+      registries: {
+        "@frictionborn": `http://127.0.0.1:${port}/r/{name}.json`,
+      },
     };
 
     fs.writeFileSync(
@@ -149,6 +152,15 @@ export async function runSmokeTest(): Promise<void> {
     // 2. Install base dependencies
     console.log("Installing consumer harness dependencies...");
     await runCommand("npm install --install-links", tempDir);
+
+    // Sort items so primitive dependencies are installed before compositions that depend on them
+    const COMPOSITIONS = ["ambient-hero", "scroll-showcase"];
+    jsonFiles.sort((a, b) => {
+      const aComp = COMPOSITIONS.some((c) => a.startsWith(c));
+      const bComp = COMPOSITIONS.some((c) => b.startsWith(c));
+      if (aComp === bComp) return a.localeCompare(b);
+      return aComp ? 1 : -1;
+    });
 
     // 3. Run shadcn add for each item
     for (const jsonFile of jsonFiles) {

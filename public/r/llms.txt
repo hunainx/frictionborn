@@ -9,6 +9,7 @@
 - **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
 
 ## Components
+- **ambient-hero**: Hero composition: ambient canvas (mesh/noise/particles) + TextReveal + MagneticButton (DOM+WebGL, ~8 KB, reduced motion -> static, mobile -> T2) (Install: `npx shadcn@latest add @frictionborn/ambient-hero`)
 - **distortion-image**: media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts) (Install: `npx shadcn@latest add @frictionborn/distortion-image`)
 - **magnetic-button**: cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners) (Install: `npx shadcn@latest add @frictionborn/magnetic-button`)
 - **marquee**: strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok) (Install: `npx shadcn@latest add @frictionborn/marquee`)
@@ -16,6 +17,7 @@
 - **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
 - **particle-field**: background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, ~4 KB, reduced motion -> poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/particle-field`)
 - **scroll-reveal**: media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px) (Install: `npx shadcn@latest add @frictionborn/scroll-reveal`)
+- **scroll-showcase**: Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee (DOM, ~6 KB gz, reduced motion -> static/opacity, mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/scroll-showcase`)
 - **smooth-scroll**: page-provider: Lenis provider stepped strictly via useFrame with autoRaf false (dom, server-safe, singleton, reduced motion -> off, mobile -> off) (Install: `npx shadcn@latest add @frictionborn/smooth-scroll`)
 - **sticky-scroll-story**: scroll-section: Sticky media column with scrolling steps (dom, server-safe, 0 CLS, reduced motion -> opacity-only, mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/sticky-scroll-story`)
 - **text-reveal**: headline: Typography reveal by word/line/char with font-ready splitting (dom, server-safe, <3 KB, reduced motion -> static, mobile -> reduced stagger) (Install: `npx shadcn@latest add @frictionborn/text-reveal`)

@@ -1,0 +1,160 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "ambient-hero",
+    "version": "0.1.0",
+    "summary": "Hero composition: ambient canvas (mesh/noise/particles) + TextReveal + MagneticButton (DOM+WebGL, ~8 KB, reduced motion -> static, mobile -> T2)",
+    "slot": "composition",
+    "kind": "composition"
+  },
+  "intent": {
+    "useWhen": [
+      "Primary landing page hero section requiring an ambient signature moment with high contrast",
+      "Marketing page header with animated headline text reveal and magnetic action buttons",
+      "Showcasing a flagship product release with accessible ambient background motion"
+    ],
+    "avoidWhen": [
+      "Secondary pages or documentation headers where ambient motion distracts from content",
+      "Dense data dashboards or form-heavy internal tools",
+      "Pages already containing another full-viewport WebGL context above the fold"
+    ],
+    "alternatives": [
+      {
+        "name": "noise-field",
+        "when": "When you only need a standalone background canvas without integrated typography or CTAs"
+      },
+      {
+        "name": "text-reveal",
+        "when": "When you only need headline text reveal animation without ambient background or CTAs"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "poster",
+    "clientOnly": false,
+    "lazyLoaded": "no",
+    "requires": {
+      "react": ">=19.0.0",
+      "frameworks": ["next-app-router", "next-pages", "vite-react"],
+      "tailwind": ">=3.4.0"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": [
+      "@frictionborn/noise-field",
+      "@frictionborn/mesh-gradient",
+      "@frictionborn/particle-field",
+      "@frictionborn/text-reveal",
+      "@frictionborn/magnetic-button"
+    ]
+  },
+  "behavior": {
+    "loop": "while-visible",
+    "webglContexts": 1,
+    "tiers": {
+      "0": "Static gradient poster background, plain un-split headline, static buttons",
+      "1": "Static gradient poster background, plain un-split headline, touch-safe static buttons",
+      "2": "WebGL ambient background at DPR <= 1.5, word-level text reveal, touch-safe static buttons",
+      "3": "Full WebGL ambient background at DPR <= 2, word-level text reveal, fine pointer magnetic pull"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "Renders static CSS gradient poster background with 0 WebGL canvases and 0 animation frames; headline renders immediately without splitting or keyframes; buttons remain static"
+    },
+    "input": {
+      "pointer": "Fine pointer activates magnetic CTA attraction and interactive pause control",
+      "touch": "Touch devices disable magnetic spring pull; CTA buttons and pause control respond to direct tap",
+      "keyboard": "Fully keyboard navigable: Tab lands on pause control and CTAs with prominent focus rings; Enter/Space activates"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "built-in",
+    "wcag": ["1.4.3", "2.1.1", "2.2.2", "2.3.1"],
+    "notes": "Single semantic h1 heading for the document. Text overlay preserves >= 4.5:1 contrast against ambient canvas via multi-stop scrim. WCAG 2.2.2 pause button controls ambient motion. All text stays in the accessibility tree."
+  },
+  "composition": {
+    "maxPerPage": 1,
+    "singleton": true,
+    "conflictsWith": ["noise-field", "mesh-gradient", "particle-field"],
+    "pairsWith": ["scroll-showcase", "scroll-reveal"]
+  },
+  "props": [
+    {
+      "name": "variant",
+      "type": "\"mesh\" | \"noise\" | \"particles\"",
+      "default": "mesh",
+      "effect": "Selects which ambient background generator to mount (at most 1 WebGL context)."
+    },
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "default": "Studio Series · Gen 3",
+      "effect": "Small pill tag displayed above the headline."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "default": "Acoustic precision, sculpted in aluminum.",
+      "effect": "Primary document h1 heading revealed word by word."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": "Near-field studio monitors engineered for uncoloured listening environments.",
+      "effect": "Supporting description copy below the headline."
+    },
+    {
+      "name": "primaryCta",
+      "type": "AmbientHeroCta",
+      "default": "{ label: \"Explore engineering\", href: \"#engineering\" }",
+      "effect": "Primary action button with magnetic pull."
+    },
+    {
+      "name": "secondaryCta",
+      "type": "AmbientHeroCta",
+      "default": "{ label: \"Technical specifications\", href: \"#specifications\" }",
+      "effect": "Secondary action button with magnetic pull."
+    },
+    {
+      "name": "showPauseButton",
+      "type": "boolean",
+      "default": true,
+      "effect": "Renders an accessible pause/resume button for ambient background motion."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": null,
+      "effect": "Additional CSS class names on root header."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles applied to root header."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/ambient-hero",
+    "usage": "import { AmbientHero } from '@/components/ui/ambient-hero';\n\n<AmbientHero variant=\"mesh\" title=\"Acoustic precision, sculpted in aluminum.\" />",
+    "mistakes": [
+      "Do not place a second WebGL item above the fold alongside AmbientHero (violates single signature moment rule).",
+      "Do not remove the scrim layer; it guarantees >= 4.5:1 text contrast across light and dark modes."
+    ],
+    "verify": [
+      "Verify that exactly one <h1> element exists in the rendered DOM.",
+      "Verify that the pause button toggles motion and has valid aria-label.",
+      "Verify that reduced-motion preferences render a static poster with 0 canvases."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}
