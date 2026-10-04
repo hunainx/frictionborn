@@ -39,6 +39,7 @@ export default function DistortionImageGL({
   const programRef = useRef<WebGLProgram | null>(null);
   const textureRef = useRef<WebGLTexture | null>(null);
   const glRef = useRef<WebGL2RenderingContext | null>(null);
+  const uploadedSrcRef = useRef<string>("");
 
   const uniformsRef = useRef<{
     resolution?: WebGLUniformLocation;
@@ -56,6 +57,11 @@ export default function DistortionImageGL({
   pointerPosRef.current = pointerPos;
   const isHoveredRef = useRef(isHovered);
   isHoveredRef.current = isHovered;
+  // Read through refs so changing strength or speed never rebuilds the WebGL context.
+  const strengthRef = useRef(strength);
+  strengthRef.current = strength;
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
 
   const paused = usePaused(); // @frictionborn-guard
 
@@ -159,6 +165,7 @@ export default function DistortionImageGL({
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
       textureRef.current = texture;
+      uploadedSrcRef.current = img.currentSrc || img.src;
       return true;
     },
     [maxTextureDim]
@@ -179,8 +186,8 @@ export default function DistortionImageGL({
     if (mouse) gl.uniform2f(mouse, pointerPosRef.current.x, pointerPosRef.current.y);
     if (time) gl.uniform1f(time, timeRef.current);
     if (progress) gl.uniform1f(progress, progressRef.current);
-    if (uStrength) gl.uniform1f(uStrength, strength);
-    if (uSpeed) gl.uniform1f(uSpeed, speed);
+    if (uStrength) gl.uniform1f(uStrength, strengthRef.current);
+    if (uSpeed) gl.uniform1f(uSpeed, speedRef.current);
     if (image) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -188,7 +195,7 @@ export default function DistortionImageGL({
     }
 
     surface.draw();
-  }, [strength, speed]);
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -279,6 +286,26 @@ export default function DistortionImageGL({
     };
   }, [maxDpr, renderScale, imageElement, uploadTexture, renderFrame]);
 
+  // The browser may pick another srcset candidate (resize, DPR change) or the src prop may change while the
+  // canvas is live: upload the new pixels so the overlay never shows a stale picture over the real image.
+  useEffect(() => {
+    const img = imageElement;
+    if (!img) return;
+    const onLoad = async () => {
+      try {
+        await img.decode();
+      } catch {
+        // decode can reject for a replaced source; the load event for the new one follows
+      }
+      const gl = glRef.current;
+      if (!gl || gl.isContextLost() || !textureRef.current) return;
+      if ((img.currentSrc || img.src) === uploadedSrcRef.current) return;
+      uploadTexture(gl, img);
+    };
+    img.addEventListener("load", onLoad);
+    return () => img.removeEventListener("load", onLoad);
+  }, [imageElement, uploadTexture]);
+
   // Frame animation loop managed by runtime useFrame
   useFrame(
     ({ dt }) => {
@@ -289,7 +316,7 @@ export default function DistortionImageGL({
 
       // Increment animation time while distortion is active
       if (progressRef.current > 0.005) {
-        timeRef.current += (dt * 0.001) * speed;
+        timeRef.current += (dt * 0.001) * speedRef.current;
       }
 
       renderFrame();
