@@ -79,21 +79,21 @@ export default function StressDistortionPage({
       }
       // Touch pointers, reduced motion and browsers without WebGL2 never get a lease by design: do not wait for one.
       const canLease = leasesPossible();
-      const wrappers = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-frictionborn-item='distortion-image']")
+      const targets = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-leak-link]")
       ).slice(0, canLease ? LEAK_LEASES_PER_CYCLE : 0);
-      // Let mount effects settle (StrictMode runs them twice in dev), then deliver a real focus event to each wrapper.
-      await sleep(120);
+      // Let mount effects settle (StrictMode runs them twice in dev), then deliver a real focus event to each link per Decision 24.
+      await sleep(60);
       if (cancelled) return;
-      wrappers.forEach((w) => {
-        w.blur();
-        w.focus();
+      targets.forEach((t) => {
+        t.blur();
+        t.focus();
       });
-      const deadline = performance.now() + 4000;
+      const deadline = performance.now() + 2000;
       while (
         !cancelled &&
         performance.now() < deadline &&
-        document.querySelectorAll("[data-frictionborn-item] canvas").length < wrappers.length
+        document.querySelectorAll("[data-frictionborn-item] canvas").length < targets.length
       ) {
         await sleep(20);
       }
@@ -174,12 +174,18 @@ export default function StressDistortionPage({
                   backgroundColor: "rgba(0, 0, 0, 0.2)",
                 }}
               >
-                <DistortionImage
-                  src={item.src}
-                  alt={item.alt}
-                  style={{ width: "100%", height: "100%" }}
-                  imgStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
+                <a
+                  href={`#item-${item.index}`}
+                  data-leak-link
+                  style={{ display: "block", width: "100%", height: "100%", textDecoration: "none" }}
+                >
+                  <DistortionImage
+                    src={item.src}
+                    alt={item.alt}
+                    style={{ width: "100%", height: "100%" }}
+                    imgStyle={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </a>
               </div>
               <div style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", display: "flex", justifyContent: "space-between" }}>
                 <span>Item #{item.index}</span>
