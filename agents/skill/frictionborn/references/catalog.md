@@ -6,6 +6,7 @@ Verified motion and WebGL components with strict zero-slop budgets, server-safe 
 
 | Component | Slot | Kind | Reduced Motion | Server Output | Summary |
 |---|---|---|---|---|---|
+| [distortion-image](items/distortion-image.md) | `media` | `webgl` | `static` | `static-layout` | media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts) |
 | [magnetic-button](items/magnetic-button.md) | `cta` | `dom` | `static` | `final-state` | cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners) |
 | [marquee](items/marquee.md) | `strip` | `dom` | `static` | `final-state` | strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok) |
 | [mesh-gradient](items/mesh-gradient.md) | `background` | `webgl` | `static` | `poster` | background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2) |

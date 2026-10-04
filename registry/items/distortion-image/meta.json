@@ -1,0 +1,262 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "distortion-image",
+    "version": "0.1.0",
+    "summary": "media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts)",
+    "slot": "media",
+    "kind": "webgl"
+  },
+  "intent": {
+    "useWhen": [
+      "Portfolio galleries and editorial features requiring tactile pointer distortion",
+      "Product showcases where fine-pointer interaction reveals optical depth",
+      "Media elements benefiting from fluid ripple displacement over real images"
+    ],
+    "avoidWhen": [
+      "Long lists of small thumbnails on mobile where static images are optimal",
+      "High-frequency rapid scrolling feeds without user hovering",
+      "Images lacking CORS headers when hosted on cross-origin domains"
+    ],
+    "alternatives": [
+      {
+        "name": "noise-field",
+        "when": "When a generative ambient canvas background is needed instead of image distortion"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "static-layout",
+    "clientOnly": true,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "next-pages",
+        "vite-react",
+        "react-router"
+      ],
+      "tailwind": "^4"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 1,
+    "tiers": {
+      "0": "Plain static image with 0 WebGL contexts and zero animation overhead",
+      "1": "Plain static image for coarse touch pointers with zero context allocation",
+      "2": "WebGL2 displacement overlay at DPR <= 1.5 and texture cap <= 1024px",
+      "3": "Full WebGL2 displacement overlay at DPR <= 2.0 and texture cap <= 2048px"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "Renders plain static image with 0 WebGL contexts allocated and zero rAF loops."
+    },
+    "input": {
+      "pointer": "Fine pointer hover triggers lease acquisition and fluid displacement following cursor",
+      "touch": "Touch pointers fall back to plain static image with zero WebGL allocation",
+      "keyboard": "Accessible tabIndex with visible CSS focus ring; canvas is aria-hidden"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.1.1",
+      "2.2.2",
+      "2.3.1"
+    ],
+    "notes": "Underlying HTML img element preserves full accessible name via alt attribute. WebGL canvas overlay is aria-hidden. Keyboard focus gets a CSS-only treatment."
+  },
+  "composition": {
+    "maxPerPage": 30,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "sticky-scroll-story",
+      "text-reveal",
+      "scroll-reveal"
+    ]
+  },
+  "props": [
+    {
+      "name": "src",
+      "type": "string",
+      "default": "undefined",
+      "effect": "URL of the underlying image to display and distort."
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "default": "undefined",
+      "effect": "Accessible alternative text for the image."
+    },
+    {
+      "name": "width",
+      "type": "number | string",
+      "default": "undefined",
+      "effect": "Optional layout width defining container and image dimensions."
+    },
+    {
+      "name": "height",
+      "type": "number | string",
+      "default": "undefined",
+      "effect": "Optional layout height defining container and image dimensions."
+    },
+    {
+      "name": "strength",
+      "type": "number",
+      "default": 0.25,
+      "effect": "Displacement ripple magnitude on hover."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "effect": "Frequency and wave propagation rate during interaction."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on device capability tier (0 to 3)."
+    },
+    {
+      "name": "crossOrigin",
+      "type": "\"anonymous\" | \"use-credentials\" | \"\"",
+      "default": "undefined",
+      "effect": "CORS mode for cross-origin image texture loading."
+    },
+    {
+      "name": "loading",
+      "type": "\"eager\" | \"lazy\"",
+      "default": "\"lazy\"",
+      "effect": "Native browser image loading attribute."
+    },
+    {
+      "name": "decoding",
+      "type": "\"async\" | \"auto\" | \"sync\"",
+      "default": "\"async\"",
+      "effect": "Native browser image decoding behavior."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@latest add @frictionborn/distortion-image",
+    "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
+    "mistakes": [
+      "Do not omit crossOrigin='anonymous' when loading images from a different origin, or WebGL will fall back to static image due to browser canvas tainting.",
+      "Do not set position: absolute on the underlying img without specifying container dimensions; let the image define layout to avoid CLS.",
+      "Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops."
+    ],
+    "verify": [
+      "Confirm real img element is rendered in server HTML before hydration with zero CLS.",
+      "Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after 3s idle.",
+      "Confirm that coarse touch pointers and reduced-motion render plain image with 0 WebGL contexts."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": [
+      {
+        "name": "Wheat Field with Cypresses (Vincent van Gogh)",
+        "source": "https://www.metmuseum.org/art/collection/search/436535",
+        "license": "CC0 1.0 (The Met Open Access)"
+      },
+      {
+        "name": "Irises (Vincent van Gogh)",
+        "source": "https://www.metmuseum.org/art/collection/search/436528",
+        "license": "CC0 1.0 (The Met Open Access)"
+      },
+      {
+        "name": "Cypresses (Vincent van Gogh)",
+        "source": "https://www.metmuseum.org/art/collection/search/437980",
+        "license": "CC0 1.0 (The Met Open Access)"
+      },
+      {
+        "name": "Under the Wave off Kanagawa (Katsushika Hokusai)",
+        "source": "https://www.metmuseum.org/art/collection/search/45434",
+        "license": "CC0 1.0 (The Met Open Access)"
+      },
+      {
+        "name": "Sunflowers (Vincent van Gogh)",
+        "source": "https://www.metmuseum.org/art/collection/search/436524",
+        "license": "CC0 1.0 (The Met Open Access)"
+      },
+      {
+        "name": "The Shepherd's Song (Pierre Puvis de Chavannes)",
+        "source": "https://www.metmuseum.org/art/collection/search/437344",
+        "license": "CC0 1.0 (The Met Open Access)"
+      }
+    ]
+  },
+  "measured": {
+    "commit": "0253d8c",
+    "date": "2026-10-04",
+    "sizeKB": {
+      "initial": 2.81,
+      "deferred": 3.73,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-04",
+        "notes": "21 passed, 0 failed; all specs verified"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-04",
+        "notes": "21 passed, 0 failed; all specs verified"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-04",
+        "notes": "21 passed, 0 failed; all specs verified"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-04",
+        "notes": "21 passed, 0 failed; all specs verified"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-04",
+        "notes": "21 passed, 0 failed; all specs verified"
+      }
+    ]
+  }
+}

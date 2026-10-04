@@ -9,6 +9,7 @@
 - **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
 
 ## Components
+- **distortion-image**: media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts) (Install: `npx shadcn@latest add @frictionborn/distortion-image`)
 - **magnetic-button**: cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners) (Install: `npx shadcn@latest add @frictionborn/magnetic-button`)
 - **marquee**: strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok) (Install: `npx shadcn@latest add @frictionborn/marquee`)
 - **mesh-gradient**: background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2) (Install: `npx shadcn@latest add @frictionborn/mesh-gradient`)
