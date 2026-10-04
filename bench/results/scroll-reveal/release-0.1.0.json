@@ -1,8 +1,8 @@
 {
-  "commit": "e6725ba",
-  "date": "2026-10-01",
+  "commit": "d8d51e2",
+  "date": "2026-10-04",
   "sizeKB": {
-    "initial": 1.39,
+    "initial": 1.79,
     "deferred": 0.02,
     "method": "gzip-9"
   },
@@ -22,7 +22,7 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-01",
+      "date": "2026-10-04",
       "notes": "12 passed, 0 failed; all specs verified"
     },
     {
@@ -30,7 +30,7 @@
       "via": "playwright",
       "tier": 2,
       "result": "pass",
-      "date": "2026-10-01",
+      "date": "2026-10-04",
       "notes": "12 passed, 0 failed; all specs verified"
     },
     {
@@ -38,7 +38,7 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-01",
+      "date": "2026-10-04",
       "notes": "12 passed, 0 failed; all specs verified"
     },
     {
@@ -46,7 +46,7 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-01",
+      "date": "2026-10-04",
       "notes": "12 passed, 0 failed; all specs verified"
     },
     {
@@ -54,7 +54,7 @@
       "via": "playwright",
       "tier": 2,
       "result": "pass",
-      "date": "2026-10-01",
+      "date": "2026-10-04",
       "notes": "12 passed, 0 failed; all specs verified"
     }
   ]

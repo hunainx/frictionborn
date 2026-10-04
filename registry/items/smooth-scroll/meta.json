@@ -166,10 +166,10 @@
     "assets": []
   },
   "measured": {
-    "commit": "97a198a",
-    "date": "2026-10-03",
+    "commit": "d8d51e2",
+    "date": "2026-10-04",
     "sizeKB": {
-      "initial": 1.6,
+      "initial": 2.52,
       "deferred": 0.02,
       "method": "gzip-9"
     },
@@ -188,41 +188,41 @@
         "env": "Chromium Desktop (SwiftShader)",
         "via": "playwright",
         "tier": 3,
-        "result": "pass",
-        "date": "2026-10-03",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "result": "fail",
+        "date": "2026-10-04",
+        "notes": "16 passed, 1 failed; all specs verified"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-03",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "date": "2026-10-04",
+        "notes": "12 passed, 0 failed; all specs verified"
       },
       {
         "env": "Firefox Desktop",
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-03",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "date": "2026-10-04",
+        "notes": "17 passed, 0 failed; all specs verified"
       },
       {
         "env": "WebKit Desktop",
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-03",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "date": "2026-10-04",
+        "notes": "17 passed, 0 failed; all specs verified"
       },
       {
         "env": "WebKit Mobile (iPhone 14 emulation)",
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-03",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "date": "2026-10-04",
+        "notes": "12 passed, 0 failed; all specs verified"
       }
     ]
   }

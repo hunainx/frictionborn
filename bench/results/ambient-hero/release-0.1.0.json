@@ -1,0 +1,61 @@
+{
+  "commit": "d8d51e2",
+  "date": "2026-10-04",
+  "sizeKB": {
+    "initial": 2.77,
+    "deferred": 0.02,
+    "method": "gzip-9"
+  },
+  "cls": 0,
+  "framesWhenIdle": {
+    "offscreen": 0,
+    "hiddenTab": 0,
+    "reducedMotion": 0
+  },
+  "axe": {
+    "serious": 0,
+    "critical": 0
+  },
+  "devices": [
+    {
+      "env": "Chromium Desktop (SwiftShader)",
+      "via": "playwright",
+      "tier": 3,
+      "result": "pass",
+      "date": "2026-10-04",
+      "notes": "17 passed, 0 failed; all specs verified"
+    },
+    {
+      "env": "Chromium Mobile (Pixel 7 emulation)",
+      "via": "playwright",
+      "tier": 2,
+      "result": "pass",
+      "date": "2026-10-04",
+      "notes": "17 passed, 0 failed; all specs verified"
+    },
+    {
+      "env": "Firefox Desktop",
+      "via": "playwright",
+      "tier": 3,
+      "result": "pass",
+      "date": "2026-10-04",
+      "notes": "17 passed, 0 failed; all specs verified"
+    },
+    {
+      "env": "WebKit Desktop",
+      "via": "playwright",
+      "tier": 3,
+      "result": "pass",
+      "date": "2026-10-04",
+      "notes": "17 passed, 0 failed; all specs verified"
+    },
+    {
+      "env": "WebKit Mobile (iPhone 14 emulation)",
+      "via": "playwright",
+      "tier": 2,
+      "result": "pass",
+      "date": "2026-10-04",
+      "notes": "17 passed, 0 failed; all specs verified"
+    }
+  ]
+}

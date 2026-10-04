@@ -100,6 +100,26 @@ import { ScrollShowcase } from '@/components/ui/scroll-showcase';
 - Verify that mobile viewports switch to stacked mode without sticky jumping.
 - Verify that reduced-motion preferences disable autoscroll on marquee and reveals remain static.
 
+## Measured Bench Evidence
+
+- **Bench Commit**: `d8d51e2` (2026-10-04)
+- **Size**: 3.63 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Cumulative Layout Shift (CLS)**: `0`
+- **Frames When Idle**:
+  - Off-screen: 0 frames
+  - Hidden tab: 0 frames
+  - Reduced motion: 0 frames
+- **axe-core Violations**: Serious: 0, Critical: 0
+
+### Verified Devices
+| Environment | Via | Tier | Result | Date | Notes |
+|---|---|---|---|---|---|
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
+
 ## License & Provenance
 
 - **Code License**: MIT
