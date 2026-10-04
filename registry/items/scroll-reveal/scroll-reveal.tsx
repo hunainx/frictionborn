@@ -94,17 +94,8 @@ const SCROLL_REVEAL_STYLES = `
   }
 `;
 
-let clientStylesInjected = false;
-function ensureStylesInjected() {
-  if (typeof document === "undefined" || clientStylesInjected) return;
-  if (!document.getElementById("fb-scroll-reveal-style")) {
-    const el = document.createElement("style");
-    el.id = "fb-scroll-reveal-style";
-    el.textContent = SCROLL_REVEAL_STYLES;
-    document.head.appendChild(el);
-  }
-  clientStylesInjected = true;
-}
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
 
 export function ScrollReveal({
   children,
@@ -130,15 +121,32 @@ export function ScrollReveal({
   });
 
   const [hasEntered, setHasEntered] = useState(false);
+  const [initialInView, setInitialInView] = useState(false);
+
+  // Above-the-fold content must never dip on hydrate in browsers without CSS scroll-driven animations
+  useIsomorphicLayoutEffect(() => {
+    const el = elemRef.current;
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        setHasEntered(true);
+        setInitialInView(true);
+      }
+    }
+  }, []);
+
   useEffect(() => {
-    ensureStylesInjected();
     if (inView) {
       setHasEntered(true);
+      setInitialInView(false);
     }
   }, [inView]);
 
   const effectiveDistance = resolvedTier <= 1 ? Math.min(distance, 12) : distance;
-  const isRevealed = reducedMotionActive || resolvedTier === 0 || (once ? hasEntered : inView);
+  const isRevealed =
+    reducedMotionActive ||
+    resolvedTier === 0 ||
+    (once ? hasEntered : (initialInView || inView));
 
   // Transform styles based on animation variant
   let initialTransform = `translateY(${effectiveDistance}px)`;
