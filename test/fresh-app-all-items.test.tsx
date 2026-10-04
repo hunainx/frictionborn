@@ -13,6 +13,7 @@ import { MagneticButton } from "../registry/items/magnetic-button/magnetic-butto
 import { Marquee } from "../registry/items/marquee/marquee";
 import { SmoothScroll } from "../registry/items/smooth-scroll/smooth-scroll";
 import { StickyScrollStory } from "../registry/items/sticky-scroll-story/sticky-scroll-story";
+import { DistortionImage } from "../registry/items/distortion-image/distortion-image";
 
 function applyShadcnTheme(theme: "light" | "dark") {
   const root = document.documentElement;
@@ -165,6 +166,20 @@ describe("Fresh-app check of all 9 items with default props (light and dark)", (
         );
         expect(container.textContent).toContain("Optical Trap");
         expect(container.textContent).toContain("Cesium fountain trap stabilization");
+        unmount();
+      });
+
+      it("mounts DistortionImage with default props without errors", async () => {
+        const { container, unmount } = render(
+          <DistortionImage
+            src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='200'%3E%3Crect width='320' height='200' fill='%233b82f6'/%3E%3C/svg%3E"
+            alt="Fresh App Distortion Verification"
+            width={320}
+            height={200}
+          />
+        );
+        expect(container.querySelector("[data-frictionborn-item='distortion-image']")).not.toBeNull();
+        expect(container.querySelector("img")).not.toBeNull();
         unmount();
       });
     });

@@ -13,6 +13,7 @@ const items = [
   "sticky-scroll-story",
   "particle-field",
   "mesh-gradient",
+  "distortion-image",
 ];
 
 test.describe("Capture component screenshots", () => {

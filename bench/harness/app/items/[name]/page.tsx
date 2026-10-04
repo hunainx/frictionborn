@@ -12,6 +12,7 @@ import SmoothScrollDemo from "../../../../../registry/items/smooth-scroll/demo";
 import StickyScrollStoryDemo from "../../../../../registry/items/sticky-scroll-story/demo";
 import ParticleFieldDemo from "../../../../../registry/items/particle-field/demo";
 import MeshGradientDemo from "../../../../../registry/items/mesh-gradient/demo";
+import DistortionImageDemo from "../../../../../registry/items/distortion-image/demo";
 
 export default function ItemBenchPage({
   params,
@@ -104,6 +105,9 @@ export default function ItemBenchPage({
     }
     if (name === "mesh-gradient") {
       return <MeshGradientDemo />;
+    }
+    if (name === "distortion-image") {
+      return <DistortionImageDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>

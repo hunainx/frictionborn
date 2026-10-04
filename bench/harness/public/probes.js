@@ -315,11 +315,66 @@
     this.maxInteractionLatency = 0;
   };
 
+  // 6. WebGL Texture counter probe
+  function TextureCounterProbe() {
+    this.active = new Set();
+    this.totalCreated = 0;
+    this.totalDeleted = 0;
+    var self = this;
+
+    function wrapContext(proto) {
+      if (!proto) return;
+      var origCreate = proto.createTexture;
+      var origDelete = proto.deleteTexture;
+      if (origCreate) {
+        proto.createTexture = function () {
+          var tex = origCreate.apply(this, arguments);
+          if (tex) {
+            self.active.add(tex);
+            self.totalCreated++;
+          }
+          return tex;
+        };
+      }
+      if (origDelete) {
+        proto.deleteTexture = function (tex) {
+          if (tex) {
+            self.active.delete(tex);
+            self.totalDeleted++;
+          }
+          return origDelete.apply(this, arguments);
+        };
+      }
+    }
+
+    if (typeof WebGLRenderingContext !== "undefined") {
+      wrapContext(WebGLRenderingContext.prototype);
+    }
+    if (typeof WebGL2RenderingContext !== "undefined") {
+      wrapContext(WebGL2RenderingContext.prototype);
+    }
+  }
+
+  TextureCounterProbe.prototype.getStats = function () {
+    return {
+      activeTextures: this.active.size,
+      totalCreated: this.totalCreated,
+      totalDeleted: this.totalDeleted,
+    };
+  };
+
+  TextureCounterProbe.prototype.reset = function () {
+    this.active.clear();
+    this.totalCreated = 0;
+    this.totalDeleted = 0;
+  };
+
   window.__FB_PROBES__ = {
     frameCounter: new FrameCounterProbe(),
     contextCounter: new ContextCounterProbe(),
     listenerCounter: new ListenerCounterProbe(),
     animationProbe: new AnimationProbe(),
     perfObserver: new PerformanceObserverProbe(),
+    textureCounter: new TextureCounterProbe(),
   };
 })();

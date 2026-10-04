@@ -262,6 +262,9 @@ export default function FreshAppView() {
 async function verifyPixels(page: Page, testId: string): Promise<number> {
   const item = page.locator(`[data-testid='${testId}']`);
   await item.scrollIntoViewIfNeeded();
+  if (testId.includes("distortion")) {
+    await item.hover();
+  }
   await page.waitForTimeout(600);
 
   const canvas = item.locator("canvas");
@@ -806,6 +809,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         } else {
           // Normal mode: every GL item must show real pixels
           for (const glId of glItems) {
+            if (mode.mobile && glId === "gl-item-distortion-image") {
+              const imgCount = await page.locator(`[data-testid='${glId}'] img`).count();
+              if (imgCount === 0) {
+                throw new Error(`[${app.name}][${mode.id}] ${glId} missing plain img element!`);
+              }
+              console.log(`    ${glId}: verified plain image fallback on coarse mobile pointer (0 canvases)`);
+              continue;
+            }
+
             const nonZeroPixels = await verifyPixels(page, glId);
             console.log(`    ${glId}: ${nonZeroPixels} non-zero pixels sampled`);
             if (nonZeroPixels === 0) {
