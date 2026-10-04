@@ -409,12 +409,33 @@ describe("audit M3: evidence must be passing and current", () => {
     const errors = validateMeasuredAgainstDeclared(VALID_DECLARED_SAMPLE, { ...base, devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "x" }] }, "t");
     expect(errors).toEqual([]);
   });
-  it("reports code changed since the bench commit and ignores metadata, demos and tests", () => {
-    const head = execFileSync("git", ["rev-parse", "HEAD~30"], { encoding: "utf8" }).trim();
-    const changed = codeChangedSinceBench("noise-field", head);
-    expect(Array.isArray(changed)).toBe(true);
-    expect(changed!.every((f: string) => /\.(tsx|ts)$/.test(f) && !/demo\.tsx$/.test(f))).toBe(true);
-    expect(codeChangedSinceBench("noise-field", "0000000")).toBeNull();
+  it("reports code changed since the bench commit and ignores metadata, demos and tests (own temp repo: CI clones are shallow)", () => {
+    const cwd = process.cwd();
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-stale-"));
+    const git = (...args: string[]) => execFileSync("git", ["-c", "user.email=a@b.c", "-c", "user.name=t", ...args], { cwd: tmp, encoding: "utf8" }).trim();
+    try {
+      const dir = path.join(tmp, "registry", "items", "thing");
+      fs.mkdirSync(dir, { recursive: true });
+      for (const f of ["thing.tsx", "demo.tsx", "meta.json", "thing.test.tsx"]) fs.writeFileSync(path.join(dir, f), "v1\n");
+      git("init", "-q");
+      git("add", "-A");
+      git("commit", "-q", "-m", "bench commit");
+      const bench = git("rev-parse", "HEAD");
+      process.chdir(tmp);
+      expect(codeChangedSinceBench("thing", bench)).toEqual([]);
+
+      for (const f of ["demo.tsx", "meta.json", "thing.test.tsx"]) fs.writeFileSync(path.join(dir, f), "v2\n");
+      git("commit", "-aqm", "metadata, demo and test only");
+      expect(codeChangedSinceBench("thing", bench)).toEqual([]);
+
+      fs.writeFileSync(path.join(dir, "thing.tsx"), "v2\n");
+      git("commit", "-aqm", "code");
+      expect(codeChangedSinceBench("thing", bench)).toEqual(["registry/items/thing/thing.tsx"]);
+      expect(codeChangedSinceBench("thing", "0000000")).toBeNull();
+    } finally {
+      process.chdir(cwd);
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
   });
 });
 
