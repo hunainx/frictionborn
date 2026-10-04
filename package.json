@@ -8,6 +8,7 @@
     "build": "turbo run build",
     "test": "vitest run",
     "bench": "node --experimental-strip-types bench/run-bench.ts",
+    "bench:release": "node --experimental-strip-types bench/run-bench.ts --release",
     "size": "size-limit",
     "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts",
     "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",

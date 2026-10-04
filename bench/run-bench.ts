@@ -27,7 +27,8 @@ const PROJECT_LABELS: Record<string, string> = {
   "webkit-mobile": "WebKit Mobile (iPhone 14 emulation)",
 };
 
-export function runBench(itemName = "dummy"): boolean {
+export function runBench(itemName = "dummy", options: { isRelease?: boolean } = {}): boolean {
+  const isRelease = options.isRelease ?? process.argv.includes("--release");
   const projectRoot = process.cwd();
   console.log(`\n🚀 Starting Frictionborn Motion Bench for [${itemName}]...\n`);
 
@@ -191,26 +192,41 @@ export function runBench(itemName = "dummy"): boolean {
     devices,
   };
 
+  const rawOutDir = path.join(resultsDir, "raw");
+  fs.mkdirSync(rawOutDir, { recursive: true });
+
   const benchOut = path.join(resultsDir, "bench.json");
   const latestOut = path.join(resultsDir, "latest.json");
   const commitOut = path.join(resultsDir, `${commit}.json`);
-  const releaseOut = path.join(resultsDir, `release-${version}.json`);
+  const rawBenchOut = path.join(rawOutDir, "bench.json");
+  const rawLatestOut = path.join(rawOutDir, "latest.json");
+  const rawCommitOut = path.join(rawOutDir, `${commit}.json`);
 
   fs.writeFileSync(benchOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
   fs.writeFileSync(latestOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
   fs.writeFileSync(commitOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
-  fs.writeFileSync(releaseOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
+  fs.writeFileSync(rawBenchOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
+  fs.writeFileSync(rawLatestOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
+  fs.writeFileSync(rawCommitOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
 
   console.log(`\n✔ Wrote bench output: ${path.relative(projectRoot, benchOut)}`);
   console.log(`✔ Wrote latest output: ${path.relative(projectRoot, latestOut)}`);
   console.log(`✔ Wrote commit output: ${path.relative(projectRoot, commitOut)}`);
-  console.log(`✔ Wrote release snapshot: ${path.relative(projectRoot, releaseOut)}\n`);
+
+  if (isRelease) {
+    const releaseOut = path.join(resultsDir, `release-${version}.json`);
+    fs.writeFileSync(releaseOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
+    console.log(`✔ Wrote release snapshot: ${path.relative(projectRoot, releaseOut)}\n`);
+  } else {
+    console.log(`ℹ Normal run: release snapshot not rewritten (pass --release to update tracked release snapshots)\n`);
+  }
 
   return playwrightSucceeded;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
+  const isRelease = args.includes("--release");
   const itemIdx = args.indexOf("--item");
   let items: string[];
   if (itemIdx !== -1 && args[itemIdx + 1]) {
@@ -224,7 +240,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   let ok = true;
   for (const item of items) {
-    ok = runBench(item) && ok;
+    ok = runBench(item, { isRelease }) && ok;
   }
   process.exit(ok ? 0 : 1);
 }
+
