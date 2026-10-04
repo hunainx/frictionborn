@@ -134,12 +134,17 @@ export function StickyScrollStory({
         }
 
         .fb-sss-step-card {
-          min-height: 75vh;
+          min-height: 70vh;
           display: flex;
           flex-direction: column;
           justify-content: center;
           padding: 2rem 0;
           transition: opacity 200ms ease;
+        }
+
+        .fb-sss-step-card:first-child {
+          justify-content: flex-start;
+          padding-top: 1rem;
         }
 
         .fb-sss-mobile-media {
@@ -252,7 +257,7 @@ export function StickyScrollStory({
 
                 {/* Mobile Inline Media (Rendered below narrative on phones without sticky position jumps) */}
                 <div className="fb-sss-mobile-media">
-                  {step.media.type === "image" && step.media.src ? (
+                  {step.media?.type === "image" && step.media?.src ? (
                     <img
                       src={step.media.src}
                       alt={step.media.alt || step.title}
@@ -267,7 +272,7 @@ export function StickyScrollStory({
                       }}
                     />
                   ) : (
-                    step.media.content
+                    step.media?.content ?? null
                   )}
                 </div>
               </div>
@@ -295,7 +300,7 @@ export function StickyScrollStory({
                   zIndex: isVisible ? 2 : 1,
                 }}
               >
-                {step.media.type === "image" && step.media.src ? (
+                {step.media?.type === "image" && step.media?.src ? (
                   <img
                     src={step.media.src}
                     alt={step.media.alt || step.title}
@@ -307,7 +312,7 @@ export function StickyScrollStory({
                     }}
                   />
                 ) : (
-                  step.media.content
+                  step.media?.content ?? null
                 )}
               </div>
             );

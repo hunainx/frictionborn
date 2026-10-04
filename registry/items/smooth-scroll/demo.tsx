@@ -74,7 +74,7 @@ export default function SmoothScrollDemo() {
             aria-pressed={enabled}
             onClick={() => setEnabled((e) => !e)}
             style={{
-              padding: "0.375rem 0.75rem",
+              padding: "0.5rem 1rem",
               fontSize: "12px",
               borderRadius: "4px",
               border: "1px solid var(--border, #262B33)",
@@ -82,7 +82,10 @@ export default function SmoothScrollDemo() {
               color: enabled ? "var(--background, #0D0F12)" : "var(--foreground, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
-              minHeight: "36px",
+              minHeight: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {enabled ? "Kinetic Scroll: Enabled" : "Kinetic Scroll: Native"}
@@ -392,6 +395,11 @@ export default function SmoothScrollDemo() {
               style={{
                 marginTop: "1.5rem",
                 padding: "0.5rem 1rem",
+                minHeight: "44px",
+                minWidth: "44px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
                 borderRadius: "4px",
                 border: "none",
                 backgroundColor: "var(--primary, #FB923C)",

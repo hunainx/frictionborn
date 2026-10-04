@@ -243,15 +243,19 @@ export default function MagneticButtonDemo() {
             onClick={() => setMagneticRadius(rad)}
             aria-pressed={magneticRadius === rad}
             style={{
-              padding: "0.25rem 0.625rem",
-              fontSize: "0.75rem",
+              padding: "0.375rem 0.75rem",
+              fontSize: "0.85rem",
               borderRadius: "4px",
               border: "1px solid var(--border, #262B33)",
               background: magneticRadius === rad ? "var(--primary, #FB923C)" : "transparent",
               color: magneticRadius === rad ? "var(--background, #0D0F12)" : "var(--foreground, #E9EBF0)",
               cursor: "pointer",
               fontWeight: 500,
-              minHeight: "32px",
+              minHeight: "44px",
+              minWidth: "44px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {rad}px

@@ -69,15 +69,18 @@ export default function MarqueeDemo() {
           type="button"
           onClick={() => setFlowDirection((d) => (d === "left" ? "right" : "left"))}
           style={{
-            padding: "0.375rem 0.75rem",
+            padding: "0.5rem 1rem",
             borderRadius: "4px",
             border: "1px solid var(--border, #262B33)",
             background: "transparent",
             color: "var(--foreground, #E9EBF0)",
             cursor: "pointer",
-            fontSize: "0.8rem",
+            fontSize: "0.85rem",
             fontWeight: 500,
-            minHeight: "36px",
+            minHeight: "44px",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           Reverse: {flowDirection === "left" ? "Westward" : "Eastward"}

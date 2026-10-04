@@ -206,8 +206,8 @@ export default function ParticleFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              Continuous sub-angstrom particle distribution simulated deterministically in GPU vertex shaders.
-              Interactive fine-pointer deflection with automatic mobile tier throttling.
+              High-density particulate tracking and boundary-layer aerosol dispersion
+              calibrated for high-altitude scientific optical observation payloads.
             </p>
 
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>

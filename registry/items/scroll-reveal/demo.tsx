@@ -99,17 +99,18 @@ export default function ScrollRevealDemo() {
             <label
               key={m}
               style={{
-                padding: "0.375rem 0.75rem",
+                padding: "0.5rem 0.875rem",
                 borderRadius: "4px",
                 border: "1px solid var(--border, #262B33)",
                 background: animationMode === m ? "var(--primary, #FB923C)" : "transparent",
                 color: animationMode === m ? "var(--background, #0D0F12)" : "var(--foreground, #E9EBF0)",
                 cursor: "pointer",
-                fontSize: "0.8rem",
+                fontSize: "0.85rem",
                 fontWeight: 500,
-                minHeight: "36px",
+                minHeight: "44px",
                 display: "inline-flex",
                 alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <input
