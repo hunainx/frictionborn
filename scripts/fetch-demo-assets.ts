@@ -1,6 +1,9 @@
 // Original — Frictionborn Motion asset preparation script
 // Downloads 6 CC0 masterpieces from The Met Open Access collection,
 // converts them to optimized WebP format (<= 200 KB each) for DistortionImage demos and stress test.
+// Every object is checked against The Met Collection API first: it must be isPublicDomain, and the title and artist
+// must match the row below. The image is downloaded from the API's own primaryImageSmall URL (the 600 px web-large
+// rendition on images.metmuseum.org), never from a hand-copied link.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -13,7 +16,27 @@ interface ArtworkMeta {
   artist: string;
   year: string;
   sourceUrl: string;
-  imageUrl: string;
+}
+
+interface MetObject {
+  objectID: number;
+  isPublicDomain: boolean;
+  title: string;
+  artistDisplayName: string;
+  objectURL: string;
+  primaryImageSmall: string;
+}
+
+async function fetchVerifiedMetObject(art: ArtworkMeta): Promise<MetObject> {
+  const resp = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${art.id}`);
+  if (!resp.ok) throw new Error(`Met API returned HTTP ${resp.status} for object ${art.id}`);
+  const obj = (await resp.json()) as MetObject;
+  if (obj.isPublicDomain !== true) throw new Error(`Met object ${art.id} (${obj.title}) is not isPublicDomain: refusing to use it`);
+  if (!obj.title.toLowerCase().startsWith(art.title.toLowerCase())) throw new Error(`Met object ${art.id} is "${obj.title}", expected "${art.title}"`);
+  if (obj.artistDisplayName !== art.artist) throw new Error(`Met object ${art.id} is by "${obj.artistDisplayName}", expected "${art.artist}"`);
+  if (obj.objectURL !== art.sourceUrl) throw new Error(`Met object ${art.id} page is ${obj.objectURL}, expected ${art.sourceUrl}`);
+  if (!obj.primaryImageSmall) throw new Error(`Met object ${art.id} has no image`);
+  return obj;
 }
 
 const ARTWORKS: ArtworkMeta[] = [
@@ -24,7 +47,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Vincent van Gogh",
     year: "1889",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/436535",
-    imageUrl: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg",
   },
   {
     id: 436528,
@@ -33,7 +55,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Vincent van Gogh",
     year: "1890",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/436528",
-    imageUrl: "https://images.metmuseum.org/CRDImages/ep/web-large/DP346474.jpg",
   },
   {
     id: 437980,
@@ -42,7 +63,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Vincent van Gogh",
     year: "1889",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/437980",
-    imageUrl: "https://images.metmuseum.org/CRDImages/ep/web-large/DP130999.jpg",
   },
   {
     id: 45434,
@@ -51,7 +71,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Katsushika Hokusai",
     year: "ca. 1830–32",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/45434",
-    imageUrl: "https://images.metmuseum.org/CRDImages/as/web-large/DP130155.jpg",
   },
   {
     id: 436524,
@@ -60,7 +79,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Vincent van Gogh",
     year: "1887",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/436524",
-    imageUrl: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-41223-001.jpg",
   },
   {
     id: 437344,
@@ -69,7 +87,6 @@ const ARTWORKS: ArtworkMeta[] = [
     artist: "Pierre Puvis de Chavannes",
     year: "1891",
     sourceUrl: "https://www.metmuseum.org/art/collection/search/437344",
-    imageUrl: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-14201-001.jpg",
   },
 ];
 
@@ -87,7 +104,9 @@ async function main() {
 
   for (const art of ARTWORKS) {
     console.log(`Fetching artwork: ${art.title} (${art.artist})...`);
-    const resp = await fetch(art.imageUrl, {
+    const met = await fetchVerifiedMetObject(art);
+    console.log(`  verified: object ${met.objectID} isPublicDomain=true, "${met.title.slice(0, 40)}", ${met.artistDisplayName}`);
+    const resp = await fetch(met.primaryImageSmall, {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
     });
     if (!resp.ok) {
