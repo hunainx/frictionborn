@@ -27,8 +27,13 @@ const PROJECT_LABELS: Record<string, string> = {
   "webkit-mobile": "WebKit Mobile (iPhone 14 emulation)",
 };
 
-export function runBench(itemName = "dummy", options: { isRelease?: boolean } = {}): boolean {
+export function runBench(itemName = "dummy", options: { isRelease?: boolean; project?: string } = {}): boolean {
   const isRelease = options.isRelease ?? process.argv.includes("--release");
+  const project = options.project;
+  if (project && isRelease) {
+    console.error("--project runs one browser only; a release snapshot needs all of them. Run --release without --project.");
+    return false;
+  }
   const projectRoot = process.cwd();
   console.log(`\n🚀 Starting Frictionborn Motion Bench for [${itemName}]...\n`);
 
@@ -59,7 +64,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean } = 
 
   let playwrightSucceeded = true;
   try {
-    const cmd = process.platform === "win32" ? "npx.cmd playwright test" : "npx playwright test";
+    const base = process.platform === "win32" ? "npx.cmd playwright test" : "npx playwright test";
+    const cmd = project ? `${base} --project=${project}` : base;
     execSync(cmd, {
       stdio: "inherit",
       cwd: projectRoot,
@@ -227,6 +233,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean } = 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const isRelease = args.includes("--release");
+  const projectIdx = args.indexOf("--project");
+  const project = projectIdx !== -1 ? args[projectIdx + 1] : undefined;
   const itemIdx = args.indexOf("--item");
   let items: string[];
   if (itemIdx !== -1 && args[itemIdx + 1]) {
@@ -240,7 +248,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   let ok = true;
   for (const item of items) {
-    ok = runBench(item, { isRelease }) && ok;
+    ok = runBench(item, { isRelease, project }) && ok;
   }
   process.exit(ok ? 0 : 1);
 }
