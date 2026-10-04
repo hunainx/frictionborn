@@ -49,13 +49,13 @@ test.describe("ScrollShowcase composition spec", () => {
       await marquee.hover();
       await page.waitForTimeout(200);
 
-      // Verify animation paused
-      const isPaused = await marquee.evaluate((el) => {
-        const row = el.querySelector(".fb-marquee-row") as HTMLElement | null;
-        if (!row) return true;
-        return window.getComputedStyle(row).animationPlayState === "paused";
+      // Verify animation paused. The selector used to be ".fb-marquee-row", a class that does not exist, and a missing
+      // row returned true: the assertion could never fail (AGENTS lesson 11).
+      const playState = await marquee.evaluate((el) => {
+        const track = el.querySelector(".fb-marquee-track") as HTMLElement | null;
+        return track ? window.getComputedStyle(track).animationPlayState : "no-track";
       });
-      expect(isPaused).toBe(true);
+      expect(playState).toBe("paused");
     }
   });
 

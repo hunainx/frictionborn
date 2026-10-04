@@ -101,11 +101,13 @@ export function Marquee({
           animation: fb-mq-slide-right var(--fb-mq-dur, 25s) linear infinite;
         }
 
-        .fb-marquee:hover [data-pause-hover="true"] .fb-marquee-track {
+        /* Scoped to the viewport, not the root: the Pause/Play button is a sibling of the viewport, and a root-level
+           :hover / :focus-within rule also matched the button, so Play could not resume while it had focus or the pointer */
+        .fb-marquee-viewport:hover [data-pause-hover="true"] .fb-marquee-track {
           animation-play-state: paused;
         }
 
-        .fb-marquee:focus-within [data-pause-focus="true"] .fb-marquee-track {
+        .fb-marquee-viewport:focus-within [data-pause-focus="true"] .fb-marquee-track {
           animation-play-state: paused;
         }
 
@@ -137,6 +139,10 @@ export function Marquee({
         <div
           data-pause-hover={pauseOnHover ? "true" : undefined}
           data-pause-focus={pauseOnFocus ? "true" : undefined}
+          // Under reduced motion this box scrolls by hand (overflow: auto); a scrollable region must be reachable by keyboard (WCAG 2.1.1)
+          tabIndex={prefersReduced ? 0 : undefined}
+          role={prefersReduced ? "group" : undefined}
+          aria-label={prefersReduced ? "Scrollable list" : undefined}
           style={
             {
               display: "flex",

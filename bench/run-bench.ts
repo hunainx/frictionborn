@@ -81,6 +81,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
       specs.push("bench/specs/distortion-image.spec.ts");
     } else if (itemName === "smooth-scroll") {
       specs.push("bench/specs/smooth-scroll.spec.ts");
+    } else if (itemName === "marquee") {
+      specs.push("bench/specs/marquee.spec.ts");
     } else if (itemName === "text-reveal") {
       specs.push("bench/specs/text-reveal-flash.spec.ts");
     } else if (itemName === "ambient-hero") {
@@ -101,15 +103,16 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
   }
 
   // Per-project results come from the Playwright report only (never hard-coded).
-  const projectResults = new Map<string, { passed: number; failed: number }>();
+  const projectResults = new Map<string, { passed: number; failed: number; flaky: number }>();
   if (fs.existsSync(reportPath)) {
     try {
       const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
       const visit = (suite: any) => {
         for (const spec of suite.specs || []) {
           for (const test of spec.tests || []) {
-            const entry = projectResults.get(test.projectName) ?? { passed: 0, failed: 0 };
+            const entry = projectResults.get(test.projectName) ?? { passed: 0, failed: 0, flaky: 0 };
             if (test.status === "expected") entry.passed++;
+            else if (test.status === "flaky") entry.flaky++; // failed, then passed on the CI retry: recorded, not hidden
             else if (test.status !== "skipped") entry.failed++;
             projectResults.set(test.projectName, entry);
           }
@@ -198,7 +201,7 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
     tier: project.includes("mobile") ? 2 : 3,
     result: (r.failed === 0 ? "pass" : "fail") as "pass" | "fail",
     date,
-    notes: `${r.passed} passed, ${r.failed} failed; all specs verified`,
+    notes: `${r.passed} passed, ${r.failed} failed${r.flaky ? `, ${r.flaky} flaky (passed on retry)` : ""}`,
   }));
 
   const benchJson = {
@@ -307,13 +310,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     ok = runBench(item, { isRelease, project }) && ok;
   }
 
-  // Run item-agnostic specs (combined-page, stress-gl) once in total:
+  // Run item-agnostic specs (combined-page, stress-gl) once per browser project, never once per item:
   // - If running a single item via --item: skip agnostic specs.
-  // - If running sharded CI: run once on shard 1 of chromium-desktop (or unprojected shard 1).
-  // - If running all items locally: run once in total at the end.
+  // - If running sharded CI: run on shard 1 of EVERY project. stress-gl's S8-8 variant only discriminates on a coarse
+  //   pointer (chromium-mobile), so running it on chromium-desktop alone left the mobile contract untested in CI.
+  // - If running all items locally: run once at the end (Playwright covers all projects in that one call).
   const isShard1 = !shard || shard[1] === "1";
-  const isPrimaryProject = !project || project === "chromium-desktop";
-  if (itemIdx === -1 && isShard1 && isPrimaryProject) {
+  if (itemIdx === -1 && isShard1) {
     ok = runAgnosticSpecs({ project }) && ok;
   }
 
