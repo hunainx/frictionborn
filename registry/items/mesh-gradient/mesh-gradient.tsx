@@ -1,4 +1,4 @@
-// Original — Frictionborn Motion MeshGradient wrapper
+// Original — Frictionborn Motion MeshGradient
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
@@ -14,13 +14,6 @@ import {
 
 const MeshGradientGL = lazy(() => import("./mesh-gradient.gl"));
 
-// Paper only parses hex/rgb/hsl, while Tailwind v4 / shadcn tokens serialise as lab() or oklch()
-function resolveColorToHex(element: HTMLElement | null, spec: string, fallback: string): string {
-  const rgb = resolveCssColor(element, spec);
-  if (!rgb) return fallback;
-  return "#" + rgb.map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("");
-}
-
 export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> {
   colors?: string[];
   speed?: number;
@@ -35,14 +28,21 @@ export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> 
   children?: React.ReactNode;
 }
 
-// Host tokens with CSS system-colour fallbacks (no brand palette); module-level so the identity is stable
+// Host tokens with CSS system-colour fallbacks; stable module-level constant
 const DEFAULT_MESH_TOKENS = [
   "var(--background, Canvas)",
   "var(--primary, CanvasText)",
-  "var(--accent, GrayText)",
-  "var(--muted, ButtonFace)",
+  "var(--chart-1, var(--accent, GrayText))",
+  "var(--chart-2, var(--muted, ButtonFace))",
 ];
-const NEUTRAL_HEX = ["#808080", "#808080", "#808080", "#808080"];
+
+type RgbTriple = [number, number, number];
+const DEFAULT_RGB_QUAD: [RgbTriple, RgbTriple, RgbTriple, RgbTriple] = [
+  [0.05, 0.06, 0.08],
+  [0.22, 0.74, 0.97],
+  [0.51, 0.55, 0.97],
+  [0.12, 0.16, 0.23],
+];
 
 export function MeshGradient({
   colors = DEFAULT_MESH_TOKENS,
@@ -73,16 +73,32 @@ export function MeshGradient({
   const [contextSevered, setContextSevered] = useState(false);
 
   const [effectiveTier, setEffectiveTier] = useState<number>(0);
-  // Resolved hex colours for the WebGL layer only (the poster and scrim use the CSS tokens directly)
-  const [activeColors, setActiveColors] = useState<string[]>(NEUTRAL_HEX);
+  const [activeColors, setActiveColors] = useState<[RgbTriple, RgbTriple, RgbTriple, RgbTriple]>(DEFAULT_RGB_QUAD);
 
   const refreshColors = useCallback(() => {
     const el = hostElementRef.current;
-    const next = colors.map((c) => resolveColorToHex(el, c, "#808080"));
-    // Keep the previous array when nothing changed so unrelated <html> mutations do not re-render
-    setActiveColors((prev) =>
-      prev.length === next.length && prev.every((v, i) => v === next[i]) ? prev : next
-    );
+    const resolved: RgbTriple[] = colors.map((c) => {
+      const rgb = resolveCssColor(el, c);
+      return rgb ? (rgb as RgbTriple) : [0.5, 0.5, 0.5];
+    });
+
+    const c0 = resolved[0] ?? DEFAULT_RGB_QUAD[0];
+    const c1 = resolved[1] ?? resolved[0] ?? DEFAULT_RGB_QUAD[1];
+    const c2 = resolved[2] ?? resolved[1] ?? DEFAULT_RGB_QUAD[2];
+    const c3 = resolved[3] ?? resolved[0] ?? DEFAULT_RGB_QUAD[3];
+    const next: [RgbTriple, RgbTriple, RgbTriple, RgbTriple] = [c0, c1, c2, c3];
+
+    setActiveColors((prev) => {
+      const isIdentical =
+        prev.length === 4 &&
+        prev.every(
+          (tuple, i) =>
+            Math.abs(tuple[0] - next[i][0]) < 0.002 &&
+            Math.abs(tuple[1] - next[i][1]) < 0.002 &&
+            Math.abs(tuple[2] - next[i][2]) < 0.002
+        );
+      return isIdentical ? prev : next;
+    });
   }, [colors]);
 
   useEffect(() => {
@@ -102,7 +118,7 @@ export function MeshGradient({
     }
   }, [isClientHydrated, runtimeCap.tier, maxTier]);
 
-  // Context lease lifecycle management (Decision D-A: reduced motion = no WebGL)
+  // Context lease lifecycle management (Decision 19: reduced motion = no WebGL)
   const isQualifiedForWebGL =
     isClientHydrated && isInViewport && effectiveTier >= 2 && !suppressMotion;
 
@@ -116,7 +132,8 @@ export function MeshGradient({
       return;
     }
 
-    if (!leaseHandle.current) {
+    const tryAcquire = () => {
+      if (leaseHandle.current) return;
       const acquired = glBudget.acquire({
         id: instanceTag.current,
         priority: 1,
@@ -130,7 +147,21 @@ export function MeshGradient({
         leaseHandle.current = acquired;
         setHasContextLease(true);
       }
-    }
+    };
+
+    tryAcquire();
+
+    const unsubscribe = typeof (glBudget as any).subscribe === "function"
+      ? (glBudget as any).subscribe(() => {
+          if (!leaseHandle.current) {
+            tryAcquire();
+          }
+        })
+      : () => {};
+
+    return () => {
+      unsubscribe();
+    };
   }, [isQualifiedForWebGL]);
 
   useEffect(() => {
@@ -152,9 +183,9 @@ export function MeshGradient({
     setContextSevered(false); // @frictionborn-guard
   }, []);
 
-  // Pure CSS from the same colour props: the server poster already follows the host theme (CLS 0, no flash)
+  // Pure CSS poster matching the shader's anchor positions and spatial weighting
   const bgBase = colors[0];
-  const posterArt = `radial-gradient(circle at 20% 30%, color-mix(in srgb, ${colors[1] ?? colors[0]} 25%, transparent) 0%, transparent 60%), radial-gradient(circle at 80% 70%, color-mix(in srgb, ${colors[2] ?? colors[0]} 21%, transparent) 0%, transparent 55%), radial-gradient(circle at 50% 50%, color-mix(in srgb, ${colors[3] ?? colors[0]} 31%, transparent) 0%, transparent 70%), ${bgBase}`;
+  const posterArt = `radial-gradient(circle at 20% 30%, color-mix(in srgb, ${colors[1] ?? colors[0]} 38%, transparent) 0%, transparent 65%), radial-gradient(circle at 80% 70%, color-mix(in srgb, ${colors[2] ?? colors[0]} 34%, transparent) 0%, transparent 60%), radial-gradient(circle at 50% 50%, color-mix(in srgb, ${colors[3] ?? colors[0]} 40%, transparent) 0%, transparent 70%), ${bgBase}`;
 
   const renderWebGLMesh = hasContextLease && !suppressMotion && effectiveTier >= 2;
 

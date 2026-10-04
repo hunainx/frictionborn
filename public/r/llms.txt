@@ -11,7 +11,7 @@
 ## Components
 - **magnetic-button**: cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners) (Install: `npx shadcn@latest add @frictionborn/magnetic-button`)
 - **marquee**: strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok) (Install: `npx shadcn@latest add @frictionborn/marquee`)
-- **mesh-gradient**: background: multi-color organic mesh gradient via Paper Shaders WebGL2 (webgl2, client-only, Apache-2.0, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2) (Install: `npx shadcn@latest add @frictionborn/mesh-gradient`)
+- **mesh-gradient**: background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2) (Install: `npx shadcn@latest add @frictionborn/mesh-gradient`)
 - **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
 - **particle-field**: background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, ~4 KB, reduced motion -> poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/particle-field`)
 - **scroll-reveal**: media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px) (Install: `npx shadcn@latest add @frictionborn/scroll-reveal`)

@@ -95,14 +95,21 @@ export function createSurface(
   }
 
   // Full-screen triangle buffer setup
-  const vao = gl.createVertexArray();
-  const vbo = gl.createBuffer();
-  gl.bindVertexArray(vao);
-  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-  gl.bufferData(gl.ARRAY_BUFFER, FULLSCREEN_TRIANGLE, gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(0);
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-  gl.bindVertexArray(null);
+  let vao: WebGLVertexArrayObject | null = null;
+  let vbo: WebGLBuffer | null = null;
+
+  const initBuffers = () => {
+    vao = gl.createVertexArray();
+    vbo = gl.createBuffer();
+    gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, FULLSCREEN_TRIANGLE, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+  };
+
+  initBuffers();
 
   // Resize calculation with clamps
   const resize = () => {
@@ -152,6 +159,8 @@ export function createSurface(
   };
 
   const handleContextRestored = () => {
+    canvas.style.display = "block";
+    initBuffers();
     resize();
     onContextRestored?.();
   };

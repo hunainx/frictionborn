@@ -21,7 +21,6 @@
     "@changesets/cli": "2.31.1",
     "@eslint/js": "9.39.5",
     "@frictionborn/runtime": "workspace:*",
-    "@paper-design/shaders-react": "0.0.81",
     "@playwright/test": "1.63.0",
     "@size-limit/preset-small-lib": "11.2.0",
     "@testing-library/react": "16.3.3",

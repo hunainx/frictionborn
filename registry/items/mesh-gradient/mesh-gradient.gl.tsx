@@ -1,13 +1,18 @@
-// Source: https://github.com/paper-design/shaders — Apache-2.0 — Paper Design
-// Notice: Powered by Paper Shaders
+// Original — Frictionborn Motion MeshGradient WebGL2 renderer
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { MeshGradient as PaperMeshGradient } from "@paper-design/shaders-react";
-import { useFrameGuard, usePaused } from "@frictionborn/runtime";
+import { useEffect, useRef, useCallback } from "react";
+import { createSurface, type Surface } from "@frictionborn/runtime/gl";
+import { useFrame, useFrameGuard, usePaused } from "@frictionborn/runtime";
+import { vertexShaderSource, fragmentShaderSource } from "./mesh-gradient.glsl";
 
 export interface MeshGradientGLProps {
-  colors: string[];
+  colors: [
+    [number, number, number],
+    [number, number, number],
+    [number, number, number],
+    [number, number, number]
+  ];
   speed?: number;
   distortion?: number;
   swirl?: number;
@@ -37,103 +42,186 @@ export default function MeshGradientGL({
   onContextLost,
   onContextRestored,
 }: MeshGradientGLProps) {
-  const mountWrapperRef = useRef<HTMLDivElement | null>(null);
-  // Paper does not handle webglcontextrestored: remounting its component builds a fresh context and program
-  const [mountKey, setMountKey] = useState(0);
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  const glSurface = useRef<Surface | null>(null);
+  const glProgram = useRef<WebGLProgram | null>(null);
+  const uniformMap = useRef<Map<string, WebGLUniformLocation>>(new Map());
 
-  // Paper runs its own render loop, so the runtime's global pause (pauseAll) has to reach it as speed 0
-  const globalPaused = usePaused();
+  const elapsedClock = useRef(0);
+  const activePalette = useRef(colors);
+  activePalette.current = colors;
 
-  // Guard frame budget — auto-downgrades if render cost exceeds 25ms p75
+  const isGlobalPaused = usePaused();
+
   useFrameGuard({
     onDowngrade: onDowngrade ?? (() => {}),
-    active: !paused && !globalPaused && !reducedMotion && !suspended,
+    active: !paused && !isGlobalPaused && !reducedMotion && !suspended,
   }); // @frictionborn-guard
 
-  // Decision 15 (D-B): Tier 2 & mobile capped to DPR 1.5, tier 3 to 2. Paper's minPixelRatio is a floor (it
-  // supersamples low-DPI screens and never lowers a high-DPI one), so the cap is a pixel budget instead:
-  // css width x height x cap^2. Paper scales its canvas down uniformly to stay inside it.
-  const [pixelBudget, setPixelBudget] = useState<number | undefined>(undefined);
+  const maxDpr = tier >= 3 ? 2.0 : 1.5;
+  const meshScale = tier >= 3 ? 1.0 : 0.75;
+  const meshOctaves = tier >= 3 ? 4 : 2;
 
-  useEffect(() => {
-    const el = mountWrapperRef.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const cap = tier >= 3 ? 2 : 1.5;
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      setPixelBudget(Math.ceil(width * height * cap * cap));
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [tier]);
+  const lostHandler = useRef(onContextLost);
+  lostHandler.current = onContextLost;
+  const restoredHandler = useRef(onContextRestored);
+  restoredHandler.current = onContextRestored;
 
-  // Intercept WebGL context loss from Paper Shaders canvas
-  useEffect(() => {
-    const wrapper = mountWrapperRef.current;
-    if (!wrapper) return;
+  const flushMeshState = useCallback(
+    (timeValue: number) => {
+      const surface = glSurface.current;
+      const prog = glProgram.current;
+      if (!surface || !prog) return;
 
-    let attachedCanvas: HTMLCanvasElement | null = null;
+      const gl = surface.gl;
+      const u = uniformMap.current;
+      gl.useProgram(prog);
 
-    const attachCanvasListeners = () => {
-      const canvas = wrapper.querySelector("canvas");
-      if (!canvas || canvas === attachedCanvas) return;
-      attachedCanvas = canvas;
+      const uRes = u.get("u_resolution");
+      if (uRes) gl.uniform2f(uRes, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
-      canvas.addEventListener("webglcontextlost", (e) => {
-        e.preventDefault();
-        canvas.style.display = "none";
-        onContextLost?.();
-      });
+      const uTime = u.get("u_time");
+      if (uTime) gl.uniform1f(uTime, timeValue);
 
-      canvas.addEventListener("webglcontextrestored", () => {
-        canvas.style.display = "block";
-        setMountKey((k) => k + 1);
-        onContextRestored?.();
-      });
-    };
+      const uSpeed = u.get("u_speed");
+      if (uSpeed) gl.uniform1f(uSpeed, speed);
 
-    attachCanvasListeners();
-    const observer = new MutationObserver(attachCanvasListeners);
-    observer.observe(wrapper, { childList: true, subtree: true });
+      const uDistort = u.get("u_distortion");
+      if (uDistort) gl.uniform1f(uDistort, distortion);
 
-    return () => {
-      observer.disconnect();
-      if (attachedCanvas) {
-        try {
-          const gl = attachedCanvas.getContext("webgl2") || attachedCanvas.getContext("webgl");
-          const loseExt = gl?.getExtension("WEBGL_lose_context");
-          loseExt?.loseContext();
-        } catch {
-          // Ignore errors during unmount cleanup
+      const uSwirl = u.get("u_swirl");
+      if (uSwirl) gl.uniform1f(uSwirl, swirl);
+
+      const uMixer = u.get("u_grain_mixer");
+      if (uMixer) gl.uniform1f(uMixer, grainMixer);
+
+      const uOverlay = u.get("u_grain_overlay");
+      if (uOverlay) gl.uniform1f(uOverlay, grainOverlay);
+
+      const uOct = u.get("u_octaves");
+      if (uOct) gl.uniform1i(uOct, meshOctaves);
+
+      const pal = activePalette.current;
+      for (let i = 0; i < 4; i++) {
+        const uCol = u.get(`u_color${i}`);
+        if (uCol) {
+          gl.uniform3f(uCol, pal[i][0], pal[i][1], pal[i][2]);
         }
       }
+
+      surface.draw();
+    },
+    [speed, distortion, swirl, grainMixer, grainOverlay, meshOctaves]
+  );
+
+  useEffect(() => {
+    const parent = hostRef.current;
+    if (!parent) return;
+
+    const cvs = document.createElement("canvas");
+    cvs.setAttribute("aria-hidden", "true");
+    cvs.setAttribute("data-frictionborn-gl", "mesh-gradient");
+    Object.assign(cvs.style, {
+      position: "absolute",
+      inset: "0",
+      width: "100%",
+      height: "100%",
+      display: "block",
+      pointerEvents: "none",
+      zIndex: "2",
+    });
+    parent.appendChild(cvs);
+
+    const initShaders = (s: Surface) => {
+      const gl = s.gl;
+      const prog = s.createProgram(vertexShaderSource, fragmentShaderSource);
+      glProgram.current = prog;
+
+      const map = new Map<string, WebGLUniformLocation>();
+      const names = [
+        "u_resolution",
+        "u_time",
+        "u_speed",
+        "u_distortion",
+        "u_swirl",
+        "u_grain_mixer",
+        "u_grain_overlay",
+        "u_octaves",
+        "u_color0",
+        "u_color1",
+        "u_color2",
+        "u_color3",
+      ];
+      for (const name of names) {
+        const loc = gl.getUniformLocation(prog, name);
+        if (loc) map.set(name, loc);
+      }
+      uniformMap.current = map;
     };
-  }, [onContextLost, onContextRestored]);
+
+    try {
+      const surface = createSurface(cvs, {
+        maxDpr,
+        scale: meshScale,
+        onContextLost: () => {
+          cvs.style.display = "none";
+          lostHandler.current?.();
+        },
+        onContextRestored: () => {
+          cvs.style.display = "block";
+          if (glSurface.current) {
+            glSurface.current.resize();
+            initShaders(glSurface.current);
+            flushMeshState(elapsedClock.current);
+          }
+          restoredHandler.current?.();
+        },
+      }); // @frictionborn-guard
+
+      glSurface.current = surface;
+      initShaders(surface);
+      flushMeshState(elapsedClock.current);
+    } catch (failure) {
+      console.warn("MeshGradient WebGL2 surface failure", failure);
+      if (glSurface.current) {
+        glSurface.current.dispose(); // @frictionborn-guard
+        glSurface.current = null;
+      }
+      lostHandler.current?.();
+    }
+
+    return () => {
+      if (glSurface.current) {
+        glSurface.current.dispose(); // @frictionborn-guard
+        glSurface.current = null;
+      }
+      cvs.remove();
+    };
+  }, [maxDpr, meshScale, flushMeshState]);
+
+  useFrame(
+    ({ dt }) => {
+      elapsedClock.current += (dt * 0.001) * speed;
+      flushMeshState(elapsedClock.current);
+    },
+    { active: !paused && !isGlobalPaused && !reducedMotion && !suspended } // @frictionborn-guard
+  );
 
   return (
     <div
-      ref={mountWrapperRef}
+      ref={hostRef}
+      aria-hidden="true"
+      className="fb-mesh-surface"
       style={{
-        display: suspended ? "none" : "block",
         position: "absolute",
         inset: 0,
         width: "100%",
         height: "100%",
+        overflow: "hidden",
         pointerEvents: "none",
+        zIndex: 2,
+        visibility: suspended ? "hidden" : "visible",
       }}
-    >
-      <PaperMeshGradient
-        key={mountKey}
-        colors={colors}
-        speed={paused || globalPaused || reducedMotion ? 0 : speed}
-        distortion={distortion}
-        swirl={swirl}
-        grainMixer={grainMixer}
-        grainOverlay={grainOverlay}
-        minPixelRatio={1}
-        maxPixelCount={pixelBudget}
-        style={{ width: "100%", height: "100%" }}
-      />
-    </div>
+    />
   );
 }

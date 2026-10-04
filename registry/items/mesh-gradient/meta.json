@@ -3,7 +3,7 @@
   "item": {
     "name": "mesh-gradient",
     "version": "0.1.0",
-    "summary": "background: multi-color organic mesh gradient via Paper Shaders WebGL2 (webgl2, client-only, Apache-2.0, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2)",
+    "summary": "background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2)",
     "slot": "background",
     "kind": "webgl"
   },
@@ -45,9 +45,7 @@
     }
   },
   "dependencies": {
-    "npm": [
-      "@paper-design/shaders-react@0.0.81"
-    ],
+    "npm": [],
     "registry": []
   },
   "behavior": {
@@ -97,7 +95,7 @@
     {
       "name": "colors",
       "type": "string[]",
-      "default": "[\"var(--background, #0B0E14)\", \"var(--primary, #38BDF8)\", \"var(--accent, #818CF8)\", \"var(--muted, #1E293B)\"]",
+      "default": "[\"var(--background, #0B0E14)\", \"var(--primary, #38BDF8)\", \"var(--chart-1, #818CF8)\", \"var(--chart-2, #1E293B)\"]",
       "effect": "Array of 2-6 color values, dynamically resolved from host tokens."
     },
     {
@@ -173,14 +171,12 @@
     "code": "MIT",
     "derivedFrom": [
       {
-        "what": "Paper Shaders MeshGradient component and shaders",
-        "url": "https://github.com/paper-design/shaders",
-        "license": "Apache-2.0"
+        "what": "Simplex noise algorithm (GLSL)",
+        "url": "https://github.com/stegu/webgl-noise",
+        "license": "MIT"
       }
     ],
-    "notices": [
-      "Powered by Paper Shaders (Apache-2.0)"
-    ],
+    "notices": [],
     "assets": []
   },
   "measured": {

@@ -1,6 +1,6 @@
 # mesh-gradient — Specification Sheet
 
-> background: multi-color organic mesh gradient via Paper Shaders WebGL2 (webgl2, client-only, Apache-2.0, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2)
+> background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2)
 
 ## Overview
 
@@ -71,7 +71,7 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `colors` | `string[]` | `"[\"var(--background, #0B0E14)\", \"var(--primary, #38BDF8)\", \"var(--accent, #818CF8)\", \"var(--muted, #1E293B)\"]"` | Array of 2-6 color values, dynamically resolved from host tokens. |
+| `colors` | `string[]` | `"[\"var(--background, #0B0E14)\", \"var(--primary, #38BDF8)\", \"var(--chart-1, #818CF8)\", \"var(--chart-2, #1E293B)\"]"` | Array of 2-6 color values, dynamically resolved from host tokens. |
 | `speed` | `number` | `0.35` | Wave drift speed multiplier. |
 | `distortion` | `number` | `0.5` | Amplitude of organic noise distortion. |
 | `swirl` | `number` | `0.25` | Vortex swirl strength in the gradient field. |
@@ -136,4 +136,4 @@ export default function Hero() {
 
 - **Code License**: MIT
 - **Derived From**:
-  - Paper Shaders MeshGradient component and shaders: [https://github.com/paper-design/shaders](https://github.com/paper-design/shaders) (Apache-2.0)
+  - Simplex noise algorithm (GLSL): [https://github.com/stegu/webgl-noise](https://github.com/stegu/webgl-noise) (MIT)
