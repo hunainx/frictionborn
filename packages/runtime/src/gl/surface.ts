@@ -160,6 +160,8 @@ export function createSurface(
 
   const handleContextRestored = () => {
     canvas.style.display = "block";
+    // Programs made before the loss belong to the dead context; deleting them later only logs a WebGL warning.
+    programs.length = 0;
     initBuffers();
     resize();
     onContextRestored?.();
