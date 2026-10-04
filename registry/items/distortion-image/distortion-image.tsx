@@ -43,6 +43,8 @@ export interface DistortionImageProps extends React.HTMLAttributes<HTMLDivElemen
   crossOrigin?: "anonymous" | "use-credentials" | "";
   loading?: "eager" | "lazy";
   decoding?: "async" | "auto" | "sync";
+  fetchPriority?: "high" | "low" | "auto";
+  fetchpriority?: "high" | "low" | "auto";
   srcSet?: string;
   sizes?: string;
   imgClassName?: string;
@@ -61,6 +63,8 @@ export function DistortionImage({
   crossOrigin,
   loading = "lazy",
   decoding = "async",
+  fetchPriority,
+  fetchpriority,
   srcSet,
   sizes,
   imgClassName = "",
@@ -96,10 +100,10 @@ export function DistortionImage({
   const [isFinePointer, setIsFinePointer] = useState(false);
   const [focusVisible, setFocusVisible] = useState(false);
 
-  // Detect fine pointer capability (mouse/pen) vs coarse touch
+  // Detect fine pointer capability and hover support ((hover: hover) and (pointer: fine))
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
-    const media = window.matchMedia("(pointer: fine)");
+    const media = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsFinePointer(media.matches);
     const listener = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);
     media.addEventListener("change", listener);
@@ -407,6 +411,7 @@ export function DistortionImage({
         height={height}
         loading={loading}
         decoding={decoding}
+        fetchPriority={fetchPriority ?? fetchpriority}
         crossOrigin={crossOrigin}
         srcSet={srcSet}
         sizes={sizes}

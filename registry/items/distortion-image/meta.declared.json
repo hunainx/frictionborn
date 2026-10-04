@@ -132,7 +132,13 @@
       "name": "crossOrigin",
       "type": "\"anonymous\" | \"use-credentials\" | \"\"",
       "default": "undefined",
-      "effect": "CORS mode for cross-origin image texture loading."
+      "effect": "CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors."
+    },
+    {
+      "name": "fetchPriority",
+      "type": "\"high\" | \"low\" | \"auto\"",
+      "default": "undefined",
+      "effect": "Native fetchpriority attribute forwarded to the underlying img element."
     },
     {
       "name": "loading",
@@ -181,7 +187,7 @@
     "install": "npx shadcn@latest add @frictionborn/distortion-image",
     "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
     "mistakes": [
-      "Do not omit crossOrigin='anonymous' when loading images from a different origin, or WebGL will fall back to static image due to browser canvas tainting.",
+      "Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.",
       "Do not set position: absolute on the underlying img without specifying container dimensions; let the image define layout to avoid CLS.",
       "Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops."
     ],

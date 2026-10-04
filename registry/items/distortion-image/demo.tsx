@@ -329,7 +329,8 @@ export default function DistortionImageDemo() {
 
       {/* Featured Primary Work */}
       <article
-        id="demo-mount-point"
+        id="featured-artwork"
+        data-testid="featured-artwork"
         style={{
           borderRadius: "10px",
           border: `1px solid ${isLight ? "#E5E7EB" : "#1F2937"}`,

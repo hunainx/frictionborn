@@ -394,7 +394,7 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     if (!(await finePointer(page))) return;
     await page.goto("/items/distortion-image?tier=3");
     if (!(await webgl2Supported(page))) return;
-    const featured = page.locator("article#demo-mount-point");
+    const featured = page.locator("article#featured-artwork");
     await featured.scrollIntoViewIfNeeded();
     await featured.hover();
     await expect(featured.locator("canvas")).toHaveCount(1, { timeout: 8000 });
@@ -442,5 +442,51 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     expect(stats.activeTextures).toBe(0);
     if (webgl2) expect(stats.texturesCreated).toBeGreaterThan(0); // the upload was really attempted and refused
     expect(errors).toEqual([]);
+  });
+
+  test("an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "Chromium texture dimensions probe");
+    if (!(await finePointer(page))) return;
+
+    await page.addInitScript(() => {
+      (window as any).__uploadedDims = [];
+      const orig = WebGL2RenderingContext.prototype.texImage2D as (...a: unknown[]) => void;
+      (WebGL2RenderingContext.prototype as any).texImage2D = function (this: unknown, ...a: unknown[]) {
+        const source = a[a.length - 1] as any;
+        if (source) {
+          const w = source.width ?? source.naturalWidth ?? source.videoWidth;
+          const h = source.height ?? source.naturalHeight ?? source.videoHeight;
+          if (w && h) {
+            (window as any).__uploadedDims.push({ w, h });
+          }
+        }
+        return orig.apply(this, a);
+      };
+    });
+
+    await page.goto("/distortion-cases?tier=3");
+    await page.waitForSelector("[data-testid='cases-root']");
+    if (!(await webgl2Supported(page))) return;
+
+    const oversizedSection = page.locator("[data-testid='case-oversized']");
+    const img = oversizedSection.locator("img");
+    await oversizedSection.scrollIntoViewIfNeeded();
+    await expect.poll(() => img.evaluate((i: HTMLImageElement) => i.complete && i.naturalWidth === 3000)).toBe(true);
+
+    await img.hover();
+    await expect(oversizedSection.locator("canvas")).toHaveCount(1, { timeout: 8000 });
+
+    await expect
+      .poll(async () => page.evaluate(() => (window as any).__uploadedDims), { timeout: 5000 })
+      .not.toEqual([]);
+
+    const dims = await page.evaluate(() => (window as any).__uploadedDims);
+    const oversizedUpload = dims.find((d: { w: number; h: number }) => d.w > 600 || d.h > 400);
+    expect(oversizedUpload).toBeDefined();
+    // At Tier 3, capped at 2048px max dimension
+    expect(oversizedUpload.w).toBeLessThanOrEqual(2048);
+    expect(oversizedUpload.h).toBeLessThanOrEqual(2048);
   });
 });

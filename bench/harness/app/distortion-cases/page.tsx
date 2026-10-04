@@ -98,6 +98,15 @@ export default function DistortionCasesPage({
       <section data-testid="case-default-props">
         <DistortionImage src="/assets/distortion/art-5.webp" alt="Default props only, no dimensions" />
       </section>
+
+      <section data-testid="case-oversized">
+        <DistortionImage
+          src="/assets/distortion/oversized.webp"
+          alt="Oversized 3000px source image"
+          width={600}
+          height={400}
+        />
+      </section>
     </div>
   );
 }
