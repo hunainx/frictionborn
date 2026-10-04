@@ -1,0 +1,56 @@
+name: Fresh apps
+
+# Real Next 16 (create-next-app) and Vite (create-vite) apps, shadcn init + shadcn add from the local registry,
+# production builds, real Chromium. Nightly, on every release tag, and on demand. See scripts/fresh-apps.ts.
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # Nightly at 04:00 UTC
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-apps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Install Playwright Chromium and OS dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Run fresh-apps verification (Next 16 + Vite)
+        run: pnpm fresh-apps
+
+      - name: Upload screenshots and summary
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fresh-apps
+          path: docs/fresh-apps
+          if-no-files-found: warn
+          retention-days: 30
