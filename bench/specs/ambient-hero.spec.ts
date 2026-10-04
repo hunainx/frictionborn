@@ -47,22 +47,57 @@ test.describe("AmbientHero composition spec", () => {
     await expect(pauseBtn).toHaveAttribute("aria-label", "Pause ambient background motion");
   });
 
-  test("interactive elements are keyboard reachable with visible focus", async ({ page }) => {
+  test("the pause button stops the hero background only: wheel scrolling still works under SmoothScroll", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name.includes("mobile"), "SmoothScroll is off on coarse pointers");
+    await page.addInitScript(() => {
+      (window as any).__draws = 0;
+      for (const name of ["drawArrays", "drawElements"] as const) {
+        const orig = WebGL2RenderingContext.prototype[name] as (...a: unknown[]) => unknown;
+        (WebGL2RenderingContext.prototype as any)[name] = function (...a: unknown[]) {
+          (window as any).__draws++;
+          return orig.apply(this, a);
+        };
+      }
+    });
+    await page.goto("/hero-smooth?tier=3");
+    await page.waitForSelector("[data-frictionborn-item='ambient-hero']");
+    await page.waitForTimeout(1500);
+    const draws = () => page.evaluate(() => (window as any).__draws as number);
+    const hadGl = (await draws()) > 5; // headless Firefox in CI has no WebGL2: still check the scrolling half
+    // sanity: SmoothScroll is really on (it adds the lenis class) and wheel scrolling works before the pause
+    await expect(page.locator("html")).toHaveClass(/lenis/);
+    await page.mouse.move(600, 400);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(() => page.evaluate(() => window.scrollY), { message: "wheel scrolling does not work even before the pause" }).toBeGreaterThan(100);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+
+    const pauseBtn = page.locator("header[data-frictionborn-item='ambient-hero'] button[aria-pressed]");
+    await pauseBtn.click();
+    await expect(pauseBtn).toHaveAttribute("aria-pressed", "true");
+    if (hadGl) {
+      const a = await draws();
+      await page.waitForTimeout(600);
+      expect((await draws()) - a, "the hero background must stop drawing while paused").toBeLessThan(3);
+    }
+    await page.mouse.move(600, 400);
+    await page.mouse.wheel(0, 500);
+    await expect.poll(() => page.evaluate(() => window.scrollY), { message: "wheel scrolling froze after pressing Pause (the button must not stop the page's shared frame loop)" }).toBeGreaterThan(100);
+  });
+
+  test("interactive elements are keyboard reachable in order: pause button, primary CTA, secondary CTA", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name.startsWith("webkit"), "Safari/WebKit does not Tab to links without the Option-Tab setting (verified: fails on webkit-desktop and webkit-mobile)");
     await page.goto(`/items/ambient-hero`);
     await page.waitForSelector("[data-frictionborn-item='ambient-hero']");
-
-    // Blur active element
-    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-
-    // Tab onto the pause button
+    // The first Tab stop on the harness page is the harness' own header link, so start from the hero's first control.
+    const pause = page.locator("header[data-frictionborn-item='ambient-hero'] button[aria-pressed]");
+    await pause.focus();
+    const active = () => page.evaluate(() => { const e = document.activeElement as HTMLElement; return `${e.tagName.toLowerCase()}:${(e.getAttribute("aria-label") || e.textContent || "").trim()}`; });
+    expect(await active()).toMatch(/^button:Pause ambient background motion/);
     await page.keyboard.press("Tab");
-    const activeTagName = await page.evaluate(() => document.activeElement?.tagName.toLowerCase());
-    expect(["button", "a"]).toContain(activeTagName);
-
-    // Tab onto the primary CTA
+    expect(await active()).toBe("a:Explore engineering");
     await page.keyboard.press("Tab");
-    const activeCta = await page.evaluate(() => document.activeElement?.tagName.toLowerCase());
-    expect(["button", "a"]).toContain(activeCta);
+    expect(await active()).toBe("a:Technical specifications");
   });
 
   test("reduced motion renders static poster with 0 WebGL canvases", async ({ page }) => {

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useCapability, usePaused, pauseAll, resumeAll } from "@frictionborn/runtime";
+import { useCapability, usePaused, resumeAll } from "@frictionborn/runtime";
 import { NoiseField } from "@/components/ui/noise-field";
 import { MeshGradient } from "@/components/ui/mesh-gradient";
 import { ParticleField } from "@/components/ui/particle-field";
@@ -59,12 +59,14 @@ export function AmbientHero({
 
   const paused = isPaused || internalPaused;
 
+  // The button stops the hero's own background (the `paused` prop of the variant). It used to call the global pauseAll(),
+  // which stops the shared frame loop for the whole page, including SmoothScroll's Lenis stepping: with SmoothScroll
+  // mounted, wheel scrolling died until Resume was pressed (measured in a fresh Next app).
   const togglePause = () => {
     if (paused) {
-      resumeAll();
+      if (isPaused) resumeAll(); // a pause set elsewhere on the page: Resume lifts it, as the label says
       setInternalPaused(false);
     } else {
-      pauseAll();
       setInternalPaused(true);
     }
   };
@@ -76,6 +78,7 @@ export function AmbientHero({
         <NoiseField
           speed={0.4}
           scale={1.8}
+          paused={paused}
           style={{ width: "100%", height: "100%" }}
         />
       );
@@ -85,6 +88,7 @@ export function AmbientHero({
         <ParticleField
           count={2500}
           speed={0.4}
+          paused={paused}
           style={{ width: "100%", height: "100%" }}
         />
       );
@@ -93,6 +97,7 @@ export function AmbientHero({
     return (
       <MeshGradient
         speed={0.3}
+        paused={paused}
         style={{ width: "100%", height: "100%" }}
       />
     );
@@ -216,7 +221,8 @@ export function AmbientHero({
               textTransform: "uppercase",
               fontFamily: "var(--font-mono, monospace)",
               color: "#fb923c",
-              background: "rgba(251, 146, 60, 0.12)",
+              // dark enough that the orange label keeps >= 4.5:1 over any canvas colour (measured on real pixels in light and dark)
+              background: "rgba(13, 15, 18, 0.82)",
               border: "1px solid rgba(251, 146, 60, 0.28)",
             }}
           >
