@@ -92,6 +92,7 @@ export function DistortionImage({
   const [pointerPos, setPointerPos] = useState({ x: 0.5, y: 0.5 });
   const [imgLoaded, setImgLoaded] = useState(false);
   const [taintedCORS, setTaintedCORS] = useState(false);
+  const [glFailed, setGlFailed] = useState(false);
   const [isFinePointer, setIsFinePointer] = useState(false);
   const [focusVisible, setFocusVisible] = useState(false);
 
@@ -231,7 +232,8 @@ export function DistortionImage({
       effectiveTier >= 2 &&
       !prefersReduced &&
       isFinePointer &&
-      !taintedCORS;
+      !taintedCORS &&
+      !glFailed;
 
     let unsubscribeBudget: (() => void) | null = null;
 
@@ -276,7 +278,7 @@ export function DistortionImage({
         setHasLease(false);
       }
     };
-  }, [hydrated, inView, needsLease, effectiveTier, prefersReduced, isFinePointer, taintedCORS]);
+  }, [hydrated, inView, needsLease, effectiveTier, prefersReduced, isFinePointer, taintedCORS, glFailed]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -321,11 +323,21 @@ export function DistortionImage({
     }
   }, []);
 
+  const handleInitError = useCallback(() => {
+    setGlFailed(true);
+    if (leaseRef.current) {
+      leaseRef.current.release(); // @frictionborn-guard
+      leaseRef.current = null;
+      setHasLease(false);
+    }
+  }, []);
+
   const shouldRenderGL =
     hydrated &&
     hasLease &&
     imgLoaded &&
     !taintedCORS &&
+    !glFailed &&
     !prefersReduced &&
     isFinePointer &&
     effectiveTier >= 2;
@@ -396,6 +408,7 @@ export function DistortionImage({
               }
             }}
             onTaintedCORS={handleTaintedCORS}
+            onInitError={handleInitError}
           />
         </Suspense>
       )}

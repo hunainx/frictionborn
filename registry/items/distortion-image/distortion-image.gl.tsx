@@ -19,6 +19,7 @@ export interface DistortionImageGLProps {
   onContextRestored?: () => void;
   onDowngrade?: () => void;
   onTaintedCORS?: () => void;
+  onInitError?: () => void;
 }
 
 export default function DistortionImageGL({
@@ -32,6 +33,7 @@ export default function DistortionImageGL({
   onContextRestored,
   onDowngrade,
   onTaintedCORS,
+  onInitError,
 }: DistortionImageGLProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -77,6 +79,8 @@ export default function DistortionImageGL({
   onDowngradeRef.current = onDowngrade;
   const onTaintedCORSRef = useRef(onTaintedCORS);
   onTaintedCORSRef.current = onTaintedCORS;
+  const onInitErrorRef = useRef(onInitError);
+  onInitErrorRef.current = onInitError;
 
   // Frame guard triggers automatic downgrade if p75 frame times exceed budget
   useFrameGuard({ onDowngrade: () => onDowngradeRef.current?.(), active: !paused }); // @frictionborn-guard
@@ -268,7 +272,9 @@ export default function DistortionImageGL({
         surfaceRef.current.dispose(); // @frictionborn-guard
         surfaceRef.current = null;
       }
-      onContextLostRef.current?.();
+      // No WebGL2 after all (context limit, forced tier, blocked): give the lease back and stop asking, so no
+      // dead canvas stays mounted over the image.
+      onInitErrorRef.current?.();
     }
 
     return () => {
