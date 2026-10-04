@@ -112,8 +112,8 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `46ae93d` (2026-10-03)
-- **Size**: 2.19 KB initial / 3.42 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `d8d51e2` (2026-10-04)
+- **Size**: 2.23 KB initial / 3.5 KB deferred (gzip, via gzip-9)
 - **Cumulative Layout Shift (CLS)**: `0.0003`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -124,11 +124,11 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-03 | 16 passed, 0 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-03 | 16 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-03 | 15 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-03 | 15 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-03 | 15 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 15 passed, 0 failed; all specs verified |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 15 passed, 0 failed; all specs verified |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 14 passed, 0 failed; all specs verified |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 14 passed, 0 failed; all specs verified |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 14 passed, 0 failed; all specs verified |
 
 ## License & Provenance
 

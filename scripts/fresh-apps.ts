@@ -173,7 +173,9 @@ function generatePage(items: string[], framework: Framework): string {
   const distortionCases = has("distortion-image")
     ? `
         <div data-testid="gl-item-distortion-default" style={{ display: "block", maxWidth: 480 }}>
-          <DistortionImage src="/art-1.webp" alt="Wheat Field with Cypresses by Vincent van Gogh" width={480} height={382} style={{ width: "100%", maxWidth: 480, height: "auto" }} />
+          <a href="#art-default" style={{ display: "block", textDecoration: "none" }}>
+            <DistortionImage src="/art-1.webp" alt="Wheat Field with Cypresses by Vincent van Gogh" width={480} height={382} style={{ width: "100%", maxWidth: 480, height: "auto" }} />
+          </a>
         </div>
         ${nextImageCase}
         <div data-testid="item-distortion-cross-origin" style={{ display: "block", maxWidth: 320 }}>
@@ -422,7 +424,15 @@ async function step(problems: string[], page: Page, name: string, testId: string
 }
 
 async function activeElementIsDistortion(page: Page): Promise<boolean> {
-  return page.evaluate(() => document.activeElement?.getAttribute("data-frictionborn-item") === "distortion-image");
+  return page.evaluate(() => {
+    const el = document.activeElement;
+    if (!el || el === document.body || el === document.documentElement) return false;
+    return (
+      el.getAttribute("data-frictionborn-item") === "distortion-image" ||
+      el.closest("[data-frictionborn-item='distortion-image']") !== null ||
+      ((el.tagName === "A" || el.tagName === "BUTTON") && el.querySelector("[data-frictionborn-item='distortion-image']") !== null)
+    );
+  });
 }
 
 interface Summary {
@@ -545,7 +555,7 @@ async function checkPage(
 
     // 2. idle main thread with the generative items running in view
     if (!mode.mobile) {
-      const first = items.includes("ambient-hero") ? "composition-ambient-hero" : GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
+      const first = GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
       if (first) await page.locator(`[data-testid='${first}']`).scrollIntoViewIfNeeded();
       const cdp = await context.newCDPSession(page);
       await cdp.send("Performance.enable");
@@ -611,15 +621,18 @@ async function checkPage(
       } else {
         await page.waitForTimeout(900);
         const ring = await page.evaluate(() => {
-          const el = document.activeElement as HTMLElement;
-          const r = el.querySelector("[data-frictionborn-focus-ring]") as HTMLElement | null;
-          const cv = el.querySelector("canvas");
+          const active = document.activeElement as HTMLElement;
+          const host = (active?.getAttribute("data-frictionborn-item") === "distortion-image"
+            ? active
+            : active?.querySelector("[data-frictionborn-item='distortion-image']")) as HTMLElement ?? active;
+          const r = host?.querySelector("[data-frictionborn-focus-ring]") as HTMLElement | null;
+          const cv = host?.querySelector("canvas");
           const rc = r?.getBoundingClientRect();
-          const wc = el.getBoundingClientRect();
+          const wc = host?.getBoundingClientRect();
           return {
             ring: !!r,
             shadow: r ? getComputedStyle(r).boxShadow : "",
-            insideBox: !!rc && rc.width > 0 && Math.abs(rc.width - wc.width) < 1,
+            insideBox: !!rc && !!wc && rc.width > 0 && Math.abs(rc.width - wc.width) < 1,
             above: !!r && (!cv || Number(getComputedStyle(r).zIndex) > Number(getComputedStyle(cv).zIndex || 0)),
           };
         });

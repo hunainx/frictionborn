@@ -113,8 +113,8 @@ export default function PartnerStrip() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `e6725ba` (2026-10-01)
-- **Size**: 1.91 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `d8d51e2` (2026-10-04)
+- **Size**: 2.02 KB initial / 0.02 KB deferred (gzip, via gzip-9)
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -125,11 +125,11 @@ export default function PartnerStrip() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-01 | 12 passed, 0 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-01 | 12 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-01 | 12 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-01 | 12 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-01 | 12 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
 
 ## License & Provenance
 
