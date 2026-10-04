@@ -29,11 +29,12 @@ test.describe("AmbientHero composition spec", () => {
 
   test("pause button toggles ambient motion and updates aria-pressed/aria-label", async ({ page }) => {
     await page.goto(`/items/ambient-hero`);
-    const pauseBtn = page.locator("button[aria-label*='Pause ambient']");
+    const pauseBtn = page.locator("header[data-frictionborn-item='ambient-hero'] button[aria-pressed]");
     await expect(pauseBtn).toBeVisible();
 
     // Initial state: not pressed
     await expect(pauseBtn).toHaveAttribute("aria-pressed", "false");
+    await expect(pauseBtn).toHaveAttribute("aria-label", "Pause ambient background motion");
 
     // Click to pause
     await pauseBtn.click();
