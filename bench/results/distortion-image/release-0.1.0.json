@@ -1,9 +1,9 @@
 {
-  "commit": "726eadf",
+  "commit": "d38ddb4",
   "date": "2026-10-04",
   "sizeKB": {
-    "initial": 3.72,
-    "deferred": 4.14,
+    "initial": 3.77,
+    "deferred": 4.25,
     "method": "gzip-9"
   },
   "cls": 0,
@@ -23,7 +23,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "28 passed, 0 failed; all specs verified"
+      "notes": "29 passed, 0 failed; all specs verified"
     },
     {
       "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -31,7 +31,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "27 passed, 0 failed; all specs verified"
+      "notes": "28 passed, 0 failed; all specs verified"
     },
     {
       "env": "Firefox Desktop",
@@ -39,7 +39,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "27 passed, 0 failed; all specs verified"
+      "notes": "28 passed, 0 failed; all specs verified"
     },
     {
       "env": "WebKit Desktop",
@@ -47,7 +47,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "27 passed, 0 failed; all specs verified"
+      "notes": "28 passed, 0 failed; all specs verified"
     },
     {
       "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -55,7 +55,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "27 passed, 0 failed; all specs verified"
+      "notes": "28 passed, 0 failed; all specs verified"
     }
   ]
 }
