@@ -331,7 +331,10 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
   });
 
   test("a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)", async ({ page }) => {
-    if (!(await (async () => { await page.goto("/distortion-cases?tier=3"); return webgl2Supported(page) && finePointer(page); })())) return;
+    await page.goto("/distortion-cases?tier=3");
+    await page.waitForSelector("[data-testid='cases-root']");
+    // Needs both: WebGL2 (headless Firefox on Linux has none) and a fine pointer (mobile projects have none)
+    if (!(await webgl2Supported(page)) || !(await finePointer(page))) return;
     const hoverCase = page.locator("[data-testid='case-default-props']");
     await hoverCase.scrollIntoViewIfNeeded();
 
