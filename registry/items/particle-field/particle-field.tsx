@@ -112,6 +112,8 @@ export function ParticleField({
       if (lease) {
         leaseRef.current = lease;
         setHasLease(true);
+        // A new lease means a new GL instance: a loss that was never restored must not leave it suspended (same fix as NoiseField, 5c74d38)
+        setContextLost(false);
       }
     };
 

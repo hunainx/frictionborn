@@ -146,6 +146,8 @@ export function MeshGradient({
       if (acquired) {
         leaseHandle.current = acquired;
         setHasContextLease(true);
+        // A new lease means a new GL instance: a loss that was never restored must not leave it suspended (same fix as NoiseField, 5c74d38)
+        setContextSevered(false);
       }
     };
 
