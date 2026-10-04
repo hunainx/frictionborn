@@ -29,6 +29,26 @@ function toTitle(kebab: string): string {
   return kebab.split("-").map(capitalize).join("");
 }
 
+/** A registry file target: relative, normalised, no dot segments, no backslash or drive letter, inside components/ui/. */
+export function isSafeRegistryTarget(target: string): boolean {
+  return /^components\/ui\/([A-Za-z0-9][A-Za-z0-9._-]*\/)*[A-Za-z0-9][A-Za-z0-9._-]*\.(tsx|ts)$/.test(target) && path.posix.normalize(target) === target;
+}
+
+/** npm packages an item may ask the consumer to install: exact versions only, and only what AGENTS.md allows. */
+const ALLOWED_NPM = new Set(["lenis"]);
+
+export function validateItemDependencies(itemName: string, meta: any): void {
+  for (const dep of meta.dependencies?.npm ?? []) {
+    const name = typeof dep === "string" ? dep.replace(/@[^@]*$/, "") : dep.name;
+    const version = typeof dep === "string" ? dep.slice(name.length + 1) : dep.version;
+    if (!ALLOWED_NPM.has(name)) throw new Error(`Registry item "${itemName}" depends on npm package "${name}", which is not on the allowlist (AGENTS.md).`);
+    if (!/^\d+\.\d+\.\d+$/.test(version ?? "")) throw new Error(`Registry item "${itemName}": npm dependency ${name} must be pinned to an exact version, got "${version}".`);
+  }
+  for (const dep of meta.dependencies?.registry ?? []) {
+    if (!/^@frictionborn\/[a-z0-9-]+$/.test(dep)) throw new Error(`Registry item "${itemName}": registry dependency "${dep}" must be a @frictionborn/<item> reference (no URLs).`);
+  }
+}
+
 export function buildRegistry(): void {
   const root = process.cwd();
   const itemsDir = path.join(root, "registry", "items");
@@ -69,6 +89,8 @@ export function buildRegistry(): void {
       continue;
     }
 
+    validateItemDependencies(itemName, meta);
+
     const files: FileEntry[] = [];
 
     // Helper to recursively collect distribution files (excluding demo and metadata)
@@ -89,6 +111,15 @@ export function buildRegistry(): void {
             continue;
           }
 
+          // Only plain, visibly named source files are distributable: a stray .env, README, image, or a symlink to
+          // something outside the item must fail the build instead of being published.
+          if (de.isSymbolicLink() || !de.isFile()) {
+            throw new Error(`Registry item "${itemName}" contains a symlink or special file: ${filename}`);
+          }
+          if (!/^[A-Za-z0-9][A-Za-z0-9._-]*\.(tsx|ts)$/.test(filename)) {
+            throw new Error(`Registry item "${itemName}" contains a file that is not a .ts/.tsx source: ${filename}`);
+          }
+
           const fullPath = path.join(dir, filename);
           const relPath = path.relative(root, fullPath).replace(/\\/g, "/");
           // Normalise line endings so output is identical on Windows (autocrlf) and Linux CI
@@ -98,7 +129,7 @@ export function buildRegistry(): void {
           const target = `components/ui/${targetSub}${filename}`;
 
           // Finding 19: Validate that target stays strictly inside components/ui/
-          if (!target.startsWith("components/ui/") || target.includes("..")) {
+          if (!isSafeRegistryTarget(target)) {
             throw new Error(`Invalid registry file target: ${target} must stay inside components/ui/`);
           }
 

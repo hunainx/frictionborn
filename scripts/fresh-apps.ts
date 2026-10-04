@@ -34,6 +34,11 @@ const NEXT_PORT = 3301;
 const VITE_PORT = 3302;
 const VITE_DEV_PORT = 3303;
 
+// FRESH_ONLY=ambient-hero,scroll-showcase installs just those items (shadcn must pull their registryDependencies itself).
+// FRESH_KEEP=1 leaves the temp apps and both production servers running and prints their PIDs (for manual/audit probes).
+const FRESH_ONLY = (process.env.FRESH_ONLY ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+const FRESH_KEEP = process.env.FRESH_KEEP === "1";
+
 const NON_CORS_URL = "https://cdn.fresh-noncors.test/art-1.webp";
 
 async function run(cmd: string, cwd: string): Promise<string> {
@@ -705,6 +710,24 @@ async function checkViteDev(browser: Browser, url: string, root: string): Promis
 
 // ---------------------------------------------------------------------------------------------------------------
 
+/** Every registryDependency (transitively) of the requested items must have been written into components/ui by shadcn. */
+function assertDependenciesInstalled(root: string, uiDir: string, requested: string[]): void {
+  const seen = new Set<string>();
+  const queue = [...requested];
+  while (queue.length) {
+    const name = queue.pop()!;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    const json = readJson(path.join(root, "public", "r", `${name}.json`));
+    for (const f of json.files as { target: string }[]) {
+      const file = path.join(uiDir, "..", "..", f.target);
+      if (!fs.existsSync(file)) throw new Error(`shadcn add did not write ${f.target} (needed by ${requested.join(", ")}) into ${path.dirname(uiDir)}`);
+    }
+    for (const dep of (json.registryDependencies ?? []) as string[]) queue.push(dep.replace(/^@frictionborn\//, ""));
+  }
+  console.log(`✔ dependency closure installed: ${[...seen].sort().join(", ")}`);
+}
+
 export async function runFreshAppsCheck(): Promise<void> {
   const root = process.cwd();
   console.log("==> Fresh-apps verification (official scaffolders, production builds, real Chromium)");
@@ -724,10 +747,12 @@ export async function runFreshAppsCheck(): Promise<void> {
   const runtimeTarball = path.join(tempRoot, tgzFile).replace(/\\/g, "/");
 
   const publicRDir = path.join(root, "public", "r");
-  const items = fs
+  const allItems = fs
     .readdirSync(publicRDir)
     .filter((f) => f.endsWith(".json") && f !== "index.json")
     .map((f) => f.replace(/\.json$/, ""));
+  for (const name of FRESH_ONLY) if (!allItems.includes(name)) throw new Error(`FRESH_ONLY: unknown item "${name}"`);
+  const items = FRESH_ONLY.length ? [...FRESH_ONLY] : allItems;
 
   // Sort items so primitive dependencies are installed before compositions
   const COMPOSITIONS = ["ambient-hero", "scroll-showcase"];
@@ -776,7 +801,8 @@ export async function runFreshAppsCheck(): Promise<void> {
 
   const procs: ChildProcess[] = [];
   const today = new Date().toISOString().split("T")[0];
-  const screenshotsDir = path.join(root, "docs", "fresh-apps", today);
+  // A FRESH_ONLY run must never overwrite the full run's evidence for the same day
+  const screenshotsDir = path.join(root, "docs", "fresh-apps", FRESH_ONLY.length ? `${today}-only-${FRESH_ONLY.join("+")}` : today);
   fs.mkdirSync(screenshotsDir, { recursive: true });
   const itemUrls = items.map((i) => `http://127.0.0.1:${REGISTRY_PORT}/r/${i}.json`).join(" ");
   const artFiles = ["art-1.webp", "art-4.webp"];
@@ -798,6 +824,7 @@ export async function runFreshAppsCheck(): Promise<void> {
     console.log("==> install the packed runtime, then shadcn add every public item from the local registry");
     await run(`pnpm add "file:${runtimeTarball}"`, nextDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, nextDir);
+    assertDependenciesInstalled(root, path.join(nextDir, "components", "ui"), items);
     copyArt(path.join(nextDir, "public"));
     fs.writeFileSync(path.join(nextDir, "app", "page.tsx"), generatePage(items, "next"));
     // The documented Next setup step: <MotionReadyScript /> in the root layout (Vite calls initMotionReady() instead).
@@ -848,6 +875,7 @@ export default defineConfig({
     configureRegistries(viteDir);
     await run(`pnpm add "file:${runtimeTarball}"`, viteDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, viteDir);
+    assertDependenciesInstalled(root, path.join(viteDir, "src", "components", "ui"), items);
     copyArt(path.join(viteDir, "public"));
     fs.writeFileSync(path.join(viteDir, "src", "App.tsx"), generatePage(items, "vite"));
     fs.writeFileSync(
@@ -904,7 +932,8 @@ createRoot(document.getElementById("root")!).render(
       }
     }
     console.log("\n--> Vite dev server smoke");
-    await checkViteDev(browser, `http://127.0.0.1:${VITE_DEV_PORT}`, root);
+    if (items.includes("distortion-image")) await checkViteDev(browser, `http://127.0.0.1:${VITE_DEV_PORT}`, root);
+    else console.log("    (skipped: the dev smoke exercises DistortionImage, which this FRESH_ONLY run did not install)");
 
     fs.writeFileSync(
       path.join(screenshotsDir, "summary.json"),
@@ -916,15 +945,22 @@ createRoot(document.getElementById("root")!).render(
     console.log(`✔ Screenshots + summary.json: ${path.relative(root, screenshotsDir)}`);
     console.log("=======================================================\n");
   } finally {
-    console.log("Cleaning up servers and temp files...");
-    await browser?.close().catch(() => {});
-    for (const proc of procs) killTree(proc);
-    registryServer.close();
-    await new Promise((r) => setTimeout(r, 1500));
-    try {
-      fs.rmSync(tempRoot, { recursive: true, force: true });
-    } catch {
-      console.log(`(could not remove ${tempRoot}; remove it manually)`);
+    if (FRESH_KEEP) {
+      // No `return` here: a return inside finally would swallow a failure thrown by the checks above.
+      console.log(`FRESH_KEEP: apps left in ${tempRoot}; server PIDs (kill with taskkill /PID <pid> /T /F): ${procs.map((p) => p.pid).join(", ")}; registry on :${REGISTRY_PORT}`);
+      await browser?.close().catch(() => {});
+      registryServer.close();
+    } else {
+      console.log("Cleaning up servers and temp files...");
+      await browser?.close().catch(() => {});
+      for (const proc of procs) killTree(proc);
+      registryServer.close();
+      await new Promise((r) => setTimeout(r, 1500));
+      try {
+        fs.rmSync(tempRoot, { recursive: true, force: true });
+      } catch {
+        console.log(`(could not remove ${tempRoot}; remove it manually)`);
+      }
     }
   }
 }

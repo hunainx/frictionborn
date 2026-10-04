@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 export interface MergeResult {
   item: string;
@@ -60,6 +61,17 @@ export function validateMeasuredAgainstDeclared(declared: any, measured: any, it
     }
   }
 
+  // 2b. A recorded failing environment is not "verified" evidence (the merge used to accept `result: "fail"`).
+  if (!Array.isArray(measured.devices) || measured.devices.length === 0) {
+    errors.push(`[${itemName}] measured.devices must list at least one environment`);
+  } else {
+    for (const d of measured.devices) {
+      if (d.result !== "pass") {
+        errors.push(`[${itemName}] Contradiction: environment "${d.env}" recorded result "${d.result}" (${d.notes ?? "no notes"}); evidence with a failing environment cannot be merged`);
+      }
+    }
+  }
+
   // 3. Layout Shift (CLS <= 0.01 per TESTING.md §3)
   if (typeof measured.cls === "number" && measured.cls > 0.01) {
     errors.push(
@@ -68,6 +80,27 @@ export function validateMeasuredAgainstDeclared(declared: any, measured: any, it
   }
 
   return errors;
+}
+
+/**
+ * AGENTS lesson 13: `measured` must describe the committed code. Returns the code files (not metadata, not tests) that changed
+ * in the item folder after the commit the bench ran on. Returns null when that commit is not reachable (shallow clone).
+ */
+export function codeChangedSinceBench(itemName: string, benchCommit: string): string[] | null {
+  try {
+    execFileSync("git", ["cat-file", "-e", `${benchCommit}^{commit}`], { stdio: "ignore" });
+  } catch {
+    return null;
+  }
+  try {
+    const out = execFileSync("git", ["diff", "--name-only", benchCommit, "HEAD", "--", `registry/items/${itemName}`], { encoding: "utf8" });
+    return out
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((f) => /\.(tsx|ts)$/.test(f) && !/(^|\/)demo\.tsx$/.test(f) && !/\.test\.tsx?$/.test(f));
+  } catch {
+    return null;
+  }
 }
 
 function readJson(file: string): any {
@@ -141,6 +174,13 @@ export function verifyItemEvidence(
       const contradictions = validateMeasuredAgainstDeclared(declared, existing.measured, itemName);
       if (contradictions.length > 0) {
         errors.push(...contradictions);
+        return { ok: false, errors };
+      }
+      const stale = codeChangedSinceBench(itemName, existing.measured.commit);
+      if (stale && stale.length > 0) {
+        errors.push(
+          `[${itemName}] Stale evidence: ${stale.join(", ")} changed after the bench commit ${existing.measured.commit}. Re-run 'pnpm bench:release --item ${itemName}' on committed code, then 'pnpm meta' (AGENTS lesson 13).`
+        );
         return { ok: false, errors };
       }
     } else {

@@ -1,7 +1,12 @@
 // Original — Frictionborn Motion script and schema tests
 import { describe, it, expect } from "vitest";
 import { validateDeclaredMetadata } from "../scripts/validate-meta.ts";
-import { validateMeasuredAgainstDeclared } from "../scripts/merge-evidence.ts";
+import { validateMeasuredAgainstDeclared, codeChangedSinceBench } from "../scripts/merge-evidence.ts";
+import { buildRegistry, isSafeRegistryTarget, validateItemDependencies } from "../scripts/build-registry.ts";
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
 import { generateItemSpecSheet, generateCatalog, generateLlmsTxt } from "../scripts/build-catalog.ts";
 
 const VALID_DECLARED_SAMPLE = {
@@ -226,7 +231,7 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
         cls: 0,
         framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
         axe: { serious: 0, critical: 0 },
-        devices: [],
+        devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "2026-10-01" }],
       };
 
       fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
@@ -268,7 +273,7 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
         cls: 0,
         framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
         axe: { serious: 0, critical: 0 },
-        devices: [],
+        devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "2026-10-01" }],
       };
 
       // Hand-edit a single number: change cls from 0 to 0.005
@@ -315,7 +320,7 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
         cls: 0,
         framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
         axe: { serious: 0, critical: 0 },
-        devices: [],
+        devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "2026-10-01" }],
       };
 
       fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
@@ -347,5 +352,123 @@ describe("scripts/build-catalog", () => {
     const llms = generateLlmsTxt([VALID_DECLARED_SAMPLE]);
     expect(llms).toContain("# Frictionborn Motion");
     expect(llms).toContain("test-item");
+  });
+});
+
+describe("audit M3: generators tell the truth", () => {
+  it("escapes pipes in the props table, prints defaults one way, and states the real tier meaning", () => {
+    const meta = {
+      ...VALID_DECLARED_SAMPLE,
+      behavior: { ...(VALID_DECLARED_SAMPLE as any).behavior, tiers: { "0": "a", "1": "b", "2": "c", "3": "d" } },
+      props: [
+        { name: "as", type: '"h1" | "h2"', default: '"h1"', effect: "Tag" },
+        { name: "by", type: "string", default: "word", effect: "Split" },
+        { name: "src", type: "string", default: "undefined", effect: "Required" },
+      ],
+    };
+    const md = generateItemSpecSheet(meta as any);
+    expect(md).toContain('| `as` | `"h1" \\| "h2"` | `"h1"` | Tag |');
+    expect(md).toContain('| `by` | `string` | `"word"` | Split |');
+    expect(md).toContain("| `src` | `string` | `—` | Required |");
+    expect(md).toContain("T1 Lite (coarse pointer on a low-end device");
+    expect(md).not.toContain("Mid-range mobile");
+  });
+
+  it("only tells an item to install the reveal gate when its source reads data-motion", () => {
+    expect(generateItemSpecSheet(VALID_DECLARED_SAMPLE as any, { readsDataMotion: true, usesFrame: false })).toContain("initMotionReady()");
+    const md = generateItemSpecSheet(VALID_DECLARED_SAMPLE as any, { readsDataMotion: false, usesFrame: false });
+    expect(md).toContain("does not read `data-motion`");
+    expect(md).not.toContain("stepped by the shared runtime");
+  });
+
+  it("llms.txt documents the registry namespace setup and initMotionReady", () => {
+    const llms = generateLlmsTxt([VALID_DECLARED_SAMPLE]);
+    expect(llms).toContain('"registries"');
+    expect(llms).toContain("initMotionReady");
+  });
+});
+
+describe("audit M3: evidence must be passing and current", () => {
+  const base = {
+    commit: "abc1234",
+    date: "2026-10-05",
+    sizeKB: { initial: 1, deferred: 0 },
+    cls: 0,
+    framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+    axe: { serious: 0, critical: 0 },
+  };
+  it("rejects a recorded failing environment", () => {
+    const errors = validateMeasuredAgainstDeclared(VALID_DECLARED_SAMPLE, { ...base, devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "fail", date: "x", notes: "1 failed" }] }, "t");
+    expect(errors.some((e: string) => e.includes("failing environment"))).toBe(true);
+  });
+  it("rejects evidence with no environments", () => {
+    const errors = validateMeasuredAgainstDeclared(VALID_DECLARED_SAMPLE, { ...base, devices: [] }, "t");
+    expect(errors.some((e: string) => e.includes("at least one environment"))).toBe(true);
+  });
+  it("accepts all-passing environments", () => {
+    const errors = validateMeasuredAgainstDeclared(VALID_DECLARED_SAMPLE, { ...base, devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "x" }] }, "t");
+    expect(errors).toEqual([]);
+  });
+  it("reports code changed since the bench commit and ignores metadata, demos and tests", () => {
+    const head = execFileSync("git", ["rev-parse", "HEAD~30"], { encoding: "utf8" }).trim();
+    const changed = codeChangedSinceBench("noise-field", head);
+    expect(Array.isArray(changed)).toBe(true);
+    expect(changed!.every((f: string) => /\.(tsx|ts)$/.test(f) && !/demo\.tsx$/.test(f))).toBe(true);
+    expect(codeChangedSinceBench("noise-field", "0000000")).toBeNull();
+  });
+});
+
+describe("audit M3: registry build guards", () => {
+  it("accepts only normalised targets inside components/ui", () => {
+    expect(isSafeRegistryTarget("components/ui/noise-field.tsx")).toBe(true);
+    expect(isSafeRegistryTarget("components/ui/noise-field.gl.tsx")).toBe(true);
+    for (const bad of [
+      "components/ui/../../.env",
+      "components/ui/..\\x.tsx",
+      "/etc/passwd.ts",
+      "C:/x.ts",
+      "components/ui/.env",
+      "components/ui/a/../b.tsx",
+      "components/ui/readme.md",
+      "lib/utils.ts",
+    ]) {
+      expect(isSafeRegistryTarget(bad)).toBe(false);
+    }
+  });
+
+  it("refuses unpinned or non-allowlisted npm dependencies and URL registry dependencies", () => {
+    expect(() => validateItemDependencies("x", { dependencies: { npm: [{ name: "lenis", version: "1.3.26" }] } })).not.toThrow();
+    expect(() => validateItemDependencies("x", { dependencies: { npm: [{ name: "lenis", version: "^1.3.26" }] } })).toThrow(/exact version/);
+    expect(() => validateItemDependencies("x", { dependencies: { npm: [{ name: "left-pad", version: "1.0.0" }] } })).toThrow(/allowlist/);
+    expect(() => validateItemDependencies("x", { dependencies: { registry: ["https://evil.example/r/x.json"] } })).toThrow(/@frictionborn/);
+    expect(() => validateItemDependencies("x", { dependencies: { registry: ["@frictionborn/noise-field"] } })).not.toThrow();
+  });
+
+  it("buildRegistry fails on a stray dotfile, a non-source file, or a symlink inside an item", () => {
+    const cwd = process.cwd();
+    for (const kind of ["dotfile", "readme", "symlink"] as const) {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-reg-"));
+      try {
+        const dir = path.join(tmp, "registry", "items", "thing");
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, "meta.declared.json"), JSON.stringify({ item: { name: "thing", kind: "dom", summary: "s" }, dependencies: {} }));
+        fs.writeFileSync(path.join(dir, "thing.tsx"), "export const x = 1;\n");
+        if (kind === "dotfile") fs.writeFileSync(path.join(dir, ".env"), "SECRET=1\n");
+        if (kind === "readme") fs.writeFileSync(path.join(dir, "README.md"), "# hi\n");
+        if (kind === "symlink") {
+          fs.writeFileSync(path.join(tmp, "outside.ts"), "export const secret = 1;\n");
+          try {
+            fs.symlinkSync(path.join(tmp, "outside.ts"), path.join(dir, "link.ts"));
+          } catch {
+            continue; // no symlink privilege on this machine
+          }
+        }
+        process.chdir(tmp);
+        expect(() => buildRegistry()).toThrow(/symlink|not a \.ts\/\.tsx source/);
+      } finally {
+        process.chdir(cwd);
+        fs.rmSync(tmp, { recursive: true, force: true });
+      }
+    }
   });
 });
