@@ -235,6 +235,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const isRelease = args.includes("--release");
   const projectIdx = args.indexOf("--project");
   const project = projectIdx !== -1 ? args[projectIdx + 1] : undefined;
+  const shardIdx = args.indexOf("--shard");
+  const shard = shardIdx !== -1 ? /^(\d+)\/(\d+)$/.exec(args[shardIdx + 1] ?? "") : null;
+  if (shardIdx !== -1 && !shard) {
+    console.error("--shard expects i/n, for example --shard 1/2");
+    process.exit(1);
+  }
   const itemIdx = args.indexOf("--item");
   let items: string[];
   if (itemIdx !== -1 && args[itemIdx + 1]) {
@@ -244,7 +250,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     items = fs
       .readdirSync(itemsDir, { withFileTypes: true })
       .filter((d) => d.isDirectory())
-      .map((d) => d.name);
+      .map((d) => d.name)
+      .sort();
+    if (shard) {
+      const [index, total] = [Number(shard[1]), Number(shard[2])];
+      items = items.filter((_, i) => i % total === index - 1);
+      console.log(`Shard ${index}/${total}: ${items.join(", ")}`);
+    }
   }
   let ok = true;
   for (const item of items) {
