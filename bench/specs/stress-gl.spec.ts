@@ -67,7 +67,7 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
     const item1 = page.locator("[data-testid='gl-item-1']");
     const hasCanvas = await item1
       .locator("canvas")
-      .waitFor({ state: "attached", timeout: 4000 })
+      .waitFor({ state: "visible", timeout: 4000 })
       .then(() => true, () => false);
 
     if (!hasCanvas) {
