@@ -197,7 +197,7 @@ export function ScrollShowcase({
             letterSpacing: "0.08em",
             textTransform: "uppercase",
             fontFamily: "var(--font-mono, monospace)",
-            color: "#fb923c",
+            color: "var(--primary, #c2410c)",
             marginBottom: "0.75rem",
           }}
         >
@@ -224,7 +224,7 @@ export function ScrollShowcase({
               maxWidth: "680px",
               fontSize: "clamp(1rem, 1.6vw, 1.15rem)",
               lineHeight: 1.65,
-              color: "rgba(233, 235, 240, 0.8)",
+              color: "var(--muted-foreground, rgba(233, 235, 240, 0.8))",
             }}
           >
             Near-field monitoring requires zero cabinet coloration, instantaneous transient recovery, and steep crossover slopes that remain coherent off-axis.
@@ -257,7 +257,7 @@ export function ScrollShowcase({
               letterSpacing: "0.08em",
               textTransform: "uppercase",
               fontFamily: "var(--font-mono, monospace)",
-              color: "#fb923c",
+              color: "var(--primary, #c2410c)",
               marginBottom: "0.5rem",
             }}
           >
@@ -282,7 +282,7 @@ export function ScrollShowcase({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
             gap: "1.5rem",
           }}
         >
@@ -338,7 +338,7 @@ export function ScrollShowcase({
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 fontFamily: "var(--font-mono, monospace)",
-                color: "#9aa1af",
+                color: "var(--muted-foreground, #9aa1af)",
               }}
             >
               Reference deployments in critical listening rooms
@@ -354,7 +354,7 @@ export function ScrollShowcase({
                   padding: "0 2rem",
                   fontSize: "1rem",
                   fontWeight: 500,
-                  color: "rgba(233, 235, 240, 0.75)",
+                  color: "var(--muted-foreground, rgba(233, 235, 240, 0.75))",
                   letterSpacing: "-0.01em",
                 }}
               >

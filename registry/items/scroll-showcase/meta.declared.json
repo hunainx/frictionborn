@@ -3,14 +3,14 @@
   "item": {
     "name": "scroll-showcase",
     "version": "0.1.0",
-    "summary": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee (DOM, ~6 KB gz, reduced motion -> static/opacity, mobile -> stacked)",
+    "summary": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee, fixed demo copy (DOM, reduced motion -> static/opacity, mobile -> stacked)",
     "slot": "composition",
     "kind": "composition"
   },
   "intent": {
     "useWhen": [
       "Product feature narrative requiring sticky step progression and reveal on scroll",
-      "Architecture or engineering deep-dive with synchronized technical media and metrics",
+      "Architecture or engineering deep-dive with technical media and metrics (replace the built-in demo copy first)",
       "Multi-section storytelling with accessible scroll-driven reveals"
     ],
     "avoidWhen": [
@@ -34,9 +34,9 @@
     "clientOnly": false,
     "lazyLoaded": "in-view",
     "requires": {
-      "react": ">=19.0.0",
-      "frameworks": ["next-app-router", "next-pages", "vite-react"],
-      "tailwind": ">=3.4.0"
+      "react": ">=19",
+      "frameworks": ["next-app-router", "vite-react"],
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -52,19 +52,19 @@
     "loop": "none",
     "webglContexts": 0,
     "tiers": {
-      "0": "Static stacked layout, all cards and text fully visible, static marquee row",
-      "1": "Static stacked layout, touch-safe scroll, marquee autoscroll off",
-      "2": "Sticky scroll progression, CSS scroll reveal, smooth marquee ticker",
-      "3": "Full sticky scroll progression, CSS view-timeline reveals, interactive marquee"
+      "0": "Not gated by tier: layout stacks at viewport width 768px and below; ScrollReveal content is static; Marquee is paused with no duplicate copy",
+      "1": "ScrollReveal travel capped at 12px; Marquee still animates; layout depends on viewport width, not tier",
+      "2": "Sticky story with CSS crossfades, scroll-linked or IntersectionObserver reveals, animated marquee",
+      "3": "Same as tier 2"
     },
     "reducedMotion": {
       "mode": "opacity-only",
-      "description": "StickyScrollStory transitions with quick opacity swap <= 150ms; ScrollReveal elements are immediately visible; Marquee is rendered as a manually scrollable row with autoscroll disabled"
+      "description": "StickyScrollStory swaps media instantly (no transition, no translation); ScrollReveal elements are immediately visible; Marquee stops animating and renders a static row (no duplicate copy, no pause button)"
     },
     "input": {
-      "pointer": "Fine pointer hover pauses marquee and enables interactive media exploration",
-      "touch": "Coarse pointer falls back to stacked layout on mobile without sticky jumps",
-      "keyboard": "Fully keyboard navigable: Tab lands in reading order through all steps, cards, and marquee items"
+      "pointer": "Hovering the marquee pauses it; the sticky story is driven by scroll position",
+      "touch": "At viewport width 768px and below the story is stacked without sticky positioning",
+      "keyboard": "DOM order matches visual order; the only added focusable element is the marquee pause button, and focus inside the marquee pauses it"
     }
   },
   "a11y": {
@@ -72,11 +72,11 @@
     "hiddenFromAT": false,
     "textStaysInDom": true,
     "pauseControl": "built-in",
-    "wcag": ["1.4.3", "2.1.1", "2.2.2", "2.4.1", "2.4.6"],
-    "notes": "Semantic landmark sections with aria-labelledby and aria-label. DOM reading order matches visual order. Heading hierarchy (h2 -> h3 -> h4) maintained. Alt text provided on all media items."
+    "wcag": ["2.1.1", "2.2.2", "2.4.1", "2.4.6"],
+    "notes": "Sections carry aria-labelledby / aria-label with hard-coded ids (architecture-heading, performance-heading). Heading levels run h2 (section and step titles), h3, h4. The default step media is aria-hidden SVG inside visible caption cards; the `alt` strings in the default steps are not rendered because alt applies only to media.type 'image'. Colours are hard-coded: fixed light text and dark cards on a var(--background) section, so contrast is only suitable for a dark host theme and is not verified."
   },
   "composition": {
-    "maxPerPage": 2,
+    "maxPerPage": 1,
     "singleton": false,
     "conflictsWith": [],
     "pairsWith": ["ambient-hero"]
@@ -84,46 +84,49 @@
   "props": [
     {
       "name": "steps",
-      "type": "StickyScrollStep[]",
-      "default": null,
-      "effect": "Array of story steps with id, title, description, and media."
+      "type": "StoryStep[]",
+      "default": "DEFAULT_STEPS (3 built-in demo steps about studio monitors: enclosure, transducer, crossover)",
+      "effect": "Steps for the StickyScrollStory ({ id, title, description, badge?, media }; StoryStep is exported by sticky-scroll-story). Only the sticky story is configurable."
     },
     {
       "name": "showMarquee",
       "type": "boolean",
       "default": true,
-      "effect": "Includes the partner and studio reference marquee ticker."
+      "effect": "Includes the studio reference marquee. Its content (8 studio names) is hard-coded and cannot be overridden."
     },
     {
       "name": "smoothScroll",
       "type": "boolean",
       "default": false,
-      "effect": "Wraps the composition in SmoothScroll provider (disabled by default)."
+      "effect": "Wraps the composition in the SmoothScroll provider (off by default)."
     },
     {
       "name": "className",
       "type": "string",
       "default": null,
-      "effect": "Additional CSS class names on root container."
+      "effect": "Optional. No default. Additional CSS class names on the root container."
     },
     {
       "name": "style",
       "type": "React.CSSProperties",
       "default": null,
-      "effect": "Inline styles applied to root container."
+      "effect": "Optional. No default. Inline styles on the root container, merged last (consumer wins)."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
-    "usage": "import { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\n<ScrollShowcase showMarquee={true} />",
+    "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\n<ScrollShowcase showMarquee={true} />",
     "mistakes": [
+      "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the card colours are hard-coded demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
       "Do not enable smoothScroll on dashboards or documentation pages.",
-      "Do not place multiple sticky scroll sections immediately adjacent to each other without spacing."
+      "Do not place multiple sticky scroll sections immediately adjacent to each other without spacing.",
+      "Element ids are hard-coded, so use at most one ScrollShowcase per page.",
+      "Reveal and marquee animations only run when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
     ],
     "verify": [
       "Verify that the step sequence is fully accessible in DOM reading order.",
       "Verify that mobile viewports switch to stacked mode without sticky jumping.",
-      "Verify that reduced-motion preferences disable autoscroll on marquee and reveals remain static."
+      "Verify that reduced-motion preferences stop the marquee animation and reveals remain static."
     ]
   },
   "license": {
