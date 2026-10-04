@@ -9,7 +9,7 @@ test.describe("Marquee pause control", () => {
 
   test("Play resumes while the pointer is still on the button, and the hover pause still works on the track", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name.includes("mobile"), "needs a hovering pointer");
-    await page.goto("/items/marquee");
+    await page.goto("/items/marquee?tier=3");
     const root = page.locator("[data-frictionborn-item='marquee']").first();
     await expect(root).toBeVisible();
     const state = () => root.locator(".fb-marquee-track").first().evaluate((el) => getComputedStyle(el).animationPlayState);
@@ -31,7 +31,7 @@ test.describe("Marquee pause control", () => {
   });
 
   test("keyboard: Space on the focused Pause button pauses, Space again resumes", async ({ page }) => {
-    await page.goto("/items/marquee");
+    await page.goto("/items/marquee?tier=3");
     const root = page.locator("[data-frictionborn-item='marquee']").first();
     const state = () => root.locator(".fb-marquee-track").first().evaluate((el) => getComputedStyle(el).animationPlayState);
     await expect.poll(state).toBe("running");
