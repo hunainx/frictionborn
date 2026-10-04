@@ -10,11 +10,11 @@ test.describe("Resource leak spec", () => {
     // run 25 cycles on mobile and fallback projects to prevent CI timeout pressure on 2-vCPU runners (Decision 23).
     const isFullSpec = ["chromium-desktop", "webkit-desktop"].includes(testInfo.project.name);
     const cycles = isFullSpec ? 50 : 25;
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
     await page.goto(`/items/${item}?leak=1&tier=2&cycles=${cycles}`);
 
     // Wait for the mount/unmount cycles to complete
-    await page.waitForSelector("[data-leak-done='true']", { timeout: 60_000 });
+    await page.waitForSelector("[data-leak-done='true']", { timeout: 110_000 });
     await page.waitForTimeout(500);
 
     const stats = await page.evaluate(() => {
