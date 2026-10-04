@@ -246,7 +246,10 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     expect(draw.std).toBeGreaterThan(2); // a cleared or single-colour canvas has std 0
   });
 
-  test("keyboard focus draws a visible ring inside the box, above the canvas", async ({ page }) => {
+  test("keyboard focus draws a visible ring inside the box, above the canvas", async ({ page }, testInfo) => {
+    // WebKit never Tabs to links (Option-Tab only) and does not match :focus-visible for script focus on a link, so the
+    // keyboard path of a LINKED image cannot be driven in WebKit automation: needs a real Safari pass (TASKS step 12).
+    test.skip(testInfo.project.name.startsWith("webkit"), "WebKit automation cannot keyboard-focus a link");
     await page.goto("/distortion-cases?tier=3");
     await page.waitForSelector("[data-testid='cases-root']");
     const webgl2 = await webgl2Supported(page);
@@ -285,7 +288,10 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
 
   test("a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)", async ({
     page,
-  }) => {
+  }, testInfo) => {
+    // WebKit never Tabs to links (Option-Tab only) and does not match :focus-visible for script focus on a link, so the
+    // keyboard path of a LINKED image cannot be driven in WebKit automation: needs a real Safari pass (TASKS step 12).
+    test.skip(testInfo.project.name.startsWith("webkit"), "WebKit automation cannot keyboard-focus a link");
     await page.goto("/distortion-cases?tier=3");
     await page.waitForSelector("[data-testid='cases-root']");
     const webgl2 = await webgl2Supported(page);
