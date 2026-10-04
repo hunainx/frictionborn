@@ -47,7 +47,7 @@ export default function ItemBenchPage({
     }
   }, [isLeakTest]);
 
-  const [targetCycles, setTargetCycles] = useState(25);
+  const [targetCycles, setTargetCycles] = useState(50);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
