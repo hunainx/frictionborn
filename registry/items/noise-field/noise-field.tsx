@@ -133,6 +133,8 @@ export function NoiseField({
       if (newLease) {
         leaseRef.current = newLease;
         setHasLease(true);
+        setContextLost(false);
+        setGlKey((k) => k + 1);
       }
     };
 

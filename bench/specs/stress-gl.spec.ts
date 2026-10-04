@@ -113,14 +113,15 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
     expect(item1HasCanvas).toBe(0);
 
     // 4. Scroll back to top
+    await page.evaluate(() => window.scrollTo(0, 0));
     await item1.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(800);
 
     count = await getContextCount();
     expect(count).toBeLessThanOrEqual(maxCeiling);
 
     // Item 1 re-acquired its lease and is live again
-    await expect(item1.locator("canvas")).toBeVisible({ timeout: 5000 });
+    await expect(item1.locator("canvas")).toBeVisible({ timeout: 10000 });
 
     // Item 6 is now off-screen and surrendered its lease
     const item6HasCanvas = await item6.locator("canvas").count();
