@@ -1,5 +1,5 @@
 {
-  "commit": "d8d51e2",
+  "commit": "7f3e58a",
   "date": "2026-10-04",
   "sizeKB": {
     "initial": 2.52,
@@ -21,9 +21,9 @@
       "env": "Chromium Desktop (SwiftShader)",
       "via": "playwright",
       "tier": 3,
-      "result": "fail",
+      "result": "pass",
       "date": "2026-10-04",
-      "notes": "16 passed, 1 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -31,7 +31,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "12 passed, 0 failed; all specs verified"
+      "notes": "12 passed, 0 failed"
     },
     {
       "env": "Firefox Desktop",
@@ -39,7 +39,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "WebKit Desktop",
@@ -47,7 +47,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -55,7 +55,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "12 passed, 0 failed; all specs verified"
+      "notes": "12 passed, 0 failed"
     }
   ]
 }

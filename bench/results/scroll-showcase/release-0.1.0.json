@@ -1,8 +1,8 @@
 {
-  "commit": "d8d51e2",
+  "commit": "7f3e58a",
   "date": "2026-10-04",
   "sizeKB": {
-    "initial": 3.63,
+    "initial": 3.68,
     "deferred": 0.02,
     "method": "gzip-9"
   },
@@ -23,7 +23,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -31,7 +31,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "Firefox Desktop",
@@ -39,7 +39,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "WebKit Desktop",
@@ -47,7 +47,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     },
     {
       "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -55,7 +55,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-04",
-      "notes": "17 passed, 0 failed; all specs verified"
+      "notes": "17 passed, 0 failed"
     }
   ]
 }
