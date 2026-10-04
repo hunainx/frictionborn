@@ -324,6 +324,42 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     }
   });
 
+  test("a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)", async ({ page }) => {
+    if (!(await (async () => { await page.goto("/distortion-cases?tier=3"); return webgl2Supported(page) && finePointer(page); })())) return;
+    const hoverCase = page.locator("[data-testid='case-default-props']");
+    await hoverCase.scrollIntoViewIfNeeded();
+
+    // Control: a normal fine pointer that can hover gets the canvas
+    await hoverCase.hover();
+    await expect(hoverCase.locator("canvas")).toHaveCount(1, { timeout: 8000 });
+
+    // Same page, but the browser reports `(hover: hover)` as false (pen/touch laptops, some hybrids)
+    await page.addInitScript(() => {
+      if (!location.search.includes("nohover")) return;
+      const orig = window.matchMedia.bind(window);
+      window.matchMedia = (q: string) => {
+        const m = orig(q);
+        if (!/hover:\s*hover/.test(q)) return m;
+        return { matches: false, media: q, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => false } as MediaQueryList;
+      };
+    });
+    await page.goto("/distortion-cases?tier=3&nohover=1");
+    await page.waitForSelector("[data-testid='cases-root']");
+    const target = page.locator("[data-testid='case-default-props']");
+    await target.scrollIntoViewIfNeeded();
+    // the override took effect, while the pointer itself is still reported as fine
+    expect(await page.evaluate(() => [matchMedia("(hover: hover) and (pointer: fine)").matches, matchMedia("(pointer: fine)").matches])).toEqual([false, true]);
+    await target.hover();
+    await target.hover({ position: { x: 40, y: 40 } });
+    // The canvas of an ungated component appears within about a second and is released again after 3 s of idle, so a
+    // single late check proves nothing: sample the whole window.
+    for (let i = 0; i < 5; i++) {
+      await page.waitForTimeout(500);
+      expect(await target.locator("canvas").count(), `a canvas appeared ${(i + 1) * 500} ms after hovering with (hover: hover) false`).toBe(0);
+    }
+    await expect(target.locator("img")).toBeVisible();
+  });
+
   test("a srcset candidate chosen on resize is uploaded to the texture while the canvas is live", async ({
     page,
   }, testInfo) => {
