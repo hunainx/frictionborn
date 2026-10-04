@@ -65,7 +65,27 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
   let playwrightSucceeded = true;
   try {
     const base = process.platform === "win32" ? "npx.cmd playwright test" : "npx playwright test";
-    const cmd = project ? `${base} --project=${project}` : base;
+    const specs = [
+      "bench/specs/a11y.spec.ts",
+      "bench/specs/behaviour.spec.ts",
+      "bench/specs/context-loss.spec.ts",
+      "bench/specs/dpr-cap.spec.ts",
+      "bench/specs/leak.spec.ts",
+      "bench/specs/mobile.spec.ts",
+      "bench/specs/reduced-motion.spec.ts",
+      "bench/specs/ssr.spec.ts",
+      "bench/specs/stress.spec.ts",
+      "bench/specs/webgl-support.spec.ts",
+    ];
+    if (itemName === "distortion-image") {
+      specs.push("bench/specs/distortion-image.spec.ts");
+    } else if (itemName === "smooth-scroll") {
+      specs.push("bench/specs/smooth-scroll.spec.ts");
+    } else if (itemName === "text-reveal") {
+      specs.push("bench/specs/text-reveal-flash.spec.ts");
+    }
+    const specFiles = specs.join(" ");
+    const cmd = project ? `${base} --project=${project} ${specFiles}` : `${base} ${specFiles}`;
     execSync(cmd, {
       stdio: "inherit",
       cwd: projectRoot,
@@ -230,6 +250,26 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
   return playwrightSucceeded;
 }
 
+export function runAgnosticSpecs(options: { project?: string } = {}): boolean {
+  const projectRoot = process.cwd();
+  console.log(`\n🚀 Running item-agnostic specs (combined-page, stress-gl)...\n`);
+  const base = process.platform === "win32" ? "npx.cmd playwright test" : "npx playwright test";
+  const agnosticFiles = "bench/specs/combined-page.spec.ts bench/specs/stress-gl.spec.ts";
+  const cmd = options.project ? `${base} --project=${options.project} ${agnosticFiles}` : `${base} ${agnosticFiles}`;
+  try {
+    execSync(cmd, {
+      stdio: "inherit",
+      cwd: projectRoot,
+      env: { ...process.env, CI: "1" },
+    });
+    console.log("✔ Item-agnostic specs passed.\n");
+    return true;
+  } catch {
+    console.error("✖ Item-agnostic specs failed.\n");
+    return false;
+  }
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const isRelease = args.includes("--release");
@@ -262,6 +302,17 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   for (const item of items) {
     ok = runBench(item, { isRelease, project }) && ok;
   }
+
+  // Run item-agnostic specs (combined-page, stress-gl) once in total:
+  // - If running a single item via --item: skip agnostic specs.
+  // - If running sharded CI: run once on shard 1 of chromium-desktop (or unprojected shard 1).
+  // - If running all items locally: run once in total at the end.
+  const isShard1 = !shard || shard[1] === "1";
+  const isPrimaryProject = !project || project === "chromium-desktop";
+  if (itemIdx === -1 && isShard1 && isPrimaryProject) {
+    ok = runAgnosticSpecs({ project }) && ok;
+  }
+
   process.exit(ok ? 0 : 1);
 }
 
