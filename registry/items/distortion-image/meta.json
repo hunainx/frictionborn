@@ -58,9 +58,9 @@
       "description": "Renders plain static image with 0 WebGL contexts allocated and zero rAF loops."
     },
     "input": {
-      "pointer": "Fine pointer hover triggers lease acquisition and fluid displacement following cursor",
+      "pointer": "Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up",
       "touch": "Touch pointers fall back to plain static image with zero WebGL allocation",
-      "keyboard": "Accessible tabIndex with visible CSS focus ring; canvas is aria-hidden"
+      "keyboard": "The wrapper is a tab stop (tabindex 0). Focus draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents) and starts the effect; released 3 s after blur or the last interaction. The canvas is aria-hidden"
     }
   },
   "a11y": {
@@ -73,7 +73,7 @@
       "2.2.2",
       "2.3.1"
     ],
-    "notes": "Underlying HTML img element preserves full accessible name via alt attribute. WebGL canvas overlay is aria-hidden. Keyboard focus gets a CSS-only treatment."
+    "notes": "The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets two tab stops (the link, then the wrapper): put the link inside the component's children instead of around it."
   },
   "composition": {
     "maxPerPage": 30,
@@ -145,6 +145,36 @@
       "type": "\"async\" | \"auto\" | \"sync\"",
       "default": "\"async\"",
       "effect": "Native browser image decoding behavior."
+    },
+    {
+      "name": "srcSet",
+      "type": "string",
+      "default": "undefined",
+      "effect": "Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture."
+    },
+    {
+      "name": "sizes",
+      "type": "string",
+      "default": "undefined",
+      "effect": "Native sizes attribute for srcSet."
+    },
+    {
+      "name": "imgClassName",
+      "type": "string",
+      "default": "\"\"",
+      "effect": "Class names for the inner img."
+    },
+    {
+      "name": "imgStyle",
+      "type": "React.CSSProperties",
+      "default": "undefined",
+      "effect": "Inline styles merged onto the inner img."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": "undefined",
+      "effect": "Content layered above the image and canvas, for example a caption or a link."
     }
   ],
   "agent": {
@@ -199,11 +229,11 @@
     ]
   },
   "measured": {
-    "commit": "0253d8c",
+    "commit": "726eadf",
     "date": "2026-10-04",
     "sizeKB": {
-      "initial": 2.81,
-      "deferred": 3.73,
+      "initial": 3.72,
+      "deferred": 4.14,
       "method": "gzip-9"
     },
     "cls": 0,
@@ -223,7 +253,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "21 passed, 0 failed; all specs verified"
+        "notes": "28 passed, 0 failed; all specs verified"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -231,7 +261,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "21 passed, 0 failed; all specs verified"
+        "notes": "27 passed, 0 failed; all specs verified"
       },
       {
         "env": "Firefox Desktop",
@@ -239,7 +269,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "21 passed, 0 failed; all specs verified"
+        "notes": "27 passed, 0 failed; all specs verified"
       },
       {
         "env": "WebKit Desktop",
@@ -247,7 +277,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "21 passed, 0 failed; all specs verified"
+        "notes": "27 passed, 0 failed; all specs verified"
       },
       {
         "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -255,7 +285,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "21 passed, 0 failed; all specs verified"
+        "notes": "27 passed, 0 failed; all specs verified"
       }
     ]
   }

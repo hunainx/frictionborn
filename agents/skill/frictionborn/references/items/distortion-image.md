@@ -46,9 +46,9 @@
 - **Tier 3** (High performance GPU): Full WebGL2 displacement overlay at DPR <= 2.0 and texture cap <= 2048px
 
 ### Input Interactions
-- **Pointer**: Fine pointer hover triggers lease acquisition and fluid displacement following cursor
+- **Pointer**: Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up
 - **Touch**: Touch pointers fall back to plain static image with zero WebGL allocation
-- **Keyboard**: Accessible tabIndex with visible CSS focus ring; canvas is aria-hidden
+- **Keyboard**: The wrapper is a tab stop (tabindex 0). Focus draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents) and starts the effect; released 3 s after blur or the last interaction. The canvas is aria-hidden
 
 ## Accessibility (a11y)
 
@@ -57,7 +57,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `via-runtime`
 - **WCAG Criteria**: 1.1.1, 2.2.2, 2.3.1
-- **Notes**: Underlying HTML img element preserves full accessible name via alt attribute. WebGL canvas overlay is aria-hidden. Keyboard focus gets a CSS-only treatment.
+- **Notes**: The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets two tab stops (the link, then the wrapper): put the link inside the component's children instead of around it.
 
 ## Composition
 
@@ -80,6 +80,11 @@
 | `crossOrigin` | `"anonymous" | "use-credentials" | ""` | `"undefined"` | CORS mode for cross-origin image texture loading. |
 | `loading` | `"eager" | "lazy"` | `"\"lazy\""` | Native browser image loading attribute. |
 | `decoding` | `"async" | "auto" | "sync"` | `"\"async\""` | Native browser image decoding behavior. |
+| `srcSet` | `string` | `"undefined"` | Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture. |
+| `sizes` | `string` | `"undefined"` | Native sizes attribute for srcSet. |
+| `imgClassName` | `string` | `"\"\""` | Class names for the inner img. |
+| `imgStyle` | `React.CSSProperties` | `"undefined"` | Inline styles merged onto the inner img. |
+| `children` | `React.ReactNode` | `"undefined"` | Content layered above the image and canvas, for example a caption or a link. |
 
 ## Agent Instructions
 
@@ -117,8 +122,8 @@ export default function GalleryCard() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `0253d8c` (2026-10-04)
-- **Size**: 2.81 KB initial / 3.73 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `726eadf` (2026-10-04)
+- **Size**: 3.72 KB initial / 4.14 KB deferred (gzip, via gzip-9)
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -129,11 +134,11 @@ export default function GalleryCard() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 21 passed, 0 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 21 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 21 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 21 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 21 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 28 passed, 0 failed; all specs verified |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 27 passed, 0 failed; all specs verified |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 27 passed, 0 failed; all specs verified |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 27 passed, 0 failed; all specs verified |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 27 passed, 0 failed; all specs verified |
 
 ## License & Provenance
 
