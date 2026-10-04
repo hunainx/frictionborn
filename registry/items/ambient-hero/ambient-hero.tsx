@@ -38,13 +38,17 @@ export interface AmbientHeroProps {
   style?: React.CSSProperties;
 }
 
+// Stable defaults: an object literal in the parameter list is a new object on every render (AGENTS lesson 1)
+const DEFAULT_PRIMARY_CTA: AmbientHeroCta = { label: "Explore engineering", href: "#engineering" };
+const DEFAULT_SECONDARY_CTA: AmbientHeroCta = { label: "Technical specifications", href: "#specifications" };
+
 export function AmbientHero({
   variant = "mesh",
   eyebrow = "Studio Series · Gen 3",
   title = "Acoustic precision, sculpted in aluminum.",
   description = "Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration.",
-  primaryCta = { label: "Explore engineering", href: "#engineering" },
-  secondaryCta = { label: "Technical specifications", href: "#specifications" },
+  primaryCta = DEFAULT_PRIMARY_CTA,
+  secondaryCta = DEFAULT_SECONDARY_CTA,
   showPauseButton = true,
   className,
   style,
