@@ -53,7 +53,9 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
     const targetTier = isFine ? 3 : 2;
     const maxCeiling = isFine ? 4 : 2;
 
-    await page.goto(`/stress-gl?scroll=1&tier=${targetTier}`);
+    // Use dense layout on fine pointer (desktop) so 5+ items contend for the 4 leases,
+    // ensuring desktop starves and exercises the S8-11 retry subscription (discriminates on 85f1c61~1).
+    await page.goto(`/stress-gl?scroll=1&tier=${targetTier}${isFine ? "&dense=1" : ""}`);
     await page.waitForSelector("[data-layout='stacked']");
     await page.waitForTimeout(800);
 

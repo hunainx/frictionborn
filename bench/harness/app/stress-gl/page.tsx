@@ -9,11 +9,13 @@ import { MeshGradient } from "../../../../registry/items/mesh-gradient/mesh-grad
 export default function StressGLPage({
   searchParams,
 }: {
-  searchParams: Promise<{ scroll?: string; tier?: string }>;
+  searchParams: Promise<{ scroll?: string; tier?: string; dense?: string }>;
 }) {
   const resolvedQuery = use(searchParams);
   const isStacked = resolvedQuery.scroll === "1";
   const tier = resolvedQuery.tier;
+  const isDense = resolvedQuery.dense === "1";
+  const itemHeight = isDense ? "200px" : (isStacked ? "700px" : "200px");
 
   useEffect(() => {
     if (tier !== undefined) {
@@ -59,7 +61,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-1"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
@@ -76,7 +78,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-2"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
@@ -93,7 +95,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-3"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
@@ -110,7 +112,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-4"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
@@ -127,7 +129,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-5"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
@@ -144,7 +146,7 @@ export default function StressGLPage({
         <section
           data-testid="gl-item-6"
           style={{
-            height: isStacked ? "700px" : "200px",
+            height: itemHeight,
             borderRadius: "6px",
             overflow: "hidden",
             position: "relative",
