@@ -6,6 +6,7 @@ export interface Lease {
   acquiredAt: number;
   lastUsedAt: number;
   isOffScreen: boolean;
+  setOffScreen: (offScreen: boolean) => void;
   release: () => void;
   onEvict?: () => void;
 }
@@ -21,6 +22,24 @@ class GLBudget {
   private activeLeases = new Map<string, Lease>();
   private maxContextsFine = 4;
   private maxContextsCoarse = 2;
+  private listeners = new Set<() => void>();
+
+  public subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notify(): void {
+    for (const listener of Array.from(this.listeners)) {
+      try {
+        listener();
+      } catch (e) {
+        console.error("glBudget listener error:", e);
+      }
+    }
+  }
 
   public getMaxContexts(): number {
     if (typeof window === "undefined" || !window.matchMedia) {
@@ -36,6 +55,13 @@ class GLBudget {
 
   public getLease(id: string): Lease | undefined {
     return this.activeLeases.get(id);
+  }
+
+  public setOffScreen(id: string, isOffScreen: boolean): void {
+    const lease = this.activeLeases.get(id);
+    if (lease) {
+      lease.isOffScreen = isOffScreen;
+    }
   }
 
   public acquire(options: AcquireOptions): Lease | null {
@@ -97,9 +123,15 @@ class GLBudget {
       acquiredAt: now,
       lastUsedAt: now,
       isOffScreen,
+      setOffScreen: (offScreen: boolean) => {
+        lease.isOffScreen = offScreen;
+      },
       onEvict,
       release: () => {
-        this.activeLeases.delete(id);
+        if (this.activeLeases.has(id)) {
+          this.activeLeases.delete(id);
+          this.notify();
+        }
       },
     };
 
@@ -117,7 +149,11 @@ class GLBudget {
         }
       }
     }
+    const hadLeases = this.activeLeases.size > 0;
     this.activeLeases.clear();
+    if (hadLeases) {
+      this.notify();
+    }
   }
 }
 

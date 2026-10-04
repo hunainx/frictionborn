@@ -14,7 +14,7 @@ export interface ParticleFieldGLProps {
   paused?: boolean;
   reducedMotion?: boolean;
   suspended?: boolean;
-  onDowngrade?: () => void;
+  onDowngrade?: (targetTier?: number) => void;
   onContextLost?: () => void;
   onContextRestored?: () => void;
 }
@@ -179,7 +179,7 @@ export function ParticleFieldGL({
     });
 
     if (!gl) {
-      onDowngrade?.();
+      onDowngrade?.(0);
       return;
     }
 

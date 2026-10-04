@@ -86,7 +86,7 @@ export function ParticleField({
     }
   }, [isHydrated, resolvedTargetTier]);
 
-  // Context lease management (Decision D-A: reduced motion = no WebGL)
+  // Context lease management (Decision 19: reduced motion = no WebGL)
   const canRunWebGL = isHydrated && isVisible && activeTier >= 2 && !motionDisabled;
 
   useEffect(() => {
@@ -99,7 +99,8 @@ export function ParticleField({
       return;
     }
 
-    if (!leaseRef.current) {
+    const tryAcquire = () => {
+      if (leaseRef.current) return;
       const lease = glBudget.acquire({
         id: instanceId.current,
         priority: 1,
@@ -112,7 +113,21 @@ export function ParticleField({
         leaseRef.current = lease;
         setHasLease(true);
       }
-    }
+    };
+
+    tryAcquire();
+
+    const unsubscribe = typeof glBudget.subscribe === "function"
+      ? glBudget.subscribe(() => {
+          if (!leaseRef.current) {
+            tryAcquire();
+          }
+        })
+      : () => {};
+
+    return () => {
+      unsubscribe();
+    };
   }, [canRunWebGL, contextLost]);
 
   useEffect(() => {
@@ -124,8 +139,8 @@ export function ParticleField({
     };
   }, []);
 
-  const onTierStepDown = useCallback(() => {
-    setActiveTier((lvl) => (lvl > 0 ? lvl - 1 : 0)); // @frictionborn-guard
+  const onTierStepDown = useCallback((targetTier?: number) => {
+    setActiveTier((lvl) => (targetTier !== undefined ? targetTier : lvl > 0 ? lvl - 1 : 0)); // @frictionborn-guard
   }, []);
 
   const onContextDrop = useCallback(() => {

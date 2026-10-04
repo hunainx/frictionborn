@@ -58,4 +58,56 @@ describe("glBudget", () => {
     l1?.release();
     expect(glBudget.getActiveCount()).toBe(0);
   });
+
+  it("notifies subscribers when a lease is released so waiting items can retry", () => {
+    const l1 = glBudget.acquire({ id: "item1", priority: 1 });
+    const l2 = glBudget.acquire({ id: "item2", priority: 1 });
+    const l3 = glBudget.acquire({ id: "item3", priority: 1 });
+    const l4 = glBudget.acquire({ id: "item4", priority: 1 });
+
+    // Item 5 tries to acquire and gets null
+    let l5 = glBudget.acquire({ id: "item5", priority: 1 });
+    expect(l5).toBeNull();
+
+    let retryCount = 0;
+    const unsub = glBudget.subscribe(() => {
+      retryCount++;
+      if (!l5) {
+        l5 = glBudget.acquire({ id: "item5", priority: 1 });
+      }
+    });
+
+    // Release item 1
+    l1?.release();
+
+    expect(retryCount).toBe(1);
+    expect(l5).not.toBeNull();
+    expect(glBudget.getActiveCount()).toBe(4);
+    expect(glBudget.getLease("item1")).toBeUndefined();
+    expect(glBudget.getLease("item5")).toBeDefined();
+
+    unsub();
+  });
+
+  it("allows setting lease offscreen and evicting offscreen lease with equal priority", () => {
+    const l1 = glBudget.acquire({ id: "item1", priority: 1 });
+    glBudget.acquire({ id: "item2", priority: 1 });
+    glBudget.acquire({ id: "item3", priority: 1 });
+    glBudget.acquire({ id: "item4", priority: 1 });
+
+    // Mark item1 offscreen
+    l1?.setOffScreen(true);
+    expect(glBudget.getLease("item1")?.isOffScreen).toBe(true);
+
+    let evictedItem1 = false;
+    l1!.onEvict = () => { evictedItem1 = true; };
+
+    // Item 5 with equal priority can evict offscreen item 1
+    const l5 = glBudget.acquire({ id: "item5", priority: 1 });
+    expect(l5).not.toBeNull();
+    expect(evictedItem1).toBe(true);
+    expect(glBudget.getLease("item1")).toBeUndefined();
+    expect(glBudget.getLease("item5")).toBeDefined();
+  });
 });
+

@@ -7,50 +7,12 @@ import {
   useHydrated,
   useReducedMotion,
   useInView,
+  resolveCssColor,
   glBudget,
   type Lease,
 } from "@frictionborn/runtime";
 
 const NoiseFieldGL = lazy(() => import("./noise-field.gl"));
-
-let scratchCanvas: HTMLCanvasElement | null = null;
-let scratchCtx: CanvasRenderingContext2D | null = null;
-
-function resolveColorToRgb(
-  element: HTMLElement | null,
-  colorSpec: string,
-  fallback: [number, number, number] = [0.05, 0.06, 0.08]
-): [number, number, number] {
-  if (typeof document === "undefined") return fallback;
-
-  try {
-    let computedStr = colorSpec;
-    if (element) {
-      const probe = document.createElement("span");
-      probe.style.color = colorSpec;
-      probe.style.display = "none";
-      element.appendChild(probe);
-      computedStr = getComputedStyle(probe).color;
-      probe.remove();
-    }
-
-    if (!scratchCanvas) {
-      scratchCanvas = document.createElement("canvas");
-      scratchCanvas.width = 1;
-      scratchCanvas.height = 1;
-      scratchCtx = scratchCanvas.getContext("2d", { willReadFrequently: true });
-    }
-    if (!scratchCtx) return fallback;
-
-    scratchCtx.clearRect(0, 0, 1, 1);
-    scratchCtx.fillStyle = computedStr;
-    scratchCtx.fillRect(0, 0, 1, 1);
-    const pixel = scratchCtx.getImageData(0, 0, 1, 1).data;
-    return [pixel[0] / 255, pixel[1] / 255, pixel[2] / 255];
-  } catch {
-    return fallback;
-  }
-}
 
 export interface NoiseFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   colors?: [string, string, string];
@@ -114,11 +76,11 @@ export function NoiseField({
   const colorKey = colors.join("|");
   const updateResolvedColors = useCallback(() => {
     const el = containerRef.current;
-    const c0 = resolveColorToRgb(el, colors[0], [0.05, 0.06, 0.08]);
-    const c1 = resolveColorToRgb(el, colors[1], [0.98, 0.57, 0.24]);
-    const c2 = resolveColorToRgb(el, colors[2], [0.23, 0.51, 0.96]);
+    const c0 = resolveCssColor(el, colors[0]) ?? [0.05, 0.06, 0.08];
+    const c1 = resolveCssColor(el, colors[1]) ?? [0.98, 0.57, 0.24];
+    const c2 = resolveCssColor(el, colors[2]) ?? [0.23, 0.51, 0.96];
     setRgbColors([c0, c1, c2]);
-  }, [colorKey]);
+  }, [colorKey, colors]);
 
   // Resolve colors on mount, prop change, and HTML theme attribute mutations
   useEffect(() => {
@@ -144,12 +106,22 @@ export function NoiseField({
     }
   }, [hydrated, computedTier]);
 
-  // Context lease acquisition (PRD 6.0 + 6.1 + Decision D-A: reduced motion = no WebGL)
+  // Context lease acquisition (PRD 6.0 + 6.1 + Decision 19: reduced motion = no WebGL)
   useEffect(() => {
-    // Decision D-A: Reduced motion gets static poster only (no WebGL context)
+    // Decision 19: Reduced motion gets static poster only (no WebGL context)
     const shouldAcquire = hydrated && inView && effectiveTier >= 2 && !reduced;
 
-    if (shouldAcquire && !leaseRef.current) {
+    if (!shouldAcquire) {
+      if (leaseRef.current) {
+        leaseRef.current.release(); // @frictionborn-guard
+        leaseRef.current = null;
+        setHasLease(false);
+      }
+      return;
+    }
+
+    const tryAcquire = () => {
+      if (leaseRef.current) return;
       const newLease = glBudget.acquire({
         id: instanceId.current,
         priority: 1,
@@ -162,11 +134,12 @@ export function NoiseField({
         leaseRef.current = newLease;
         setHasLease(true);
       }
-    } else if (!shouldAcquire && leaseRef.current) {
-      leaseRef.current.release(); // @frictionborn-guard
-      leaseRef.current = null;
-      setHasLease(false);
-    }
+    };
+
+    tryAcquire();
+    return glBudget.subscribe(() => {
+      if (!leaseRef.current) tryAcquire();
+    });
   }, [hydrated, inView, effectiveTier, contextLost, reduced]);
 
   useEffect(() => {
