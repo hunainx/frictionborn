@@ -70,6 +70,7 @@ export function Marquee({
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
+        gap: "0.75rem",
         ...style,
       }}
     >
@@ -119,7 +120,7 @@ export function Marquee({
         }
       `}</style>
 
-      {/* Marquee Viewport */}
+      {/* Marquee Viewport with subtle edge fade before pause control */}
       <div
         className="fb-marquee-viewport"
         style={{
@@ -128,6 +129,8 @@ export function Marquee({
           overflow: "hidden",
           display: "flex",
           alignItems: "center",
+          WebkitMaskImage: "linear-gradient(to right, black calc(100% - 24px), transparent 100%)",
+          maskImage: "linear-gradient(to right, black calc(100% - 24px), transparent 100%)",
         }}
       >
         {/* Marquee Content Wrap */}
