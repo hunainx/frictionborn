@@ -68,6 +68,7 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
 
     await page.goto("/stress-distortion?tier=3");
     await page.waitForSelector("[data-testid='stress-distortion-container']");
+    if (!(await webgl2Supported(page))) return; // no WebGL2 (headless Firefox on Linux): plain-image fallback only
     await page.waitForTimeout(500);
 
     const firstItem = page.locator("[data-testid='stress-item-1']");
@@ -315,6 +316,38 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     await page.mouse.move(box.x + 40, box.y + 40);
     await page.mouse.move(box.x + 60, box.y + 50);
     await expect.poll(() => page.evaluate(() => (window as any).__uploads), { timeout: 5000 }).toContain("art-2.webp");
+  });
+
+  test("when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying", async ({
+    page,
+  }) => {
+    if (!(await finePointer(page))) return;
+    await page.addInitScript(() => {
+      (window as any).__gl2Calls = 0;
+      const orig = HTMLCanvasElement.prototype.getContext as (this: HTMLCanvasElement, ...a: unknown[]) => unknown;
+      (HTMLCanvasElement.prototype as any).getContext = function (this: HTMLCanvasElement, type: string, ...rest: unknown[]) {
+        if (type === "webgl2") {
+          (window as any).__gl2Calls++;
+          return null; // the browser refuses (context limit, blocked, no GPU)
+        }
+        return orig.call(this, type, ...rest);
+      };
+    });
+    await page.goto("/stress-distortion?tier=3");
+    await page.waitForSelector("[data-testid='stress-distortion-container']");
+    const item = page.locator("[data-testid='stress-item-1']");
+    await item.scrollIntoViewIfNeeded();
+    const box = (await item.boundingBox())!;
+    for (let i = 0; i < 8; i++) {
+      await page.mouse.move(box.x + 40 + i * 10, box.y + 60);
+      await page.waitForTimeout(120);
+    }
+    await page.waitForTimeout(1500);
+
+    expect(await item.locator("canvas").count()).toBe(0);
+    await expect(item.locator("img")).toBeVisible();
+    // A bounded number of attempts (StrictMode may double them), not a retry loop.
+    expect(await page.evaluate(() => (window as any).__gl2Calls)).toBeLessThanOrEqual(6);
   });
 
   test("changing strength or speed does not rebuild the WebGL context", async ({ page }) => {
