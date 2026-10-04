@@ -3,6 +3,10 @@ import { test, expect } from "@playwright/test";
 
 const item = process.env.BENCH_ITEM || "noise-field";
 
+// Items whose demo creates a context on mount, so the cycles below create real contexts. DistortionImage only creates
+// one on hover/focus: its leak cycles live in distortion-image.spec.ts, where every cycle acquires leases first.
+const CONTEXT_ON_MOUNT_ITEMS = ["noise-field", "particle-field", "mesh-gradient"];
+
 test.describe("Resource leak spec", () => {
   test("mount and unmount cycling leaves 0 leaked contexts and no listener growth", async ({ page }, testInfo) => {
     // TESTING.md §3 requires 50 mount/unmount cycles for exact leak proof.
@@ -26,6 +30,12 @@ test.describe("Resource leak spec", () => {
         listenerStats: p?.listenerCounter.getStats(),
       };
     });
+
+    // A leak spec that never creates anything passes trivially. Require that most cycles really made a context
+    // (Chromium: WebGL is present on every project; WebKit/Firefox may fall back to the poster on a given runner).
+    if (testInfo.project.name.startsWith("chromium") && CONTEXT_ON_MOUNT_ITEMS.includes(item)) {
+      expect(stats.contextStats?.totalCreated ?? 0).toBeGreaterThan(cycles / 2);
+    }
 
     // Zero live WebGL contexts left after unmount cycles
     expect(stats.activeContexts).toBe(0);

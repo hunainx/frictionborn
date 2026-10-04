@@ -11,6 +11,11 @@ export interface FrictionbornProbes {
   listenerCounter: ListenerCounterProbe;
   animationProbe: AnimationProbe;
   perfObserver: PerformanceObserverProbe;
+  // Only the injected public/probes.js defines this one (WebGL texture create/delete accounting).
+  textureCounter?: {
+    getStats(): { activeTextures: number; totalCreated: number; totalDeleted: number };
+    reset(): void;
+  };
 }
 
 declare global {

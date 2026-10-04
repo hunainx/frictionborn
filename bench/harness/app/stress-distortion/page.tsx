@@ -4,6 +4,17 @@
 import React, { useEffect, useState, use } from "react";
 import { DistortionImage } from "../../../../registry/items/distortion-image/distortion-image";
 
+function leasesPossible(): boolean {
+  if (!window.matchMedia("(pointer: fine)").matches) return false;
+  const gl = document.createElement("canvas").getContext("webgl2");
+  if (!gl) return false;
+  gl.getExtension("WEBGL_lose_context")?.loseContext();
+  return true;
+}
+
+// Leases each leak cycle creates before it unmounts.
+const LEAK_LEASES_PER_CYCLE = 2;
+
 const IMAGES = [
   { src: "/assets/distortion/art-1.webp", alt: "Wheat Field with Cypresses by Vincent van Gogh" },
   { src: "/assets/distortion/art-2.webp", alt: "Irises by Vincent van Gogh" },
@@ -53,20 +64,47 @@ export default function StressDistortionPage({
     }
   }, [resolvedQuery.cycles]);
 
-  // Leak cycling: 50 mount/unmount cycles ending unmounted per DoD
+  // Leak cycling: N mount/unmount cycles ending unmounted. Every mounted cycle really acquires leases (it focuses
+  // the first images and waits for their canvases) so contexts and textures are created, then unmounts while they are live.
+  // Without that the cycles would create nothing and "0 leaked" would prove nothing.
   useEffect(() => {
-    if (isLeakTest && cycleCount < targetCycles) {
-      const timer = setTimeout(() => {
-        if (cycleCount + 1 >= targetCycles) {
-          setMounted(false);
-        } else {
-          setMounted((m) => !m);
-        }
-        setCycleCount((c) => c + 1);
-      }, 16);
-      return () => clearTimeout(timer);
-    }
-  }, [isLeakTest, cycleCount, targetCycles]);
+    if (!isLeakTest || cycleCount >= targetCycles) return;
+    let cancelled = false;
+    const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+    (async () => {
+      if (!mounted) {
+        await sleep(30);
+        if (!cancelled) setMounted(true);
+        return;
+      }
+      // Touch pointers, reduced motion and browsers without WebGL2 never get a lease by design: do not wait for one.
+      const canLease = leasesPossible();
+      const wrappers = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-frictionborn-item='distortion-image']")
+      ).slice(0, canLease ? LEAK_LEASES_PER_CYCLE : 0);
+      // Let mount effects settle (StrictMode runs them twice in dev), then deliver a real focus event to each wrapper.
+      await sleep(120);
+      if (cancelled) return;
+      wrappers.forEach((w) => {
+        w.blur();
+        w.focus();
+      });
+      const deadline = performance.now() + 4000;
+      while (
+        !cancelled &&
+        performance.now() < deadline &&
+        document.querySelectorAll("[data-frictionborn-item] canvas").length < wrappers.length
+      ) {
+        await sleep(20);
+      }
+      if (cancelled) return;
+      setMounted(false);
+      setCycleCount((c) => c + 1);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isLeakTest, mounted, cycleCount, targetCycles]);
 
   return (
     <div
