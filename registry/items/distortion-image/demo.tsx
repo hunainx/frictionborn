@@ -154,37 +154,15 @@ export default function DistortionImageDemo() {
     >
       {/* Gallery Header */}
       <header className="gallery-curation-head">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.6rem",
-            fontSize: "0.75rem",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            color: "#38BDF8",
-            fontWeight: 700,
-          }}
-        >
-          <span
-            style={{
-              width: "6px",
-              height: "6px",
-              borderRadius: "50%",
-              background: isPaused ? "#F59E0B" : "#10B981",
-            }}
-          />
-          Aetheric Fine Art Editions &bull; Permanent Collection
-        </div>
         <h1
           style={{
             fontSize: "2.25rem",
             fontWeight: 700,
             letterSpacing: "-0.03em",
-            margin: "0.5rem 0",
+            margin: "0 0 0.5rem 0",
           }}
         >
-          Archival Editions &amp; Masterworks
+          Six paintings that ripple
         </h1>
         <p
           style={{
@@ -195,14 +173,14 @@ export default function DistortionImageDemo() {
             maxWidth: "640px",
           }}
         >
-          Curated masterworks preserved in high-fidelity archival reproductions. Hover over any work with
-          a fine pointer to explore tactile surface distortion and optical dispersion.
+          Move your mouse over a painting and the picture ripples around the pointer. You can also press Tab to reach
+          a painting. On touch screens, or when your device asks for less motion, the pictures stay still.
         </p>
       </header>
 
       {/* Verified Real Telemetry Panel */}
       <section
-        aria-label="System Metrics"
+        aria-label="Live status"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
@@ -215,46 +193,46 @@ export default function DistortionImageDemo() {
       >
         <div>
           <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isLight ? "#374151" : "#D1D5DB" }}>
-            Active WebGL Leases
+            Rippling now
           </div>
           <div
             suppressHydrationWarning
             style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.25rem", color: activeContexts > 0 ? "#38BDF8" : "inherit" }}
           >
-            {hydrated ? `${activeContexts} / ${glBudget.getMaxContexts()}` : "—"}
+            {hydrated ? `${activeContexts} (limit ${glBudget.getMaxContexts()})` : "-"}
           </div>
         </div>
 
         <div>
           <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isLight ? "#374151" : "#D1D5DB" }}>
-            Hardware Tier
+            Device level
           </div>
           <div
             suppressHydrationWarning
             style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.25rem" }}
           >
-            {hydrated ? `Tier ${cap.tier}` : "—"}
+            {hydrated ? `Level ${cap.tier} of 3` : "-"}
           </div>
         </div>
 
         <div>
           <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isLight ? "#374151" : "#D1D5DB" }}>
-            Reduced Motion
+            Reduced motion setting
           </div>
           <div
             suppressHydrationWarning
             style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.25rem" }}
           >
-            {hydrated ? (prefersReduced ? "Static image (0 ctx)" : "Active") : "—"}
+            {hydrated ? (prefersReduced ? "On: pictures stay still" : "Off") : "-"}
           </div>
         </div>
 
         <div>
           <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: isLight ? "#374151" : "#D1D5DB" }}>
-            Loop State
+            Animation
           </div>
-          <div style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.25rem", color: isPaused ? "#F59E0B" : "#10B981" }}>
-            {isPaused ? "Paused" : "Running"}
+          <div style={{ fontSize: "1.25rem", fontWeight: 700, marginTop: "0.25rem", color: prefersReduced || isPaused ? "#F59E0B" : "#10B981" }}>
+            {prefersReduced ? "Off" : isPaused ? "Paused" : "Playing"}
           </div>
         </div>
       </section>
@@ -383,7 +361,7 @@ export default function DistortionImageDemo() {
                 border: `1px solid ${isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.12)"}`,
               }}
             >
-              Archival Edition &bull; Vincent van Gogh
+              Van Gogh, 1889
             </div>
           </DistortionImage>
         </div>
@@ -397,7 +375,7 @@ export default function DistortionImageDemo() {
             </span>
           </div>
           <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.9rem", color: isLight ? "#374151" : "#D1D5DB" }}>
-            {ARTWORKS[0].medium} &bull; The Metropolitan Museum of Art Open Access (CC0)
+            {ARTWORKS[0].medium}. Image: The Metropolitan Museum of Art, public domain (CC0).
           </p>
         </div>
       </article>
