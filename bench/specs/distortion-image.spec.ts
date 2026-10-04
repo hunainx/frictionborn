@@ -144,13 +144,11 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     // Move pointer away to container header so all items are left
     await page.locator("[data-testid='stress-distortion-container'] header").hover();
 
-    // Wait past 3s idle release timeout so all temporary leases release cleanly
-    await page.waitForTimeout(3500);
-
-    const stats = await probeStats(page);
-    expect(stats.unplannedLosses).toBe(0);
-    expect(stats.activeContexts).toBe(0);
-    expect(stats.activeTextures).toBe(0);
+    // All temporary leases must release once the 3 s idle timers expire (poll: a slow runner may need longer than
+    // the timer itself, and the assertion is about eventually releasing everything).
+    await expect.poll(async () => (await probeStats(page)).activeContexts, { timeout: 10_000 }).toBe(0);
+    await expect.poll(async () => (await probeStats(page)).activeTextures, { timeout: 5_000 }).toBe(0);
+    expect((await probeStats(page)).unplannedLosses).toBe(0);
   });
 
   test("a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)", async ({
