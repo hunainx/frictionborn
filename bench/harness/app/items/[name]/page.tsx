@@ -62,18 +62,39 @@ export default function ItemBenchPage({
 
   // Leak test cycle: mount/unmount cycles ending unmounted per PRD 6.0
   useEffect(() => {
-    if (isLeakTest && cycleCount < targetCycles) {
-      const timer = setTimeout(() => {
-        if (cycleCount + 1 >= targetCycles) {
-          setMounted(false);
-        } else {
-          setMounted((m) => !m);
+    if (!isLeakTest || cycleCount >= targetCycles) return;
+    let cancelled = false;
+    const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+    (async () => {
+      if (!mounted) {
+        await sleep(20);
+        if (!cancelled) setMounted(true);
+        return;
+      }
+
+      // If mounted, wait for canvas to appear if this is a WebGL item, up to a reasonable deadline,
+      // ensuring contexts are actually created on all browser engines (including WebKit) before unmounting.
+      const isGl = ["noise-field", "particle-field", "mesh-gradient"].includes(name);
+      if (isGl) {
+        const deadline = performance.now() + 1000;
+        while (!cancelled && performance.now() < deadline && !document.querySelector("#demo-mount-point canvas")) {
+          await sleep(16);
         }
+      } else {
+        await sleep(16);
+      }
+
+      if (!cancelled) {
+        setMounted(false);
         setCycleCount((c) => c + 1);
-      }, 16);
-      return () => clearTimeout(timer);
-    }
-  }, [isLeakTest, cycleCount, targetCycles]);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLeakTest, cycleCount, targetCycles, mounted, name]);
 
   function renderDemo() {
     if (name === "dummy") {

@@ -32,9 +32,8 @@ test.describe("Resource leak spec", () => {
     });
 
     // A leak spec that never creates anything passes trivially. Require that contexts were clearly created
-    // (Chromium has WebGL on every project; how many of the 16 ms cycles get as far as a context depends on the
-    // runner, 21 to 49 of 50 observed, so this asks for 'clearly non-zero', not a ratio).
-    if (testInfo.project.name.startsWith("chromium") && CONTEXT_ON_MOUNT_ITEMS.includes(item)) {
+    // (Chromium and WebKit have WebGL on desktop projects; contexts must be created to verify they are deleted).
+    if ((testInfo.project.name.startsWith("chromium") || testInfo.project.name === "webkit-desktop") && CONTEXT_ON_MOUNT_ITEMS.includes(item)) {
       expect(stats.contextStats?.totalCreated ?? 0).toBeGreaterThanOrEqual(5);
     }
 
