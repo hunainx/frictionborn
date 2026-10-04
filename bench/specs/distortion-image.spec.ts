@@ -250,9 +250,10 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
     await page.goto("/distortion-cases?tier=3");
     await page.waitForSelector("[data-testid='cases-root']");
     const webgl2 = await webgl2Supported(page);
-    const wrapper = page.locator("[data-testid='case-default-props'] [data-frictionborn-item]");
-    await wrapper.scrollIntoViewIfNeeded();
-    await wrapper.focus();
+    const link = page.locator("[data-testid='case-linked-link']");
+    const wrapper = link.locator("[data-frictionborn-item]");
+    await link.scrollIntoViewIfNeeded();
+    await link.focus();
 
     const ring = wrapper.locator("[data-frictionborn-focus-ring]");
     await expect(ring).toHaveCount(1);
@@ -278,8 +279,49 @@ test.describe("DistortionImage Stress, Budget, and Leak DoD", () => {
       expect(style.z).toBeGreaterThan(canvasZ);
     }
 
-    await wrapper.evaluate((el) => (el as HTMLElement).blur());
+    await link.evaluate((el) => (el as HTMLElement).blur());
     await expect(ring).toHaveCount(0);
+  });
+
+  test("a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)", async ({
+    page,
+  }) => {
+    await page.goto("/distortion-cases?tier=3");
+    await page.waitForSelector("[data-testid='cases-root']");
+    const webgl2 = await webgl2Supported(page);
+    const isFine = await finePointer(page);
+
+    // Decorative image wrapper has no tabindex attribute
+    const decorativeWrapper = page.locator("[data-testid='case-default-props'] [data-frictionborn-item]");
+    expect(await decorativeWrapper.getAttribute("tabindex")).toBeNull();
+
+    // 1. Wrapped in <a>: tab lands on the outer link, exactly 1 tab stop
+    const linkedSection = page.locator("[data-testid='case-linked']");
+    const linkedAnchor = page.locator("[data-testid='case-linked-link']");
+    await linkedAnchor.scrollIntoViewIfNeeded();
+    await linkedAnchor.focus();
+
+    // Active element is the <a>, not the inner wrapper
+    const activeTestId = await page.evaluate(() => document.activeElement?.getAttribute("data-testid"));
+    expect(activeTestId).toBe("case-linked-link");
+
+    // Ripple effect starts on focus when fine pointer & webgl2 available
+    if (webgl2 && isFine) {
+      await expect(linkedSection.locator("canvas")).toHaveCount(1, { timeout: 8000 });
+    }
+
+    // 2. Tab forward moves directly to next link (case-overlaid-link), NOT an intermediate wrapper
+    await page.keyboard.press("Tab");
+    const nextActive = await page.evaluate(() => document.activeElement?.getAttribute("data-testid"));
+    expect(nextActive).toBe("case-overlaid-link");
+
+    // Overlaid covering <a> inside children also activates the effect on focus
+    const overlaidSection = page.locator("[data-testid='case-overlaid']");
+    const overlaidRing = overlaidSection.locator("[data-frictionborn-focus-ring]");
+    await expect(overlaidRing).toHaveCount(1);
+    if (webgl2 && isFine) {
+      await expect(overlaidSection.locator("canvas")).toHaveCount(1, { timeout: 8000 });
+    }
   });
 
   test("a srcset candidate chosen on resize is uploaded to the texture while the canvas is live", async ({

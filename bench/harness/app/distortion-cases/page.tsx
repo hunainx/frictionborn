@@ -48,6 +48,22 @@ export default function DistortionCasesPage({
         </a>
       </section>
 
+      <section data-testid="case-overlaid">
+        <DistortionImage
+          src="/assets/distortion/art-2.webp"
+          alt="Overlaid link: Irises"
+          width={400}
+          height={318}
+        >
+          <a
+            href="#overlaid-target"
+            data-testid="case-overlaid-link"
+            style={{ position: "absolute", inset: 0 }}
+            aria-label="View Irises by Van Gogh"
+          />
+        </DistortionImage>
+      </section>
+
       <section data-testid="case-srcset">
         <DistortionImage
           src="/assets/distortion/art-1.webp"

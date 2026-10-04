@@ -43,7 +43,8 @@ describe("DistortionImage Component", () => {
 
     const wrapper = container.querySelector("[data-frictionborn-item='distortion-image']");
     expect(wrapper).not.toBeNull();
-    expect(wrapper?.getAttribute("tabindex")).toBe("0");
+    // Wrapper is not focusable per Decision 24 (no tabIndex=0)
+    expect(wrapper?.getAttribute("tabindex")).toBeNull();
 
     const img = container.querySelector("img");
     expect(img).not.toBeNull();
@@ -73,23 +74,25 @@ describe("DistortionImage Component", () => {
     unmount();
   });
 
-  it("supports focus and blur keyboard events for accessibility", async () => {
+  it("supports focus and blur keyboard events for accessibility on linked images", async () => {
     const { container, unmount } = render(
-      <DistortionImage
-        src="/assets/distortion/art-3.webp"
-        alt="Cypresses"
-      />
+      <a href="#test" data-testid="outer-link">
+        <DistortionImage
+          src="/assets/distortion/art-3.webp"
+          alt="Cypresses"
+        />
+      </a>
     );
 
-    const wrapper = container.querySelector("[data-frictionborn-item='distortion-image']") as HTMLDivElement;
-    expect(wrapper).not.toBeNull();
+    const link = container.querySelector("[data-testid='outer-link']") as HTMLAnchorElement;
+    expect(link).not.toBeNull();
 
     await act(async () => {
-      fireEvent.focus(wrapper);
+      fireEvent.focus(link);
     });
 
     await act(async () => {
-      fireEvent.blur(wrapper);
+      fireEvent.blur(link);
     });
 
     unmount();

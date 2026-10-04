@@ -191,15 +191,13 @@ export function DistortionImage({
   const handleFocus = useCallback(
     (e: React.FocusEvent<HTMLDivElement>) => {
       onFocus?.(e);
-      if (e.target === e.currentTarget) {
-        let visible = true;
-        try {
-          visible = e.target.matches(":focus-visible");
-        } catch {
-          // :focus-visible unsupported: show the ring
-        }
-        setFocusVisible(visible);
+      let visible = true;
+      try {
+        visible = (e.target as HTMLElement).matches(":focus-visible");
+      } catch {
+        // :focus-visible unsupported: show the ring
       }
+      setFocusVisible(visible);
       activate();
     },
     [onFocus, activate]
@@ -208,11 +206,46 @@ export function DistortionImage({
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLDivElement>) => {
       onBlur?.(e);
-      if (e.target === e.currentTarget) setFocusVisible(false);
-      deactivate();
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        setFocusVisible(false);
+        deactivate();
+      }
     },
     [onBlur, deactivate]
   );
+
+  // Support wrapped-in-link pattern: when wrapped in <a> or button, focus on parent activates effect
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const parentInteractive = el.closest("a, button");
+    if (!parentInteractive) return;
+
+    const handleParentFocus = () => {
+      let visible = true;
+      try {
+        visible = (parentInteractive as HTMLElement).matches(":focus-visible");
+      } catch {
+        // fallback
+      }
+      setFocusVisible(visible);
+      activate();
+    };
+
+    const handleParentBlur = (e: FocusEvent) => {
+      if (!parentInteractive.contains(e.relatedTarget as Node | null)) {
+        setFocusVisible(false);
+        deactivate();
+      }
+    };
+
+    parentInteractive.addEventListener("focus", handleParentFocus);
+    parentInteractive.addEventListener("blur", handleParentBlur);
+    return () => {
+      parentInteractive.removeEventListener("focus", handleParentFocus);
+      parentInteractive.removeEventListener("blur", handleParentBlur);
+    };
+  }, [activate, deactivate]);
 
   // When leaving the viewport, immediately release any lease and cancel idle timers
   useEffect(() => {
@@ -347,7 +380,6 @@ export function DistortionImage({
       ref={containerRef}
       data-frictionborn-item="distortion-image"
       data-tier={effectiveTier}
-      tabIndex={0}
       className={`relative inline-block overflow-hidden ${className}`}
       style={{
         position: "relative",
@@ -414,7 +446,7 @@ export function DistortionImage({
       )}
 
       {children && (
-        <div style={{ position: "relative", zIndex: 3, pointerEvents: "auto" }}>
+        <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "auto" }}>
           {children}
         </div>
       )}

@@ -60,7 +60,7 @@
     "input": {
       "pointer": "Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up",
       "touch": "Touch pointers fall back to plain static image with zero WebGL allocation",
-      "keyboard": "The wrapper is a tab stop (tabindex 0). Focus draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents) and starts the effect; released 3 s after blur or the last interaction. The canvas is aria-hidden"
+      "keyboard": "The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple effect and draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents); exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden"
     }
   },
   "a11y": {
@@ -73,7 +73,7 @@
       "2.2.2",
       "2.3.1"
     ],
-    "notes": "The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets two tab stops (the link, then the wrapper): put the link inside the component's children instead of around it."
+    "notes": "The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets exactly one tab stop (the link itself). Keyboard activation is supported whether the image is wrapped in an <a> or contains a covering <a> inside its children."
   },
   "composition": {
     "maxPerPage": 30,
