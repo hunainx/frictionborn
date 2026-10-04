@@ -84,6 +84,7 @@
 ### Installation
 ```bash
 npx shadcn@latest add @frictionborn/smooth-scroll
+# Optional: to pin exact lenis dependency: npm install --save-exact lenis@1.3.26 (registry accepts lenis@^1.3.26)
 ```
 
 ### Usage
@@ -103,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider.
 - Do not import Lenis directly or create separate requestAnimationFrame loops.
 - Do not use on dashboards, forms-heavy pages, or data-dense web applications.
+- Registry accepts lenis@^1.3.26 for consumers; use --save-exact if your project enforces exact dependency pinning.
 
 ### How to Verify
 - Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.
