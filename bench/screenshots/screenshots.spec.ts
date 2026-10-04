@@ -14,6 +14,8 @@ const items = [
   "particle-field",
   "mesh-gradient",
   "distortion-image",
+  "ambient-hero",
+  "scroll-showcase",
 ];
 
 test.describe("Capture component screenshots", () => {
@@ -57,6 +59,20 @@ test.describe("Capture component screenshots", () => {
       });
       await page.waitForTimeout(1000);
       await page.screenshot({ path: path.join(outDir, "light.png") });
+    });
+
+    test(`captures ${item} dark mode preview (1440x900)`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(`/items/${item}`);
+      await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+      await page.evaluate(() => {
+        document.documentElement.classList.remove("light");
+        document.documentElement.classList.add("dark");
+        document.documentElement.setAttribute("data-theme", "dark");
+      });
+      await page.waitForTimeout(1000);
+      await page.screenshot({ path: path.join(outDir, "dark.png") });
     });
   }
 
