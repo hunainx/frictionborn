@@ -51,9 +51,6 @@ export default function NoiseFieldGL({
   const colorsRef = useRef(colors);
   colorsRef.current = colors;
 
-  // Frame guard triggers automatic downgrade if p75 frame times exceed budget
-  useFrameGuard({ onDowngrade: onDowngrade ?? (() => {}), active: !paused }); // @frictionborn-guard
-
   const maxDpr = tier >= 3 ? 2.0 : 1.5;
   const renderScale = tier >= 3 ? 1.0 : 0.75;
   const octaves = tier >= 3 ? 4 : 2;
