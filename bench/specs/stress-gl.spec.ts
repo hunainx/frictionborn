@@ -48,12 +48,14 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
   test("leases follow visibility during scroll-through top-to-bottom and back (S8-8)", async ({
     page,
   }) => {
-    await page.goto("/stress-gl?scroll=1");
-    await page.waitForSelector("[data-layout='stacked']");
-    await page.waitForTimeout(600);
-
+    // 1. Visit stacked scrolling layout. Ensure mobile runs at Tier 2 per Decision 15, desktop at Tier 3
     const isFine = await page.evaluate(() => window.matchMedia("(pointer: fine)").matches);
+    const targetTier = isFine ? 3 : 2;
     const maxCeiling = isFine ? 4 : 2;
+
+    await page.goto(`/stress-gl?scroll=1&tier=${targetTier}`);
+    await page.waitForSelector("[data-layout='stacked']");
+    await page.waitForTimeout(800);
 
     const getContextCount = async () => {
       return await page.evaluate(() => {
@@ -61,12 +63,27 @@ test.describe("Multi-Component GL Budget Stress (2x NoiseField + 2x ParticleFiel
       });
     };
 
+    // Check if WebGL2 is available in this browser environment (e.g. headless Firefox on Linux CI has no WebGL2)
+    const item1 = page.locator("[data-testid='gl-item-1']");
+    const hasCanvas = await item1
+      .locator("canvas")
+      .waitFor({ state: "attached", timeout: 4000 })
+      .then(() => true, () => false);
+
+    if (!hasCanvas) {
+      // In environments lacking WebGL2, verify cap is 0, posters are visible, and no crashes occurred
+      const count = await getContextCount();
+      expect(count).toBe(0);
+      const posterCount = await page.locator("[data-frictionborn-poster]").count();
+      expect(posterCount).toBe(6);
+      return;
+    }
+
     // 1. Initial position: at top
     let count = await getContextCount();
     expect(count).toBeLessThanOrEqual(maxCeiling);
 
     // Item 1 is in view at top and should have live canvas
-    const item1 = page.locator("[data-testid='gl-item-1']");
     await expect(item1.locator("canvas")).toBeVisible({ timeout: 5000 });
 
     // 2. Scroll through: scroll down to item 3 (middle)

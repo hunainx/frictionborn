@@ -1,22 +1,28 @@
 // Original — Frictionborn Motion multi-component GL budget stress page
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, use } from "react";
 import { NoiseField } from "../../../../registry/items/noise-field/noise-field";
 import { ParticleField } from "../../../../registry/items/particle-field/particle-field";
 import { MeshGradient } from "../../../../registry/items/mesh-gradient/mesh-gradient";
 
-export default function StressGLPage() {
-  const [isStacked, setIsStacked] = useState(false);
+export default function StressGLPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scroll?: string; tier?: string }>;
+}) {
+  const resolvedQuery = use(searchParams);
+  const isStacked = resolvedQuery.scroll === "1";
+  const tier = resolvedQuery.tier;
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("scroll") === "1") {
-        setIsStacked(true);
-      }
+    if (tier !== undefined) {
+      document.documentElement.setAttribute("data-fb-tier", tier);
+      return () => {
+        document.documentElement.removeAttribute("data-fb-tier");
+      };
     }
-  }, []);
+  }, [tier]);
 
   return (
     <div
