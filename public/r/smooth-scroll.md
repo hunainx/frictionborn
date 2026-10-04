@@ -21,35 +21,35 @@
 - Dashboards and data-dense productivity software
 - Documentation sites and code-heavy portals
 - Forms-heavy pages and modal-only checkout flows
-- Touchscreens and mobile devices (automatically disabled)
+- Touchscreens and mobile devices (automatically disabled on coarse pointers)
 
 ### Alternatives
 - **native-scroll**: When standard browser compositor scrolling is sufficient without kinetic interpolation
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `static-layout` (No layout shift, accessible fallback in static HTML)
+- **Server Output**: `static-layout` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `false`
 - **Lazy Loaded**: `no`
-- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
-- **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
+- **Client Reveal Gate**: None. This item does not read `data-motion`.
+- **Requirements**: React `>=19`, Frameworks: next-app-router, vite-react
 
 ## Behavior & Tiers
 
-- **Animation Loop**: `on-interaction` (managed via runtime `useFrame`)
+- **Animation Loop**: `on-interaction` (stepped by the shared runtime `useFrame` loop)
 - **WebGL Contexts**: `0`
 - **Reduced Motion**: Mode `off` — Disabled completely; 100% native platform momentum scrolling.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Disabled completely; native browser scrolling only
-- **Tier 1** (Mid-range mobile): Disabled on coarse pointers and touchscreens; native touch momentum preserved
-- **Tier 2** (Standard desktop / modern mobile): Standard smooth inertial scrolling stepped strictly via useFrame
-- **Tier 3** (High performance GPU): High-precision smooth scrolling with fine pointer optimization
+- **T0 Static (reduced motion, Save-Data, no WebGL2, server render, or the frame guard gave up)**: Not gated by tier. Smooth scrolling runs unless reduced motion, enabled={false} or a coarse pointer disables it; Save-Data and no-WebGL2 (tier 0) do not disable it
+- **T1 Lite (coarse pointer on a low-end device: 4 cores or fewer, or 2 GB or less)**: Coarse pointer: disabled, native touch momentum scrolling preserved
+- **T2 Standard (coarse pointer on a capable phone, or a narrow or low-end fine-pointer screen)**: Coarse pointer: disabled. On a fine or absent pointer (low-end hints or viewport < 480px) smooth scrolling runs, stepped via useFrame
+- **T3 Full (fine pointer with hover on a capable machine)**: Smooth scrolling runs (fine pointer with hover), stepped via useFrame; same behaviour as tier 2 on fine pointers
 
 ### Input Interactions
-- **Pointer**: Wheel and keyboard events mediated via Lenis on fine pointers
-- **Touch**: Native touch momentum scrolling 100% preserved; Lenis is inactive on coarse pointers
-- **Keyboard**: Full support for Space, PageUp, PageDown, Arrow keys, Home, and End
+- **Pointer**: Wheel input is interpolated by Lenis (smoothWheel) unless the pointer is coarse, reduced motion is set, or enabled is false
+- **Touch**: Native touch momentum scrolling is preserved; Lenis is inactive on coarse pointers
+- **Keyboard**: Keys (Space, PageUp, PageDown, arrows, Home, End) scroll natively; Lenis does not intercept them and a keydown only wakes the shared frame loop
 
 ## Accessibility (a11y)
 
@@ -58,33 +58,42 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `not-needed`
 - **WCAG Criteria**: 2.1.1, 2.2.2, 2.3.3
-- **Notes**: Native keyboard scrolling is fully preserved. When reduced motion is preferred, smooth scrolling is turned off completely, delegating all scroll behavior to the native platform compositor.
+- **Notes**: Native keyboard scrolling is preserved. When reduced motion is preferred, smooth scrolling is turned off completely, delegating all scroll behavior to the native platform compositor.
 
 ## Composition
 
 - **Max Per Page**: 1
 - **Singleton**: true
-- **Conflicts With**: smooth-scroll
+- **Conflicts With**: None
 - **Pairs Well With**: sticky-scroll-story, scroll-reveal, noise-field
 
 ## Props
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `children` | `React.ReactNode` | `"undefined"` | Child components wrapped inside the smooth scroll provider. |
+| `children` | `React.ReactNode` | `—` | Optional. No default. Child components wrapped inside the provider (rendered in a display: contents div). |
 | `duration` | `number` | `1.2` | Scroll easing duration in seconds. |
-| `orientation` | `"vertical" | "horizontal"` | `"\"vertical\""` | Primary scroll orientation. |
+| `easing` | `(t: number) => number` | `"(t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))"` | Easing function (default is a module-level function). Read through a ref, so an inline function does not recreate Lenis. |
+| `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Primary scroll orientation. |
+| `gestureOrientation` | `"vertical" \| "horizontal" \| "both"` | `"vertical"` | Gesture direction Lenis listens to. |
 | `smoothWheel` | `boolean` | `true` | Whether to interpolate mouse wheel deltas. |
+| `touchMultiplier` | `number` | `1` | Lenis touch multiplier (touch scrolling is not smoothed on coarse pointers because SmoothScroll is disabled there). |
+| `infinite` | `boolean` | `false` | Lenis infinite scroll option. |
 | `enabled` | `boolean` | `true` | Master toggle to enable or disable smooth scrolling. |
-| `onScroll` | `(e: any) => void` | `"undefined"` | Callback invoked synchronously on every scroll update. |
-| `prevent` | `(node: HTMLElement) => boolean` | `"undefined"` | Predicate to bypass smooth scrolling for specific nested DOM elements. |
+| `onScroll` | `(e: any) => void` | `—` | Optional. No default. Callback invoked on every Lenis scroll event (for example to sync ScrollTrigger). |
+| `prevent` | `(node: HTMLElement) => boolean` | `—` | Optional. No default. Predicate to bypass smooth scrolling for specific DOM nodes. Nested scrollers (allowNestedScroll) and [role="dialog"], [aria-modal="true"], dialog[open], [data-lenis-prevent] are always bypassed. |
+
+## Dependencies
+
+- **Runtime package**: `@frictionborn/runtime` (installed by the registry item)
+- **Registry items pulled in**: none
+- **npm packages**: `lenis@1.3.26`
 
 ## Agent Instructions
 
 ### Installation
 ```bash
 npx shadcn@latest add @frictionborn/smooth-scroll
-# Optional: to pin exact lenis dependency: npm install --save-exact lenis@1.3.26 (registry accepts lenis@^1.3.26)
 ```
 
 ### Usage
@@ -101,10 +110,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```
 
 ### Common Mistakes to Avoid
-- Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider.
+- Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider (a second mount warns and does nothing).
 - Do not import Lenis directly or create separate requestAnimationFrame loops.
 - Do not use on dashboards, forms-heavy pages, or data-dense web applications.
-- Registry accepts lenis@^1.3.26 for consumers; use --save-exact if your project enforces exact dependency pinning.
+- The registry installs lenis@1.3.26 and consumers accept lenis@^1.3.26; to pin exactly run: npm install --save-exact lenis@1.3.26 (or the equivalent for your package manager).
+- SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them.
 
 ### How to Verify
 - Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.
@@ -113,8 +123,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `d8d51e2` (2026-10-04)
-- **Size**: 2.52 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `7f3e58a` (2026-10-04)
+- **Size**: 2.52 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -125,11 +135,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | fail | 2026-10-04 | 16 passed, 1 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed |
 
 ## License & Provenance
 

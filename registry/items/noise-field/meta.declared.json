@@ -3,7 +3,7 @@
   "item": {
     "name": "noise-field",
     "version": "0.1.0",
-    "summary": "background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster)",
+    "summary": "background: WebGL2 domain-warped noise hero background (webgl2, client-only, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster)",
     "slot": "background",
     "kind": "webgl"
   },
@@ -14,7 +14,7 @@
       "Brand surfaces looking for rich visual texture without video overhead"
     ],
     "avoidWhen": [
-      "Dense reading passages or documentation tables without high-contrast scrim",
+      "Dense reading passages or documentation tables where text contrast over the canvas has not been verified",
       "Battery-saver mode or low-tier mobile devices where static poster is preferred",
       "Pages already running a background canvas effect (one signature moment per viewport)"
     ],
@@ -37,9 +37,7 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
       "tailwind": "^4"
     }
@@ -52,19 +50,19 @@
     "loop": "while-visible",
     "webglContexts": 1,
     "tiers": {
-      "0": "Static CSS gradient poster matching shader palette",
-      "1": "Static CSS gradient poster for coarse pointers on low-end hardware",
-      "2": "WebGL2 rendered at DPR <= 1.5 with 2 octaves and 0.75 render scale",
-      "3": "Full WebGL2 rendered at DPR <= 2.0 with 4 octaves and high-precision flow"
+      "0": "CSS gradient poster only, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+      "1": "CSS gradient poster only (coarse pointer with low-end hints: deviceMemory <= 2 or <= 4 cores)",
+      "2": "WebGL2 at DPR <= 1.5, 0.75 render scale, 2 octaves (coarse pointer without low-end hints, or fine pointer with low-end hints or viewport < 480px)",
+      "3": "WebGL2 at DPR <= 2.0, full render scale, 4 octaves (fine pointer with hover, no low-end hints)"
     },
     "reducedMotion": {
       "mode": "static",
-      "description": "Renders static CSS gradient poster matching shader palette with zero WebGL allocation and zero rAF loops."
+      "description": "Renders the static CSS gradient poster with no WebGL context and no animation frames. Under prefers-reduced-motion the runtime tier is 0, so WebGL does not start."
     },
     "input": {
-      "pointer": "Ambient animation with optional time/paused override",
-      "touch": "Falls back to Tier 1 poster on low-end hardware, or Tier 2 WebGL without touch listeners",
-      "keyboard": "None; container is non-interactive aria-hidden decorative surface"
+      "pointer": "None; ambient animation. Optional `time` prop fixes the clock and `paused` freezes the loop.",
+      "touch": "No touch listeners. Coarse pointers with low-end hints get the tier 1 poster; other coarse-pointer devices run WebGL at tier 2.",
+      "keyboard": "None; the component has no interactive elements. Poster, scrim and canvas layers are aria-hidden; children keep their own semantics."
     }
   },
   "a11y": {
@@ -76,10 +74,10 @@
       "2.2.2",
       "2.3.1"
     ],
-    "notes": "Canvas element is marked aria-hidden='true'. The built-in scrim preserves >= 4.5:1 WCAG AA contrast for any overlaid text elements."
+    "notes": "The poster, scrim and canvas layers are aria-hidden; the root element and children are not. There is no built-in pause button: pause with the paused prop or the runtime pauseAll()/resumeAll(). The scrim lowers background luminance behind children but contrast is not computed; verify text contrast for your colours."
   },
   "composition": {
-    "maxPerPage": 2,
+    "maxPerPage": 1,
     "singleton": false,
     "conflictsWith": [
       "mesh-gradient",
@@ -87,22 +85,25 @@
     ],
     "pairsWith": [
       "text-reveal",
-      "magnetic-button",
-      "ambient-hero"
+      "magnetic-button"
     ]
   },
   "props": [
     {
       "name": "colors",
       "type": "[string, string, string]",
-      "default": "[\"var(--background)\", \"var(--primary)\", \"var(--accent)\"]",
-      "effect": "Three-color palette interpolated across procedural noise field and poster."
+      "default": [
+        "var(--background, Canvas)",
+        "var(--primary, CanvasText)",
+        "var(--accent, GrayText)"
+      ],
+      "effect": "Three CSS colours: background, primary, accent. Resolved to RGB for the shader and used to build the CSS poster."
     },
     {
       "name": "speed",
       "type": "number",
-      "default": 1.0,
-      "effect": "Multiplies animation evolution rate. Ambient defaults keep cycle >= 8 seconds."
+      "default": 1,
+      "effect": "Multiplier on animation time."
     },
     {
       "name": "scale",
@@ -113,45 +114,71 @@
     {
       "name": "intensity",
       "type": "number",
-      "default": 1.0,
-      "effect": "Color vibrancy and octave blending contrast."
+      "default": 1,
+      "effect": "Colour vibrancy and octave blending contrast."
     },
     {
       "name": "scrim",
       "type": "boolean",
       "default": true,
-      "effect": "Renders radial contrast scrim preserving >= 4.5:1 text contrast."
+      "effect": "Renders a radial scrim of the first colour (25% centre to 80% edge opacity) over the canvas to lower background luminance behind children. Does not guarantee text contrast; verify for your colours."
     },
     {
       "name": "paused",
       "type": "boolean",
       "default": false,
-      "effect": "Freezes animation loop; used for deterministic screenshots and global pause."
+      "effect": "Freezes this instance's animation loop. The global pauseAll() also stops it."
     },
     {
       "name": "time",
       "type": "number",
-      "default": "undefined",
-      "effect": "Overrides internal clock with fixed time value for deterministic visual tests."
+      "default": null,
+      "effect": "Optional. No default. Overrides the internal clock with a fixed time value (deterministic screenshots and tests)."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier (0 to 3)."
+      "effect": "Hard ceiling on the capability tier (0 to 3); the tier is the minimum of this and the runtime tier."
+    },
+    {
+      "name": "reducedMotion",
+      "type": "boolean",
+      "default": null,
+      "effect": "Optional. No default (follows prefers-reduced-motion). true forces the static poster. false only skips the prop-level check: under prefers-reduced-motion the runtime tier is still 0, so WebGL still does not start. Leave unset."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root div, appended after the built-in Tailwind utility classes."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the root div, merged after the built-in background colour (consumer wins)."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/noise-field",
-    "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField colors={[\"var(--background)\", \"var(--primary)\", \"var(--accent)\"]} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-white\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
+    "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
     "mistakes": [
-      "Do not remove the scrim prop when rendering body text over the canvas, or text contrast will fall below WCAG AA 4.5:1.",
+      "Keep the scrim on when placing text over the canvas, but do not assume it guarantees WCAG 4.5:1 contrast: it only lowers background luminance. Verify contrast for your colours and use host foreground tokens for text.",
+      "Do not set reducedMotion={false} to try to force WebGL; it does not override the user's preference (the runtime tier stays 0 under prefers-reduced-motion).",
       "Do not combine multiple NoiseField components in the same viewport; follow the one signature moment principle.",
+      "The root element uses Tailwind utility classes (relative, w-full, h-full, min-h-[300px], overflow-hidden); install it in a Tailwind project.",
       "Never call requestAnimationFrame directly to animate NoiseField props; let the runtime handle the loop."
     ],
     "verify": [
-      "Confirm static CSS gradient poster renders in server HTML before hydration with zero CLS.",
-      "Confirm that when prefers-reduced-motion is active, static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
+      "Confirm the static CSS gradient poster renders in server HTML before hydration (CLS <= 0.01).",
+      "Confirm that when prefers-reduced-motion is active, the static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
       "Confirm context lease is properly released when scrolled out of view."
     ]
   },
@@ -159,6 +186,7 @@
     "code": "MIT",
     "derivedFrom": [
       {
+        "what": "2D simplex noise (GLSL)",
         "name": "webgl-noise",
         "author": "Ian McEwan (Ashima Arts), Stefan Gustavson",
         "license": "MIT",

@@ -1,6 +1,6 @@
 # sticky-scroll-story — Specification Sheet
 
-> scroll-section: Sticky media column with scrolling steps (dom, server-safe, 0 CLS, reduced motion -> opacity-only, mobile -> stacked)
+> scroll-section: Sticky media column with scrolling steps (dom, server-safe, CLS <= 0.01, reduced motion -> opacity-only (instant swap), mobile -> stacked)
 
 ## Overview
 
@@ -27,28 +27,28 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `static-layout` (No layout shift, accessible fallback in static HTML)
+- **Server Output**: `static-layout` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `false`
 - **Lazy Loaded**: `no`
-- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
-- **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
+- **Client Reveal Gate**: This item reads `[data-motion="ok"]` on `<html>`. Next.js: render `<MotionReadyScript />` from `@frictionborn/runtime` inside `<head>` of the root layout (pass `nonce` under a strict CSP). Vite / SPA: call `initMotionReady()` from `@frictionborn/runtime` once before `createRoot(...).render(...)`. Without it the item stays in its static, fully visible state (no motion).
+- **Requirements**: React `>=19`, Frameworks: next-app-router, vite-react
 
 ## Behavior & Tiers
 
-- **Animation Loop**: `none` (managed via runtime `useFrame`)
+- **Animation Loop**: `none` (no JavaScript frame loop of its own: CSS, IntersectionObserver, or its parts)
 - **WebGL Contexts**: `0`
-- **Reduced Motion**: Mode `opacity-only` — Instant media crossfades (<=150ms) without vertical translation or parallax motion.
+- **Reduced Motion**: Mode `opacity-only` — Media swaps are instant (inactive media is hidden with opacity 0 and transitions are disabled, so there is no fade); no translation or parallax. Server HTML keeps all media visible.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Stacked static layout with immediate visibility
-- **Tier 1** (Mid-range mobile): Mobile stacked layout with media paired per step
-- **Tier 2** (Standard desktop / modern mobile): Sticky two-column layout with CSS crossfades
-- **Tier 3** (High performance GPU): Full sticky two-column layout with CSS crossfades
+- **T0 Static (reduced motion, Save-Data, no WebGL2, server render, or the frame guard gave up)**: Not gated by tier: sticky two-column layout above 768px, stacked at 768px and below (same at every tier)
+- **T1 Lite (coarse pointer on a low-end device: 4 cores or fewer, or 2 GB or less)**: Same as tier 0; layout depends on viewport width, not tier
+- **T2 Standard (coarse pointer on a capable phone, or a narrow or low-end fine-pointer screen)**: Same as tier 0; layout depends on viewport width, not tier
+- **T3 Full (fine pointer with hover on a capable machine)**: Same as tier 0; layout depends on viewport width, not tier
 
 ### Input Interactions
-- **Pointer**: None; progress driven solely by scroll position
-- **Touch**: Stacked layout below 768px for zero-jump native mobile scrolling
-- **Keyboard**: Full native focus progression and keyboard scrolling support
+- **Pointer**: None; active step is driven solely by scroll position (IntersectionObserver)
+- **Touch**: Stacked layout at viewport width 768px and below, with media shown inline under each step
+- **Keyboard**: Native focus order and keyboard scrolling; the component adds no focusable elements
 
 ## Accessibility (a11y)
 
@@ -57,7 +57,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `not-needed`
 - **WCAG Criteria**: 1.3.1, 1.3.2, 2.2.2
-- **Notes**: DOM order strictly matches reading order. The active story step is decorated with aria-current='step'. All media elements have descriptive accessible text.
+- **Notes**: DOM order matches reading order. The active step has aria-current='step'. Image media (media.type 'image') gets alt from media.alt, falling back to the step title. Custom media (media.content) gets no alt: supply accessible text inside the content yourself. Each step's media is rendered twice (sticky column and inline mobile copy); only one is visible at a time.
 
 ## Composition
 
@@ -70,10 +70,17 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `steps` | `StoryStep[]` | `"undefined"` | Array of story steps containing id, title, description, badge, and media. |
-| `mediaPosition` | `"left" | "right"` | `"\"right\""` | Alignment of the sticky media column relative to the text narrative. |
-| `className` | `string` | `"\"\""` | Optional CSS class names to apply to root container. |
-| `style` | `React.CSSProperties` | `"undefined"` | Optional inline CSS styles for root container. |
+| `steps` | `StoryStep[]` | `—` | Required. Array of { id: string; title: string; description: string; badge?: string; media: { type?: "image" \| "custom"; src?: string; alt?: string; content?: React.ReactNode } }. |
+| `mediaPosition` | `"left" \| "right"` | `"right"` | Alignment of the sticky media column relative to the text narrative. |
+| `onStepChange` | `(stepId: string) => void` | `—` | Optional. No default. Called with the step id when a step becomes active. |
+| `className` | `string` | `""` | Optional CSS class names to apply to root container. |
+| `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles for the root container. |
+
+## Dependencies
+
+- **Runtime package**: `@frictionborn/runtime` (installed by the registry item)
+- **Registry items pulled in**: none
+- **npm packages**: none
 
 ## Agent Instructions
 
@@ -103,16 +110,18 @@ export default function StorySection() {
 ### Common Mistakes to Avoid
 - Do not attach window scroll listeners to calculate sticky step progress; StickyScrollStory uses IntersectionObserver.
 - Do not invert DOM order; reading order must match step sequence for assistive technology.
+- media.alt is only used when media.type is 'image'; for custom media put accessible text inside media.content.
+- The inactive-media hiding only applies under html[data-motion="ok"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion.
 
 ### How to Verify
-- Verify mobile layout (< 768px) cleanly stacks steps and media without sticky jumps.
+- Verify mobile layout (<= 768px) cleanly stacks steps and media without sticky jumps.
 - Verify aria-current='step' updates as steps scroll through the viewport center.
-- Verify 0 layout shifts (CLS = 0) during rapid scrolling.
+- Verify CLS <= 0.01 during rapid scrolling.
 
 ## Measured Bench Evidence
 
 - **Bench Commit**: `d8d51e2` (2026-10-04)
-- **Size**: 2.68 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Size**: 2.68 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames

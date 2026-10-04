@@ -3,7 +3,7 @@
   "item": {
     "name": "text-reveal",
     "version": "0.1.0",
-    "summary": "headline: Typography reveal by word/line/char with font-ready splitting (dom, server-safe, <3 KB, reduced motion -> static, mobile -> reduced stagger)",
+    "summary": "headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger",
     "slot": "headline",
     "kind": "dom"
   },
@@ -33,11 +33,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -48,19 +46,19 @@
     "loop": "none",
     "webglContexts": 0,
     "tiers": {
-      "0": "Static un-animated text rendered immediately without split tokens",
-      "1": "Word-level reveal with reduced stagger duration (40ms)",
-      "2": "Full word or line reveal with standard stagger (60ms)",
-      "3": "Full word, line, or character reveal with high-precision stagger"
+      "0": "Plain static text, no splitting (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+      "1": "Animated reveal with the stagger capped at 40 ms (coarse pointer with low-end hints)",
+      "2": "Animated reveal with the configured stagger (60 ms by default)",
+      "3": "Same as tier 2; the `by` mode (word, character, line) is honoured at every animated tier"
     },
     "reducedMotion": {
       "mode": "static",
       "description": "Renders plain static text without splitting or animations."
     },
     "input": {
-      "pointer": "None; typography entrance runs once upon mounting",
-      "touch": "Same as fine pointer with mobile-optimized stagger timing",
-      "keyboard": "Text is fully focusable and selectable with standard native cursor"
+      "pointer": "None. The reveal plays once when the component mounts on the client (for example in a Vite SPA or after client-side navigation) or when replayKey changes. A server-rendered instance is painted as static final text and does not animate unless replayKey is set.",
+      "touch": "Same as pointer; the stagger is capped at 40 ms only on tier 1 and tier 0 devices",
+      "keyboard": "None; the text is not focusable. It stays selectable. Screen readers read a visually hidden copy of the full text; the animated tokens are aria-hidden."
     }
   },
   "a11y": {
@@ -89,19 +87,19 @@
     {
       "name": "children",
       "type": "string",
-      "default": "undefined",
-      "effect": "Text string to split and reveal."
+      "default": null,
+      "effect": "Required. Plain text string to split and reveal (not JSX)."
     },
     {
       "name": "as",
       "type": "React.ElementType",
-      "default": "\"h1\"",
+      "default": "h1",
       "effect": "HTML tag to render as root container."
     },
     {
       "name": "by",
       "type": "\"word\" | \"character\" | \"line\"",
-      "default": "\"word\"",
+      "default": "word",
       "effect": "Token granularity for entrance stagger."
     },
     {
@@ -114,7 +112,7 @@
       "name": "stagger",
       "type": "number",
       "default": 60,
-      "effect": "Delay in ms between subsequent token animations."
+      "effect": "Delay in ms between subsequent token animations. Capped at 40 ms when the tier is 1 or lower."
     },
     {
       "name": "duration",
@@ -123,16 +121,28 @@
       "effect": "Duration in ms for each token entrance."
     },
     {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root element (the built-in class fb-text-reveal is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the root element, merged after position: relative and display: block (consumer wins)."
+    },
+    {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier."
+      "effect": "Hard ceiling on the capability tier."
     },
     {
       "name": "replayKey",
       "type": "string | number",
-      "default": "undefined",
-      "effect": "Optional key to force replaying the entrance animation."
+      "default": null,
+      "effect": "Optional. No default. When set (or changed), the entrance animation plays after hydration even for a server-rendered instance."
     }
   ],
   "agent": {
@@ -140,7 +150,10 @@
     "usage": "import { TextReveal } from \"@/components/ui/text-reveal\";\n\nexport default function HeroHeadline() {\n  return (\n    <TextReveal as=\"h1\" by=\"word\" className=\"text-4xl font-bold tracking-tight\">\n      Engineered Motion for High-Signal Interfaces\n    </TextReveal>\n  );\n}",
     "mistakes": [
       "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",
-      "Do not hide text with opacity: 0 before hydration; the component handles static visibility safely."
+      "Do not hide text with opacity: 0 before hydration; the component handles static visibility safely.",
+      "A server-rendered TextReveal is painted as final static text and does not animate unless replayKey is set; do not expect a reveal on a Next.js server-rendered hero without it.",
+      "TextReveal accepts only the listed props; id, data-* and aria-* attributes are not forwarded to the root element.",
+      "The reveal styles apply only when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
     ],
     "verify": [
       "Verify full headline text is present in server HTML before JavaScript executes.",

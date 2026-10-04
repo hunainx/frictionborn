@@ -3,7 +3,7 @@
   "item": {
     "name": "magnetic-button",
     "version": "0.1.0",
-    "summary": "cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners)",
+    "summary": "cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, reduced motion -> static, mobile -> 0 listeners)",
     "slot": "cta",
     "kind": "dom"
   },
@@ -33,11 +33,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -48,10 +46,10 @@
     "loop": "on-interaction",
     "webglContexts": 0,
     "tiers": {
-      "0": "Static unadorned button without pointer listeners or translation",
-      "1": "Static button with zero pointer listeners on coarse touch devices",
-      "2": "Gentle magnetic attraction with reduced pull radius (10px)",
-      "3": "Full spring physics loop on fine pointer hover with settling to zero rAF"
+      "0": "Static wrapper without pointer handlers or translation (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+      "1": "Static wrapper without pointer handlers (coarse pointer with low-end hints)",
+      "2": "Magnetic pull with the configured strength, only when the device reports (hover: hover) and (pointer: fine)",
+      "3": "Same behaviour as tier 2: spring physics on the shared frame loop while the pointer is over the wrapper, settling to zero frames"
     },
     "reducedMotion": {
       "mode": "static",
@@ -59,8 +57,8 @@
     },
     "input": {
       "pointer": "Cursor attraction with physical spring settling within 0.01px tolerance",
-      "touch": "Zero pointer listeners attached on coarse/touch screens",
-      "keyboard": "Focus snaps button to origin immediately; focus rings remain unclipped"
+      "touch": "Zero pointer handlers attached on coarse/touch screens",
+      "keyboard": "Focus snaps the wrapper to its origin immediately and the child's own onFocus still runs; the wrapper uses overflow: visible"
     }
   },
   "a11y": {
@@ -73,7 +71,7 @@
       "2.4.7",
       "2.5.3"
     ],
-    "notes": "Preserves native keyboard semantics, focus rings are not clipped by overflow, and keyboard focus immediately resets translation to origin."
+    "notes": "The wrapped button or link keeps its native semantics. The wrapper div uses overflow: visible so it does not clip focus rings, and keyboard focus immediately resets translation to origin."
   },
   "composition": {
     "maxPerPage": 10,
@@ -89,8 +87,8 @@
     {
       "name": "children",
       "type": "React.ReactElement",
-      "default": "undefined",
-      "effect": "Interactive element (button or link) wrapped by magnetic controller."
+      "default": null,
+      "effect": "Required. A single interactive element (button or link) wrapped by the magnetic controller."
     },
     {
       "name": "strength",
@@ -113,27 +111,35 @@
     {
       "name": "className",
       "type": "string",
-      "default": "\"\"",
-      "effect": "Additional CSS classes applied to the outer wrapper."
+      "default": "",
+      "effect": "Additional CSS classes applied to the outer wrapper div (the built-in class fb-magnetic-button is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the wrapper div, merged after display: inline-block and position: relative (consumer wins)."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier."
+      "effect": "Hard ceiling on the capability tier."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/magnetic-button",
-    "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton strength={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-white font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
+    "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton strength={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
     "mistakes": [
       "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",
-      "Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links."
+      "Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links.",
+      "MagneticButton renders a wrapper div (display: inline-block) around the child, so do not place it inside a <p> or another <button>.",
+      "It accepts only the listed props; data-* and aria-* attributes are not forwarded to the wrapper (put them on the child)."
     ],
     "verify": [
       "Verify button is immediately clickable and focusable in server HTML.",
       "Verify keyboard tabbing triggers focus ring cleanly without clipped edges.",
-      "Verify that on touch screens, zero pointer listeners are registered."
+      "Verify that on touch screens, zero pointer handlers are registered."
     ]
   },
   "license": {

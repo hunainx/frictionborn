@@ -3,7 +3,7 @@
   "name": "scroll-reveal",
   "type": "registry:ui",
   "title": "ScrollReveal",
-  "description": "media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px)",
+  "description": "media: Scroll-driven entrance (CSS view() timeline, IntersectionObserver fallback) (dom, server-safe, reduced motion -> static, low-end mobile -> 12px)",
   "dependencies": [
     "@frictionborn/runtime"
   ],

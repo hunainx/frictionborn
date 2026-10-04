@@ -3,7 +3,7 @@
   "item": {
     "name": "scroll-reveal",
     "version": "0.1.0",
-    "summary": "media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px)",
+    "summary": "media: Scroll-driven entrance (CSS view() timeline, IntersectionObserver fallback) (dom, server-safe, reduced motion -> static, low-end mobile -> 12px)",
     "slot": "media",
     "kind": "dom"
   },
@@ -33,11 +33,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -48,18 +46,18 @@
     "loop": "none",
     "webglContexts": 0,
     "tiers": {
-      "0": "Static fully-visible content rendered without transitions",
-      "1": "Single-threshold intersection observer with reduced 12px distance",
-      "2": "Pooled intersection observer with standard 24px travel distance",
-      "3": "Native animation-timeline: view() with zero JS overhead where supported"
+      "0": "Content fully visible and static, no reveal classes (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+      "1": "Reveal with the travel distance capped at 12px (coarse pointer with low-end hints)",
+      "2": "Reveal with the configured travel distance (24px by default)",
+      "3": "Same as tier 2. At every animated tier, browsers that support animation-timeline use the scroll-linked CSS animation; others use the IntersectionObserver fallback. The observer hook is mounted in both cases."
     },
     "reducedMotion": {
       "mode": "static",
       "description": "Content is rendered in its final visible state without transition delays or scroll triggers."
     },
     "input": {
-      "pointer": "Scroll-linked entrance triggered as container enters viewport",
-      "touch": "Same scroll trigger with mobile travel distance capped at 12px",
+      "pointer": "Scroll-linked entrance as the container enters the viewport. Where animation-timeline: view() is supported the animation is scroll-linked and reverses when scrolling back up.",
+      "touch": "Same scroll trigger; the travel distance is capped at 12px only on tier 1 and tier 0 devices",
       "keyboard": "Focus-within guard forces element visible immediately when tabbed into"
     }
   },
@@ -73,7 +71,7 @@
       "1.4.3",
       "2.2.2"
     ],
-    "notes": "Focus guard forces any element containing active focus visible immediately, preventing keyboard traps during scroll."
+    "notes": "Focus guard forces any element containing active focus visible immediately, preventing keyboard traps during scroll. Hidden-before-reveal styles exist only under html[data-motion=\"ok\"]; server HTML and reduced-motion users see the content visible."
   },
   "composition": {
     "maxPerPage": 20,
@@ -89,44 +87,56 @@
     {
       "name": "children",
       "type": "React.ReactNode",
-      "default": "undefined",
-      "effect": "Content elements wrapped and revealed on scroll."
+      "default": null,
+      "effect": "Required. Content elements wrapped and revealed on scroll."
     },
     {
       "name": "as",
       "type": "React.ElementType",
-      "default": "\"div\"",
+      "default": "div",
       "effect": "HTML tag rendered as root container."
     },
     {
       "name": "animation",
       "type": "\"fade-up\" | \"fade\" | \"scale-up\"",
-      "default": "\"fade-up\"",
-      "effect": "Visual entrance curve variant."
+      "default": "fade-up",
+      "effect": "Visual entrance variant."
     },
     {
       "name": "distance",
       "type": "number",
       "default": 24,
-      "effect": "Vertical travel distance in pixels."
+      "effect": "Vertical travel distance in pixels (half of it for scale-up); capped at 12 when the tier is 1 or lower."
     },
     {
       "name": "duration",
       "type": "number",
       "default": 400,
-      "effect": "Transition duration in ms."
+      "effect": "Transition duration in ms. Applies only to the IntersectionObserver fallback; the native view-timeline animation is scroll-linked and ignores it."
     },
     {
       "name": "once",
       "type": "boolean",
       "default": true,
-      "effect": "When true, entrance triggers once and remains visible."
+      "effect": "In the IntersectionObserver fallback, true keeps the content revealed after the first entry. The native view-timeline path is scroll-linked and reverses when scrolling back up regardless of this prop."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root element (the built-in class fb-scroll-reveal is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the root element, merged after display: block and position: relative (consumer wins)."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier."
+      "effect": "Hard ceiling on the capability tier."
     }
   ],
   "agent": {
@@ -134,7 +144,9 @@
     "usage": "import { ScrollReveal } from \"@/components/ui/scroll-reveal\";\n\nexport default function CardGrid() {\n  return (\n    <ScrollReveal animation=\"fade-up\" distance={24}>\n      <div className=\"rounded-lg border p-6\">\n        <h3>Feature Title</h3>\n        <p>Feature description.</p>\n      </div>\n    </ScrollReveal>\n  );\n}",
     "mistakes": [
       "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",
-      "Do not nest ScrollReveal components inside each other; keep entrance containers flat."
+      "Do not nest ScrollReveal components inside each other; keep entrance containers flat.",
+      "The reveal only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the content is static.",
+      "ScrollReveal accepts only the listed props; data-*, aria-* and id attributes are not forwarded to the root element."
     ],
     "verify": [
       "Verify content is visible in server HTML without JavaScript execution.",

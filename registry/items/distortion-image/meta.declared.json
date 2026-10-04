@@ -3,7 +3,7 @@
   "item": {
     "name": "distortion-image",
     "version": "0.1.0",
-    "summary": "media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts)",
+    "summary": "media: WebGL2 hover-displacement image overlay (webgl, client-only, reduced motion -> static image, mobile -> plain image / 0 contexts)",
     "slot": "media",
     "kind": "webgl"
   },
@@ -33,9 +33,7 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
       "tailwind": "^4"
     }
@@ -46,21 +44,21 @@
   },
   "behavior": {
     "loop": "on-interaction",
-    "webglContexts": 1,
+    "webglContexts": 4,
     "tiers": {
-      "0": "Plain static image with 0 WebGL contexts and zero animation overhead",
-      "1": "Plain static image for coarse touch pointers with zero context allocation",
-      "2": "WebGL2 displacement overlay at DPR <= 1.5 and texture cap <= 1024px",
-      "3": "Full WebGL2 displacement overlay at DPR <= 2.0 and texture cap <= 2048px"
+      "0": "Plain image, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+      "1": "Plain image (coarse pointer with low-end hints)",
+      "2": "WebGL2 displacement overlay at DPR <= 1.5, 0.75 render scale, texture <= 1024px, only when the device reports (hover: hover) and (pointer: fine); coarse-pointer devices at this tier get the plain image",
+      "3": "WebGL2 displacement overlay at DPR <= 2.0, full render scale, texture <= 2048px (fine pointer with hover)"
     },
     "reducedMotion": {
       "mode": "static",
-      "description": "Renders plain static image with 0 WebGL contexts allocated and zero rAF loops."
+      "description": "Renders the plain static image with no WebGL context and no animation frames."
     },
     "input": {
-      "pointer": "Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up",
-      "touch": "Touch pointers fall back to plain static image with zero WebGL allocation",
-      "keyboard": "The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple effect and draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents); exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden"
+      "pointer": "Fine-pointer hover acquires a context lease and ripples around the cursor. The lease is released about 3 s after the pointer leaves or stops moving, and the render loop keeps running during that idle period (up to about 3.4 s). At most 4 contexts are live per page, shared by all instances; when the budget is full the least recently used idle image gives its slot up.",
+      "touch": "Touch pointers fall back to the plain static image with zero WebGL allocation",
+      "keyboard": "The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple on fine-pointer devices and draws a two-tone inset focus ring above the canvas, inside the image box so parent overflow:hidden cannot clip it; exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden"
     }
   },
   "a11y": {
@@ -89,26 +87,26 @@
     {
       "name": "src",
       "type": "string",
-      "default": "undefined",
-      "effect": "URL of the underlying image to display and distort."
+      "default": null,
+      "effect": "Required. URL of the underlying image to display and distort."
     },
     {
       "name": "alt",
       "type": "string",
-      "default": "undefined",
-      "effect": "Accessible alternative text for the image."
+      "default": null,
+      "effect": "Required. Accessible alternative text for the image."
     },
     {
       "name": "width",
       "type": "number | string",
-      "default": "undefined",
-      "effect": "Optional layout width defining container and image dimensions."
+      "default": null,
+      "effect": "Optional. No default. Layout width of the wrapper and the img."
     },
     {
       "name": "height",
       "type": "number | string",
-      "default": "undefined",
-      "effect": "Optional layout height defining container and image dimensions."
+      "default": null,
+      "effect": "Optional. No default. Layout height of the wrapper and the img."
     },
     {
       "name": "strength",
@@ -126,61 +124,85 @@
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier (0 to 3)."
+      "effect": "Hard ceiling on the capability tier (0 to 3)."
     },
     {
       "name": "crossOrigin",
       "type": "\"anonymous\" | \"use-credentials\" | \"\"",
-      "default": "undefined",
-      "effect": "CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors."
+      "default": null,
+      "effect": "Optional. No default. CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors."
     },
     {
       "name": "fetchPriority",
       "type": "\"high\" | \"low\" | \"auto\"",
-      "default": "undefined",
-      "effect": "Native fetchpriority attribute forwarded to the underlying img element."
+      "default": null,
+      "effect": "Optional. No default. Native fetchpriority attribute forwarded to the underlying img element."
+    },
+    {
+      "name": "fetchpriority",
+      "type": "\"high\" | \"low\" | \"auto\"",
+      "default": null,
+      "effect": "Optional. No default. Lower-case alias of fetchPriority, used only when fetchPriority is not set."
     },
     {
       "name": "loading",
       "type": "\"eager\" | \"lazy\"",
-      "default": "\"lazy\"",
+      "default": "lazy",
       "effect": "Native browser image loading attribute."
     },
     {
       "name": "decoding",
       "type": "\"async\" | \"auto\" | \"sync\"",
-      "default": "\"async\"",
+      "default": "async",
       "effect": "Native browser image decoding behavior."
     },
     {
       "name": "srcSet",
       "type": "string",
-      "default": "undefined",
-      "effect": "Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture."
+      "default": null,
+      "effect": "Optional. No default. Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture."
     },
     {
       "name": "sizes",
       "type": "string",
-      "default": "undefined",
-      "effect": "Native sizes attribute for srcSet."
+      "default": null,
+      "effect": "Optional. No default. Native sizes attribute for srcSet."
     },
     {
       "name": "imgClassName",
       "type": "string",
-      "default": "\"\"",
+      "default": "",
       "effect": "Class names for the inner img."
     },
     {
       "name": "imgStyle",
       "type": "React.CSSProperties",
-      "default": "undefined",
-      "effect": "Inline styles merged onto the inner img."
+      "default": null,
+      "effect": "Optional. No default. Inline styles merged onto the inner img."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the wrapper div. Other HTML div attributes (data-*, aria-*) are passed to the wrapper, not to the img."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins)."
+    },
+    {
+      "name": "onPointerEnter",
+      "type": "React.PointerEventHandler<HTMLDivElement>",
+      "default": null,
+      "effect": "Optional. No default. Composed: called first, then the component's own handling. onPointerMove, onPointerLeave, onFocus and onBlur are composed the same way."
     },
     {
       "name": "children",
       "type": "React.ReactNode",
-      "default": "undefined",
-      "effect": "Content layered above the image and canvas, for example a caption or a link."
+      "default": null,
+      "effect": "Optional. No default. Content layered above the image and canvas, for example a caption or a link."
     }
   ],
   "agent": {
@@ -192,9 +214,9 @@
       "Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops."
     ],
     "verify": [
-      "Confirm real img element is rendered in server HTML before hydration with zero CLS.",
-      "Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after 3s idle.",
-      "Confirm that coarse touch pointers and reduced-motion render plain image with 0 WebGL contexts."
+      "Confirm the real img element is rendered in server HTML before hydration (CLS <= 0.01).",
+      "Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after about 3s idle.",
+      "Confirm that coarse touch pointers and reduced-motion render the plain image with 0 WebGL contexts."
     ]
   },
   "license": {
@@ -202,36 +224,12 @@
     "derivedFrom": [],
     "notices": [],
     "assets": [
-      {
-        "name": "Wheat Field with Cypresses (Vincent van Gogh)",
-        "source": "https://www.metmuseum.org/art/collection/search/436535",
-        "license": "CC0 1.0 (The Met Open Access)"
-      },
-      {
-        "name": "Irises (Vincent van Gogh)",
-        "source": "https://www.metmuseum.org/art/collection/search/436528",
-        "license": "CC0 1.0 (The Met Open Access)"
-      },
-      {
-        "name": "Cypresses (Vincent van Gogh)",
-        "source": "https://www.metmuseum.org/art/collection/search/437980",
-        "license": "CC0 1.0 (The Met Open Access)"
-      },
-      {
-        "name": "Under the Wave off Kanagawa (Katsushika Hokusai)",
-        "source": "https://www.metmuseum.org/art/collection/search/45434",
-        "license": "CC0 1.0 (The Met Open Access)"
-      },
-      {
-        "name": "Sunflowers (Vincent van Gogh)",
-        "source": "https://www.metmuseum.org/art/collection/search/436524",
-        "license": "CC0 1.0 (The Met Open Access)"
-      },
-      {
-        "name": "The Shepherd's Song (Pierre Puvis de Chavannes)",
-        "source": "https://www.metmuseum.org/art/collection/search/437344",
-        "license": "CC0 1.0 (The Met Open Access)"
-      }
+      "Wheat Field with Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436535 - CC0 1.0 (The Met Open Access)",
+      "Irises (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436528 - CC0 1.0 (The Met Open Access)",
+      "Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/437980 - CC0 1.0 (The Met Open Access)",
+      "Under the Wave off Kanagawa (Katsushika Hokusai) - https://www.metmuseum.org/art/collection/search/45434 - CC0 1.0 (The Met Open Access)",
+      "Sunflowers (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436524 - CC0 1.0 (The Met Open Access)",
+      "The Shepherd's Song (Pierre Puvis de Chavannes) - https://www.metmuseum.org/art/collection/search/437344 - CC0 1.0 (The Met Open Access)"
     ]
   }
 }

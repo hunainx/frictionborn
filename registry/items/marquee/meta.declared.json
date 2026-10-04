@@ -3,7 +3,7 @@
   "item": {
     "name": "marquee",
     "version": "0.1.0",
-    "summary": "strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok)",
+    "summary": "strip: Infinite marquee with inert duplicate, hover/focus pause, and pause button (dom, server-safe, reduced motion -> static, mobile -> animates)",
     "slot": "strip",
     "kind": "dom"
   },
@@ -33,11 +33,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -48,19 +46,19 @@
     "loop": "while-visible",
     "webglContexts": 0,
     "tiers": {
-      "0": "Static horizontally scrollable row without CSS keyframe animation",
-      "1": "CSS marquee running at conservative speed without extra rAF hooks",
-      "2": "Standard CSS marquee with hover/focus pause listeners",
-      "3": "Full CSS marquee with dynamic width calibration and accessible pause controls"
+      "0": "Animation paused and no duplicate copy rendered; the track is a static row, not animated (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+      "1": "CSS marquee animation; same behaviour as tiers 2 and 3 (speed does not vary by tier)",
+      "2": "CSS marquee animation with hover/focus pause, width-based duration calibration and the pause button",
+      "3": "Same as tier 2"
     },
     "reducedMotion": {
       "mode": "static",
-      "description": "Animation ceases and track displays as a static, horizontally scrollable row."
+      "description": "The animation does not run: the track is rendered static (not animated), with no duplicate copy and no pause button."
     },
     "input": {
-      "pointer": "Hovering pauses animation loop automatically",
-      "touch": "Touch-scrollable row under reduced motion or static tiers",
-      "keyboard": "Tabbing into items pauses marquee; duplicate items are inert"
+      "pointer": "Hovering over the marquee pauses the animation when pauseOnHover is true",
+      "touch": "No touch-specific behaviour; the animation runs on touch devices unless reduced motion is set",
+      "keyboard": "Focus inside the marquee pauses it when pauseOnFocus is true; duplicate items are inert so each item is tabbed once"
     }
   },
   "a11y": {
@@ -71,7 +69,7 @@
     "wcag": [
       "2.2.2"
     ],
-    "notes": "Duplicate copy is marked aria-hidden='true' and inert so screen readers and keyboard users encounter each element exactly once. Built-in pause button satisfies WCAG 2.2.2."
+    "notes": "The duplicate copy is aria-hidden and inert so screen readers and keyboard users encounter each element once. A built-in pause/play button is shown unless showPauseButton is false or reduced motion is set."
   },
   "composition": {
     "maxPerPage": 4,
@@ -88,56 +86,62 @@
     {
       "name": "children",
       "type": "React.ReactNode",
-      "default": "undefined",
-      "effect": "Content elements repeated across scrolling strip."
+      "default": null,
+      "effect": "Required. Content elements repeated across the strip (rendered twice; avoid fixed ids)."
     },
     {
       "name": "speed",
       "type": "number",
       "default": 40,
-      "effect": "Transit rate in pixels per second."
+      "effect": "Approximate transit rate in pixels per second (duration = track width / speed, at least 5 s)."
     },
     {
       "name": "direction",
       "type": "\"left\" | \"right\"",
-      "default": "\"left\"",
+      "default": "left",
       "effect": "Scroll direction of the ticker."
     },
     {
       "name": "pauseOnHover",
       "type": "boolean",
       "default": true,
-      "effect": "Freezes scroll transit while pointer hovers over strip."
+      "effect": "Freezes scroll transit while the pointer hovers over the strip."
     },
     {
       "name": "pauseOnFocus",
       "type": "boolean",
       "default": true,
-      "effect": "Freezes scroll transit while any child element holds keyboard focus."
+      "effect": "Freezes scroll transit while any element inside the strip holds keyboard focus."
     },
     {
       "name": "showPauseButton",
       "type": "boolean",
       "default": true,
-      "effect": "Renders accessible button allowing users to pause animation (WCAG 2.2.2)."
+      "effect": "Renders a pause/play button (not rendered under reduced motion). Keep it for marquees that run longer than 5 s."
     },
     {
       "name": "gap",
       "type": "string | number",
-      "default": "\"2rem\"",
-      "effect": "Spacing between subsequent items."
+      "default": "2rem",
+      "effect": "Spacing between items (a number is treated as px)."
     },
     {
       "name": "className",
       "type": "string",
-      "default": "\"\"",
-      "effect": "CSS classes applied to outer container."
+      "default": "",
+      "effect": "CSS classes applied to the outer container (the built-in class fb-marquee is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the outer container, merged last (consumer wins)."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Hard ceiling on device capability tier."
+      "effect": "Hard ceiling on the capability tier."
     }
   ],
   "agent": {
@@ -145,12 +149,15 @@
     "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee speed={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
     "mistakes": [
       "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",
-      "Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2)."
+      "Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2).",
+      "The animation only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the strip is static.",
+      "Children are rendered twice, so do not give them fixed id attributes. Marquee accepts only the listed props; data-* and aria-* attributes are not forwarded."
     ],
     "verify": [
       "Verify screen reader encounters each badge/item exactly once.",
       "Verify hovering or focusing an item pauses animation transit.",
-      "Verify reduced motion pauses marquee into a static scrollable row."
+      "Verify reduced motion stops the animation and renders a static row without a duplicate copy or pause button.",
+      "Confirm Pause then Play resumes the animation while the pointer or keyboard focus is still on the button."
     ]
   },
   "license": {

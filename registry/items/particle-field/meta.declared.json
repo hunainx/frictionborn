@@ -3,7 +3,7 @@
   "item": {
     "name": "particle-field",
     "version": "0.1.0",
-    "summary": "background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, ~4 KB, reduced motion -> poster, mobile -> tier 2 / tier 1 poster)",
+    "summary": "background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, reduced motion -> poster, mobile -> tier 2 / tier 1 poster)",
     "slot": "background",
     "kind": "webgl"
   },
@@ -14,7 +14,7 @@
       "Surfaces seeking subtle stellar motion with constant GPU cost"
     ],
     "avoidWhen": [
-      "Dense text sections without an active contrast scrim",
+      "Dense text sections where text contrast over the particles has not been verified",
       "Pages already running a continuous full-screen shader",
       "Low-power mobile devices where the static dot pattern is preferred"
     ],
@@ -37,11 +37,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -52,19 +50,19 @@
     "loop": "while-visible",
     "webglContexts": 1,
     "tiers": {
-      "0": "Static CSS dot pattern poster matching particle color",
-      "1": "Static CSS dot pattern poster for low-end hardware",
-      "2": "WebGL2 rendered at DPR <= 1.5 with ~35% particle density and no touch listeners",
-      "3": "Full WebGL2 rendered at DPR <= 2.0 with up to 4,000 particles and fine pointer repulsion"
+      "0": "CSS dot-pattern poster only, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+      "1": "CSS dot-pattern poster only (coarse pointer with low-end hints: deviceMemory <= 2 or <= 4 cores)",
+      "2": "WebGL2 at DPR <= 1.5 with 35% of `count` particles (coarse pointer without low-end hints, or fine pointer with low-end hints or viewport < 480px)",
+      "3": "WebGL2 at DPR <= 2.0 with `count` particles, up to 4,000 (fine pointer with hover, no low-end hints)"
     },
     "reducedMotion": {
       "mode": "static",
-      "description": "Renders static CSS dot pattern poster with zero WebGL allocation and zero rAF loops."
+      "description": "Renders the static CSS dot-pattern poster with no WebGL context and no animation frames. Under prefers-reduced-motion the runtime tier is 0, so WebGL does not start."
     },
     "input": {
-      "pointer": "Fine pointer repulsion within 140px interaction radius",
-      "touch": "Zero pointer listeners on touch devices; automatic fallback to Tier 1 poster or Tier 2 drift",
-      "keyboard": "None; container is non-interactive aria-hidden decorative surface"
+      "pointer": "Pointer repulsion within a 140px radius, only when interactive is true and the device reports pointer: fine (window pointermove listener, mouse and pen only)",
+      "touch": "No pointer listeners are attached when the device does not report pointer: fine. Coarse pointers with low-end hints get the tier 1 poster; other coarse-pointer devices run the drift at tier 2.",
+      "keyboard": "None; the component has no interactive elements. Poster, scrim and canvas layers are aria-hidden; children keep their own semantics."
     }
   },
   "a11y": {
@@ -76,10 +74,10 @@
       "2.2.2",
       "2.3.1"
     ],
-    "notes": "Canvas element is marked aria-hidden='true'. Particle twinkle frequency is strictly capped below 3 Hz (WCAG 2.3.1)."
+    "notes": "The poster, scrim and canvas layers are aria-hidden; the root element and children are not. Particle twinkle runs at about 0.3 Hz (sin(phase + time * 1.8) in the vertex shader), well below 3 flashes per second. There is no built-in pause button: pause with the paused prop or the runtime pauseAll()/resumeAll(). The optional scrim lowers background luminance but contrast is not computed; verify text contrast for your colours."
   },
   "composition": {
-    "maxPerPage": 2,
+    "maxPerPage": 1,
     "singleton": false,
     "conflictsWith": [
       "noise-field",
@@ -95,63 +93,83 @@
     {
       "name": "color",
       "type": "string",
-      "default": "var(--primary, #FB923C)",
-      "effect": "Particle color, resolved dynamically from CSS variables or theme tokens."
+      "default": "var(--primary, CanvasText)",
+      "effect": "Particle CSS colour, resolved from CSS variables or theme tokens and also used for the dot-pattern poster."
     },
     {
       "name": "speed",
       "type": "number",
-      "default": 1.0,
+      "default": 1,
       "effect": "Kinematic drift rate multiplier."
     },
     {
       "name": "count",
       "type": "number",
       "default": 2000,
-      "effect": "Target particle count on Tier 3 (clamped to max 4,000; scaled down on Tier 2)."
+      "effect": "Target particle count on Tier 3 (clamped to 4,000). Tier 2 renders 35% of it."
     },
     {
       "name": "interactive",
       "type": "boolean",
       "default": true,
-      "effect": "Enables fine-pointer repulsion on desktop fine pointers."
+      "effect": "Enables pointer repulsion; only active when the device reports pointer: fine."
     },
     {
       "name": "scrim",
       "type": "boolean",
       "default": false,
-      "effect": "Renders an accessible contrast gradient overlay for legibility of child text."
+      "effect": "Renders a vertical gradient of the host --background token (40% to 75% opacity) over the canvas to lower background luminance behind children. Does not guarantee text contrast; verify for your colours."
     },
     {
       "name": "paused",
       "type": "boolean",
       "default": false,
-      "effect": "Explicitly freezes the particle simulation loop."
+      "effect": "Freezes this instance's particle loop. The global pauseAll() also stops it."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Upper bound cap on the resolved capability tier."
+      "effect": "Upper bound on the capability tier (0 to 3); the tier is the minimum of this and the runtime tier."
     },
     {
       "name": "reducedMotion",
       "type": "boolean",
-      "default": false,
-      "effect": "Manual override forcing static poster fallback."
+      "default": null,
+      "effect": "Optional. No default (follows prefers-reduced-motion). true forces the static poster. false only skips the prop-level check: under prefers-reduced-motion the runtime tier is still 0, so WebGL still does not start. Leave unset."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root div (the built-in class fb-particle-field is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background (consumer wins)."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/particle-field",
-    "usage": "import { ParticleField } from \"@/components/ui/particle-field\";\n\nexport default function Hero() {\n  return (\n    <ParticleField count={2000} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-white\">Sub-Angstrom Kinematics</h1>\n    </ParticleField>\n  );\n}",
+    "usage": "import { ParticleField } from \"@/components/ui/particle-field\";\n\nexport default function Hero() {\n  return (\n    <ParticleField count={2000} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Sub-Angstrom Kinematics</h1>\n    </ParticleField>\n  );\n}",
     "mistakes": [
-      "Do not attach window mouse listeners; ParticleField handles fine pointer repulsion internally and suppresses listeners on coarse touch pointers.",
+      "Do not attach your own window mouse listeners for repulsion; ParticleField already adds one window pointermove listener, only on devices that report pointer: fine.",
       "Do not combine multiple ParticleField instances in the same viewport.",
+      "scrim defaults to false. It only lowers background luminance and does not guarantee 4.5:1 contrast: verify contrast for your colours and use host foreground tokens for text.",
+      "Do not set reducedMotion={false} to try to force WebGL; it does not override the user's preference (the runtime tier stays 0 under prefers-reduced-motion).",
       "Never call requestAnimationFrame directly to animate particles."
     ],
     "verify": [
-      "Confirm static CSS dot pattern poster renders in server HTML with zero CLS.",
-      "Confirm that when prefers-reduced-motion is active, static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
+      "Confirm the static CSS dot-pattern poster renders in server HTML (CLS <= 0.01).",
+      "Confirm that when prefers-reduced-motion is active, the static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
       "Confirm context lease is released when scrolled out of view."
     ]
   },

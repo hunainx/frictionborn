@@ -3,7 +3,7 @@
   "name": "sticky-scroll-story",
   "type": "registry:ui",
   "title": "StickyScrollStory",
-  "description": "scroll-section: Sticky media column with scrolling steps (dom, server-safe, 0 CLS, reduced motion -> opacity-only, mobile -> stacked)",
+  "description": "scroll-section: Sticky media column with scrolling steps (dom, server-safe, CLS <= 0.01, reduced motion -> opacity-only (instant swap), mobile -> stacked)",
   "dependencies": [
     "@frictionborn/runtime"
   ],

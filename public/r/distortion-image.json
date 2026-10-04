@@ -3,7 +3,7 @@
   "name": "distortion-image",
   "type": "registry:ui",
   "title": "DistortionImage",
-  "description": "media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts)",
+  "description": "media: WebGL2 hover-displacement image overlay (webgl, client-only, reduced motion -> static image, mobile -> plain image / 0 contexts)",
   "dependencies": [
     "@frictionborn/runtime"
   ],

@@ -1,6 +1,6 @@
 # scroll-reveal — Specification Sheet
 
-> media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px)
+> media: Scroll-driven entrance (CSS view() timeline, IntersectionObserver fallback) (dom, server-safe, reduced motion -> static, low-end mobile -> 12px)
 
 ## Overview
 
@@ -27,27 +27,27 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `final-state` (No layout shift, accessible fallback in static HTML)
+- **Server Output**: `final-state` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `false`
 - **Lazy Loaded**: `in-view`
-- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
-- **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
+- **Client Reveal Gate**: This item reads `[data-motion="ok"]` on `<html>`. Next.js: render `<MotionReadyScript />` from `@frictionborn/runtime` inside `<head>` of the root layout (pass `nonce` under a strict CSP). Vite / SPA: call `initMotionReady()` from `@frictionborn/runtime` once before `createRoot(...).render(...)`. Without it the item stays in its static, fully visible state (no motion).
+- **Requirements**: React `>=19`, Frameworks: next-app-router, vite-react
 
 ## Behavior & Tiers
 
-- **Animation Loop**: `none` (managed via runtime `useFrame`)
+- **Animation Loop**: `none` (no JavaScript frame loop of its own: CSS, IntersectionObserver, or its parts)
 - **WebGL Contexts**: `0`
 - **Reduced Motion**: Mode `static` — Content is rendered in its final visible state without transition delays or scroll triggers.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Static fully-visible content rendered without transitions
-- **Tier 1** (Mid-range mobile): Single-threshold intersection observer with reduced 12px distance
-- **Tier 2** (Standard desktop / modern mobile): Pooled intersection observer with standard 24px travel distance
-- **Tier 3** (High performance GPU): Native animation-timeline: view() with zero JS overhead where supported
+- **T0 Static (reduced motion, Save-Data, no WebGL2, server render, or the frame guard gave up)**: Content fully visible and static, no reveal classes (server render, prefers-reduced-motion, Save-Data, or no WebGL2)
+- **T1 Lite (coarse pointer on a low-end device: 4 cores or fewer, or 2 GB or less)**: Reveal with the travel distance capped at 12px (coarse pointer with low-end hints)
+- **T2 Standard (coarse pointer on a capable phone, or a narrow or low-end fine-pointer screen)**: Reveal with the configured travel distance (24px by default)
+- **T3 Full (fine pointer with hover on a capable machine)**: Same as tier 2. At every animated tier, browsers that support animation-timeline use the scroll-linked CSS animation; others use the IntersectionObserver fallback. The observer hook is mounted in both cases.
 
 ### Input Interactions
-- **Pointer**: Scroll-linked entrance triggered as container enters viewport
-- **Touch**: Same scroll trigger with mobile travel distance capped at 12px
+- **Pointer**: Scroll-linked entrance as the container enters the viewport. Where animation-timeline: view() is supported the animation is scroll-linked and reverses when scrolling back up.
+- **Touch**: Same scroll trigger; the travel distance is capped at 12px only on tier 1 and tier 0 devices
 - **Keyboard**: Focus-within guard forces element visible immediately when tabbed into
 
 ## Accessibility (a11y)
@@ -57,7 +57,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `not-needed`
 - **WCAG Criteria**: 1.3.1, 1.4.3, 2.2.2
-- **Notes**: Focus guard forces any element containing active focus visible immediately, preventing keyboard traps during scroll.
+- **Notes**: Focus guard forces any element containing active focus visible immediately, preventing keyboard traps during scroll. Hidden-before-reveal styles exist only under html[data-motion="ok"]; server HTML and reduced-motion users see the content visible.
 
 ## Composition
 
@@ -70,13 +70,21 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `children` | `React.ReactNode` | `"undefined"` | Content elements wrapped and revealed on scroll. |
-| `as` | `React.ElementType` | `"\"div\""` | HTML tag rendered as root container. |
-| `animation` | `"fade-up" | "fade" | "scale-up"` | `"\"fade-up\""` | Visual entrance curve variant. |
-| `distance` | `number` | `24` | Vertical travel distance in pixels. |
-| `duration` | `number` | `400` | Transition duration in ms. |
-| `once` | `boolean` | `true` | When true, entrance triggers once and remains visible. |
-| `maxTier` | `number` | `3` | Hard ceiling on device capability tier. |
+| `children` | `React.ReactNode` | `—` | Required. Content elements wrapped and revealed on scroll. |
+| `as` | `React.ElementType` | `"div"` | HTML tag rendered as root container. |
+| `animation` | `"fade-up" \| "fade" \| "scale-up"` | `"fade-up"` | Visual entrance variant. |
+| `distance` | `number` | `24` | Vertical travel distance in pixels (half of it for scale-up); capped at 12 when the tier is 1 or lower. |
+| `duration` | `number` | `400` | Transition duration in ms. Applies only to the IntersectionObserver fallback; the native view-timeline animation is scroll-linked and ignores it. |
+| `once` | `boolean` | `true` | In the IntersectionObserver fallback, true keeps the content revealed after the first entry. The native view-timeline path is scroll-linked and reverses when scrolling back up regardless of this prop. |
+| `className` | `string` | `""` | Extra classes on the root element (the built-in class fb-scroll-reveal is kept). |
+| `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root element, merged after display: block and position: relative (consumer wins). |
+| `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
+
+## Dependencies
+
+- **Runtime package**: `@frictionborn/runtime` (installed by the registry item)
+- **Registry items pulled in**: none
+- **npm packages**: none
 
 ## Agent Instructions
 
@@ -104,6 +112,8 @@ export default function CardGrid() {
 ### Common Mistakes to Avoid
 - Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.
 - Do not nest ScrollReveal components inside each other; keep entrance containers flat.
+- The reveal only runs when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite); without it the content is static.
+- ScrollReveal accepts only the listed props; data-*, aria-* and id attributes are not forwarded to the root element.
 
 ### How to Verify
 - Verify content is visible in server HTML without JavaScript execution.
@@ -113,7 +123,7 @@ export default function CardGrid() {
 ## Measured Bench Evidence
 
 - **Bench Commit**: `d8d51e2` (2026-10-04)
-- **Size**: 1.79 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Size**: 1.79 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames

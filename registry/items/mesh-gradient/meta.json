@@ -3,7 +3,7 @@
   "item": {
     "name": "mesh-gradient",
     "version": "0.1.0",
-    "summary": "background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2)",
+    "summary": "background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, reduced motion -> static poster, DPR <= 1.5 on mobile/Tier 2)",
     "slot": "background",
     "kind": "webgl"
   },
@@ -14,7 +14,7 @@
       "Sections requiring soft chromatic fields with zero server hydration shift"
     ],
     "avoidWhen": [
-      "Dense text sections without an active contrast scrim",
+      "Dense text sections where text contrast over the gradient has not been verified",
       "Surfaces already running another full-screen WebGL shader in the same viewport",
       "Devices with battery-saver or forced reduced motion enabled"
     ],
@@ -37,11 +37,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -52,19 +50,19 @@
     "loop": "while-visible",
     "webglContexts": 1,
     "tiers": {
-      "0": "Static CSS multi-radial gradient poster matching mesh colors",
-      "1": "Static CSS multi-radial gradient poster for low-end hardware",
-      "2": "WebGL2 rendered at DPR <= 1.5 with reduced pixel target",
-      "3": "Full WebGL2 rendered at DPR <= 2.0 with full organic distortion"
+      "0": "CSS multi-radial gradient poster only, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+      "1": "CSS multi-radial gradient poster only (coarse pointer with low-end hints: deviceMemory <= 2 or <= 4 cores)",
+      "2": "WebGL2 at DPR <= 1.5, 0.75 render scale, 2 octaves (coarse pointer without low-end hints, or fine pointer with low-end hints or viewport < 480px)",
+      "3": "WebGL2 at DPR <= 2.0, full render scale, 4 octaves (fine pointer with hover, no low-end hints)"
     },
     "reducedMotion": {
       "mode": "static",
-      "description": "Renders static CSS gradient poster with zero WebGL allocation and zero rAF loops (Decision 14 D-A)."
+      "description": "Renders the static CSS gradient poster with no WebGL context and no animation frames (Decision 14 D-A). Under prefers-reduced-motion the runtime tier is 0, so WebGL does not start."
     },
     "input": {
       "pointer": "None; ambient background surface",
-      "touch": "None; touch passive with no event listener attachment",
-      "keyboard": "None; container is non-interactive aria-hidden decorative surface"
+      "touch": "None; no touch or pointer listeners. Coarse pointers with low-end hints get the tier 1 poster; other coarse-pointer devices run WebGL at tier 2.",
+      "keyboard": "None; the component has no interactive elements. Poster, scrim and canvas layers are aria-hidden; children keep their own semantics."
     }
   },
   "a11y": {
@@ -73,13 +71,12 @@
     "textStaysInDom": true,
     "pauseControl": "via-runtime",
     "wcag": [
-      "2.2.2",
-      "1.4.3"
+      "2.2.2"
     ],
-    "notes": "Canvas element is marked aria-hidden='true'. Optional scrim layer maintains WCAG AA contrast >= 4.5:1 for overlaid text."
+    "notes": "The poster, scrim and canvas layers are aria-hidden; the root element and children are not. There is no built-in pause button: pause with the paused prop or the runtime pauseAll()/resumeAll(). The optional scrim lowers background luminance behind children but contrast is not computed; verify text contrast for your colours."
   },
   "composition": {
-    "maxPerPage": 2,
+    "maxPerPage": 1,
     "singleton": false,
     "conflictsWith": [
       "noise-field",
@@ -95,8 +92,13 @@
     {
       "name": "colors",
       "type": "string[]",
-      "default": "[\"var(--background, #0B0E14)\", \"var(--primary, #38BDF8)\", \"var(--chart-1, #818CF8)\", \"var(--chart-2, #1E293B)\"]",
-      "effect": "Array of 2-6 color values, dynamically resolved from host tokens."
+      "default": [
+        "var(--background, Canvas)",
+        "var(--primary, CanvasText)",
+        "var(--chart-1, var(--accent, GrayText))",
+        "var(--chart-2, var(--muted, ButtonFace))"
+      ],
+      "effect": "CSS colours resolved from host tokens. Only the first four are used (extra entries are ignored); missing entries reuse earlier ones. The first colour is the background."
     },
     {
       "name": "speed",
@@ -132,38 +134,57 @@
       "name": "scrim",
       "type": "boolean",
       "default": false,
-      "effect": "Renders an accessible contrast gradient overlay for legibility of child text."
+      "effect": "Renders a radial scrim of the first colour (20% centre to 80% edge opacity) over the canvas to lower background luminance behind children. Does not guarantee text contrast; verify for your colours."
     },
     {
       "name": "paused",
       "type": "boolean",
       "default": false,
-      "effect": "Explicitly freezes the shader animation loop."
+      "effect": "Freezes this instance's shader animation loop. The global pauseAll() also stops it."
     },
     {
       "name": "maxTier",
       "type": "number",
       "default": 3,
-      "effect": "Upper bound cap on the resolved capability tier."
+      "effect": "Upper bound on the capability tier (0 to 3); the tier is the minimum of this and the runtime tier."
     },
     {
       "name": "reducedMotion",
       "type": "boolean",
-      "default": false,
-      "effect": "Manual override forcing static poster fallback."
+      "default": null,
+      "effect": "Optional. No default (follows prefers-reduced-motion). true forces the static poster. false only skips the prop-level check: under prefers-reduced-motion the runtime tier is still 0, so WebGL still does not start. Leave unset."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root div (the built-in class fb-mesh-gradient is kept)."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background colour (consumer wins)."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/mesh-gradient",
-    "usage": "import { MeshGradient } from \"@/components/ui/mesh-gradient\";\n\nexport default function Hero() {\n  return (\n    <MeshGradient scrim className=\"min-h-[500px] flex items-center justify-center\">\n      <h1 className=\"text-4xl font-bold tracking-tight text-white\">Spectral Wavefront</h1>\n    </MeshGradient>\n  );\n}",
+    "usage": "import { MeshGradient } from \"@/components/ui/mesh-gradient\";\n\nexport default function Hero() {\n  return (\n    <MeshGradient scrim className=\"min-h-[500px] flex items-center justify-center\">\n      <h1 className=\"text-4xl font-bold tracking-tight text-foreground\">Spectral Wavefront</h1>\n    </MeshGradient>\n  );\n}",
     "mistakes": [
       "Do not combine multiple MeshGradient instances in the same viewport.",
-      "Do not run MeshGradient without a scrim layer behind small body copy.",
+      "scrim defaults to false. Turn it on behind text, but it only lowers background luminance and does not guarantee 4.5:1 contrast: verify contrast for your colours and use host foreground tokens for text.",
+      "Do not set reducedMotion={false} to try to force WebGL; it does not override the user's preference (the runtime tier stays 0 under prefers-reduced-motion).",
       "Never call requestAnimationFrame directly to animate the mesh."
     ],
     "verify": [
-      "Confirm static CSS multi-radial gradient poster renders in server HTML with zero CLS.",
-      "Confirm that when prefers-reduced-motion is active, static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
+      "Confirm the static CSS multi-radial gradient poster renders in server HTML (CLS <= 0.01).",
+      "Confirm that when prefers-reduced-motion is active, the static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
       "Confirm context lease is released when scrolled out of view."
     ]
   },
@@ -176,14 +197,16 @@
         "license": "MIT"
       }
     ],
-    "notices": [],
+    "notices": [
+      "Includes 2D Simplex Noise from stegu/webgl-noise (MIT Copyright 2011 Ashima Arts, Stefan Gustavson)."
+    ],
     "assets": []
   },
   "measured": {
-    "commit": "d8d51e2",
+    "commit": "d984bb8",
     "date": "2026-10-04",
     "sizeKB": {
-      "initial": 2.65,
+      "initial": 2.76,
       "deferred": 3.39,
       "method": "gzip-9"
     },
@@ -204,7 +227,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "15 passed, 0 failed; all specs verified"
+        "notes": "16 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -212,7 +235,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "15 passed, 0 failed; all specs verified"
+        "notes": "16 passed, 0 failed"
       },
       {
         "env": "Firefox Desktop",
@@ -220,7 +243,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "notes": "14 passed, 0 failed"
       },
       {
         "env": "WebKit Desktop",
@@ -228,7 +251,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "notes": "14 passed, 0 failed"
       },
       {
         "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -236,7 +259,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "14 passed, 0 failed; all specs verified"
+        "notes": "14 passed, 0 failed"
       }
     ]
   }

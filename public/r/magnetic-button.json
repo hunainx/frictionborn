@@ -3,7 +3,7 @@
   "name": "magnetic-button",
   "type": "registry:ui",
   "title": "MagneticButton",
-  "description": "cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners)",
+  "description": "cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, reduced motion -> static, mobile -> 0 listeners)",
   "dependencies": [
     "@frictionborn/runtime"
   ],

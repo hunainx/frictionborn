@@ -1,6 +1,6 @@
 # magnetic-button — Specification Sheet
 
-> cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners)
+> cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, reduced motion -> static, mobile -> 0 listeners)
 
 ## Overview
 
@@ -27,28 +27,28 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `final-state` (No layout shift, accessible fallback in static HTML)
+- **Server Output**: `final-state` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `false`
 - **Lazy Loaded**: `no`
-- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
-- **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
+- **Client Reveal Gate**: None. This item does not read `data-motion`.
+- **Requirements**: React `>=19`, Frameworks: next-app-router, vite-react
 
 ## Behavior & Tiers
 
-- **Animation Loop**: `on-interaction` (managed via runtime `useFrame`)
+- **Animation Loop**: `on-interaction` (stepped by the shared runtime `useFrame` loop)
 - **WebGL Contexts**: `0`
 - **Reduced Motion**: Mode `static` — Button retains static position without magnetic cursor tracking.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Static unadorned button without pointer listeners or translation
-- **Tier 1** (Mid-range mobile): Static button with zero pointer listeners on coarse touch devices
-- **Tier 2** (Standard desktop / modern mobile): Gentle magnetic attraction with reduced pull radius (10px)
-- **Tier 3** (High performance GPU): Full spring physics loop on fine pointer hover with settling to zero rAF
+- **T0 Static (reduced motion, Save-Data, no WebGL2, server render, or the frame guard gave up)**: Static wrapper without pointer handlers or translation (server render, prefers-reduced-motion, Save-Data, or no WebGL2)
+- **T1 Lite (coarse pointer on a low-end device: 4 cores or fewer, or 2 GB or less)**: Static wrapper without pointer handlers (coarse pointer with low-end hints)
+- **T2 Standard (coarse pointer on a capable phone, or a narrow or low-end fine-pointer screen)**: Magnetic pull with the configured strength, only when the device reports (hover: hover) and (pointer: fine)
+- **T3 Full (fine pointer with hover on a capable machine)**: Same behaviour as tier 2: spring physics on the shared frame loop while the pointer is over the wrapper, settling to zero frames
 
 ### Input Interactions
 - **Pointer**: Cursor attraction with physical spring settling within 0.01px tolerance
-- **Touch**: Zero pointer listeners attached on coarse/touch screens
-- **Keyboard**: Focus snaps button to origin immediately; focus rings remain unclipped
+- **Touch**: Zero pointer handlers attached on coarse/touch screens
+- **Keyboard**: Focus snaps the wrapper to its origin immediately and the child's own onFocus still runs; the wrapper uses overflow: visible
 
 ## Accessibility (a11y)
 
@@ -57,7 +57,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `not-needed`
 - **WCAG Criteria**: 2.1.1, 2.4.7, 2.5.3
-- **Notes**: Preserves native keyboard semantics, focus rings are not clipped by overflow, and keyboard focus immediately resets translation to origin.
+- **Notes**: The wrapped button or link keeps its native semantics. The wrapper div uses overflow: visible so it does not clip focus rings, and keyboard focus immediately resets translation to origin.
 
 ## Composition
 
@@ -70,12 +70,19 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `children` | `React.ReactElement` | `"undefined"` | Interactive element (button or link) wrapped by magnetic controller. |
+| `children` | `React.ReactElement` | `—` | Required. A single interactive element (button or link) wrapped by the magnetic controller. |
 | `strength` | `number` | `16` | Maximum pull translation in pixels. |
 | `tension` | `number` | `180` | Spring stiffness coefficient. |
 | `damping` | `number` | `16` | Spring velocity damping coefficient. |
-| `className` | `string` | `"\"\""` | Additional CSS classes applied to the outer wrapper. |
-| `maxTier` | `number` | `3` | Hard ceiling on device capability tier. |
+| `className` | `string` | `""` | Additional CSS classes applied to the outer wrapper div (the built-in class fb-magnetic-button is kept). |
+| `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the wrapper div, merged after display: inline-block and position: relative (consumer wins). |
+| `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
+
+## Dependencies
+
+- **Runtime package**: `@frictionborn/runtime` (installed by the registry item)
+- **Registry items pulled in**: none
+- **npm packages**: none
 
 ## Agent Instructions
 
@@ -91,7 +98,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 export default function HeroCta() {
   return (
     <MagneticButton strength={16}>
-      <button type="button" className="rounded-full bg-primary px-6 py-3 text-white font-medium">
+      <button type="button" className="rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium">
         Get Started
       </button>
     </MagneticButton>
@@ -102,16 +109,18 @@ export default function HeroCta() {
 ### Common Mistakes to Avoid
 - Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.
 - Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links.
+- MagneticButton renders a wrapper div (display: inline-block) around the child, so do not place it inside a <p> or another <button>.
+- It accepts only the listed props; data-* and aria-* attributes are not forwarded to the wrapper (put them on the child).
 
 ### How to Verify
 - Verify button is immediately clickable and focusable in server HTML.
 - Verify keyboard tabbing triggers focus ring cleanly without clipped edges.
-- Verify that on touch screens, zero pointer listeners are registered.
+- Verify that on touch screens, zero pointer handlers are registered.
 
 ## Measured Bench Evidence
 
 - **Bench Commit**: `d8d51e2` (2026-10-04)
-- **Size**: 1.74 KB initial / 0.02 KB deferred (gzip, via gzip-9)
+- **Size**: 1.74 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames

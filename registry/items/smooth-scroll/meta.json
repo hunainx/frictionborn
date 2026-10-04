@@ -17,7 +17,7 @@
       "Dashboards and data-dense productivity software",
       "Documentation sites and code-heavy portals",
       "Forms-heavy pages and modal-only checkout flows",
-      "Touchscreens and mobile devices (automatically disabled)"
+      "Touchscreens and mobile devices (automatically disabled on coarse pointers)"
     ],
     "alternatives": [
       {
@@ -34,11 +34,9 @@
       "react": ">=19",
       "frameworks": [
         "next-app-router",
-        "next-pages",
-        "vite-react",
-        "react-router"
+        "vite-react"
       ],
-      "tailwind": "^4"
+      "tailwind": "none"
     }
   },
   "dependencies": {
@@ -55,19 +53,19 @@
     "loop": "on-interaction",
     "webglContexts": 0,
     "tiers": {
-      "0": "Disabled completely; native browser scrolling only",
-      "1": "Disabled on coarse pointers and touchscreens; native touch momentum preserved",
-      "2": "Standard smooth inertial scrolling stepped strictly via useFrame",
-      "3": "High-precision smooth scrolling with fine pointer optimization"
+      "0": "Not gated by tier. Smooth scrolling runs unless reduced motion, enabled={false} or a coarse pointer disables it; Save-Data and no-WebGL2 (tier 0) do not disable it",
+      "1": "Coarse pointer: disabled, native touch momentum scrolling preserved",
+      "2": "Coarse pointer: disabled. On a fine or absent pointer (low-end hints or viewport < 480px) smooth scrolling runs, stepped via useFrame",
+      "3": "Smooth scrolling runs (fine pointer with hover), stepped via useFrame; same behaviour as tier 2 on fine pointers"
     },
     "reducedMotion": {
       "mode": "off",
       "description": "Disabled completely; 100% native platform momentum scrolling."
     },
     "input": {
-      "pointer": "Wheel and keyboard events mediated via Lenis on fine pointers",
-      "touch": "Native touch momentum scrolling 100% preserved; Lenis is inactive on coarse pointers",
-      "keyboard": "Full support for Space, PageUp, PageDown, Arrow keys, Home, and End"
+      "pointer": "Wheel input is interpolated by Lenis (smoothWheel) unless the pointer is coarse, reduced motion is set, or enabled is false",
+      "touch": "Native touch momentum scrolling is preserved; Lenis is inactive on coarse pointers",
+      "keyboard": "Keys (Space, PageUp, PageDown, arrows, Home, End) scroll natively; Lenis does not intercept them and a keydown only wakes the shared frame loop"
     }
   },
   "a11y": {
@@ -80,14 +78,12 @@
       "2.2.2",
       "2.3.3"
     ],
-    "notes": "Native keyboard scrolling is fully preserved. When reduced motion is preferred, smooth scrolling is turned off completely, delegating all scroll behavior to the native platform compositor."
+    "notes": "Native keyboard scrolling is preserved. When reduced motion is preferred, smooth scrolling is turned off completely, delegating all scroll behavior to the native platform compositor."
   },
   "composition": {
     "maxPerPage": 1,
     "singleton": true,
-    "conflictsWith": [
-      "smooth-scroll"
-    ],
+    "conflictsWith": [],
     "pairsWith": [
       "sticky-scroll-story",
       "scroll-reveal",
@@ -98,8 +94,8 @@
     {
       "name": "children",
       "type": "React.ReactNode",
-      "default": "undefined",
-      "effect": "Child components wrapped inside the smooth scroll provider."
+      "default": null,
+      "effect": "Optional. No default. Child components wrapped inside the provider (rendered in a display: contents div)."
     },
     {
       "name": "duration",
@@ -108,16 +104,40 @@
       "effect": "Scroll easing duration in seconds."
     },
     {
+      "name": "easing",
+      "type": "(t: number) => number",
+      "default": "(t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))",
+      "effect": "Easing function (default is a module-level function). Read through a ref, so an inline function does not recreate Lenis."
+    },
+    {
       "name": "orientation",
       "type": "\"vertical\" | \"horizontal\"",
-      "default": "\"vertical\"",
+      "default": "vertical",
       "effect": "Primary scroll orientation."
+    },
+    {
+      "name": "gestureOrientation",
+      "type": "\"vertical\" | \"horizontal\" | \"both\"",
+      "default": "vertical",
+      "effect": "Gesture direction Lenis listens to."
     },
     {
       "name": "smoothWheel",
       "type": "boolean",
       "default": true,
       "effect": "Whether to interpolate mouse wheel deltas."
+    },
+    {
+      "name": "touchMultiplier",
+      "type": "number",
+      "default": 1,
+      "effect": "Lenis touch multiplier (touch scrolling is not smoothed on coarse pointers because SmoothScroll is disabled there)."
+    },
+    {
+      "name": "infinite",
+      "type": "boolean",
+      "default": false,
+      "effect": "Lenis infinite scroll option."
     },
     {
       "name": "enabled",
@@ -128,24 +148,25 @@
     {
       "name": "onScroll",
       "type": "(e: any) => void",
-      "default": "undefined",
-      "effect": "Callback invoked synchronously on every scroll update."
+      "default": null,
+      "effect": "Optional. No default. Callback invoked on every Lenis scroll event (for example to sync ScrollTrigger)."
     },
     {
       "name": "prevent",
       "type": "(node: HTMLElement) => boolean",
-      "default": "undefined",
-      "effect": "Predicate to bypass smooth scrolling for specific nested DOM elements."
+      "default": null,
+      "effect": "Optional. No default. Predicate to bypass smooth scrolling for specific DOM nodes. Nested scrollers (allowNestedScroll) and [role=\"dialog\"], [aria-modal=\"true\"], dialog[open], [data-lenis-prevent] are always bypassed."
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/smooth-scroll\n# Optional: to pin exact lenis dependency: npm install --save-exact lenis@1.3.26 (registry accepts lenis@^1.3.26)",
+    "install": "npx shadcn@latest add @frictionborn/smooth-scroll",
     "usage": "import { SmoothScroll } from \"@/components/ui/smooth-scroll\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <SmoothScroll>\n      {children}\n    </SmoothScroll>\n  );\n}",
     "mistakes": [
-      "Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider.",
+      "Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider (a second mount warns and does nothing).",
       "Do not import Lenis directly or create separate requestAnimationFrame loops.",
       "Do not use on dashboards, forms-heavy pages, or data-dense web applications.",
-      "Registry accepts lenis@^1.3.26 for consumers; use --save-exact if your project enforces exact dependency pinning."
+      "The registry installs lenis@1.3.26 and consumers accept lenis@^1.3.26; to pin exactly run: npm install --save-exact lenis@1.3.26 (or the equivalent for your package manager).",
+      "SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them."
     ],
     "verify": [
       "Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.",
@@ -166,7 +187,7 @@
     "assets": []
   },
   "measured": {
-    "commit": "d8d51e2",
+    "commit": "7f3e58a",
     "date": "2026-10-04",
     "sizeKB": {
       "initial": 2.52,
@@ -188,9 +209,9 @@
         "env": "Chromium Desktop (SwiftShader)",
         "via": "playwright",
         "tier": 3,
-        "result": "fail",
+        "result": "pass",
         "date": "2026-10-04",
-        "notes": "16 passed, 1 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -198,7 +219,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "12 passed, 0 failed; all specs verified"
+        "notes": "12 passed, 0 failed"
       },
       {
         "env": "Firefox Desktop",
@@ -206,7 +227,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "WebKit Desktop",
@@ -214,7 +235,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -222,7 +243,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "12 passed, 0 failed; all specs verified"
+        "notes": "12 passed, 0 failed"
       }
     ]
   }

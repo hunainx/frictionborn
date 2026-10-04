@@ -35,7 +35,10 @@
     "lazyLoaded": "in-view",
     "requires": {
       "react": ">=19",
-      "frameworks": ["next-app-router", "vite-react"],
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
       "tailwind": "none"
     }
   },
@@ -72,14 +75,21 @@
     "hiddenFromAT": false,
     "textStaysInDom": true,
     "pauseControl": "built-in",
-    "wcag": ["2.1.1", "2.2.2", "2.4.1", "2.4.6"],
+    "wcag": [
+      "2.1.1",
+      "2.2.2",
+      "2.4.1",
+      "2.4.6"
+    ],
     "notes": "Sections carry aria-labelledby / aria-label with hard-coded ids (architecture-heading, performance-heading). Heading levels run h2 (section and step titles), h3, h4. The default step media is aria-hidden SVG inside visible caption cards; the `alt` strings in the default steps are not rendered because alt applies only to media.type 'image'. Colours are hard-coded: fixed light text and dark cards on a var(--background) section, so contrast is only suitable for a dark host theme and is not verified."
   },
   "composition": {
     "maxPerPage": 1,
     "singleton": false,
     "conflictsWith": [],
-    "pairsWith": ["ambient-hero"]
+    "pairsWith": [
+      "ambient-hero"
+    ]
   },
   "props": [
     {
@@ -117,7 +127,7 @@
     "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
     "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\n<ScrollShowcase showMarquee={true} />",
     "mistakes": [
-      "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the card colours are hard-coded demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
+      "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the stat-card and step-card colours are hard-coded (text on the host background uses --primary and --muted-foreground) demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
       "Do not enable smoothScroll on dashboards or documentation pages.",
       "Do not place multiple sticky scroll sections immediately adjacent to each other without spacing.",
       "Element ids are hard-coded, so use at most one ScrollShowcase per page.",

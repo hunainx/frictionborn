@@ -3,7 +3,7 @@
   "name": "text-reveal",
   "type": "registry:ui",
   "title": "TextReveal",
-  "description": "headline: Typography reveal by word/line/char with font-ready splitting (dom, server-safe, <3 KB, reduced motion -> static, mobile -> reduced stagger)",
+  "description": "headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger",
   "dependencies": [
     "@frictionborn/runtime"
   ],

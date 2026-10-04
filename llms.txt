@@ -4,25 +4,36 @@
 
 ## Core Principles
 - **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].
-- **Single Frame Loop**: All components use useFrame from @frictionborn/runtime. Direct requestAnimationFrame is forbidden.
-- **Strict WebGL Leases**: Max 4 WebGL contexts active per page. WebGL code is dynamically loaded only when in view and lease granted.
+- **Single Frame Loop**: animated items share one loop (useFrame from @frictionborn/runtime). Direct requestAnimationFrame is forbidden.
+- **Strict WebGL Leases**: at most 4 live WebGL contexts per page on a fine pointer, 2 on a coarse pointer. WebGL code is loaded only when in view and a lease is granted.
 - **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).
 
 ## Components
-- **ambient-hero**: Hero composition: ambient canvas (mesh/noise/particles) + TextReveal + MagneticButton (DOM+WebGL, ~8 KB, reduced motion -> static, mobile -> T2) (Install: `npx shadcn@latest add @frictionborn/ambient-hero`)
-- **distortion-image**: media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts) (Install: `npx shadcn@latest add @frictionborn/distortion-image`)
-- **magnetic-button**: cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> 0 listeners) (Install: `npx shadcn@latest add @frictionborn/magnetic-button`)
-- **marquee**: strip: Infinite marquee with inert duplicate, hover/focus pause, and WCAG pause button (dom, server-safe, <2.5 KB, reduced motion -> static, mobile -> ok) (Install: `npx shadcn@latest add @frictionborn/marquee`)
-- **mesh-gradient**: background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, ~4.5 KB, reduced motion -> poster, DPR <= 1.5 on mobile/Tier 2) (Install: `npx shadcn@latest add @frictionborn/mesh-gradient`)
-- **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, ~4.5 KB, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
-- **particle-field**: background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, ~4 KB, reduced motion -> poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/particle-field`)
-- **scroll-reveal**: media: Scroll-driven entrance using view-timeline with pooled IntersectionObserver fallback (dom, server-safe, <2 KB, reduced motion -> static, mobile -> 12px) (Install: `npx shadcn@latest add @frictionborn/scroll-reveal`)
-- **scroll-showcase**: Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee (DOM, ~6 KB gz, reduced motion -> static/opacity, mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/scroll-showcase`)
+- **ambient-hero**: Hero composition: ambient canvas (mesh/noise/particles) + TextReveal + MagneticButton (DOM+WebGL, reduced motion -> static, mobile -> T2) (Install: `npx shadcn@latest add @frictionborn/ambient-hero`)
+- **distortion-image**: media: WebGL2 hover-displacement image overlay (webgl, client-only, reduced motion -> static image, mobile -> plain image / 0 contexts) (Install: `npx shadcn@latest add @frictionborn/distortion-image`)
+- **magnetic-button**: cta: Magnetic spring wrapper for buttons and links with fine-pointer gating (dom, server-safe, reduced motion -> static, mobile -> 0 listeners) (Install: `npx shadcn@latest add @frictionborn/magnetic-button`)
+- **marquee**: strip: Infinite marquee with inert duplicate, hover/focus pause, and pause button (dom, server-safe, reduced motion -> static, mobile -> animates) (Install: `npx shadcn@latest add @frictionborn/marquee`)
+- **mesh-gradient**: background: multi-color organic mesh gradient via WebGL2 (webgl2, client-only, reduced motion -> static poster, DPR <= 1.5 on mobile/Tier 2) (Install: `npx shadcn@latest add @frictionborn/mesh-gradient`)
+- **noise-field**: background: WebGL2 domain-warped noise hero background (webgl2, client-only, reduced motion -> static poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/noise-field`)
+- **particle-field**: background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, reduced motion -> poster, mobile -> tier 2 / tier 1 poster) (Install: `npx shadcn@latest add @frictionborn/particle-field`)
+- **scroll-reveal**: media: Scroll-driven entrance (CSS view() timeline, IntersectionObserver fallback) (dom, server-safe, reduced motion -> static, low-end mobile -> 12px) (Install: `npx shadcn@latest add @frictionborn/scroll-reveal`)
+- **scroll-showcase**: Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee, fixed demo copy (DOM, reduced motion -> static/opacity, mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/scroll-showcase`)
 - **smooth-scroll**: page-provider: Lenis provider stepped strictly via useFrame with autoRaf false (dom, server-safe, singleton, reduced motion -> off, mobile -> off) (Install: `npx shadcn@latest add @frictionborn/smooth-scroll`)
-- **sticky-scroll-story**: scroll-section: Sticky media column with scrolling steps (dom, server-safe, 0 CLS, reduced motion -> opacity-only, mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/sticky-scroll-story`)
-- **text-reveal**: headline: Typography reveal by word/line/char with font-ready splitting (dom, server-safe, <3 KB, reduced motion -> static, mobile -> reduced stagger) (Install: `npx shadcn@latest add @frictionborn/text-reveal`)
+- **sticky-scroll-story**: scroll-section: Sticky media column with scrolling steps (dom, server-safe, CLS <= 0.01, reduced motion -> opacity-only (instant swap), mobile -> stacked) (Install: `npx shadcn@latest add @frictionborn/sticky-scroll-story`)
+- **text-reveal**: headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger (Install: `npx shadcn@latest add @frictionborn/text-reveal`)
+
+## Setup
+1. Register the namespace once, in `components.json` (use the registry URL published with the release):
+```json
+{ "registries": { "@frictionborn": "<registry-base-url>/r/{name}.json" } }
+```
+2. Install an item (the shadcn CLI also installs the registry items it depends on, and `@frictionborn/runtime`):
+```bash
+npx shadcn@latest add @frictionborn/<component-name>
+```
+3. Items whose sheet lists a "Client Reveal Gate" need one line: Next.js renders `<MotionReadyScript />` in `<head>` of the root layout; Vite / SPA calls `initMotionReady()` before the first render. Both come from `@frictionborn/runtime`.
 
 ## Runtime Usage
 ```tsx
-import { MotionReadyScript, useFrame, useReducedMotion } from "@frictionborn/runtime";
+import { MotionReadyScript, initMotionReady, useFrame, useReducedMotion } from "@frictionborn/runtime";
 ```

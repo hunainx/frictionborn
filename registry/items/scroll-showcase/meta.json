@@ -127,7 +127,7 @@
     "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
     "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\n<ScrollShowcase showMarquee={true} />",
     "mistakes": [
-      "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the card colours are hard-coded demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
+      "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the stat-card and step-card colours are hard-coded (text on the host background uses --primary and --muted-foreground) demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
       "Do not enable smoothScroll on dashboards or documentation pages.",
       "Do not place multiple sticky scroll sections immediately adjacent to each other without spacing.",
       "Element ids are hard-coded, so use at most one ScrollShowcase per page.",
@@ -146,10 +146,10 @@
     "assets": []
   },
   "measured": {
-    "commit": "d8d51e2",
+    "commit": "7f3e58a",
     "date": "2026-10-04",
     "sizeKB": {
-      "initial": 3.63,
+      "initial": 3.68,
       "deferred": 0.02,
       "method": "gzip-9"
     },
@@ -170,7 +170,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -178,7 +178,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "Firefox Desktop",
@@ -186,7 +186,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "WebKit Desktop",
@@ -194,7 +194,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       },
       {
         "env": "WebKit Mobile (iPhone 14 emulation)",
@@ -202,7 +202,7 @@
         "tier": 2,
         "result": "pass",
         "date": "2026-10-04",
-        "notes": "17 passed, 0 failed; all specs verified"
+        "notes": "17 passed, 0 failed"
       }
     ]
   }

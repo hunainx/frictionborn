@@ -1,6 +1,6 @@
 # distortion-image — Specification Sheet
 
-> media: WebGL2 hover-displacement image overlay (webgl, client-only, ~3.8 KB, reduced motion -> static image, mobile -> plain image / 0 contexts)
+> media: WebGL2 hover-displacement image overlay (webgl, client-only, reduced motion -> static image, mobile -> plain image / 0 contexts)
 
 ## Overview
 
@@ -27,28 +27,28 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `static-layout` (No layout shift, accessible fallback in static HTML)
+- **Server Output**: `static-layout` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `true`
 - **Lazy Loaded**: `in-view`
-- **Client Reveal Gate**: Requires `[data-motion="ok"]` attribute set by `<MotionReadyScript />` (Next.js) or `initMotionReady()` (plain Vite / SPA) to activate reveals. Without it, content renders in full static visibility.
-- **Requirements**: React `>=19`, Frameworks: next-app-router, next-pages, vite-react, react-router
+- **Client Reveal Gate**: None. This item does not read `data-motion`.
+- **Requirements**: React `>=19`, Frameworks: next-app-router, vite-react
 
 ## Behavior & Tiers
 
-- **Animation Loop**: `on-interaction` (managed via runtime `useFrame`)
-- **WebGL Contexts**: `1`
-- **Reduced Motion**: Mode `static` — Renders plain static image with 0 WebGL contexts allocated and zero rAF loops.
+- **Animation Loop**: `on-interaction` (stepped by the shared runtime `useFrame` loop)
+- **WebGL Contexts**: `4`
+- **Reduced Motion**: Mode `static` — Renders the plain static image with no WebGL context and no animation frames.
 
 ### Device Tiers
-- **Tier 0** (Low-end / Battery saver): Plain static image with 0 WebGL contexts and zero animation overhead
-- **Tier 1** (Mid-range mobile): Plain static image for coarse touch pointers with zero context allocation
-- **Tier 2** (Standard desktop / modern mobile): WebGL2 displacement overlay at DPR <= 1.5 and texture cap <= 1024px
-- **Tier 3** (High performance GPU): Full WebGL2 displacement overlay at DPR <= 2.0 and texture cap <= 2048px
+- **T0 Static (reduced motion, Save-Data, no WebGL2, server render, or the frame guard gave up)**: Plain image, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)
+- **T1 Lite (coarse pointer on a low-end device: 4 cores or fewer, or 2 GB or less)**: Plain image (coarse pointer with low-end hints)
+- **T2 Standard (coarse pointer on a capable phone, or a narrow or low-end fine-pointer screen)**: WebGL2 displacement overlay at DPR <= 1.5, 0.75 render scale, texture <= 1024px, only when the device reports (hover: hover) and (pointer: fine); coarse-pointer devices at this tier get the plain image
+- **T3 Full (fine pointer with hover on a capable machine)**: WebGL2 displacement overlay at DPR <= 2.0, full render scale, texture <= 2048px (fine pointer with hover)
 
 ### Input Interactions
-- **Pointer**: Fine pointer hover acquires a lease and ripples around the cursor; released 3 s after the pointer leaves or stops moving. If all 4 contexts are busy, the least recently used idle image gives its slot up
-- **Touch**: Touch pointers fall back to plain static image with zero WebGL allocation
-- **Keyboard**: The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple effect and draws a two-tone inset focus ring above the canvas (never clipped by overflow:hidden parents); exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden
+- **Pointer**: Fine-pointer hover acquires a context lease and ripples around the cursor. The lease is released about 3 s after the pointer leaves or stops moving, and the render loop keeps running during that idle period (up to about 3.4 s). At most 4 contexts are live per page, shared by all instances; when the budget is full the least recently used idle image gives its slot up.
+- **Touch**: Touch pointers fall back to the plain static image with zero WebGL allocation
+- **Keyboard**: The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple on fine-pointer devices and draws a two-tone inset focus ring above the canvas, inside the image box so parent overflow:hidden cannot clip it; exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden
 
 ## Accessibility (a11y)
 
@@ -70,22 +70,32 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `src` | `string` | `"undefined"` | URL of the underlying image to display and distort. |
-| `alt` | `string` | `"undefined"` | Accessible alternative text for the image. |
-| `width` | `number | string` | `"undefined"` | Optional layout width defining container and image dimensions. |
-| `height` | `number | string` | `"undefined"` | Optional layout height defining container and image dimensions. |
+| `src` | `string` | `—` | Required. URL of the underlying image to display and distort. |
+| `alt` | `string` | `—` | Required. Accessible alternative text for the image. |
+| `width` | `number \| string` | `—` | Optional. No default. Layout width of the wrapper and the img. |
+| `height` | `number \| string` | `—` | Optional. No default. Layout height of the wrapper and the img. |
 | `strength` | `number` | `0.25` | Displacement ripple magnitude on hover. |
 | `speed` | `number` | `1` | Frequency and wave propagation rate during interaction. |
-| `maxTier` | `number` | `3` | Hard ceiling on device capability tier (0 to 3). |
-| `crossOrigin` | `"anonymous" | "use-credentials" | ""` | `"undefined"` | CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors. |
-| `fetchPriority` | `"high" | "low" | "auto"` | `"undefined"` | Native fetchpriority attribute forwarded to the underlying img element. |
-| `loading` | `"eager" | "lazy"` | `"\"lazy\""` | Native browser image loading attribute. |
-| `decoding` | `"async" | "auto" | "sync"` | `"\"async\""` | Native browser image decoding behavior. |
-| `srcSet` | `string` | `"undefined"` | Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture. |
-| `sizes` | `string` | `"undefined"` | Native sizes attribute for srcSet. |
-| `imgClassName` | `string` | `"\"\""` | Class names for the inner img. |
-| `imgStyle` | `React.CSSProperties` | `"undefined"` | Inline styles merged onto the inner img. |
-| `children` | `React.ReactNode` | `"undefined"` | Content layered above the image and canvas, for example a caption or a link. |
+| `maxTier` | `number` | `3` | Hard ceiling on the capability tier (0 to 3). |
+| `crossOrigin` | `"anonymous" \| "use-credentials" \| ""` | `—` | Optional. No default. CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors. |
+| `fetchPriority` | `"high" \| "low" \| "auto"` | `—` | Optional. No default. Native fetchpriority attribute forwarded to the underlying img element. |
+| `fetchpriority` | `"high" \| "low" \| "auto"` | `—` | Optional. No default. Lower-case alias of fetchPriority, used only when fetchPriority is not set. |
+| `loading` | `"eager" \| "lazy"` | `"lazy"` | Native browser image loading attribute. |
+| `decoding` | `"async" \| "auto" \| "sync"` | `"async"` | Native browser image decoding behavior. |
+| `srcSet` | `string` | `—` | Optional. No default. Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture. |
+| `sizes` | `string` | `—` | Optional. No default. Native sizes attribute for srcSet. |
+| `imgClassName` | `string` | `""` | Class names for the inner img. |
+| `imgStyle` | `React.CSSProperties` | `—` | Optional. No default. Inline styles merged onto the inner img. |
+| `className` | `string` | `""` | Extra classes on the wrapper div. Other HTML div attributes (data-*, aria-*) are passed to the wrapper, not to the img. |
+| `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins). |
+| `onPointerEnter` | `React.PointerEventHandler<HTMLDivElement>` | `—` | Optional. No default. Composed: called first, then the component's own handling. onPointerMove, onPointerLeave, onFocus and onBlur are composed the same way. |
+| `children` | `React.ReactNode` | `—` | Optional. No default. Content layered above the image and canvas, for example a caption or a link. |
+
+## Dependencies
+
+- **Runtime package**: `@frictionborn/runtime` (installed by the registry item)
+- **Registry items pulled in**: none
+- **npm packages**: none
 
 ## Agent Instructions
 
@@ -117,14 +127,14 @@ export default function GalleryCard() {
 - Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops.
 
 ### How to Verify
-- Confirm real img element is rendered in server HTML before hydration with zero CLS.
-- Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after 3s idle.
-- Confirm that coarse touch pointers and reduced-motion render plain image with 0 WebGL contexts.
+- Confirm the real img element is rendered in server HTML before hydration (CLS <= 0.01).
+- Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after about 3s idle.
+- Confirm that coarse touch pointers and reduced-motion render the plain image with 0 WebGL contexts.
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `d38ddb4` (2026-10-04)
-- **Size**: 3.77 KB initial / 4.25 KB deferred (gzip, via gzip-9)
+- **Bench Commit**: `d984bb8` (2026-10-04)
+- **Size**: 4.01 KiB initial / 4.29 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -135,13 +145,20 @@ export default function GalleryCard() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 29 passed, 0 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 28 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 28 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 28 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 28 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 27 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 25 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 25 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 23 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 23 passed, 0 failed |
 
 ## License & Provenance
 
 - **Code License**: MIT
 - **Origin**: Original implementation for Frictionborn Motion.
+- **Demo assets** (not shipped in the registry item):
+  - Wheat Field with Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436535 - CC0 1.0 (The Met Open Access)
+  - Irises (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436528 - CC0 1.0 (The Met Open Access)
+  - Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/437980 - CC0 1.0 (The Met Open Access)
+  - Under the Wave off Kanagawa (Katsushika Hokusai) - https://www.metmuseum.org/art/collection/search/45434 - CC0 1.0 (The Met Open Access)
+  - Sunflowers (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436524 - CC0 1.0 (The Met Open Access)
+  - The Shepherd's Song (Pierre Puvis de Chavannes) - https://www.metmuseum.org/art/collection/search/437344 - CC0 1.0 (The Met Open Access)
