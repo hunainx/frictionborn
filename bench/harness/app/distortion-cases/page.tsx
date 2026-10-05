@@ -26,7 +26,7 @@ export default function DistortionCasesPage({
   // next/image's documented escape hatch: getImageProps returns plain <img> props.
   const nextProps = getImageProps({
     src: "/assets/distortion/art-4.webp",
-    alt: "The Great Wave by Hokusai (via next/image getImageProps)",
+    alt: "Ocean wave crest study (via next/image getImageProps)",
     width: 600,
     height: 403,
     sizes: "600px",
@@ -59,7 +59,7 @@ export default function DistortionCasesPage({
             href="#overlaid-target"
             data-testid="case-overlaid-link"
             style={{ position: "absolute", inset: 0 }}
-            aria-label="View Irises by Van Gogh"
+            aria-label="View Iris Botanical Study"
           />
         </DistortionImage>
       </section>

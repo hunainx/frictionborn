@@ -16,12 +16,12 @@ function leasesPossible(): boolean {
 const LEAK_LEASES_PER_CYCLE = 2;
 
 const IMAGES = [
-  { src: "/assets/distortion/art-1.webp", alt: "Wheat Field with Cypresses by Vincent van Gogh" },
-  { src: "/assets/distortion/art-2.webp", alt: "Irises by Vincent van Gogh" },
-  { src: "/assets/distortion/art-3.webp", alt: "Cypresses by Vincent van Gogh" },
-  { src: "/assets/distortion/art-4.webp", alt: "Under the Wave off Kanagawa by Katsushika Hokusai" },
-  { src: "/assets/distortion/art-5.webp", alt: "Sunflowers by Vincent van Gogh" },
-  { src: "/assets/distortion/art-6.webp", alt: "The Shepherd's Song by Pierre Puvis de Chavannes" },
+  { src: "/assets/distortion/art-1.webp", alt: "Field Study in Golden Wheat" },
+  { src: "/assets/distortion/art-2.webp", alt: "Iris Botanical Study" },
+  { src: "/assets/distortion/art-3.webp", alt: "Nocturnal Cypresses Study" },
+  { src: "/assets/distortion/art-4.webp", alt: "Ocean Wave Crest Study" },
+  { src: "/assets/distortion/art-5.webp", alt: "Sunflowers Study" },
+  { src: "/assets/distortion/art-6.webp", alt: "Pastoral Shoreline Study" },
 ];
 
 // Generate 30 items cycling through the 6 CC0 artworks
@@ -189,7 +189,7 @@ export default function StressDistortionPage({
               </div>
               <div style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", display: "flex", justifyContent: "space-between" }}>
                 <span>Item #{item.index}</span>
-                <span style={{ color: "var(--muted, #94A3B8)" }}>The Met Open Access</span>
+                <span style={{ color: "var(--muted, #94A3B8)" }}>CC0 Public Domain</span>
               </div>
             </div>
           ))}

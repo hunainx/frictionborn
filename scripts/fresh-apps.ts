@@ -161,7 +161,7 @@ function generatePage(items: string[], framework: Framework): string {
   // The documented way to use next/image's optimiser with a plain <img>-based component.
   const { props: nextImg } = getImageProps({
     src: "/art-4.webp",
-    alt: "The Great Wave off Kanagawa by Katsushika Hokusai, via next/image",
+    alt: "Ocean wave crest study, via next/image",
     width: 600,
     height: 403,
     sizes: "(max-width: 640px) 100vw, 600px",
@@ -180,9 +180,9 @@ function generatePage(items: string[], framework: Framework): string {
     ? `
         <div data-testid="gl-item-distortion-default" style={{ display: "block", maxWidth: 480 }}>
           <a href="#art-default" style={{ display: "block", textDecoration: "none" }}>
-            <DistortionImage src="/art-1.webp" alt="Wheat Field with Cypresses by Vincent van Gogh" width={480} height={382} style={{ width: "100%", maxWidth: 480, height: "auto" }} />
+            <DistortionImage src="/art-1.webp" alt="Field Study in Golden Wheat" width={480} height={382} style={{ width: "100%", maxWidth: 480, height: "auto" }} />
           </a>
-        </div>
+        </div>`
         ${nextImageCase}
         <div data-testid="item-distortion-cross-origin" style={{ display: "block", maxWidth: 320 }}>
           <DistortionImage src="${NON_CORS_URL}" alt="A picture served from a host that sends no CORS headers" width={320} height={255} style={{ width: "100%", maxWidth: 320, height: "auto" }} />

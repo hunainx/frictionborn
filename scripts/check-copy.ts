@@ -79,6 +79,12 @@ export const BANNED_PATTERNS: BannedPattern[] = [
     pattern: /\b(Sennheiser|Neumann|Genelec|Bose|Bang & Olufsen|Bowers & Wilkins|Shure|Dolby|Sony Music|Universal Music|Warner Music|Spotify|Apple Music)\b/i,
     reason: "Do not use real corporate or audio brand names",
   },
+  // 6. Real artists and museum names (owner decision 2026-10-06)
+  {
+    name: "real-artists-museums",
+    pattern: /(?:\b(Vincent van Gogh|van Gogh|Hokusai|Katsushika Hokusai|Pierre Puvis de Chavannes|Puvis de Chavannes|The Metropolitan Museum of Art|Metropolitan Museum of Art)\b|\bThe Met\b)/i,
+    reason: "Use original generated images or CC0 images with plain captions in DESIGN.md voice; no real artist or museum names",
+  },
 ];
 
 const ROOT = process.cwd();

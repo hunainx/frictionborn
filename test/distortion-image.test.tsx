@@ -60,7 +60,7 @@ describe("DistortionImage Component", () => {
     const { container, unmount } = render(
       <DistortionImage
         src="/assets/distortion/art-2.webp"
-        alt="Irises by Vincent van Gogh"
+        alt="Iris Botanical Study"
         imgClassName="custom-gallery-img"
         loading="eager"
       />
@@ -68,7 +68,7 @@ describe("DistortionImage Component", () => {
 
     const img = container.querySelector("img");
     expect(img?.className).toContain("custom-gallery-img");
-    expect(img?.getAttribute("alt")).toBe("Irises by Vincent van Gogh");
+    expect(img?.getAttribute("alt")).toBe("Iris Botanical Study");
     expect(img?.getAttribute("loading")).toBe("eager");
 
     unmount();

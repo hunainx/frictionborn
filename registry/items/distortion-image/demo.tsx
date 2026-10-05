@@ -14,7 +14,7 @@ import {
 interface Artwork {
   id: string;
   title: string;
-  artist: string;
+  category: string;
   date: string;
   medium: string;
   src: string;
@@ -24,57 +24,57 @@ interface Artwork {
 const ARTWORKS: Artwork[] = [
   {
     id: "art-1",
-    title: "Wheat Field with Cypresses",
-    artist: "Vincent van Gogh",
+    title: "Field Study in Golden Wheat",
+    category: "Landscape specimen",
     date: "1889",
-    medium: "Oil on canvas",
+    medium: "Archival plate",
     src: "/assets/distortion/art-1.webp",
-    alt: "Wheat Field with Cypresses by Vincent van Gogh, depicting golden wheat under swirling sky with towering green cypresses",
+    alt: "Field study in golden wheat with towering green cypresses under a swirling sky",
   },
   {
     id: "art-4",
-    title: "Under the Wave off Kanagawa",
-    artist: "Katsushika Hokusai",
+    title: "Ocean Wave Crest Study",
+    category: "Hydrodynamic study",
     date: "ca. 1830–32",
-    medium: "Woodblock print",
+    medium: "Archival woodblock plate",
     src: "/assets/distortion/art-4.webp",
-    alt: "Under the Wave off Kanagawa (The Great Wave) by Katsushika Hokusai, iconic cresting wave framing Mount Fuji",
+    alt: "Archival study of a large cresting wave framing a distant snow peak",
   },
   {
     id: "art-2",
-    title: "Irises",
-    artist: "Vincent van Gogh",
+    title: "Iris Botanical Study",
+    category: "Flora specimen",
     date: "1890",
-    medium: "Oil on canvas",
+    medium: "Archival plate",
     src: "/assets/distortion/art-2.webp",
-    alt: "Irises by Vincent van Gogh, bouquet of blue and purple irises against soft backdrop",
+    alt: "Botanical arrangement of blue and purple irises against a pale background",
   },
   {
     id: "art-5",
-    title: "Sunflowers",
-    artist: "Vincent van Gogh",
+    title: "Sunflowers Study",
+    category: "Flora specimen",
     date: "1887",
-    medium: "Oil on canvas",
+    medium: "Archival plate",
     src: "/assets/distortion/art-5.webp",
-    alt: "Sunflowers by Vincent van Gogh, two cut sunflowers resting on yellow surface",
+    alt: "Arrangement of sunflowers resting on a warm wooden plane",
   },
   {
     id: "art-3",
-    title: "Cypresses",
-    artist: "Vincent van Gogh",
+    title: "Nocturnal Cypresses Study",
+    category: "Atmospheric study",
     date: "1889",
-    medium: "Oil on canvas",
+    medium: "Archival plate",
     src: "/assets/distortion/art-3.webp",
-    alt: "Cypresses by Vincent van Gogh, two dark cypresses against turbulent clouds and crescent moon",
+    alt: "Study of two dark cypresses against turbulent nocturnal sky and crescent moon",
   },
   {
     id: "art-6",
-    title: "The Shepherd's Song",
-    artist: "Pierre Puvis de Chavannes",
+    title: "Pastoral Shoreline Study",
+    category: "Landscape specimen",
     date: "1891",
-    medium: "Oil on canvas",
+    medium: "Archival plate",
     src: "/assets/distortion/art-6.webp",
-    alt: "The Shepherd's Song by Pierre Puvis de Chavannes, idyllic landscape with classical figures near coastal cliff",
+    alt: "Pastoral landscape study with figures near a coastal cliff edge",
   },
 ];
 
@@ -332,7 +332,7 @@ export default function DistortionImageDemo() {
                 border: `1px solid ${isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.12)"}`,
               }}
             >
-              Van Gogh, 1889
+              Archival plate 01
             </div>
           </DistortionImage>
         </div>
@@ -342,11 +342,11 @@ export default function DistortionImageDemo() {
               {ARTWORKS[0].title}
             </h2>
             <span style={{ fontSize: "0.85rem", color: isLight ? "#374151" : "#D1D5DB" }}>
-              {ARTWORKS[0].artist}, {ARTWORKS[0].date}
+              {ARTWORKS[0].category}, {ARTWORKS[0].date}
             </span>
           </div>
           <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.9rem", color: isLight ? "#374151" : "#D1D5DB" }}>
-            {ARTWORKS[0].medium}. Image: The Metropolitan Museum of Art, public domain (CC0).
+            {ARTWORKS[0].medium}. Public domain collection (CC0 1.0).
           </p>
         </div>
       </article>
@@ -388,7 +388,7 @@ export default function DistortionImageDemo() {
                   {artwork.title}
                 </h3>
                 <div style={{ fontSize: "0.85rem", color: isLight ? "#374151" : "#D1D5DB", marginTop: "0.25rem" }}>
-                  {artwork.artist}, {artwork.date}
+                  {artwork.category}, {artwork.date}
                 </div>
               </div>
               <div style={{ fontSize: "0.75rem", color: isLight ? "#374151" : "#D1D5DB", marginTop: "0.75rem" }}>

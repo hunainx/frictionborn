@@ -114,7 +114,7 @@ export default function GalleryCard() {
   return (
     <DistortionImage
       src="/art-1.webp"
-      alt="Wheat Field with Cypresses by Vincent van Gogh"
+      alt="Field Study in Golden Wheat"
       width={600}
       height={400}
       strength={0.25}
@@ -159,9 +159,9 @@ export default function GalleryCard() {
 - **Code License**: MIT
 - **Origin**: Original implementation for Frictionborn Motion.
 - **Demo assets** (not shipped in the registry item):
-  - Wheat Field with Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436535 - CC0 1.0 (The Met Open Access)
-  - Irises (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436528 - CC0 1.0 (The Met Open Access)
-  - Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/437980 - CC0 1.0 (The Met Open Access)
-  - Under the Wave off Kanagawa (Katsushika Hokusai) - https://www.metmuseum.org/art/collection/search/45434 - CC0 1.0 (The Met Open Access)
-  - Sunflowers (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436524 - CC0 1.0 (The Met Open Access)
-  - The Shepherd's Song (Pierre Puvis de Chavannes) - https://www.metmuseum.org/art/collection/search/437344 - CC0 1.0 (The Met Open Access)
+  - Archival plate 01 (Field Study in Golden Wheat) - CC0 1.0 (Public Domain)
+  - Archival plate 02 (Iris Botanical Study) - CC0 1.0 (Public Domain)
+  - Archival plate 03 (Nocturnal Cypresses Study) - CC0 1.0 (Public Domain)
+  - Archival plate 04 (Ocean Wave Crest Study) - CC0 1.0 (Public Domain)
+  - Archival plate 05 (Sunflowers Study) - CC0 1.0 (Public Domain)
+  - Archival plate 06 (Pastoral Shoreline Study) - CC0 1.0 (Public Domain)

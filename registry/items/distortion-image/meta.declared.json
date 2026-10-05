@@ -219,7 +219,7 @@
   ],
   "agent": {
     "install": "npx shadcn@4.21.1 add @frictionborn/distortion-image",
-    "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
+    "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Field Study in Golden Wheat\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
     "mistakes": [
       "Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.",
       "Do not set position: absolute on the underlying img without specifying container dimensions; let the image define layout to avoid CLS.",
@@ -237,12 +237,12 @@
     "derivedFrom": [],
     "notices": [],
     "assets": [
-      "Wheat Field with Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436535 - CC0 1.0 (The Met Open Access)",
-      "Irises (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436528 - CC0 1.0 (The Met Open Access)",
-      "Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/437980 - CC0 1.0 (The Met Open Access)",
-      "Under the Wave off Kanagawa (Katsushika Hokusai) - https://www.metmuseum.org/art/collection/search/45434 - CC0 1.0 (The Met Open Access)",
-      "Sunflowers (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436524 - CC0 1.0 (The Met Open Access)",
-      "The Shepherd's Song (Pierre Puvis de Chavannes) - https://www.metmuseum.org/art/collection/search/437344 - CC0 1.0 (The Met Open Access)"
+      "Archival plate 01 (Field Study in Golden Wheat) - CC0 1.0 (Public Domain)",
+      "Archival plate 02 (Iris Botanical Study) - CC0 1.0 (Public Domain)",
+      "Archival plate 03 (Nocturnal Cypresses Study) - CC0 1.0 (Public Domain)",
+      "Archival plate 04 (Ocean Wave Crest Study) - CC0 1.0 (Public Domain)",
+      "Archival plate 05 (Sunflowers Study) - CC0 1.0 (Public Domain)",
+      "Archival plate 06 (Pastoral Shoreline Study) - CC0 1.0 (Public Domain)"
     ]
   }
 }
