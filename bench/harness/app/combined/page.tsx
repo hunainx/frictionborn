@@ -81,7 +81,7 @@ export default function CombinedTestPage() {
 
         {/* 2. Marquee Social Proof Strip */}
         <section style={{ padding: "2rem 0", borderTop: "1px solid var(--line, #262B33)", borderBottom: "1px solid var(--line, #262B33)" }}>
-          <Marquee speed={40} pauseOnHover={true}>
+          <Marquee pixelsPerSecond={40} pauseOnHover={true}>
             <span style={{ margin: "0 2rem", fontWeight: 600 }}>01 ZERO SLOP</span>
             <span style={{ margin: "0 2rem", fontWeight: 600 }}>02 SINGLE RAF LOOP</span>
             <span style={{ margin: "0 2rem", fontWeight: 600 }}>03 DEFENSIVE TIERS</span>

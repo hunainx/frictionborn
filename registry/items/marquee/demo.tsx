@@ -95,7 +95,7 @@ export default function MarqueeDemo() {
           backgroundColor: "rgba(0, 0, 0, 0.15)",
         }}
       >
-        <Marquee speed={velocity} direction={flowDirection} gap="1.5rem" showPauseButton={true}>
+        <Marquee pixelsPerSecond={velocity} direction={flowDirection} gap="1.5rem" showPauseButton={true}>
           {STATIONS.map((station) => (
             <div
               key={station.code}

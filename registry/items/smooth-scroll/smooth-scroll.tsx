@@ -53,6 +53,7 @@ export function SmoothScroll({
   onScroll,
   prevent,
   ref,
+  style,
   ...rest
 }: SmoothScrollProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -214,7 +215,7 @@ export function SmoothScroll({
       data-frictionborn-item="smooth-scroll"
       data-active={isActive}
       data-tier={capability.tier}
-      style={{ display: "contents" }}
+      style={{ display: "contents", ...style }}
       {...rest}
     >
       {children}

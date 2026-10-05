@@ -6,8 +6,10 @@ import { useInView, useReducedMotion, useCapability, useHydrated, usePaused } fr
 
 export interface MarqueeProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  /** Transit rate in physical pixels per second (default 40). */
   pixelsPerSecond?: number;
-  speed?: number; // backwards-compatible alias
+  /** Unitless multiplier on `pixelsPerSecond` (1 = as given, 0.5 = half, 2 = double). */
+  speed?: number;
   direction?: "left" | "right";
   pauseOnHover?: boolean;
   pauseOnFocus?: boolean;
@@ -23,8 +25,8 @@ export interface MarqueeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Marquee({
   children,
-  pixelsPerSecond,
-  speed = 40,
+  pixelsPerSecond = 40,
+  speed = 1,
   direction = "left",
   pauseOnHover = true,
   pauseOnFocus = true,
@@ -41,7 +43,7 @@ export function Marquee({
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  const effectivePps = pixelsPerSecond ?? speed;
+  const effectivePps = pixelsPerSecond * speed;
 
   const hydrated = useHydrated();
   const prefersReduced = useReducedMotion();
