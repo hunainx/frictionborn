@@ -72,7 +72,7 @@
 | Prop | Type | Default | Effect |
 |---|---|---|---|
 | `colors` | `string[]` | `["var(--background, Canvas)","var(--primary, CanvasText)","var(--chart-1, var(--accent, GrayText))","var(--chart-2, var(--muted, ButtonFace))"]` | CSS colours resolved from host tokens. Only the first four are used (extra entries are ignored); missing entries reuse earlier ones. The first colour is the background. |
-| `speed` | `number` | `0.35` | Wave drift speed multiplier. |
+| `speed` | `number` | `1` | Unitless multiplier of the standard drift. 1 is the standard speed, which is already slow (0.35 shader seconds per second); 0.5 is half and 2 is double. |
 | `distortion` | `number` | `0.5` | Amplitude of organic noise distortion. |
 | `swirl` | `number` | `0.25` | Vortex swirl strength in the gradient field. |
 | `grainMixer` | `number` | `0.08` | Subtle analog grain distortion strength. |
