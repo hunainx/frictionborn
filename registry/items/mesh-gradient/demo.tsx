@@ -95,7 +95,7 @@ export default function MeshGradientDemo() {
             fontWeight: 700,
             letterSpacing: "0.1em",
             textTransform: "uppercase",
-            color: "var(--primary, #38BDF8)",
+            color: isLight ? "#1D4ED8" : "var(--primary, #38BDF8)",
             marginBottom: "0.5rem",
           }}
         >

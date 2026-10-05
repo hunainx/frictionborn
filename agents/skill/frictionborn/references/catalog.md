@@ -17,7 +17,7 @@ Verified motion and WebGL components with strict zero-slop budgets, server-safe 
 | [scroll-showcase](items/scroll-showcase.md) | `composition` | `composition` | `opacity-only` | `static-layout` | Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee; all copy comes from props (DOM, reduced motion -> static/opacity, mobile -> stacked) |
 | [smooth-scroll](items/smooth-scroll.md) | `page-provider` | `scroll-provider` | `off` | `static-layout` | page-provider: Lenis provider stepped strictly via useFrame with autoRaf false (dom, server-safe, singleton, reduced motion -> off, mobile -> off) |
 | [sticky-scroll-story](items/sticky-scroll-story.md) | `scroll-section` | `dom` | `opacity-only` | `static-layout` | scroll-section: Sticky media column with scrolling steps (dom, server-safe, CLS <= 0.01, reduced motion -> opacity-only (instant swap), mobile -> stacked) |
-| [text-reveal](items/text-reveal.md) | `headline` | `dom` | `static` | `final-state` | headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger |
+| [text-reveal](items/text-reveal.md) | `headline` | `dom` | `static` | `final-state` | headline: word/line/char text reveal (dom, server-safe, SSR text stays static, reduced motion -> static, low-end mobile -> 40 ms stagger) |
 
 ## Architectural Guarantees
 

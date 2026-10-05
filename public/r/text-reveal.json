@@ -3,7 +3,7 @@
   "name": "text-reveal",
   "type": "registry:ui",
   "title": "TextReveal",
-  "description": "headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger",
+  "description": "headline: word/line/char text reveal (dom, server-safe, SSR text stays static, reduced motion -> static, low-end mobile -> 40 ms stagger)",
   "dependencies": [
     "@frictionborn/runtime"
   ],
@@ -22,7 +22,7 @@
     "item": {
       "name": "text-reveal",
       "version": "0.1.0",
-      "summary": "headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger",
+      "summary": "headline: word/line/char text reveal (dom, server-safe, SSR text stays static, reduced motion -> static, low-end mobile -> 40 ms stagger)",
       "slot": "headline",
       "kind": "dom"
     },

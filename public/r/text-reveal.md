@@ -1,6 +1,6 @@
 # text-reveal — Specification Sheet
 
-> headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger
+> headline: word/line/char text reveal (dom, server-safe, SSR text stays static, reduced motion -> static, low-end mobile -> 40 ms stagger)
 
 ## Overview
 
