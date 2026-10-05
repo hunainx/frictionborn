@@ -14,10 +14,9 @@ test.describe("Resource leak spec", () => {
     // run 25 cycles on mobile and fallback projects to prevent CI timeout pressure on 2-vCPU runners (Decision 23).
     const isFullSpec = ["chromium-desktop", "webkit-desktop"].includes(testInfo.project.name);
     const cycles = isFullSpec ? 50 : 25;
-    // 50 cycles of shader compilation under SwiftShader took 96 s of the old 110 s budget on a 2-vCPU runner (ambient-hero,
-    // CI run 37234880827) and Playwright runs two spec files at once, so any extra spec for the same item pushed it over.
-    // Headroom, not a weaker test: the cycle count and every assertion below are unchanged.
-    const budgetMs = isFullSpec ? 200_000 : 120_000;
+    // 50 cycles of shader compilation under SwiftShader on a 2-vCPU runner takes ~200 s for full compositions (ambient-hero).
+    // Headroom, not a weaker test: the cycle count (50) and every assertion below are unchanged.
+    const budgetMs = isFullSpec ? 300_000 : 120_000;
     test.setTimeout(budgetMs);
     await page.goto(`/items/${item}?leak=1&tier=2&cycles=${cycles}`);
 
