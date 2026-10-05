@@ -69,8 +69,7 @@ How common requests map to items:
 - `ambient-hero` and `scroll-showcase` take required content props; TypeScript fails without them. They contain no copy of their own and no demo text.
 - `sticky-scroll-story` renders each step's media twice (sticky and stacked copy), so no ids inside it, and step titles are `h2`.
 - `mesh-gradient`, `noise-field` and `particle-field` fill their container: give it a height. `distortion-image` takes its size from your `className` or `width`/`height`.
-- Installed files are vendored source. Under Next 16's default ESLint they report `react-hooks/refs` and `no-explicit-any` errors. Do not hand-edit them to silence it; add `components/ui/<item>*` to the ESLint ignores and tell the user.
-- `next build` does not run lint, so a passing build does not mean the lint is clean.
+- Installed files are vendored source. Under Next 16's default ESLint they report errors such as `react-hooks/refs`, `react-hooks/set-state-in-effect` and `no-explicit-any` (`pnpm lint` fails; `next build` does not). Do not hand-edit them to silence it: add every installed file to the ESLint ignores (one glob per item, and per item it pulls in: `ambient-hero` installs six) and tell the user.
 
 ## 7. Verify before you report
 
