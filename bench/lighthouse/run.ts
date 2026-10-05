@@ -37,9 +37,13 @@ interface Composition {
   name: string;
   /** Does the composition contain WebGL at all? (ScrollShowcase does not: its control is "0 draw calls".) */
   usesGl: boolean;
+  /** GL starts at hydration, with no LCP deferral: the worst case for contention with the first paint. */
+  forcedStart?: boolean;
 }
 const COMPOSITIONS: Composition[] = [
   { name: "ambient-hero", usesGl: true },
+  // AmbientHero defers its GL lease until after LCP. This standalone item has no deferral, so it is the forced GL-start case.
+  { name: "mesh-gradient", usesGl: true, forcedStart: true },
   { name: "scroll-showcase", usesGl: false },
 ].filter((c) => !ONLY || c.name === ONLY);
 
@@ -142,6 +146,15 @@ async function main() {
         const gl = runs.map((l) => l.audits["fb-gl-ran"]);
         const d = (g: any) => g?.details ?? {};
         const scores = runs.map((l) => Math.round(l.categories.performance.score * 100));
+        // How much GL ran INSIDE the window Lighthouse observed (navigation start .. trace end)? A deferred GL start can land
+        // after the trace closed, which would turn a "live" run into a poster run that merely looks like one.
+        const traceEndMs = runs.map((l) => Math.round(l.audits["metrics"]?.details?.items?.[0]?.observedTraceEnd ?? 0));
+        const firstDrawMs = gl.map((g) => d(g).firstDrawMs ?? null);
+        const drawsInWindow = gl.map((g, i) => {
+          const hist: Record<string, number> = d(g).drawHistogram250ms ?? {};
+          return Object.entries(hist).reduce((n, [bucket, c]) => (Number(bucket) * 250 < traceEndMs[i] ? n + c : n), 0);
+        });
+        const glInWindowMs = firstDrawMs.map((t: number | null, i: number) => (t === null ? 0 : Math.max(0, traceEndMs[i] - t)));
         return {
           scores,
           score: median(scores),
@@ -151,6 +164,10 @@ async function main() {
           cls: Number(median(runs.map((l) => l.audits["cumulative-layout-shift"].numericValue)).toFixed(3)),
           mobileEmulation: runs.every((l) => l.configSettings.formFactor === "mobile" && l.configSettings.screenEmulation.mobile),
           glRanRuns: gl.filter((g) => g?.numericValue === 1).length,
+          traceEndMs,
+          firstDrawMs,
+          drawsInWindow,
+          glInWindowMs,
           contextsDrawn: gl.map((g) => d(g).contextsDrawn ?? null),
           draws: gl.map((g) => d(g).drawsTotal ?? null),
           earlySample: gl.map((g) => (d(g).early && !d(g).early.error ? { std: Math.round(d(g).early.std * 10) / 10, coverage: d(g).early.coverage } : null)),
@@ -173,12 +190,16 @@ async function main() {
       const problems: string[] = [];
       if (!live.mobileEmulation) problems.push("not a mobile-emulated run");
       if (comp.usesGl && live.glRanRuns !== RUNS) problems.push(`GL rendered in only ${live.glRanRuns}/${RUNS} live runs: the comparison is meaningless`);
+      // The GL must have been drawing for at least 1 s and 30 draw calls inside the observed window of EVERY live run.
+      if (comp.usesGl && live.glRanRuns === RUNS && (live.glInWindowMs.some((ms: number) => ms < 1000) || live.drawsInWindow.some((n: number) => n < 30))) {
+        problems.push(`GL ran less than 1 s / 30 draw calls inside the observed window (first draw ${live.firstDrawMs} ms, trace end ${live.traceEndMs} ms): the score does not include the GL`);
+      }
       if (!comp.usesGl && live.draws.some((n: number | null) => (n ?? 0) > 0)) problems.push("a composition declared GL-free issued WebGL draw calls");
       // The capability probe creates (and immediately loses) one context: only draw calls count as "rendered".
       if (poster.glRanRuns !== 0 || poster.draws.some((n: number | null) => (n ?? 0) > 0)) problems.push("the poster-only control rendered WebGL");
       if (delta < -MAX_DELTA) problems.push(`live is ${-delta} points below poster-only (limit ${MAX_DELTA})`);
       if (problems.length) failed = true;
-      results.push({ name: comp.name, usesGl: comp.usesGl, live, poster, delta, pass: problems.length === 0, problems });
+      results.push({ name: comp.name, usesGl: comp.usesGl, forcedStart: !!comp.forcedStart, live, poster, delta, pass: problems.length === 0, problems });
     }
 
     const summary = { date: new Date().toISOString(), runs: RUNS, preset: "mobile", chromeFlags: CHROME_FLAGS, server: "next start (production build)", results };
@@ -188,9 +209,9 @@ async function main() {
     console.log(`\n==================== Lighthouse (mobile, production build, median of ${RUNS}) ====================`);
     console.log(`Chrome flags: ${CHROME_FLAGS}`);
     for (const r of results) {
-      console.log(`${r.name}  live ${r.live.score} [${r.live.scores}]  poster ${r.poster.score} [${r.poster.scores}]  delta ${r.delta >= 0 ? "+" : ""}${r.delta}  ${r.pass ? "PASS" : "FAIL"}`);
+      console.log(`${r.name}${r.forcedStart ? " (forced GL start, no LCP deferral)" : ""}  live ${r.live.score} [${r.live.scores}]  poster ${r.poster.score} [${r.poster.scores}]  delta ${r.delta >= 0 ? "+" : ""}${r.delta}  ${r.pass ? "PASS" : "FAIL"}`);
       console.log(`   live   LCP ${r.live.lcpMs} ms  FCP ${r.live.fcpMs} ms  TBT ${r.live.tbtMs} ms  CLS ${r.live.cls}`);
-      console.log(`          GL rendered in ${r.live.glRanRuns}/${RUNS} runs; contexts that drew ${r.live.contextsDrawn}; draw calls ${r.live.draws}; viewport ${r.live.viewport}; coarse pointer ${r.live.pointerCoarse}; cores ${r.live.hardwareConcurrency}`);
+      console.log(`          GL rendered in ${r.live.glRanRuns}/${RUNS} runs; first draw at ${r.live.firstDrawMs} ms, trace end ${r.live.traceEndMs} ms, draw calls inside the window ${r.live.drawsInWindow}; contexts that drew ${r.live.contextsDrawn}; draw calls ${r.live.draws}; viewport ${r.live.viewport}; coarse pointer ${r.live.pointerCoarse}; cores ${r.live.hardwareConcurrency}`);
       console.log(`          tiers ${JSON.stringify(r.live.itemTiers[0])}`);
       console.log(`   poster LCP ${r.poster.lcpMs} ms  FCP ${r.poster.fcpMs} ms  TBT ${r.poster.tbtMs} ms  CLS ${r.poster.cls}`);
       console.log(`          GL rendered in ${r.poster.glRanRuns}/${RUNS} runs; draw calls ${r.poster.draws}; reduced motion ${r.poster.reducedMotion}`);

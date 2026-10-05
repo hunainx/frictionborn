@@ -16,7 +16,7 @@ function installHook() {
   } catch (e) {
     /* already defined: the artifact records the real values */
   }
-  const st = (window.__fbLh = { contexts: 0, draws: 0, capture: null, readback: null, early: null });
+  const st = (window.__fbLh = { contexts: 0, draws: 0, capture: null, readback: null, early: null, firstDrawMs: null, hist: {} });
   const drew = new WeakSet();
   st.contextsDrawn = 0;
   const seen = new WeakSet();
@@ -77,6 +77,12 @@ function installHook() {
       Ctor.prototype[name] = function (...args) {
         const r = orig.apply(this, args);
         st.draws++;
+        // When the GL really started (ms since navigation start) and a 250 ms histogram of draw calls, so the runner can
+        // check how much GL ran INSIDE the window Lighthouse observed (trace end), not just that it ran at some point.
+        const now = performance.now();
+        if (st.firstDrawMs === null) st.firstDrawMs = Math.round(now);
+        const bucket = Math.floor(now / 250);
+        st.hist[bucket] = (st.hist[bucket] || 0) + 1;
         if (!st.early) {
           const t0 = firstDraw.get(this);
           if (t0 === undefined) firstDraw.set(this, performance.now());
@@ -136,6 +142,8 @@ async function collect() {
     contextsCreated: st.contexts,
     contextsDrawn: st.contextsDrawn,
     drawsTotal: st.draws,
+    firstDrawMs: st.firstDrawMs,
+    drawHistogram250ms: st.hist,
     drawnDuringProbe: st.draws - drawsBefore,
     readback: st.readback,
     early: st.early,
