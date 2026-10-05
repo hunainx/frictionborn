@@ -23,6 +23,7 @@ export async function runSmokeTest(): Promise<void> {
   const publicDir = path.join(root, "public");
   const publicRDir = path.join(publicDir, "r");
   const runtimePkgDir = path.join(root, "packages", "runtime");
+  const itemsDir = path.join(root, "registry", "items");
 
   if (!fs.existsSync(publicRDir)) {
     throw new Error(`Registry output directory not found: ${publicRDir}`);
@@ -168,7 +169,7 @@ export async function runSmokeTest(): Promise<void> {
       const itemUrl = `http://127.0.0.1:${port}/r/${jsonFile}`;
       console.log(`==> Running 'shadcn add' for ${itemName} from ${itemUrl}`);
 
-      const addCmd = `npx --yes shadcn@latest add ${itemUrl} -y -o -c "${tempDir}"`;
+      const addCmd = `npx --yes shadcn@4.21.1 add ${itemUrl} -y -o -c "${tempDir}"`;
       const res = await runCommand(addCmd, tempDir);
       console.log(res.stdout);
 
@@ -182,9 +183,20 @@ export async function runSmokeTest(): Promise<void> {
       console.log(`✔ Successfully installed ${itemName} into consumer project.`);
     }
 
-    // 4. Pins: what the registry asks for is ours to control; what the consumer's package manager writes is not
+    // 4. Pins & Metadata: registry JSON must carry verified meta and exact pins
     for (const jsonFile of jsonFiles) {
       const item = JSON.parse(fs.readFileSync(path.join(publicRDir, jsonFile), "utf8"));
+      const itemName = jsonFile.replace(/\.json$/, "");
+      const metaPath = path.join(itemsDir, itemName, "meta.json");
+      if (!item.meta) {
+        throw new Error(`Registry item ${itemName}.json is missing 'meta' property (Decision 28)`);
+      }
+      if (fs.existsSync(metaPath)) {
+        const expectedMeta = JSON.parse(fs.readFileSync(metaPath, "utf8"));
+        if (JSON.stringify(item.meta) !== JSON.stringify(expectedMeta)) {
+          throw new Error(`Registry item ${itemName}.json 'meta' does not match meta.json`);
+        }
+      }
       for (const dep of (item.dependencies ?? []) as string[]) {
         if (dep.startsWith("@frictionborn/")) continue;
         if (!/@\d+\.\d+\.\d+$/.test(dep)) {
@@ -192,7 +204,7 @@ export async function runSmokeTest(): Promise<void> {
         }
       }
     }
-    console.log("✔ Every third-party dependency in the registry JSON is pinned exactly.");
+    console.log("✔ Every registry JSON carries verified meta and exact pins.");
     const consumerPkg = JSON.parse(
       fs.readFileSync(path.join(tempDir, "package.json"), "utf8")
     );

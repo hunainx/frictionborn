@@ -2,10 +2,22 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import Ajv2020 from "ajv/dist/2020.js";
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
+}
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const SCHEMA_PATH = path.resolve(__dirname, "..", "schema", "meta.schema.json");
+
+let schemaValidator: any = null;
+if (fs.existsSync(SCHEMA_PATH)) {
+  const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, "utf8"));
+  const ajv = new (Ajv2020 as any)({ allErrors: true, strict: false, formats: { date: true } });
+  schemaValidator = ajv.compile(schema);
 }
 
 const VALID_SLOTS = [
@@ -39,6 +51,16 @@ const VALID_DERIVED_LICENSES = [
 
 export function validateDeclaredMetadata(data: any, filePath: string): ValidationResult {
   const errors: string[] = [];
+
+  // Schema validation via Ajv
+  if (schemaValidator) {
+    const valid = schemaValidator(data);
+    if (!valid && schemaValidator.errors) {
+      for (const err of schemaValidator.errors) {
+        errors.push(`[${filePath}] Schema error at '${err.instancePath}': ${err.message}`);
+      }
+    }
+  }
 
   // Hard Rule 6: Never hand-write measured metadata
   if (data.measured !== undefined) {

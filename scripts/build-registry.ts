@@ -19,6 +19,7 @@ interface RegistryItem {
   devDependencies: string[];
   registryDependencies: string[];
   files: FileEntry[];
+  meta?: Record<string, any>;
 }
 
 function capitalize(s: string): string {
@@ -167,6 +168,7 @@ export function buildRegistry(): void {
       devDependencies: [],
       registryDependencies: meta.dependencies?.registry || [],
       files,
+      meta,
     };
 
     registryItems.push(item);

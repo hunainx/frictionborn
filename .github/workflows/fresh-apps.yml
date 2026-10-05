@@ -41,7 +41,7 @@ jobs:
         run: pnpm build
 
       - name: Install Playwright Chromium and OS dependencies
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run fresh-apps verification (Next 16 + Vite)
         run: pnpm fresh-apps

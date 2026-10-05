@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "before 4am on monday"
+  ],
+  "timezone": "UTC",
+  "rangeStrategy": "pin",
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupName": "weekly dependencies",
+      "groupSlug": "weekly-deps"
+    }
+  ]
+}
