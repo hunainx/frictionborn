@@ -246,11 +246,11 @@
     ]
   },
   "measured": {
-    "commit": "53fd14c",
+    "commit": "da21af4",
     "date": "2026-10-05",
     "sizeKB": {
-      "initial": 4.1,
-      "deferred": 4.29,
+      "initial": 4.44,
+      "deferred": 4.3,
       "method": "gzip-9"
     },
     "cls": 0,

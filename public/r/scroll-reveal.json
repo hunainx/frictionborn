@@ -198,10 +198,10 @@
       "assets": []
     },
     "measured": {
-      "commit": "53fd14c",
+      "commit": "da21af4",
       "date": "2026-10-05",
       "sizeKB": {
-        "initial": 1.88,
+        "initial": 2,
         "deferred": 0.02,
         "method": "gzip-9"
       },
