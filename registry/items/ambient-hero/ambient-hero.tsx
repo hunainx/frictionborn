@@ -78,6 +78,15 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
         setLeaseReady(true);
       };
 
+      // If page already finished initial load (client navigation) or running leak benchmark, activate immediately
+      if (
+        document.readyState === "complete" ||
+        (typeof location !== "undefined" && location.search.includes("leak=1"))
+      ) {
+        activate();
+        return;
+      }
+
       let po: PerformanceObserver | null = null;
       try {
         if (
