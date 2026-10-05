@@ -1,16 +1,27 @@
 // Original — Frictionborn Motion MagneticButton
 "use client";
 
-import React, { useRef, useState, useEffect, useCallback, useImperativeHandle } from "react";
+import React, { useRef, useState, useCallback, useImperativeHandle, useSyncExternalStore } from "react";
 import { useFrame, useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
+function subscribeFinePointer(callback: () => void) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => {};
+  const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
+  mql.addEventListener?.("change", callback);
+  return () => mql.removeEventListener?.("change", callback);
+}
+
+function getFinePointerSnapshot() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return true;
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
+function getFinePointerServerSnapshot() {
+  return false;
+}
+
 export interface MagneticButtonProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactElement<{
-    className?: string;
-    style?: React.CSSProperties;
-    onFocus?: React.FocusEventHandler;
-    onBlur?: React.FocusEventHandler;
-  }>;
+  children: React.ReactNode;
   pullDistance?: number;
   tension?: number;
   damping?: number;
@@ -33,6 +44,7 @@ export function MagneticButton({
   ref,
   onPointerMove,
   onPointerLeave,
+  onFocus,
   ...rest
 }: MagneticButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,22 +61,8 @@ export function MagneticButton({
   const { tier: rawTier } = useCapability();
   const tier = Math.min(rawTier, maxTier);
 
-  const [isFinePointer, setIsFinePointer] = useState(false);
+  const isFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, getFinePointerServerSnapshot);
   const [isActive, setIsActive] = useState(false);
-
-  // Gate pointer listeners strictly to fine pointers (hover: hover and pointer: fine)
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
-      setIsFinePointer(true);
-      return;
-    }
-    const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setIsFinePointer(mql.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);
-    mql.addEventListener?.("change", handler);
-    return () => mql.removeEventListener?.("change", handler);
-  }, []);
 
   const shouldEnable = !paused && hydrated && !prefersReduced && tier > 1 && isFinePointer;
 
@@ -159,6 +157,14 @@ export function MagneticButton({
     [onPointerLeave, shouldEnable, handlePointerLeave]
   );
 
+  const composedFocus = useCallback(
+    (e: React.FocusEvent<HTMLDivElement>) => {
+      onFocus?.(e);
+      if (shouldEnable) handleFocus();
+    },
+    [onFocus, shouldEnable, handleFocus]
+  );
+
   return (
     <div
       ref={containerRef}
@@ -167,6 +173,7 @@ export function MagneticButton({
       className={`fb-magnetic-button ${className}`}
       onPointerMove={composedPointerMove}
       onPointerLeave={composedPointerLeave}
+      onFocus={composedFocus}
       style={{
         display: "inline-block",
         position: "relative",
@@ -176,12 +183,7 @@ export function MagneticButton({
       }}
       {...rest}
     >
-      {React.cloneElement(children, {
-        onFocus: (e: React.FocusEvent) => {
-          handleFocus();
-          children.props.onFocus?.(e);
-        },
-      })}
+      {children}
     </div>
   );
 }

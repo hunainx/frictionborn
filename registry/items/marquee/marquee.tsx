@@ -182,7 +182,7 @@ export function Marquee({
           {(!prefersReduced && hydrated && tier > 0) && (
             <div
               aria-hidden="true"
-              inert={true as any}
+              inert={true}
               className={`fb-marquee-track ${direction === "left" ? "anim-left" : "anim-right"}`}
             >
               {children}

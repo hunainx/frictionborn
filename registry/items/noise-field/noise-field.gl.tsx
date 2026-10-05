@@ -49,16 +49,18 @@ export default function NoiseFieldGL({
   }>({});
   const timeRef = useRef<number>(time ?? 0);
   const colorsRef = useRef(colors);
-  colorsRef.current = colors;
+  const onContextLostRef = useRef(onContextLost);
+  const onContextRestoredRef = useRef(onContextRestored);
+
+  useEffect(() => {
+    colorsRef.current = colors;
+    onContextLostRef.current = onContextLost;
+    onContextRestoredRef.current = onContextRestored;
+  });
 
   const maxDpr = tier >= 3 ? 2.0 : 1.5;
   const renderScale = tier >= 3 ? 1.0 : 0.75;
   const octaves = tier >= 3 ? 4 : 2;
-
-  const onContextLostRef = useRef(onContextLost);
-  onContextLostRef.current = onContextLost;
-  const onContextRestoredRef = useRef(onContextRestored);
-  onContextRestoredRef.current = onContextRestored;
 
   const renderFrame = useCallback((currentTime: number) => {
     const surface = surfaceRef.current;
@@ -140,7 +142,6 @@ export default function NoiseFieldGL({
       const surface = createSurface(canvas, {
         maxDpr,
         scale: renderScale,
-        deferDpr: true,
         onContextLost: () => {
           canvas.style.display = "none";
           onContextLostRef.current?.();

@@ -57,9 +57,9 @@ export function ParticleField({
   const leaseRef = useRef<Lease | null>(null);
   const instanceId = useRef("particle-field-" + uid);
   const [contextLost, setContextLost] = useState(false);
-  const [activeTier, setActiveTier] = useState<number>(() =>
-    isHydrated ? Math.min(capability.tier, maxTier) : 0
-  );
+  const [downgrades, setDowngrades] = useState(0);
+  const resolvedTargetTier = Math.min(capability.tier, maxTier);
+  const activeTier = isHydrated ? Math.max(0, resolvedTargetTier - downgrades) : 0;
 
   const [resolvedRgb, setResolvedRgb] = useState<[number, number, number]>(NEUTRAL_RGB);
 
@@ -81,13 +81,6 @@ export function ParticleField({
     });
     return () => observer.disconnect();
   }, [updateColor]);
-
-  const resolvedTargetTier = Math.min(capability.tier, maxTier);
-  useEffect(() => {
-    if (isHydrated) {
-      setActiveTier(resolvedTargetTier);
-    }
-  }, [isHydrated, resolvedTargetTier]);
 
   // Context lease management (Decision 19: reduced motion = no WebGL)
   const canRunWebGL = isHydrated && isVisible && activeTier >= 2 && !motionDisabled;
@@ -145,8 +138,8 @@ export function ParticleField({
   }, []);
 
   const onTierStepDown = useCallback((targetTier?: number) => {
-    setActiveTier((lvl) => (targetTier !== undefined ? targetTier : lvl > 0 ? lvl - 1 : 0)); // @frictionborn-guard
-  }, []);
+    setDowngrades((prev) => (targetTier !== undefined ? Math.max(0, resolvedTargetTier - targetTier) : prev + 1)); // @frictionborn-guard
+  }, [resolvedTargetTier]);
 
   const onContextDrop = useCallback(() => {
     setContextLost(true); // @frictionborn-guard

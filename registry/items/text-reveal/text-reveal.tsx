@@ -15,9 +15,30 @@ export interface TextRevealProps extends React.HTMLAttributes<HTMLElement> {
   style?: React.CSSProperties;
   maxTier?: number;
   replayKey?: string | number;
+  /**
+   * When true, halts animation and displays the full text in its final static state
+   * (unfragmented, fully visible) for clean static screenshots, debugging, or paused playback.
+   */
   paused?: boolean;
   nonce?: string;
-  ref?: React.Ref<any>;
+  ref?: React.Ref<HTMLElement | null>;
+}
+
+interface CharacterToken {
+  char: string;
+  index: number;
+}
+
+interface SegmentToken {
+  isSpace: boolean;
+  text: string;
+  chars: CharacterToken[];
+}
+
+interface WordToken {
+  text: string;
+  isSpace: boolean;
+  index: number;
 }
 
 export function TextReveal({
@@ -44,35 +65,34 @@ export function TextReveal({
   const tier = Math.min(rawTier, maxTier);
 
   // Check if this component was pre-rendered in SSR HTML
-  const isSsrInitial = useRef<boolean | null>(null);
-  if (isSsrInitial.current === null) {
+  const [isSsrInitial, setIsSsrInitial] = useState(() => {
     if (typeof document !== "undefined") {
       const el = document.getElementById(id);
-      isSsrInitial.current = Boolean(el && el.getAttribute("data-ssr") === "true");
-    } else {
-      isSsrInitial.current = true;
+      return Boolean(el && el.getAttribute("data-ssr") === "true");
     }
-  }
+    return true;
+  });
 
   // When replayKey changes, allow animated re-reveal even if initially SSR-rendered
-  const prevReplayRef = useRef(replayKey);
-  if (prevReplayRef.current !== replayKey) {
-    prevReplayRef.current = replayKey;
-    isSsrInitial.current = false;
+  const [prevReplayKey, setPrevReplayKey] = useState(replayKey);
+  if (prevReplayKey !== replayKey) {
+    setPrevReplayKey(replayKey);
+    setIsSsrInitial(false);
   }
 
-  const isSsrPainted = isSsrInitial.current && replayKey === undefined;
+  const isSsrPainted = isSsrInitial && replayKey === undefined;
   const shouldAnimate = hydrated && !prefersReduced && !paused && tier > 0 && !isSsrPainted;
 
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [fontsLoaded, setFontsLoaded] = useState(() => {
+    if (typeof document === "undefined" || !("fonts" in document)) return true;
+    return document.fonts.status === "loaded";
+  });
   const [containerWidth, setContainerWidth] = useState(0);
 
   // Wait for web fonts before measuring layout for line splitting
   useEffect(() => {
-    if (typeof document !== "undefined" && "fonts" in document) {
+    if (typeof document !== "undefined" && "fonts" in document && document.fonts.status !== "loaded") {
       document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));
-    } else {
-      setFontsLoaded(true);
     }
   }, []);
 
@@ -94,26 +114,26 @@ export function TextReveal({
   // Adjust stagger on mobile / tier 1
   const effectiveStagger = tier <= 1 ? Math.min(stagger, 40) : stagger;
 
-  // Split text into tokens
-  const tokens = useMemo(() => {
-    if (!children || typeof children !== "string") return [];
-    if (by === "character") {
-      // Split into words first to prevent mid-word line breaking
-      const words = children.split(/(\s+)/);
-      let charIndex = 0;
-      return words.map((segment) => {
-        if (/^\s+$/.test(segment)) {
-          return { isSpace: true, text: segment, chars: [] };
-        }
-        const chars = Array.from(segment).map((ch) => ({
-          char: ch,
-          index: charIndex++,
-        }));
-        return { isSpace: false, text: segment, chars };
-      });
-    }
+  // Split text into character segment tokens
+  const characterTokens = useMemo<SegmentToken[]>(() => {
+    if (by !== "character" || !children || typeof children !== "string") return [];
+    const wordsList = children.split(/(\s+)/);
+    let charIndex = 0;
+    return wordsList.map((segment) => {
+      if (/^\s+$/.test(segment)) {
+        return { isSpace: true, text: segment, chars: [] };
+      }
+      const chars = Array.from(segment).map((ch) => ({
+        char: ch,
+        index: charIndex++,
+      }));
+      return { isSpace: false, text: segment, chars };
+    });
+  }, [children, by]);
 
-    // Word mode default
+  // Split text into word tokens
+  const wordTokens = useMemo<WordToken[]>(() => {
+    if (by === "character" || !children || typeof children !== "string") return [];
     const rawTokens = children.split(/(\s+)/);
     let wordIndex = 0;
     return rawTokens.map((tok) => {
@@ -127,14 +147,16 @@ export function TextReveal({
   }, [children, by]);
 
   // Words only (no whitespace tokens): line groups index into this list
-  const words = useMemo(() => tokens.filter((t: any) => !t.isSpace), [tokens]);
+  const words = useMemo(() => wordTokens.filter((t) => !t.isSpace), [wordTokens]);
 
   // Line splitting after fonts load
   const [lineGroups, setLineGroups] = useState<number[][]>([]);
-  // Width or text changed: drop the grouping so the flat word spans render and can be re-measured
-  useEffect(() => {
-    if (by === "line") setLineGroups([]);
-  }, [by, containerWidth, children, replayKey]);
+  const [lineGroupKey, setLineGroupKey] = useState("");
+  const currentLineKey = `${by}:${containerWidth}:${children}:${String(replayKey ?? "")}`;
+  if (by === "line" && lineGroupKey !== currentLineKey) {
+    setLineGroupKey(currentLineKey);
+    setLineGroups([]);
+  }
 
   useEffect(() => {
     if (by !== "line" || !fontsLoaded || lineGroups.length > 0 || !containerRef.current) return;
@@ -160,7 +182,7 @@ export function TextReveal({
     setLineGroups(lines);
   }, [by, fontsLoaded, lineGroups.length, children, replayKey]);
 
-  useImperativeHandle(ref, () => containerRef.current as any);
+  useImperativeHandle(ref, () => containerRef.current!, []);
 
   return (
     <Component
@@ -228,12 +250,12 @@ export function TextReveal({
       ) : (
         <span aria-hidden="true" key={String(replayKey ?? "default")}>
           {by === "character" &&
-            tokens.map((group: any, gIdx) =>
+            characterTokens.map((group, gIdx) =>
               group.isSpace ? (
                 <span key={gIdx}>{group.text}</span>
               ) : (
                 <span key={gIdx} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
-                  {group.chars.map((c: any) => (
+                  {group.chars.map((c) => (
                     <span
                       key={c.index}
                       className="fb-tr-token"
@@ -252,7 +274,7 @@ export function TextReveal({
             )}
 
           {by === "word" &&
-            tokens.map((token: any, idx) =>
+            wordTokens.map((token, idx) =>
               token.isSpace ? (
                 <span key={idx}>{token.text}</span>
               ) : (
@@ -274,7 +296,7 @@ export function TextReveal({
           {by === "line" && (
             <span style={{ display: "block" }}>
               {lineGroups.length === 0
-                ? tokens.map((token: any, idx) => (
+                ? wordTokens.map((token, idx) => (
                     <span
                       key={idx}
                       data-tr-word={!token.isSpace ? "true" : undefined}

@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion ScrollReveal
 "use client";
 
-import React, { useRef, useState, useEffect, useImperativeHandle } from "react";
+import React, { useRef, useState, useImperativeHandle } from "react";
 import { useInView, useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
 export interface ScrollRevealProps extends React.HTMLAttributes<HTMLElement> {
@@ -14,9 +14,13 @@ export interface ScrollRevealProps extends React.HTMLAttributes<HTMLElement> {
   style?: React.CSSProperties;
   once?: boolean;
   maxTier?: number;
+  /**
+   * When true, halts animation and locks the component in its final, fully revealed state
+   * (opacity: 1, transform: none) for clean static screenshots, debugging, or paused playback.
+   */
   paused?: boolean;
   nonce?: string;
-  ref?: React.Ref<any>;
+  ref?: React.Ref<HTMLElement | null>;
 }
 
 const SCROLL_REVEAL_STYLES = `
@@ -78,6 +82,14 @@ const SCROLL_REVEAL_STYLES = `
     }
   }
 
+  /* Paused guard: locks into final revealed state */
+  [data-motion="ok"] .fb-sr-track.is-paused {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
   /* Focus guard: anything with focus is forced visible */
   [data-motion="ok"] .fb-sr-track:focus-within,
   [data-motion="ok"] .fb-sr-track:has(:focus) {
@@ -128,7 +140,9 @@ export function ScrollReveal({
   });
 
   const [hasEntered, setHasEntered] = useState(false);
-  const [initialInView, setInitialInView] = useState(false);
+  if (inView && !hasEntered) {
+    setHasEntered(true);
+  }
 
   // Above-the-fold content must never dip on hydrate in browsers without CSS scroll-driven animations
   useIsomorphicLayoutEffect(() => {
@@ -137,24 +151,16 @@ export function ScrollReveal({
       const rect = el.getBoundingClientRect();
       if (rect.top < window.innerHeight && rect.bottom > 0) {
         setHasEntered(true);
-        setInitialInView(true);
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (inView) {
-      setHasEntered(true);
-      setInitialInView(false);
-    }
-  }, [inView]);
 
   const effectiveDistance = resolvedTier <= 1 ? Math.min(distance, 12) : distance;
   const isRevealed =
     reducedMotionActive ||
     resolvedTier === 0 ||
     paused ||
-    (once ? hasEntered : (initialInView || inView));
+    (once ? (hasEntered || inView) : inView);
 
   // Transform styles based on animation variant
   let initialTransform = `translateY(${effectiveDistance}px)`;
@@ -164,7 +170,7 @@ export function ScrollReveal({
     initialTransform = `scale(0.96) translateY(${effectiveDistance / 2}px)`;
   }
 
-  useImperativeHandle(ref, () => elemRef.current as any);
+  useImperativeHandle(ref, () => elemRef.current as HTMLElement, []);
 
   return (
     <Component
@@ -186,7 +192,7 @@ export function ScrollReveal({
       <div
         className={
           isClientHydrated && !reducedMotionActive && resolvedTier > 0
-            ? `fb-sr-track ${isRevealed ? "is-visible" : ""}`
+            ? `fb-sr-track ${isRevealed ? "is-visible" : ""} ${paused ? "is-paused" : ""}`
             : ""
         }
         data-anim={animation}

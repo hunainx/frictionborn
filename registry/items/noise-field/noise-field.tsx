@@ -64,9 +64,9 @@ export function NoiseField({
   const instanceId = useRef("noise-field-" + uid);
   const [contextLost, setContextLost] = useState(false);
   const [glKey, setGlKey] = useState(0);
-  const [effectiveTier, setEffectiveTier] = useState<number>(() =>
-    hydrated ? Math.min(cap.tier, maxTier) : 0
-  );
+  const [downgrades, setDowngrades] = useState(0);
+  const computedTier = Math.min(cap.tier, maxTier);
+  const effectiveTier = hydrated ? Math.max(0, computedTier - downgrades) : 0;
 
   // Resolved RGB arrays for WebGL uniforms
   const [rgbColors, setRgbColors] = useState<[[number, number, number], [number, number, number], [number, number, number]]>([
@@ -75,15 +75,16 @@ export function NoiseField({
     [0.23, 0.51, 0.96],
   ]);
 
-  // Key on the values, not the array identity (callers often pass an inline literal)
-  const colorKey = colors.join("|");
+  const c0 = colors[0];
+  const c1 = colors[1];
+  const c2 = colors[2];
   const updateResolvedColors = useCallback(() => {
     const el = containerRef.current;
-    const c0 = resolveCssColor(el, colors[0]) ?? [0.05, 0.06, 0.08];
-    const c1 = resolveCssColor(el, colors[1]) ?? [0.98, 0.57, 0.24];
-    const c2 = resolveCssColor(el, colors[2]) ?? [0.23, 0.51, 0.96];
-    setRgbColors([c0, c1, c2]);
-  }, [colorKey, colors]);
+    const r0 = resolveCssColor(el, c0) ?? [0.05, 0.06, 0.08];
+    const r1 = resolveCssColor(el, c1) ?? [0.98, 0.57, 0.24];
+    const r2 = resolveCssColor(el, c2) ?? [0.23, 0.51, 0.96];
+    setRgbColors([r0, r1, r2]);
+  }, [c0, c1, c2]);
 
   // Resolve colors on mount, prop change, and HTML theme attribute mutations
   useEffect(() => {
@@ -99,15 +100,6 @@ export function NoiseField({
     });
     return () => observer.disconnect();
   }, [updateResolvedColors]);
-
-  // Determine active tier considering cap, maxTier and context state
-  const computedTier = Math.min(cap.tier, maxTier);
-
-  useEffect(() => {
-    if (hydrated) {
-      setEffectiveTier(computedTier);
-    }
-  }, [hydrated, computedTier]);
 
   // Context lease acquisition (PRD 6.0 + 6.1 + Decision 19: reduced motion = no WebGL)
   useEffect(() => {
@@ -157,7 +149,7 @@ export function NoiseField({
   }, []);
 
   const handleDowngrade = useCallback(() => {
-    setEffectiveTier((prev) => Math.max(0, prev - 1)); // @frictionborn-guard
+    setDowngrades((prev) => prev + 1); // @frictionborn-guard
   }, []);
 
   const handleContextLost = useCallback(() => {

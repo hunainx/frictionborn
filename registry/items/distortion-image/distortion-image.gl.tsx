@@ -6,7 +6,7 @@ import { createSurface, type Surface } from "@frictionborn/runtime/gl";
 import { useFrame, useFrameGuard, usePaused } from "@frictionborn/runtime";
 import { vertexShaderSource, fragmentShaderSource } from "./distortion-image.glsl";
 
-declare const process: any;
+declare const process: { env?: { NODE_ENV?: string } };
 
 export interface DistortionImageGLProps {
   imageElement: HTMLImageElement | null;
@@ -56,14 +56,10 @@ export default function DistortionImageGL({
   const timeRef = useRef<number>(0);
   const progressRef = useRef<number>(0);
   const pointerPosRef = useRef(pointerPos);
-  pointerPosRef.current = pointerPos;
   const isHoveredRef = useRef(isHovered);
-  isHoveredRef.current = isHovered;
   // Read through refs so changing strength or speed never rebuilds the WebGL context.
   const strengthRef = useRef(strength);
-  strengthRef.current = strength;
   const speedRef = useRef(speed);
-  speedRef.current = speed;
 
   const paused = usePaused(); // @frictionborn-guard
 
@@ -72,15 +68,22 @@ export default function DistortionImageGL({
   const maxTextureDim = tier >= 3 ? 2048 : 1024;
 
   const onContextLostRef = useRef(onContextLost);
-  onContextLostRef.current = onContextLost;
   const onContextRestoredRef = useRef(onContextRestored);
-  onContextRestoredRef.current = onContextRestored;
   const onDowngradeRef = useRef(onDowngrade);
-  onDowngradeRef.current = onDowngrade;
   const onTaintedCORSRef = useRef(onTaintedCORS);
-  onTaintedCORSRef.current = onTaintedCORS;
   const onInitErrorRef = useRef(onInitError);
-  onInitErrorRef.current = onInitError;
+
+  useEffect(() => {
+    pointerPosRef.current = pointerPos;
+    isHoveredRef.current = isHovered;
+    strengthRef.current = strength;
+    speedRef.current = speed;
+    onContextLostRef.current = onContextLost;
+    onContextRestoredRef.current = onContextRestored;
+    onDowngradeRef.current = onDowngrade;
+    onTaintedCORSRef.current = onTaintedCORS;
+    onInitErrorRef.current = onInitError;
+  });
 
   // Frame guard triggers automatic downgrade if p75 frame times exceed budget
   useFrameGuard({ onDowngrade: () => onDowngradeRef.current?.(), active: !paused }); // @frictionborn-guard
@@ -129,7 +132,7 @@ export default function DistortionImageGL({
           uploadSource = offscreen;
         } catch (taintErr) {
           // Canvas drawImage throws SecurityError if tainted
-          if (process.env.NODE_ENV !== "production") {
+          if (process.env?.NODE_ENV !== "production") {
             console.warn(
               "[Frictionborn Motion] DistortionImage: Image is tainted by cross-origin restrictions. Falling back to plain image. Set crossOrigin='anonymous' only if the host server sends Access-Control-Allow-Origin headers.",
               taintErr
@@ -152,7 +155,7 @@ export default function DistortionImageGL({
           uploadSource
         );
       } catch (texErr) {
-        if (process.env.NODE_ENV !== "production") {
+        if (process.env?.NODE_ENV !== "production") {
           console.warn(
             "[Frictionborn Motion] DistortionImage: Image is tainted by cross-origin restrictions. Falling back to plain image. Set crossOrigin='anonymous' to enable WebGL distortion.",
             texErr

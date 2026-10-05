@@ -82,7 +82,7 @@ export const StickyScrollStory = React.forwardRef<HTMLDivElement, StickyScrollSt
       });
 
       return () => observer.disconnect();
-    }, [hydrated, steps.length, paused]);
+    }, [hydrated, steps, paused]);
 
     return (
       <div

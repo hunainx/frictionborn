@@ -10,7 +10,8 @@ export default [
       "**/coverage/**",
       "**/bench/results/**",
       ".agents/**",
-      ".claude/**"
+      ".claude/**",
+      "scratch/**"
     ]
   },
   js.configs.recommended,

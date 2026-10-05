@@ -11,7 +11,20 @@ import {
   usePaused,
 } from "@frictionborn/runtime";
 
-export interface SmoothScrollProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SmoothScrollScrollEvent {
+  scroll: number;
+  limit: number;
+  velocity: number;
+  direction: number;
+  progress: number;
+}
+
+interface LenisInternalState {
+  animate?: { isRunning?: boolean };
+  time?: number;
+}
+
+export interface SmoothScrollProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onScroll"> {
   children?: React.ReactNode;
   duration?: number; // duration in milliseconds (e.g. 1200 means 1.2s)
   easing?: (t: number) => number;
@@ -22,7 +35,7 @@ export interface SmoothScrollProps extends React.HTMLAttributes<HTMLDivElement> 
   infinite?: boolean;
   enabled?: boolean;
   paused?: boolean;
-  onScroll?: (e: any) => void;
+  onScroll?: (e: SmoothScrollScrollEvent) => void;
   prevent?: (node: HTMLElement) => boolean;
   ref?: React.Ref<HTMLDivElement>;
 }
@@ -35,9 +48,9 @@ const DIALOG_SELECTOR = '[role="dialog"], [aria-modal="true"], dialog[open], [da
 
 let activeSingleton = false;
 
-export function _resetSmoothScrollSingletonForTesting(): void {
+export const _resetSmoothScrollSingletonForTesting = (): void => {
   activeSingleton = false;
-}
+};
 
 export function SmoothScroll({
   children,
@@ -69,15 +82,17 @@ export function SmoothScroll({
   // Starts idle: Lenis has nothing to animate until the first wheel/key/touch/scroll input wakes the loop,
   // so a freshly hydrated (or off-screen) page requests zero frames
   const [isScrolling, setIsScrolling] = useState(false);
-  const settleTimerRef = useRef<any>(null);
+  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isMasterRef = useRef(false);
   // Callbacks may be inline lambdas; read them through refs so they never re-create Lenis
   const easingRef = useRef(easing);
-  easingRef.current = easing;
   const onScrollRef = useRef(onScroll);
-  onScrollRef.current = onScroll;
   const preventRef = useRef(prevent);
-  preventRef.current = prevent;
+  useEffect(() => {
+    easingRef.current = easing;
+    onScrollRef.current = onScroll;
+    preventRef.current = prevent;
+  });
 
   // Decision 16: SmoothScroll is disabled on reduced motion and coarse pointers (mobile/touch)
   const isCoarsePointer = capability.pointer === "coarse";
@@ -93,7 +108,8 @@ export function SmoothScroll({
     if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
     settleTimerRef.current = setTimeout(() => {
       const lenis = lenisRef.current;
-      if (!lenis?.isScrolling && !(lenis as any)?.animate?.isRunning) {
+      const lenisInternal = lenis as unknown as LenisInternalState | null;
+      if (!lenis?.isScrolling && !lenisInternal?.animate?.isRunning) {
         setIsScrolling(false);
       }
     }, 150);
@@ -144,7 +160,7 @@ export function SmoothScroll({
     lenisRef.current = lenis;
     setIsActive(true);
 
-    lenis.on("scroll", (e: any) => onScrollRef.current?.(e));
+    lenis.on("scroll", (e: unknown) => onScrollRef.current?.(e as SmoothScrollScrollEvent));
 
     return () => {
       if (isMasterRef.current) {
@@ -188,14 +204,15 @@ export function SmoothScroll({
     ({ time }) => {
       const lenis = lenisRef.current;
       if (lenis && !isPaused) {
+        const lenisInternal = lenis as unknown as LenisInternalState;
         if (needsClockResetRef.current) {
           needsClockResetRef.current = false;
-          (lenis as any).time = 0; // next raf() computes delta 0 instead of the idle gap
+          lenisInternal.time = 0; // next raf() computes delta 0 instead of the idle gap
         }
         lenis.raf(time);
         // Idle only when Lenis is neither scrolling nor animating for several consecutive frames
         // (browsers differ in when native scroll events flip isScrolling; never stop mid-animation)
-        const busy = !!lenis.isScrolling || !!(lenis as any).animate?.isRunning;
+        const busy = !!lenis.isScrolling || !!lenisInternal.animate?.isRunning;
         idleFramesRef.current = busy ? 0 : idleFramesRef.current + 1;
         if (idleFramesRef.current >= 3) {
           idleFramesRef.current = 0;
@@ -207,7 +224,7 @@ export function SmoothScroll({
     { active: isActive && !isPaused && isScrolling }
   );
 
-  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+  useImperativeHandle(ref, () => containerRef.current!, []);
 
   return (
     <div

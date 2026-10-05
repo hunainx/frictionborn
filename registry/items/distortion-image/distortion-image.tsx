@@ -1,7 +1,16 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy, useImperativeHandle } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  Suspense,
+  lazy,
+  useImperativeHandle,
+  useSyncExternalStore,
+} from "react";
 import {
   useCapability,
   useHydrated,
@@ -10,6 +19,24 @@ import {
   glBudget,
   type Lease,
 } from "@frictionborn/runtime";
+
+declare const process: { env?: { NODE_ENV?: string } };
+
+function subscribeFinePointer(callback: () => void) {
+  if (typeof window === "undefined" || !window.matchMedia) return () => {};
+  const media = window.matchMedia("(hover: hover) and (pointer: fine)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getFinePointerSnapshot() {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+}
+
+function getFinePointerServerSnapshot() {
+  return false;
+}
 
 const DistortionImageGL = lazy(() => import("./distortion-image.gl"));
 
@@ -102,17 +129,40 @@ export function DistortionImage({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [taintedCORS, setTaintedCORS] = useState(false);
   const [glFailed, setGlFailed] = useState(false);
-  const [isFinePointer, setIsFinePointer] = useState(false);
   const [focusVisible, setFocusVisible] = useState(false);
+  const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
 
-  // Detect fine pointer capability and hover support ((hover: hover) and (pointer: fine))
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const media = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setIsFinePointer(media.matches);
-    const listener = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);
-    media.addEventListener("change", listener);
-    return () => media.removeEventListener("change", listener);
+  const isFinePointer = useSyncExternalStore(subscribeFinePointer, getFinePointerSnapshot, getFinePointerServerSnapshot);
+
+  // Sync state transitions during render
+  const [prevPaused, setPrevPaused] = useState(paused);
+  const [prevInView, setPrevInView] = useState(inView);
+  if (paused !== prevPaused) {
+    setPrevPaused(paused);
+    if (paused) {
+      if (isHovered) setIsHovered(false);
+      if (needsLease) setNeedsLease(false);
+    }
+  }
+  if (inView !== prevInView) {
+    setPrevInView(inView);
+    if (!inView) {
+      if (isHovered) setIsHovered(false);
+      if (needsLease) setNeedsLease(false);
+    }
+  }
+
+  let clampedStrength = strength;
+  if (strength < 0 || strength > 1) {
+    if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
+      console.warn(`[frictionborn/distortion-image] strength must be between 0 and 1, got ${strength}. Clamping.`);
+    }
+    clampedStrength = Math.max(0, Math.min(1, strength));
+  }
+
+  const setImgRef = useCallback((node: HTMLImageElement | null) => {
+    imgRef.current = node;
+    setImageElement(node);
   }, []);
 
   const effectiveTier = Math.min(cap.tier, maxTier);
@@ -160,9 +210,7 @@ export function DistortionImage({
 
   useEffect(() => {
     if (paused) {
-      setIsHovered(false);
       clearIdleTimer();
-      setNeedsLease(false);
       if (leaseRef.current) {
         leaseRef.current.release();
         leaseRef.current = null;
@@ -274,8 +322,6 @@ export function DistortionImage({
   useEffect(() => {
     if (!inView) {
       clearIdleTimer();
-      setNeedsLease(false);
-      setIsHovered(false);
     }
   }, [inView, clearIdleTimer]);
 
@@ -425,7 +471,7 @@ export function DistortionImage({
     >
       {/* Real HTML <img> is always in DOM, defines layout, and provides accessible semantics */}
       <img
-        ref={imgRef}
+        ref={setImgRef}
         data-frictionborn-poster=""
         src={src}
         alt={alt}
@@ -453,10 +499,10 @@ export function DistortionImage({
       {shouldRenderGL && (
         <Suspense fallback={null}>
           <DistortionImageGL
-            imageElement={imgRef.current}
+            imageElement={imageElement}
             pointerPos={pointerPos}
             isHovered={isHovered}
-            strength={strength}
+            strength={clampedStrength}
             speed={speed}
             tier={effectiveTier}
             onDowngrade={() => {

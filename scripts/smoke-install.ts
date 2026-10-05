@@ -86,6 +86,9 @@ export async function runSmokeTest(): Promise<void> {
         "@types/react": "19.3.0",
         "@types/react-dom": "19.3.0",
         typescript: "5.9.3",
+        eslint: "9.39.5",
+        "@eslint/js": "9.39.5",
+        "typescript-eslint": "8.57.1",
       },
     };
 
@@ -97,6 +100,22 @@ export async function runSmokeTest(): Promise<void> {
 
     // Enforce exact save in npm for installed registry dependencies (Audit N17)
     fs.writeFileSync(path.join(tempDir, ".npmrc"), "save-exact=true\n", "utf8");
+
+    const eslintConfig = `import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+  }
+);
+`;
+    fs.writeFileSync(path.join(tempDir, "eslint.config.js"), eslintConfig, "utf8");
 
     const tsConfig = {
       compilerOptions: {
@@ -263,6 +282,11 @@ export default function TestPage() {
     console.log("==> Running TypeScript check on installed components...");
     await runCommand("npx tsc --noEmit", tempDir);
     console.log("✔ TypeScript verification passed with 0 errors!");
+
+    // 7. Run ESLint to ensure installed components pass default lint rules
+    console.log("==> Running ESLint check on installed components...");
+    await runCommand("npx eslint components/ui", tempDir);
+    console.log("✔ ESLint verification passed on installed components with 0 errors!");
   } finally {
     server.close();
     try {
