@@ -225,7 +225,16 @@ export function buildRegistry(): void {
     if (fs.existsSync(llmsPath)) {
       fs.copyFileSync(llmsPath, path.join(docsPublicDir, "llms.txt"));
     }
-    console.log(`✔ Synced registry and llms.txt to the-private-website-repo/public for docs site deployment.`);
+    // The docs previews load demo images from /assets (DistortionImage); without them the docs site 404s on the images.
+    // oversized.webp is a bench fixture, not a demo asset.
+    const assetsDir = path.join(publicDir, "assets");
+    if (fs.existsSync(assetsDir)) {
+      fs.cpSync(assetsDir, path.join(docsPublicDir, "assets"), {
+        recursive: true,
+        filter: (src) => !src.endsWith("oversized.webp"),
+      });
+    }
+    console.log(`✔ Synced registry, llms.txt and demo assets to the-private-website-repo/public for docs site deployment.`);
   }
 
   console.log(`✔ Registry build complete: ${registryItems.length} public items published.`);

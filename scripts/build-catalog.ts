@@ -275,7 +275,7 @@ export function generateCatalog(items: any[]): string {
 
 export function generateLlmsTxt(items: any[]): string {
   let txt = `# Frictionborn Motion\n\n`;
-  txt += `> Frictionborn Motion is a verified motion and WebGL component registry for React 19 and Next.js 16, engineered for zero visual slop, static server rendering, and zero-idle resource usage.\n\n`;
+  txt += `> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16. Every item has a spec sheet generated from its code and a recorded test run.\n\n`;
   txt += `Docs: ${SITE_URL}/docs\n`;
   txt += `Registry: ${REGISTRY_BASE_URL}/r\n\n`;
   txt += `## Core Principles\n`;
@@ -288,7 +288,7 @@ export function generateLlmsTxt(items: any[]): string {
   txt += `| :--- | :--- | :--- | :--- |\n`;
   for (const m of items) {
     const item = m.item || {};
-    txt += `| [${item.name}](${SITE_URL}/docs/items/${item.name}) | \`${item.slot || "ui"}\` | ${item.summary} | [Spec Sheet](agents/skill/frictionborn/references/items/${item.name}.md) |\n`;
+    txt += `| [${item.name}](${SITE_URL}/docs/components/${item.name}) | \`${item.slot || "ui"}\` | ${item.summary} | [Spec Sheet](${REGISTRY_BASE_URL}/r/${item.name}.md) |\n`;
   }
   txt += `\n## Setup\n${SETUP_MD}`;
   txt += `\n## Runtime Usage\n`;
