@@ -51,53 +51,54 @@ export default function ItemBenchPage({
     }
   }, [isLeakTest]);
 
-  const [targetCycles, setTargetCycles] = useState(50);
-
-  useEffect(() => {
+  const [targetCycles, setTargetCycles] = useState(() => {
     if (typeof window !== "undefined") {
       const p = new URLSearchParams(window.location.search);
       const c = parseInt(p.get("cycles") || "", 10);
-      if (!isNaN(c) && c > 0) {
-        setTargetCycles(c);
-      }
+      if (!isNaN(c) && c > 0) return c;
     }
-  }, []);
+    return 50;
+  });
 
   // Leak test cycle: mount/unmount cycles ending unmounted per PRD 6.0
   useEffect(() => {
-    if (!isLeakTest || cycleCount >= targetCycles) return;
-    let cancelled = false;
+    if (!isLeakTest) return;
+    let active = true;
     const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
     (async () => {
-      if (!mounted) {
+      for (let i = 0; i < targetCycles; i++) {
+        if (!active) break;
+        setMounted(false);
         await sleep(20);
-        if (!cancelled) setMounted(true);
-        return;
-      }
+        if (!active) break;
+        setMounted(true);
 
-      // If mounted, wait for canvas to appear if this is a WebGL item, up to a reasonable deadline,
-      // ensuring contexts are actually created on all browser engines (including WebKit) before unmounting.
-      const isGl = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero"].includes(name);
-      if (isGl) {
-        const deadline = performance.now() + 1000;
-        while (!cancelled && performance.now() < deadline && !document.querySelector("#demo-mount-point canvas")) {
+        // If mounted, wait for canvas to appear if this is a WebGL item, up to a reasonable deadline,
+        // ensuring contexts are actually created on all browser engines (including WebKit) before unmounting.
+        const isGl = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero"].includes(name);
+        if (isGl) {
+          const deadline = performance.now() + 1000;
+          while (active && performance.now() < deadline && !document.querySelector("#demo-mount-point canvas")) {
+            await sleep(16);
+          }
+        } else {
           await sleep(16);
         }
-      } else {
-        await sleep(16);
+
+        if (!active) break;
+        setCycleCount(i + 1);
       }
 
-      if (!cancelled) {
+      if (active) {
         setMounted(false);
-        setCycleCount((c) => c + 1);
       }
     })();
 
     return () => {
-      cancelled = true;
+      active = false;
     };
-  }, [isLeakTest, cycleCount, targetCycles, mounted, name]);
+  }, [isLeakTest, targetCycles, name]);
 
   function renderDemo() {
     if (name === "dummy") {
