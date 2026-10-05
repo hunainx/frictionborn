@@ -145,10 +145,10 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
           </ScrollReveal>
         </section>
 
-        {/* 2. Sticky Scroll Story */}
-        <section aria-labelledby={headlineId} style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
+        {/* 2. Sticky Scroll Story (a plain wrapper: a second region labelled by the headline would repeat the landmark name) */}
+        <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
           <StickyScrollStory steps={steps} paused={paused} nonce={nonce} />
-        </section>
+        </div>
 
         {/* 3. Feature Specifications Grid with ScrollReveal (if provided) */}
         {specs && specs.length > 0 && (
