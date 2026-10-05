@@ -233,10 +233,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "da21af4",
+          "commit": "089a666",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 3.52,
+            "initial": 3.53,
             "deferred": 0.02,
             "method": "gzip-9"
           },
@@ -1397,11 +1397,11 @@
           "assets": []
         },
         "measured": {
-          "commit": "da21af4",
+          "commit": "089a666",
           "date": "2026-10-05",
           "sizeKB": {
             "initial": 2.77,
-            "deferred": 3.42,
+            "deferred": 3.52,
             "method": "gzip-9"
           },
           "cls": 0.0001,
