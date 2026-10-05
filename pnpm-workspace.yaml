@@ -5,6 +5,3 @@ packages:
 allowBuilds:
   esbuild: true
 
-minimumReleaseAgeExclude:
-  - fumadocs-core@16.16.2
-  - fumadocs-ui@16.16.2
