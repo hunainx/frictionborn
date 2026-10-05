@@ -43,7 +43,12 @@ jobs:
       - name: Install Playwright Chromium and OS dependencies
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Run fresh-apps verification (Next 16 + Vite)
+      - name: Run fresh-apps verification (no-GL nightly)
+        if: github.event_name == 'schedule'
+        run: pnpm fresh-apps:no-gl
+
+      - name: Run fresh-apps verification (full GL on tags / dispatch)
+        if: github.event_name != 'schedule'
         run: pnpm fresh-apps
 
       - name: Upload screenshots and summary

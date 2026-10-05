@@ -38,6 +38,7 @@ const VITE_DEV_PORT = 3303;
 // FRESH_KEEP=1 leaves the temp apps and both production servers running and prints their PIDs (for manual/audit probes).
 const FRESH_ONLY = (process.env.FRESH_ONLY ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 const FRESH_KEEP = process.env.FRESH_KEEP === "1";
+const NO_GL = process.argv.includes("--no-gl") || process.env.FRESH_NO_GL === "1";
 
 const NON_CORS_URL = "https://cdn.fresh-noncors.test/art-1.webp";
 
@@ -272,6 +273,14 @@ const CAPABLE_MACHINE_INIT_SCRIPT = `
   try {
     Object.defineProperty(navigator, "hardwareConcurrency", { get: () => 8 });
     Object.defineProperty(navigator, "deviceMemory", { get: () => 8 });
+  } catch (e) {}
+`;
+
+// When running in no-GL CI mode (e.g. 2-vCPU software GL runner), force tier 1 via data-fb-tier="1"
+// so generative items render posters rather than churning software-GL canvases.
+const NO_GL_INIT_SCRIPT = `
+  try {
+    document.documentElement.setAttribute("data-fb-tier", "1");
   } catch (e) {}
 `;
 
@@ -524,7 +533,11 @@ async function checkPage(
     colorScheme: mode.dark ? "dark" : "light",
     reducedMotion: mode.reduced ? "reduce" : "no-preference",
   });
-  await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
+  if (NO_GL) {
+    await context.addInitScript(NO_GL_INIT_SCRIPT);
+  } else {
+    await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
+  }
   await context.addInitScript(READBACK_INIT_SCRIPT);
   // A cross-origin picture from a host that sends NO CORS headers (what a CDN without CORS looks like).
   const artwork = fs.readFileSync(path.join(root, "public", "assets", "distortion", "art-1.webp"));
@@ -555,8 +568,8 @@ async function checkPage(
     await page.waitForTimeout(300);
   }
 
-  if (mode.reduced) {
-    // Reduced motion: static poster / plain image everywhere, even while hovering and focusing.
+  if (mode.reduced || NO_GL) {
+    // Reduced motion or no-GL mode: static poster / plain image everywhere, even while hovering and focusing.
     for (const id of [...GENERATIVE, "gl-item-distortion-default", "composition-ambient-hero"]) {
       const el = page.locator(`[data-testid='${id}']`);
       if (await el.count()) {
@@ -566,8 +579,8 @@ async function checkPage(
     }
     await page.waitForTimeout(1200);
     const canvases = await page.locator("canvas").count();
-    console.log(`    reduced motion: ${canvases} canvases (expected 0)`);
-    if (canvases !== 0) problems.push(`${label} ${canvases} canvases in reduced motion`);
+    console.log(`    ${NO_GL ? "no-GL mode (tier 1 posters)" : "reduced motion"}: ${canvases} canvases (expected 0)`);
+    if (canvases !== 0) problems.push(`${label} ${canvases} canvases in ${NO_GL ? "no-GL mode" : "reduced motion"}`);
   } else {
     // 1. generative WebGL items: real pixels, not just "a canvas exists"
     for (const id of GENERATIVE) {
@@ -605,37 +618,38 @@ async function checkPage(
         if (!passesGate(r, false)) problems.push(`${label} ${compId} failed the pixel gate (blank or flat canvas): ${JSON.stringify(r && { std: r.std, coverage: r.coverage })}`);
       }
     }
+  }
 
-    // 1c. scroll-showcase composition: semantic heading hierarchy
-    if (items.includes("scroll-showcase")) {
-      const showCaseId = "composition-scroll-showcase";
-      const el = page.locator(`[data-testid='${showCaseId}']`);
-      if (await el.count()) {
-        await el.evaluate((e) => e.scrollIntoView({ block: "start" }));
-        const headings = await el.locator("h2, h3, h4").count();
-        console.log(`    ${showCaseId}: found ${headings} semantic headings`);
-        if (headings < 3) problems.push(`${label} ${showCaseId} missing expected semantic headings (found ${headings})`);
-      }
+  // 1c. scroll-showcase composition: semantic heading hierarchy
+  if (items.includes("scroll-showcase")) {
+    const showCaseId = "composition-scroll-showcase";
+    const el = page.locator(`[data-testid='${showCaseId}']`);
+    if (await el.count()) {
+      await el.evaluate((e) => e.scrollIntoView({ block: "start" }));
+      const headings = await el.locator("h2, h3, h4").count();
+      console.log(`    ${showCaseId}: found ${headings} semantic headings`);
+      if (headings < 3) problems.push(`${label} ${showCaseId} missing expected semantic headings (found ${headings})`);
     }
+  }
 
-    // 2. idle main thread with the generative items running in view
-    if (!mode.mobile) {
-      const first = GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
-      if (first) await page.locator(`[data-testid='${first}']`).scrollIntoViewIfNeeded();
-      const cdp = await context.newCDPSession(page);
-      await cdp.send("Performance.enable");
-      await page.waitForTimeout(1000);
-      const m0 = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((x) => [x.name, x.value]));
-      await page.waitForTimeout(3000);
-      const m1 = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((x) => [x.name, x.value]));
-      const busy = ((m1.TaskDuration - m0.TaskDuration) / 3) * 100;
-      summary.idleBusyPct = busy;
-      console.log(`    idle main thread (items running in view): ${busy.toFixed(2)}%`);
-      if (busy >= 10) problems.push(`${label} idle main-thread busy ${busy.toFixed(1)}% >= 10%`);
-    }
+  // 2. idle main thread with the generative items running in view
+  if (!mode.mobile) {
+    const first = GENERATIVE.find((g) => items.includes(g.replace("gl-item-", "")));
+    if (first) await page.locator(`[data-testid='${first}']`).scrollIntoViewIfNeeded();
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Performance.enable");
+    await page.waitForTimeout(1000);
+    const m0 = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((x) => [x.name, x.value]));
+    await page.waitForTimeout(3000);
+    const m1 = Object.fromEntries((await cdp.send("Performance.getMetrics")).metrics.map((x) => [x.name, x.value]));
+    const busy = ((m1.TaskDuration - m0.TaskDuration) / 3) * 100;
+    summary.idleBusyPct = busy;
+    console.log(`    idle main thread (items running in view): ${busy.toFixed(2)}%`);
+    if (busy >= 10) problems.push(`${label} idle main-thread busy ${busy.toFixed(1)}% >= 10%`);
+  }
 
-    // 3. DistortionImage
-    if (hasDistortion) {
+  // 3. DistortionImage
+  if (hasDistortion && !mode.reduced && !NO_GL) {
       const cases = ["gl-item-distortion-default", ...(app.name === "next" ? ["gl-item-distortion-next-image"] : [])];
       for (const id of cases) {
         await step(problems, page, `${label} ${id}`, id, async () => {
@@ -748,9 +762,13 @@ async function checkPage(
 }
 
 // Dev-server smoke: Vite dev does not statically replace `process.env.NODE_ENV` the way a build does.
-async function checkViteDev(browser: Browser, url: string, root: string): Promise<void> {
+async function checkViteDev(browser: Browser, url: string, root: string, noGl = false): Promise<void> {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
+  if (noGl) {
+    await context.addInitScript(NO_GL_INIT_SCRIPT);
+  } else {
+    await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
+  }
   const artwork = fs.readFileSync(path.join(root, "public", "assets", "distortion", "art-1.webp"));
   await context.route("https://cdn.fresh-noncors.test/**", (route) => route.fulfill({ status: 200, contentType: "image/webp", body: artwork }));
   const page = await context.newPage();
@@ -903,6 +921,9 @@ export async function runFreshAppsCheck(): Promise<void> {
     await run(`pnpm add "file:${runtimeTarball}"`, nextDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, nextDir);
     assertDependenciesInstalled(root, path.join(nextDir, "components", "ui"), items);
+    console.log("==> run Next lint (pnpm lint) to ensure installed items pass default Next 16 ESLint");
+    await run("pnpm lint", nextDir);
+    console.log("✔ Next ESLint passed on installed items with 0 errors");
     copyArt(path.join(nextDir, "public"));
     fs.writeFileSync(path.join(nextDir, "app", "page.tsx"), generatePage(items, "next"));
     // The documented Next setup step: <MotionReadyScript /> in the root layout (Vite calls initMotionReady() instead).
@@ -962,6 +983,9 @@ export default defineConfig({
     await run(`pnpm add "file:${runtimeTarball}"`, viteDir);
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, viteDir);
     assertDependenciesInstalled(root, path.join(viteDir, "src", "components", "ui"), items);
+    console.log("==> run Vite lint (pnpm lint) to ensure installed items pass default Vite ESLint");
+    await run("pnpm lint", viteDir);
+    console.log("✔ Vite ESLint passed on installed items with 0 errors");
     copyArt(path.join(viteDir, "public"));
     fs.writeFileSync(path.join(viteDir, "src", "App.tsx"), generatePage(items, "vite"));
     fs.writeFileSync(
@@ -995,8 +1019,8 @@ createRoot(document.getElementById("root")!).render(
     console.log("\n==> Playwright: real Chromium (SwiftShader WebGL2)");
     browser = await chromium.launch({ args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 
-    console.log("--> negative controls: the pixel gate must reject every kind of blank canvas");
-    {
+    if (!NO_GL) {
+      console.log("--> negative controls: the pixel gate must reject every kind of blank canvas");
       const ctx = await browser.newContext();
       await ctx.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
       await ctx.addInitScript(READBACK_INIT_SCRIPT);
@@ -1004,6 +1028,8 @@ createRoot(document.getElementById("root")!).render(
       await p.goto(`http://127.0.0.1:${VITE_PORT}`, { waitUntil: "networkidle" });
       for (const line of await negativeControls(p)) console.log(`    ${line}`);
       await ctx.close();
+    } else {
+      console.log("--> no-GL variant: WebGL pixel gate tests skipped (tier forced < 2, posters only)");
     }
 
     const apps = [
@@ -1019,7 +1045,7 @@ createRoot(document.getElementById("root")!).render(
       }
     }
     console.log("\n--> Vite dev server smoke");
-    if (items.includes("distortion-image")) await checkViteDev(browser, `http://127.0.0.1:${VITE_DEV_PORT}`, root);
+    if (items.includes("distortion-image")) await checkViteDev(browser, `http://127.0.0.1:${VITE_DEV_PORT}`, root, NO_GL);
     else console.log("    (skipped: the dev smoke exercises DistortionImage, which this FRESH_ONLY run did not install)");
 
     fs.writeFileSync(

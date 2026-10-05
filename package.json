@@ -11,13 +11,14 @@
     "bench": "node --experimental-strip-types bench/run-bench.ts",
     "bench:release": "node --experimental-strip-types bench/run-bench.ts --release",
     "size": "size-limit",
-    "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts",
+    "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts && node --experimental-strip-types scripts/check-copy.ts && node --experimental-strip-types scripts/check-shipped-code.ts",
     "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",
     "meta:check": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts --check && node --experimental-strip-types scripts/build-catalog.ts",
     "screenshots": "playwright test --config playwright.screenshots.config.ts",
     "registry:build": "node --experimental-strip-types scripts/build-registry.ts",
     "smoke:install": "node --experimental-strip-types scripts/smoke-install.ts",
     "fresh-apps": "node --experimental-strip-types scripts/fresh-apps.ts",
+    "fresh-apps:no-gl": "node --experimental-strip-types scripts/fresh-apps.ts --no-gl",
     "lighthouse": "node --experimental-strip-types bench/lighthouse/run.ts"
   },
   "devDependencies": {
