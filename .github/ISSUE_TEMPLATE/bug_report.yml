@@ -1,0 +1,111 @@
+name: Bug report
+description: Something an item or the runtime does that the spec sheet says it should not.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please do not use this form for a security problem; use the private advisory link on the issue chooser page instead.
+        Check the item's spec sheet first (`agents/skill/frictionborn/references/items/<name>.md`) in case the behaviour is documented.
+  - type: dropdown
+    id: item
+    attributes:
+      label: Item
+      description: Which item or package is affected?
+      options:
+        - ambient-hero
+        - distortion-image
+        - magnetic-button
+        - marquee
+        - mesh-gradient
+        - noise-field
+        - particle-field
+        - scroll-reveal
+        - scroll-showcase
+        - smooth-scroll
+        - sticky-scroll-story
+        - text-reveal
+        - "@frictionborn/runtime"
+        - Documentation site
+        - Registry or install (shadcn add)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The item version from its spec sheet or `meta.json`, and the `@frictionborn/runtime` version from your `package.json`.
+      placeholder: "noise-field 0.1.0, @frictionborn/runtime 0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      options:
+        - Next.js App Router
+        - Vite React
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Versions of Next.js or Vite, React, Tailwind, Node, and your package manager. Browser and version, operating system, and device if it is a phone or tablet.
+      placeholder: |
+        Next.js 16.x, React 19.x, Tailwind 4.x
+        Safari 26 on iOS 26, iPhone model
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw. A screenshot or a short recording helps.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What the spec sheet or docs say should happen, or what you expected if they do not say.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce
+      description: A link to a minimal repository or a code sample with default props if you can. Steps are fine if not.
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: conditions
+    attributes:
+      label: Conditions
+      description: Tick everything that applies when the bug shows.
+      options:
+        - label: The operating system has reduced motion turned on
+        - label: Battery saver or data saver is on
+        - label: The page has more than one WebGL item on it
+        - label: A strict Content Security Policy is in place
+        - label: Another smooth-scroll library is on the page
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output
+      description: Warnings or errors from the browser console, if any.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I looked at the item's spec sheet.
+          required: true
+        - label: This is not a security vulnerability. I would report one privately.
+          required: true
