@@ -278,10 +278,19 @@ const CAPABLE_MACHINE_INIT_SCRIPT = `
 
 // When running in no-GL CI mode (e.g. 2-vCPU software GL runner), force tier 1 via data-fb-tier="1"
 // so generative items render posters rather than churning software-GL canvases.
+// The attribute must survive hydration: a Next app resets <html> attributes when it hydrates, which silently dropped a one-time
+// setAttribute and left the tier at whatever the machine gives (tier 3 on a capable machine: hover then mounts canvases).
 const NO_GL_INIT_SCRIPT = `
-  try {
-    document.documentElement.setAttribute("data-fb-tier", "1");
-  } catch (e) {}
+  (function () {
+    var set = function () {
+      var e = document.documentElement;
+      if (e && e.getAttribute("data-fb-tier") !== "1") e.setAttribute("data-fb-tier", "1");
+    };
+    try {
+      set();
+      new MutationObserver(set).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-fb-tier"] });
+    } catch (e) {}
+  })();
 `;
 
 const READBACK_INIT_SCRIPT = `
