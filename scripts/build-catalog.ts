@@ -9,6 +9,9 @@ export interface SourceFacts {
   usesFrame: boolean;
 }
 
+/** The one shadcn CLI version every generated install command, the skill and the AGENTS snippet use (a test compares them). */
+export const SHADCN_CLI = "shadcn@4.21.1";
+
 const esc = (v: unknown): string => String(v ?? "").replace(/\|/g, "\\|").replace(/\n/g, " ");
 
 /** Defaults are authored loosely ("undefined", null, pre-quoted strings): show them one way. */
@@ -48,7 +51,7 @@ export function generateItemSpecSheet(meta: any, facts: SourceFacts = { readsDat
   md += `- **Version**: \`${item.version || "0.1.0"}\`\n`;
   md += `- **Slot**: \`${item.slot}\`\n`;
   md += `- **Kind**: \`${item.kind}\`\n`;
-  md += `- **Install**: \`npx shadcn@latest add @frictionborn/${item.name}\`\n\n`;
+  md += `- **Install**: \`npx ${SHADCN_CLI} add @frictionborn/${item.name}\`\n\n`;
 
   md += `## Intent\n\n`;
   md += `### Use When\n`;
@@ -133,7 +136,7 @@ export function generateItemSpecSheet(meta: any, facts: SourceFacts = { readsDat
   md += `- **npm packages**: ${npmDeps.length ? npmDeps.map((n) => `\`${typeof n === "string" ? n : `${n.name}@${n.version}`}\``).join(", ") : "none"}\n\n`;
 
   md += `## Agent Instructions\n\n`;
-  md += `### Installation\n\`\`\`bash\n${agent.install || `npx shadcn@latest add @frictionborn/${item.name}`}\n\`\`\`\n\n`;
+  md += `### Installation\n\`\`\`bash\n${agent.install || `npx ${SHADCN_CLI} add @frictionborn/${item.name}`}\n\`\`\`\n\n`;
   md += `### Usage\n\`\`\`tsx\n${agent.usage || `import { ${item.name} } from "@/components/ui/${item.name}";`}\n\`\`\`\n\n`;
   if (agent.mistakes && agent.mistakes.length > 0) {
     md += `### Common Mistakes to Avoid\n`;
@@ -199,16 +202,48 @@ export function generateItemSpecSheet(meta: any, facts: SourceFacts = { readsDat
   return md;
 }
 
-const SETUP_MD = `1. Register the namespace once, in \`components.json\` (use the registry URL published with the release):
+const SETUP_MD = `1. Register the namespace once, in \`components.json\` (use the registry URL published with the release; the registry is not on a public host yet, so ask the owner if the file does not have it):
 \`\`\`json
 { "registries": { "@frictionborn": "<registry-base-url>/r/{name}.json" } }
 \`\`\`
-2. Install an item (the shadcn CLI also installs the registry items it depends on, and \`@frictionborn/runtime\`):
+2. Install items. The shadcn CLI also installs the items they depend on, \`@frictionborn/runtime\` and (smooth-scroll) lenis; do not add them by hand:
 \`\`\`bash
-npx shadcn@latest add @frictionborn/<component-name>
+npx ${SHADCN_CLI} add @frictionborn/<component-name>
 \`\`\`
-3. Items whose sheet lists a "Client Reveal Gate" need one line: Next.js renders \`<MotionReadyScript />\` in \`<head>\` of the root layout; Vite / SPA calls \`initMotionReady()\` before the first render. Both come from \`@frictionborn/runtime\`.
+3. Next.js: render \`<MotionReadyScript />\` (from \`@frictionborn/runtime\`) in \`<head>\` of the root layout, a Server Component. Vite / SPA: call \`initMotionReady()\` before \`createRoot(...).render(...)\`. Items whose sheet lists a "Client Reveal Gate" stay static without it.
+4. Under a strict Content Security Policy see \`docs/CSP.md\`: pass \`nonce\`, and \`MOTION_READY_SCRIPT_HASH\` or a nonce for \`MotionReadyScript\`.
 `;
+
+export const SKILL_TABLE_BEGIN = "<!-- BEGIN GENERATED: decision-table (pnpm meta, from registry/items/*/meta.json; do not edit by hand) -->";
+export const SKILL_TABLE_END = "<!-- END GENERATED: decision-table -->";
+
+const firstSentence = (t: unknown): string => {
+  const x = String(t ?? "").replace(/\s+/g, " ").trim();
+  return x.length > 110 ? x.slice(0, 107).trimEnd() + "..." : x;
+};
+
+/** The decision table of agents/skill/frictionborn/SKILL.md, built from each item's meta so it cannot drift from the metadata. */
+export function generateSkillDecisionTable(items: any[]): string {
+  const rows = [...items].sort((a, b) => String(a.item.slot).localeCompare(String(b.item.slot)) || String(a.item.name).localeCompare(String(b.item.name)));
+  let md = `| Slot | Item | Use it for | Avoid when | Per page | Do not combine with |
+|---|---|---|---|---|---|
+`;
+  for (const m of rows) {
+    const c = m.composition || {};
+    const conflicts = (c.conflictsWith || []).map((n: string) => `\`${n}\``).join(", ") || "—";
+    md += `| \`${m.item.slot}\` | [\`${m.item.name}\`](references/items/${m.item.name}.md) | ${esc(firstSentence(m.intent?.useWhen?.[0]))} | ${esc(firstSentence(m.intent?.avoidWhen?.[0]))} | ${c.singleton ? "1 (singleton)" : `max ${c.maxPerPage ?? "—"}`} | ${conflicts} |
+`;
+  }
+  return md;
+}
+
+/** Replace the generated region of SKILL.md. Returns the new text (unchanged when the markers are missing). */
+export function applySkillDecisionTable(skillMd: string, table: string): string {
+  const a = skillMd.indexOf(SKILL_TABLE_BEGIN);
+  const b = skillMd.indexOf(SKILL_TABLE_END);
+  if (a < 0 || b < a) throw new Error("SKILL.md is missing the generated decision-table markers");
+  return skillMd.slice(0, a) + SKILL_TABLE_BEGIN + "\n" + table + SKILL_TABLE_END + skillMd.slice(b + SKILL_TABLE_END.length);
+}
 
 export function generateCatalog(items: any[]): string {
   let md = `# Frictionborn Motion — Component Catalog\n\n`;
@@ -318,6 +353,15 @@ export function buildCatalog(): boolean {
   const catalogFile = path.join(agentRefDir, "catalog.md");
   fs.writeFileSync(catalogFile, catalogMd, "utf8");
   console.log(`✔ Generated catalog: ${path.relative(projectRoot, catalogFile)}`);
+
+  // Decision table of the skill: generated from the metadata (the rest of SKILL.md is hand-written)
+  const skillFile = path.join(projectRoot, "agents", "skill", "frictionborn", "SKILL.md");
+  if (fs.existsSync(skillFile)) {
+    const before = fs.readFileSync(skillFile, "utf8").split("\r\n").join("\n");
+    const after = applySkillDecisionTable(before, generateSkillDecisionTable(loadedItems));
+    if (after !== before) fs.writeFileSync(skillFile, after, "utf8");
+    console.log(`✔ Generated decision table in: ${path.relative(projectRoot, skillFile)}`);
+  }
 
   // Generate llms.txt at root
   const llmsTxt = generateLlmsTxt(loadedItems);

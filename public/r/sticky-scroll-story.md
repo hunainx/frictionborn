@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `scroll-section`
 - **Kind**: `dom`
-- **Install**: `npx shadcn@latest add @frictionborn/sticky-scroll-story`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/sticky-scroll-story`
 
 ## Intent
 
@@ -89,7 +89,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/sticky-scroll-story
+npx shadcn@4.21.1 add @frictionborn/sticky-scroll-story
 ```
 
 ### Usage

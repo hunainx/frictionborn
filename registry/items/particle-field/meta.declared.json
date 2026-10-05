@@ -164,7 +164,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/particle-field",
+    "install": "npx shadcn@4.21.1 add @frictionborn/particle-field",
     "usage": "import { ParticleField } from \"@/components/ui/particle-field\";\n\nexport default function Hero() {\n  return (\n    <ParticleField count={2000} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Sub-Angstrom Kinematics</h1>\n    </ParticleField>\n  );\n}",
     "mistakes": [
       "Do not attach your own window mouse listeners for repulsion; ParticleField already adds one window pointermove listener, only on devices that report pointer: fine.",

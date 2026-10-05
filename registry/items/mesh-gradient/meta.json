@@ -180,7 +180,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/mesh-gradient",
+    "install": "npx shadcn@4.21.1 add @frictionborn/mesh-gradient",
     "usage": "import { MeshGradient } from \"@/components/ui/mesh-gradient\";\n\nexport default function Hero() {\n  return (\n    <MeshGradient scrim className=\"min-h-[500px] flex items-center justify-center\">\n      <h1 className=\"text-4xl font-bold tracking-tight text-foreground\">Spectral Wavefront</h1>\n    </MeshGradient>\n  );\n}",
     "mistakes": [
       "Do not combine multiple MeshGradient instances in the same viewport.",

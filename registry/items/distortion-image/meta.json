@@ -218,7 +218,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/distortion-image",
+    "install": "npx shadcn@4.21.1 add @frictionborn/distortion-image",
     "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
     "mistakes": [
       "Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.",

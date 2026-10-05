@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `media`
 - **Kind**: `webgl`
-- **Install**: `npx shadcn@latest add @frictionborn/distortion-image`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/distortion-image`
 
 ## Intent
 
@@ -103,7 +103,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/distortion-image
+npx shadcn@4.21.1 add @frictionborn/distortion-image
 ```
 
 ### Usage

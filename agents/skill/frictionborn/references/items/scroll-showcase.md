@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `composition`
 - **Kind**: `composition`
-- **Install**: `npx shadcn@latest add @frictionborn/scroll-showcase`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/scroll-showcase`
 
 ## Intent
 
@@ -98,7 +98,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/scroll-showcase
+npx shadcn@4.21.1 add @frictionborn/scroll-showcase
 ```
 
 ### Usage

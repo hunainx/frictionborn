@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `cta`
 - **Kind**: `dom`
-- **Install**: `npx shadcn@latest add @frictionborn/magnetic-button`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/magnetic-button`
 
 ## Intent
 
@@ -90,7 +90,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/magnetic-button
+npx shadcn@4.21.1 add @frictionborn/magnetic-button
 ```
 
 ### Usage

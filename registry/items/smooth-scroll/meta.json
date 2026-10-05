@@ -171,7 +171,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/smooth-scroll",
+    "install": "npx shadcn@4.21.1 add @frictionborn/smooth-scroll",
     "usage": "import { SmoothScroll } from \"@/components/ui/smooth-scroll\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <SmoothScroll>\n      {children}\n    </SmoothScroll>\n  );\n}",
     "mistakes": [
       "Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider (a second mount warns and does nothing).",

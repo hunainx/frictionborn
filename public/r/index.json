@@ -207,7 +207,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/ambient-hero",
+          "install": "npx shadcn@4.21.1 add @frictionborn/ambient-hero",
           "usage": "// Installing ambient-hero also installs noise-field, mesh-gradient, particle-field, text-reveal and magnetic-button; only the selected variant renders.\nimport { AmbientHero } from '@/components/ui/ambient-hero';\n\nexport default function Hero() {\n  return (\n    <AmbientHero\n      headline=\"Your headline\"\n      body=\"One or two plain sentences about what you offer.\"\n      primaryCta={{ label: 'Start now', href: '/signup' }}\n    />\n  );\n}",
           "mistakes": [
             "Do not place a second WebGL item above the fold alongside AmbientHero (violates single signature moment rule).",
@@ -545,7 +545,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/distortion-image",
+          "install": "npx shadcn@4.21.1 add @frictionborn/distortion-image",
           "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
           "mistakes": [
             "Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.",
@@ -795,7 +795,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/magnetic-button",
+          "install": "npx shadcn@4.21.1 add @frictionborn/magnetic-button",
           "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton pullDistance={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
           "mistakes": [
             "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",
@@ -1069,7 +1069,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/marquee",
+          "install": "npx shadcn@4.21.1 add @frictionborn/marquee",
           "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee pixelsPerSecond={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
           "mistakes": [
             "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",
@@ -1366,7 +1366,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/mesh-gradient",
+          "install": "npx shadcn@4.21.1 add @frictionborn/mesh-gradient",
           "usage": "import { MeshGradient } from \"@/components/ui/mesh-gradient\";\n\nexport default function Hero() {\n  return (\n    <MeshGradient scrim className=\"min-h-[500px] flex items-center justify-center\">\n      <h1 className=\"text-4xl font-bold tracking-tight text-foreground\">Spectral Wavefront</h1>\n    </MeshGradient>\n  );\n}",
           "mistakes": [
             "Do not combine multiple MeshGradient instances in the same viewport.",
@@ -1663,7 +1663,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/noise-field",
+          "install": "npx shadcn@4.21.1 add @frictionborn/noise-field",
           "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
           "mistakes": [
             "Keep the scrim on when placing text over the canvas, but do not assume it guarantees WCAG 4.5:1 contrast: it only lowers background luminance. Verify contrast for your colours and use host foreground tokens for text.",
@@ -1948,7 +1948,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/particle-field",
+          "install": "npx shadcn@4.21.1 add @frictionborn/particle-field",
           "usage": "import { ParticleField } from \"@/components/ui/particle-field\";\n\nexport default function Hero() {\n  return (\n    <ParticleField count={2000} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Sub-Angstrom Kinematics</h1>\n    </ParticleField>\n  );\n}",
           "mistakes": [
             "Do not attach your own window mouse listeners for repulsion; ParticleField already adds one window pointermove listener, only on devices that report pointer: fine.",
@@ -2211,7 +2211,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/scroll-reveal",
+          "install": "npx shadcn@4.21.1 add @frictionborn/scroll-reveal",
           "usage": "import { ScrollReveal } from \"@/components/ui/scroll-reveal\";\n\nexport default function CardGrid() {\n  return (\n    <ScrollReveal animation=\"fade-up\" distance={24}>\n      <div className=\"rounded-lg border p-6\">\n        <h3>Feature Title</h3>\n        <p>Feature description.</p>\n      </div>\n    </ScrollReveal>\n  );\n}",
           "mistakes": [
             "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",
@@ -2510,7 +2510,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
+          "install": "npx shadcn@4.21.1 add @frictionborn/scroll-showcase",
           "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\nconst steps = [\n  { id: 'one', title: 'First step', description: 'What happens first.', media: { content: <div>Illustration</div> } },\n  { id: 'two', title: 'Second step', description: 'What happens next.', media: { content: <div>Illustration</div> } },\n];\n\nexport default function Story() {\n  return <ScrollShowcase headline=\"How it works\" description=\"Three plain sentences.\" steps={steps} />;\n}",
           "mistakes": [
             "headline, description and steps are required and the component contains no copy of its own: nothing is rendered for specsHeading, specsEyebrow or marqueeLabel unless you pass them.",
@@ -2788,7 +2788,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/smooth-scroll",
+          "install": "npx shadcn@4.21.1 add @frictionborn/smooth-scroll",
           "usage": "import { SmoothScroll } from \"@/components/ui/smooth-scroll\";\n\nexport default function RootLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <SmoothScroll>\n      {children}\n    </SmoothScroll>\n  );\n}",
           "mistakes": [
             "Do not mount multiple SmoothScroll instances; SmoothScroll is a singleton provider (a second mount warns and does nothing).",
@@ -3034,7 +3034,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/sticky-scroll-story",
+          "install": "npx shadcn@4.21.1 add @frictionborn/sticky-scroll-story",
           "usage": "import { StickyScrollStory, type StoryStep } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps: StoryStep[] = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" },\n  },\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
           "mistakes": [
             "Do not attach window scroll listeners to calculate sticky step progress; StickyScrollStory uses IntersectionObserver.",
@@ -3303,7 +3303,7 @@
           }
         ],
         "agent": {
-          "install": "npx shadcn@latest add @frictionborn/text-reveal",
+          "install": "npx shadcn@4.21.1 add @frictionborn/text-reveal",
           "usage": "import { TextReveal } from \"@/components/ui/text-reveal\";\n\nexport default function HeroHeadline() {\n  return (\n    <TextReveal as=\"h1\" by=\"word\" className=\"text-4xl font-bold tracking-tight\">\n      Engineered Motion for High-Signal Interfaces\n    </TextReveal>\n  );\n}",
           "mistakes": [
             "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",

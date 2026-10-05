@@ -214,7 +214,7 @@
       }
     ],
     "agent": {
-      "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
+      "install": "npx shadcn@4.21.1 add @frictionborn/scroll-showcase",
       "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\nconst steps = [\n  { id: 'one', title: 'First step', description: 'What happens first.', media: { content: <div>Illustration</div> } },\n  { id: 'two', title: 'Second step', description: 'What happens next.', media: { content: <div>Illustration</div> } },\n];\n\nexport default function Story() {\n  return <ScrollShowcase headline=\"How it works\" description=\"Three plain sentences.\" steps={steps} />;\n}",
       "mistakes": [
         "headline, description and steps are required and the component contains no copy of its own: nothing is rendered for specsHeading, specsEyebrow or marqueeLabel unless you pass them.",

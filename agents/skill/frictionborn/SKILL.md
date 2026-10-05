@@ -1,72 +1,80 @@
 ---
 name: frictionborn
-description: Expert guidance on choosing, installing, and configuring verified Frictionborn Motion and WebGL components.
+description: Choose, install and use Frictionborn Motion items, verified React components for motion and WebGL on marketing pages (animated hero backgrounds, scroll reveals, sticky scroll stories, hover image effects, marquee, smooth scroll). Use when the user asks for an animated hero or background, scroll or hover effects, or a premium, smooth feel on a landing page. Do not use for dashboards, tables, filters, forms or other app UI.
 ---
 
-# Frictionborn Motion Skill
+# Frictionborn Motion
 
-Use Frictionborn when building high-craft landing pages, marketing sections, or portfolio showpieces.
+12 source-copied React items with measured budgets, installed through the shadcn CLI into `components/ui`. Before you use an item, read its spec sheet: `references/items/<name>.md` (props with units, gotchas, measured evidence). `references/catalog.md` lists all items.
 
-## 1. When to Use (and When NOT to Use)
+## 1. Use it, or don't
 
-- **USE FOR**: Landing page heros, product feature showcases, conversion CTAs, narrative scroll storytelling, brand showcases.
-- **DO NOT USE FOR**: Dense dashboards, data tables, checkout/auth forms, modals, administrative UI, or repeated feed cards.
+- Use for marketing and landing pages: heroes, feature and story sections, galleries, logo strips.
+- Do not use for dashboards, tables, filters, forms, checkout or auth, modals, admin UI, or repeated list rows. Build those with plain shadcn components and say that Frictionborn was left out on purpose.
+- If no item fits the request, say so and build it without Frictionborn. Never invent a prop: if it is not in the spec sheet, it does not exist.
 
-## 2. Item Decision Table
+## 2. Pick the item
 
-| Intent / UX Slot | Recommended Item | Alternative / Notes |
-| :--- | :--- | :--- |
-| **Hero Background** | `mesh-gradient` (chromatic) or `noise-field` (fluid) | `particle-field` (minimal constellations). Max 1 ambient canvas per page. |
-| **Hero Entrance** | `text-reveal` | Word-by-word reveal for `<h1>` headlines. Renders static during SSR. |
-| **Primary Action** | `magnetic-button` | Pulls toward cursor on fine-pointer devices. Snaps to origin on focus. |
-| **Full Hero Section** | `ambient-hero` | Pre-assembled composition: background + `TextReveal` + `MagneticButton`. |
-| **Narrative Showcase**| `sticky-scroll-story` | Sticky media panel with scrolling text milestones. Stacked on mobile. |
-| **Feature Unveiling** | `scroll-reveal` | Pure CSS scroll-driven reveals (fallback to IO). Focus-guarded. |
-| **Brand / Proof Ticker**| `marquee` | Seamless ticker. Pauses on hover, focus, and reduced motion. |
-| **Feature Deep-Dive** | `scroll-showcase` | Pre-assembled composition: narrative + specifications grid + marquee. |
-| **Hero Visual / Image**| `distortion-image` | Interactive WebGL ripple on hover/focus. Lease released on 3s idle. |
-| **Page Momentum** | `smooth-scroll` | Lenis smooth scroll provider. Disabled on coarse touch screens & reduced motion. |
+<!-- BEGIN GENERATED: decision-table (pnpm meta, from registry/items/*/meta.json; do not edit by hand) -->
+| Slot | Item | Use it for | Avoid when | Per page | Do not combine with |
+|---|---|---|---|---|---|
+| `background` | [`mesh-gradient`](references/items/mesh-gradient.md) | Hero sections requiring rich, fluid multi-color ambient backgrounds | Dense text sections where text contrast over the gradient has not been verified | max 1 | `noise-field`, `particle-field` |
+| `background` | [`noise-field`](references/items/noise-field.md) | Hero sections requiring a calm, generative ambient backdrop | Dense reading passages or documentation tables where text contrast over the canvas has not been verified | max 1 | `mesh-gradient`, `particle-field` |
+| `background` | [`particle-field`](references/items/particle-field.md) | Hero sections requiring discrete starry or kinetic depth points | Dense text sections where text contrast over the particles has not been verified | max 1 | `noise-field`, `mesh-gradient` |
+| `composition` | [`ambient-hero`](references/items/ambient-hero.md) | Primary landing page hero section requiring an ambient signature moment | Secondary pages or documentation headers where ambient motion distracts from content | 1 (singleton) | `noise-field`, `mesh-gradient`, `particle-field` |
+| `composition` | [`scroll-showcase`](references/items/scroll-showcase.md) | Product feature narrative requiring sticky step progression and reveal on scroll | Short single-screen pages without scroll depth | max 1 | — |
+| `cta` | [`magnetic-button`](references/items/magnetic-button.md) | High-priority call-to-action buttons in hero and conversion sections | Dense lists of repeating table buttons or compact toolbar grids | max 10 | — |
+| `headline` | [`text-reveal`](references/items/text-reveal.md) | Hero headlines and section titles requiring editorial typographic reveals | Long paragraphs or running prose (> 2 lines of body text) | max 5 | — |
+| `media` | [`distortion-image`](references/items/distortion-image.md) | Portfolio galleries and editorial features requiring tactile pointer distortion | Long lists of small thumbnails on mobile where static images are optimal | max 30 | — |
+| `media` | [`scroll-reveal`](references/items/scroll-reveal.md) | Feature cards, images, and marketing content blocks entering the viewport | Above-the-fold hero elements that must paint immediately for LCP | max 20 | — |
+| `page-provider` | [`smooth-scroll`](references/items/smooth-scroll.md) | Marketing landing pages requiring unified cinematic scroll feel | Dashboards and data-dense productivity software | 1 (singleton) | — |
+| `scroll-section` | [`sticky-scroll-story`](references/items/sticky-scroll-story.md) | Editorial feature walk-throughs with accompanying media illustrations | Short single-paragraph descriptions without multi-step progression | max 2 | — |
+| `strip` | [`marquee`](references/items/marquee.md) | Logo clouds, customer testimonials, and partner strips | Critical action buttons or primary call-to-action links that users must click immediately | max 4 | — |
+<!-- END GENERATED: decision-table -->
 
-## 3. Composition Rules
+How common requests map to items:
 
-1. **One Signature Moment Per Viewport**: Never stack multiple animated canvases or attention-grabbing items in the same view.
-2. **WebGL Context Budget**: Maximum 1 active WebGL context above the fold. Items use server CSS posters until leased.
-3. **WCAG AAA Scrim**: Ensure overlaid text maintains ≥ 4.5:1 contrast against canvases via theme background scrims.
-4. **Accessible Static Default**: Respect `prefers-reduced-motion: reduce`. All items render readable, static DOM equivalents.
+- **Animated hero or background**: `ambient-hero` for the whole hero (pass `headline`, `body`, `primaryCta`; there is no default copy). Or one of `mesh-gradient`, `noise-field`, `particle-field` as the background of a hero you write yourself. At most one WebGL item above the fold.
+- **Images that react on hover**: `distortion-image` per image (own raster images such as webp, jpg or png; a cross-origin image needs CORS headers). It uses a WebGL context only while hovered or focused, and the runtime caps how many exist at once.
+- **Content that reveals on scroll**: `scroll-reveal` around each block below the fold (never around the hero: it is the LCP). Use `as="li"` and similar for list items.
+- **A story told in steps**: `sticky-scroll-story` (one media per step). Choose `scroll-showcase` only when you also want the metrics grid and the marquee strip around it.
+- **"Premium and smooth" for a whole page**: `smooth-scroll` once, in the root layout; `scroll-reveal` on blocks below the fold; `magnetic-button` on the one primary call to action; at most one hero background. Stop there: more motion is worse, not more premium.
+- **Logo or proof strip**: `marquee`.
 
-## 4. Installation & Setup
+## 3. Install
 
-1. **Install Runtime**:
-   ```bash
-   pnpm add @frictionborn/runtime lenis
-   ```
-2. **Motion-Ready Script**:
-   - **Next.js (App Router)**: Add `<MotionReadyScript />` to `<head>` in `app/layout.tsx`.
-   - **Vite / SPA**: Call `initMotionReady()` at the entry point (`main.tsx`).
-3. **Install Components via shadcn CLI**:
-   ```bash
-   npx shadcn@4.21.1 add @frictionborn/<item-name>
-   ```
-4. **CSP Configuration**: If using strict CSP, add `MOTION_READY_SCRIPT_HASH` to `script-src` and pass `nonce` to items using `<style>`.
+1. `components.json` must contain the registry namespace. Check it first. If it is missing, ask the owner for the registry URL (it is not on a public host yet) and add:
+   `{ "registries": { "@frictionborn": "<registry-base-url>/r/{name}.json" } }`
+2. `npx shadcn@4.21.1 add @frictionborn/<item> [<item> ...]`. This writes the item into `components/ui`, installs the items it depends on, `@frictionborn/runtime`, and `lenis` for `smooth-scroll`. Do not `pnpm add` those yourself. Use this pinned version, not `@latest`.
+3. Reveal gate. Next.js: render `<MotionReadyScript />` (from `@frictionborn/runtime`) inside `<head>` of the root layout. It is safe in a Server Component. Vite or SPA: call `initMotionReady()` from `@frictionborn/runtime` before `createRoot(...).render(...)`. Without it `text-reveal`, `scroll-reveal`, `marquee`, `sticky-scroll-story` and both compositions stay static (nothing is hidden, nothing animates). Add it whenever you use anything other than a WebGL background or `distortion-image`.
+4. Strict Content Security Policy: read the nonce in a Server Component and pass it down: `<MotionReadyScript nonce={nonce} />` and `nonce` on `text-reveal`, `scroll-reveal`, `marquee`, `sticky-scroll-story`, `ambient-hero`, `scroll-showcase`. The policy must also allow `style-src-attr 'unsafe-inline'`, because inline `style` attributes cannot carry a nonce.
 
-## 5. Usage & Host Design Tokens
+## 4. Props and units (the same on every item)
 
-- **Strictly use host tokens**: Pass CSS variables (`var(--background)`, `var(--primary)`, `var(--foreground)`, `var(--border)`).
-- **TypeScript Required Props**: Compositions require explicit content props (`headline`, `body`, `primaryCta`, `steps`). Never ship placeholder demo copy.
-- **Universal `paused` Prop**: All items accept `paused?: boolean` for consumer-controlled animation freezing.
-- **Per-Item Spec Sheets**: Consult `references/items/<item-name>.md` and `references/catalog.md` for exact props and performance limits.
+- Durations are milliseconds: `duration={1200}` is 1.2 s. `speed` is a multiplier (1 = the item's normal speed). `strength` is 0 to 1. `pullDistance` is px, `pixelsPerSecond` is px per second.
+- Every item takes `paused`, `ref` and `className`/`style`, and spreads other HTML attributes on its root. The 4 items that render a `<style>` take `nonce`.
+- Colours: host design tokens only (`var(--background)`, `--foreground`, `--primary`, `--border`, `--muted-foreground`), or Tailwind utilities that map to them (`bg-background`). Never hard-code a colour. Never pass `var()` strings to a canvas yourself; the items resolve tokens.
 
-## 6. How to Read Verified Metadata
+## 5. Rules
 
-Verified metadata is stored in `meta.json` next to each component and published in the registry:
-- `intent`: Official guidance on when to use, when to avoid, and compatible companions.
-- `measured`: Real benchmark evidence (FPS, frame times, CPU idle, memory delta, Lighthouse scores) measured on committed code.
-- `behavior`: Capability tiers (T0 static fallback, T1 low-power, T2 balanced, T3 full desktop) and reduced-motion modes.
+1. One signature moment per viewport: at most one WebGL item above the fold, and no stack of attention-grabbing items next to each other.
+2. One scroll engine: a single `smooth-scroll`, never on dashboards. Never write your own `requestAnimationFrame` loop or add GSAP or Framer Motion.
+3. Reduced motion is handled by the items. Do not override it, and do not add motion that ignores `prefers-reduced-motion`.
+4. Text stays real DOM text: native `<a>` and `<button>` for actions, `alt` on images. Motion longer than 5 s needs a pause control (`ambient-hero`'s and `marquee`'s are built in; for the three background items add your own and wire it to `paused`).
+5. A scrim lowers background luminance but does not guarantee contrast. Check text contrast over any canvas, in light and dark.
 
-## 7. Anti-Patterns to Reject
+## 6. Traps
 
-- **NEVER** pass unresolved `var()`, `hsl()`, or `oklch()` color strings into WebGL uniforms. Use `resolveCssColor()` first.
-- **NEVER** place two WebGL items above the fold.
-- **NEVER** use custom easing curves that violate the design system standard tokens (`ease-out`, `ease-spring`).
-- **NEVER** run scroll listeners on low-power tiers (use `IntersectionObserver` or CSS `animation-timeline`).
-- **NEVER** hardcode background slabs (e.g. `#0d0f12`) in component code—always resolve through host theme tokens.
+- `text-reveal` on a server-rendered page paints final text and does not animate on first load. `replayKey` makes it hide and replay after hydration, which flashes. Use it for client-side swaps, not for a hero that must be visible immediately.
+- `ambient-hero` and `scroll-showcase` take required content props; TypeScript fails without them. They contain no copy of their own and no demo text.
+- `sticky-scroll-story` renders each step's media twice (sticky and stacked copy), so no ids inside it, and step titles are `h2`.
+- `mesh-gradient`, `noise-field` and `particle-field` fill their container: give it a height. `distortion-image` takes its size from your `className` or `width`/`height`.
+- Installed files are vendored source. Under Next 16's default ESLint they report `react-hooks/refs` and `no-explicit-any` errors. Do not hand-edit them to silence it; add `components/ui/<item>*` to the ESLint ignores and tell the user.
+- `next build` does not run lint, so a passing build does not mean the lint is clean.
+
+## 7. Verify before you report
+
+1. `next build` (or the framework's build) passes.
+2. Open the page: 0 console errors, one `h1`, focus rings visible, at most one canvas above the fold.
+3. Turn on reduced motion in the OS or the browser: no canvas, nothing moving, all text visible.
+4. Report which items you installed and why, anything you could not verify, and the lint note above if it applies.

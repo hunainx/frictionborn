@@ -159,7 +159,7 @@
       }
     ],
     "agent": {
-      "install": "npx shadcn@latest add @frictionborn/magnetic-button",
+      "install": "npx shadcn@4.21.1 add @frictionborn/magnetic-button",
       "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton pullDistance={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
       "mistakes": [
         "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",

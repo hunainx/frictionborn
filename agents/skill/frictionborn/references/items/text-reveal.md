@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `headline`
 - **Kind**: `dom`
-- **Install**: `npx shadcn@latest add @frictionborn/text-reveal`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/text-reveal`
 
 ## Intent
 
@@ -94,7 +94,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/text-reveal
+npx shadcn@4.21.1 add @frictionborn/text-reveal
 ```
 
 ### Usage

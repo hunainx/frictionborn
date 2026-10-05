@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `page-provider`
 - **Kind**: `scroll-provider`
-- **Install**: `npx shadcn@latest add @frictionborn/smooth-scroll`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/smooth-scroll`
 
 ## Intent
 
@@ -95,7 +95,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/smooth-scroll
+npx shadcn@4.21.1 add @frictionborn/smooth-scroll
 ```
 
 ### Usage

@@ -158,7 +158,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/scroll-reveal",
+    "install": "npx shadcn@4.21.1 add @frictionborn/scroll-reveal",
     "usage": "import { ScrollReveal } from \"@/components/ui/scroll-reveal\";\n\nexport default function CardGrid() {\n  return (\n    <ScrollReveal animation=\"fade-up\" distance={24}>\n      <div className=\"rounded-lg border p-6\">\n        <h3>Feature Title</h3>\n        <p>Feature description.</p>\n      </div>\n    </ScrollReveal>\n  );\n}",
     "mistakes": [
       "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",

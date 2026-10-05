@@ -134,7 +134,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/sticky-scroll-story",
+    "install": "npx shadcn@4.21.1 add @frictionborn/sticky-scroll-story",
     "usage": "import { StickyScrollStory, type StoryStep } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps: StoryStep[] = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" },\n  },\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
     "mistakes": [
       "Do not attach window scroll listeners to calculate sticky step progress; StickyScrollStory uses IntersectionObserver.",

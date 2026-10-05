@@ -188,7 +188,7 @@
       }
     ],
     "agent": {
-      "install": "npx shadcn@latest add @frictionborn/marquee",
+      "install": "npx shadcn@4.21.1 add @frictionborn/marquee",
       "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee pixelsPerSecond={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
       "mistakes": [
         "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",

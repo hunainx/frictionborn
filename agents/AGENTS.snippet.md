@@ -1,17 +1,7 @@
-# Frictionborn Motion Integration
+# Frictionborn Motion
 
-This project uses Frictionborn Motion for production marketing and landing page sections.
+Before writing animation, scroll, hover or WebGL code, read the Frictionborn skill (`.claude/skills/frictionborn/SKILL.md`, or `.agents/skills/frictionborn/SKILL.md`) and the spec sheet of every item you use (`references/items/<name>.md` next to it).
 
-## Rules for Agents Working in this Repository
-1. **Scope & Context**:
-   - Use Frictionborn exclusively for marketing heros, narrative scroll sections, feature deep-dives, and conversion CTAs.
-   - Do NOT use Frictionborn for internal dashboards, forms, dense tables, or repeated list items.
-2. **Component Conventions**:
-   - Single signature moment per viewport (at most 1 active WebGL canvas above the fold).
-   - All durations are in milliseconds (`duration={1200}`).
-   - Universal pause: pass `paused` prop to freeze animation when needed.
-   - Strictly use host design tokens: `var(--background)`, `var(--primary)`, `var(--foreground)`, `var(--border)`. Never hardcode colors.
-   - Respect reduced motion: never bypass `prefers-reduced-motion: reduce`.
-3. **Adding New Components**:
-   - Install using the shadcn CLI: `npx shadcn@4.21.1 add @frictionborn/<item-name>`
-   - Verify that `<MotionReadyScript />` (Next.js) or `initMotionReady()` (Vite) is present in your app layout/entry.
+1. Use Frictionborn only for marketing and landing sections: heroes, story and feature sections, galleries, logo strips. Never for dashboards, tables, forms or repeated list rows.
+2. Install with `npx shadcn@4.21.1 add @frictionborn/<item>`. Never copy motion code by hand, never write your own `requestAnimationFrame` loop, never invent a prop: read the spec sheet.
+3. At most one WebGL item above the fold; host design tokens only (`var(--background)`, `var(--primary)`, ...); keep `prefers-reduced-motion` working (add `<MotionReadyScript />` in the Next.js root layout `<head>`, or call `initMotionReady()` in Vite).

@@ -28,12 +28,13 @@ Verified motion and WebGL components with strict zero-slop budgets, server-safe 
 
 ## Installation Guide
 
-1. Register the namespace once, in `components.json` (use the registry URL published with the release):
+1. Register the namespace once, in `components.json` (use the registry URL published with the release; the registry is not on a public host yet, so ask the owner if the file does not have it):
 ```json
 { "registries": { "@frictionborn": "<registry-base-url>/r/{name}.json" } }
 ```
-2. Install an item (the shadcn CLI also installs the registry items it depends on, and `@frictionborn/runtime`):
+2. Install items. The shadcn CLI also installs the items they depend on, `@frictionborn/runtime` and (smooth-scroll) lenis; do not add them by hand:
 ```bash
-npx shadcn@latest add @frictionborn/<component-name>
+npx shadcn@4.21.1 add @frictionborn/<component-name>
 ```
-3. Items whose sheet lists a "Client Reveal Gate" need one line: Next.js renders `<MotionReadyScript />` in `<head>` of the root layout; Vite / SPA calls `initMotionReady()` before the first render. Both come from `@frictionborn/runtime`.
+3. Next.js: render `<MotionReadyScript />` (from `@frictionborn/runtime`) in `<head>` of the root layout, a Server Component. Vite / SPA: call `initMotionReady()` before `createRoot(...).render(...)`. Items whose sheet lists a "Client Reveal Gate" stay static without it.
+4. Under a strict Content Security Policy see `docs/CSP.md`: pass `nonce`, and `MOTION_READY_SCRIPT_HASH` or a nonce for `MotionReadyScript`.

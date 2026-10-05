@@ -183,7 +183,7 @@
       }
     ],
     "agent": {
-      "install": "npx shadcn@latest add @frictionborn/text-reveal",
+      "install": "npx shadcn@4.21.1 add @frictionborn/text-reveal",
       "usage": "import { TextReveal } from \"@/components/ui/text-reveal\";\n\nexport default function HeroHeadline() {\n  return (\n    <TextReveal as=\"h1\" by=\"word\" className=\"text-4xl font-bold tracking-tight\">\n      Engineered Motion for High-Signal Interfaces\n    </TextReveal>\n  );\n}",
       "mistakes": [
         "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",

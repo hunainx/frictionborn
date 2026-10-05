@@ -202,7 +202,7 @@
       }
     ],
     "agent": {
-      "install": "npx shadcn@latest add @frictionborn/ambient-hero",
+      "install": "npx shadcn@4.21.1 add @frictionborn/ambient-hero",
       "usage": "// Installing ambient-hero also installs noise-field, mesh-gradient, particle-field, text-reveal and magnetic-button; only the selected variant renders.\nimport { AmbientHero } from '@/components/ui/ambient-hero';\n\nexport default function Hero() {\n  return (\n    <AmbientHero\n      headline=\"Your headline\"\n      body=\"One or two plain sentences about what you offer.\"\n      primaryCta={{ label: 'Start now', href: '/signup' }}\n    />\n  );\n}",
       "mistakes": [
         "Do not place a second WebGL item above the fold alongside AmbientHero (violates single signature moment rule).",

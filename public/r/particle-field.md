@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `background`
 - **Kind**: `webgl`
-- **Install**: `npx shadcn@latest add @frictionborn/particle-field`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/particle-field`
 
 ## Intent
 
@@ -94,7 +94,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/particle-field
+npx shadcn@4.21.1 add @frictionborn/particle-field
 ```
 
 ### Usage

@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `media`
 - **Kind**: `dom`
-- **Install**: `npx shadcn@latest add @frictionborn/scroll-reveal`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/scroll-reveal`
 
 ## Intent
 
@@ -93,7 +93,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/scroll-reveal
+npx shadcn@4.21.1 add @frictionborn/scroll-reveal
 ```
 
 ### Usage

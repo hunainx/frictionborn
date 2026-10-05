@@ -173,7 +173,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/noise-field",
+    "install": "npx shadcn@4.21.1 add @frictionborn/noise-field",
     "usage": "import { NoiseField } from \"@/components/ui/noise-field\";\n\nexport default function Hero() {\n  return (\n    <NoiseField className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Engineered Motion</h1>\n    </NoiseField>\n  );\n}",
     "mistakes": [
       "Keep the scrim on when placing text over the canvas, but do not assume it guarantees WCAG 4.5:1 contrast: it only lowers background luminance. Verify contrast for your colours and use host foreground tokens for text.",

@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `composition`
 - **Kind**: `composition`
-- **Install**: `npx shadcn@latest add @frictionborn/ambient-hero`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/ambient-hero`
 
 ## Intent
 
@@ -95,7 +95,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/ambient-hero
+npx shadcn@4.21.1 add @frictionborn/ambient-hero
 ```
 
 ### Usage

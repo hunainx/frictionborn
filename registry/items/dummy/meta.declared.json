@@ -79,7 +79,7 @@
     }
   ],
   "agent": {
-    "install": "npx shadcn@latest add @frictionborn/dummy",
+    "install": "npx shadcn@4.21.1 add @frictionborn/dummy",
     "usage": "import { Dummy } from \"@/components/ui/dummy\";\n\nexport default function Page() {\n  return <Dummy className=\"p-4\">Content</Dummy>;\n}",
     "mistakes": [
       "Do not attempt to animate directly using requestAnimationFrame; use useFrame from @frictionborn/runtime.",

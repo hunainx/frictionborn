@@ -8,7 +8,7 @@
 - **Version**: `0.1.0`
 - **Slot**: `background`
 - **Kind**: `webgl`
-- **Install**: `npx shadcn@latest add @frictionborn/mesh-gradient`
+- **Install**: `npx shadcn@4.21.1 add @frictionborn/mesh-gradient`
 
 ## Intent
 
@@ -96,7 +96,7 @@
 
 ### Installation
 ```bash
-npx shadcn@latest add @frictionborn/mesh-gradient
+npx shadcn@4.21.1 add @frictionborn/mesh-gradient
 ```
 
 ### Usage
