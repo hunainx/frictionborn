@@ -118,8 +118,8 @@ import { AmbientHero } from '@/components/ui/ambient-hero';
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `7f3e58a` (2026-10-04)
-- **Size**: 3.17 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `53fd14c` (2026-10-05)
+- **Size**: 3.5 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -130,11 +130,11 @@ import { AmbientHero } from '@/components/ui/ambient-hero';
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 18 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 17 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 18 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 17 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 16 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-05 | 19 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-05 | 18 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-05 | 19 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-05 | 18 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-05 | 17 passed, 0 failed |
 
 ## License & Provenance
 

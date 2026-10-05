@@ -120,8 +120,8 @@ export default function StorySection() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `d8d51e2` (2026-10-04)
-- **Size**: 2.68 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `53fd14c` (2026-10-05)
+- **Size**: 2.81 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -132,11 +132,11 @@ export default function StorySection() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-04 | 12 passed, 0 failed; all specs verified |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-05 | 13 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-05 | 13 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-05 | 13 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-05 | 13 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-05 | 13 passed, 0 failed |
 
 ## License & Provenance
 

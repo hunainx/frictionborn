@@ -3,6 +3,7 @@
   --background: #0D0F12;
   --foreground: #E9EBF0;
   --primary: #FB923C;
+  --primary-foreground: #0D0F12;
   --accent: #3B82F6;
 
   --bg: #0D0F12;
@@ -26,6 +27,7 @@ html.light, html[data-theme="light"] {
   --background: #F4F5F7;
   --foreground: #111318;
   --primary: #C2410C;
+  --primary-foreground: #FFFFFF;
   --accent: #2563EB;
 
   --bg: #F4F5F7;

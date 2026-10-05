@@ -344,8 +344,8 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     textDecoration: "none",
-                    color: "var(--primary-foreground, Canvas)",
-                    background: "var(--primary, CanvasText)",
+                    color: "var(--primary-foreground, #0d0f12)",
+                    background: "var(--primary, #fb923c)",
                     boxShadow: "0 4px 14px color-mix(in srgb, var(--background, #000) 35%, transparent)",
                     transition: "background 150ms ease, transform 150ms ease",
                   }}
