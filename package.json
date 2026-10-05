@@ -10,7 +10,7 @@
     "test": "vitest run",
     "bench": "node --experimental-strip-types bench/run-bench.ts",
     "bench:release": "node --experimental-strip-types bench/run-bench.ts --release",
-    "size": "size-limit",
+    "size": "node --experimental-strip-types scripts/build-sizes.ts",
     "lint": "eslint . && node --experimental-strip-types scripts/check-provenance.ts && node --experimental-strip-types scripts/check-copy.ts && node --experimental-strip-types scripts/check-shipped-code.ts",
     "meta": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts && node --experimental-strip-types scripts/build-catalog.ts",
     "meta:check": "node --experimental-strip-types scripts/validate-meta.ts && node --experimental-strip-types scripts/merge-evidence.ts --check && node --experimental-strip-types scripts/build-catalog.ts",
