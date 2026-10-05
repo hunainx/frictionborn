@@ -196,7 +196,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
           {renderBackground()}
         </div>
 
-        {/* 2. Contrast Scrim (ensures contrast >= 4.5:1 across dark and light using host background token) */}
+        {/* 2. Contrast Scrim (ensures contrast >= 4.5:1 across dark and light without over-muting background) */}
         <div
           aria-hidden="true"
           style={{
@@ -205,8 +205,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
             zIndex: 1,
             pointerEvents: "none",
             background:
-              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, Canvas) 45%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 85%, transparent) 100%), linear-gradient(to bottom, color-mix(in srgb, var(--background, Canvas) 60%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 30%, transparent) 40%, color-mix(in srgb, var(--background, Canvas) 80%, transparent) 100%)",
-            backdropFilter: "blur(0.5px)",
+              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, Canvas) 25%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 65%, transparent) 100%)",
           }}
         />
 

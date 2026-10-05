@@ -47,7 +47,7 @@ const DEFAULT_RGB_QUAD: [RgbTriple, RgbTriple, RgbTriple, RgbTriple] = [
 
 export function MeshGradient({
   colors = DEFAULT_MESH_TOKENS,
-  speed = 0.35,
+  speed = 1.0,
   distortion = 0.5,
   swirl = 0.25,
   grainMixer = 0.08,
@@ -75,7 +75,10 @@ export function MeshGradient({
   const instanceTag = useRef(`mesh-${uid}`);
   const [contextSevered, setContextSevered] = useState(false);
 
-  const [effectiveTier, setEffectiveTier] = useState<number>(0);
+  const [downgrades, setDowngrades] = useState(0);
+  const effectiveTier = isClientHydrated
+    ? Math.max(0, Math.min(runtimeCap.tier, maxTier) - downgrades)
+    : 0;
   const [activeColors, setActiveColors] = useState<[RgbTriple, RgbTriple, RgbTriple, RgbTriple]>(DEFAULT_RGB_QUAD);
 
   const refreshColors = useCallback(() => {
@@ -115,12 +118,6 @@ export function MeshGradient({
     return () => obs.disconnect();
   }, [refreshColors]);
 
-  useEffect(() => {
-    if (isClientHydrated) {
-      setEffectiveTier(Math.min(runtimeCap.tier, maxTier));
-    }
-  }, [isClientHydrated, runtimeCap.tier, maxTier]);
-
   // Context lease lifecycle management (Decision 19: reduced motion = no WebGL)
   const isQualifiedForWebGL =
     isClientHydrated && isInViewport && effectiveTier >= 2 && !suppressMotion;
@@ -156,8 +153,8 @@ export function MeshGradient({
 
     tryAcquire();
 
-    const unsubscribe = typeof (glBudget as any).subscribe === "function"
-      ? (glBudget as any).subscribe(() => {
+    const unsubscribe = typeof glBudget.subscribe === "function"
+      ? glBudget.subscribe(() => {
           if (!leaseHandle.current) {
             tryAcquire();
           }
@@ -177,7 +174,7 @@ export function MeshGradient({
   }, []);
 
   const handleStepDown = useCallback(() => {
-    setEffectiveTier((prev) => (prev > 0 ? prev - 1 : 0)); // @frictionborn-guard
+    setDowngrades((prev) => prev + 1); // @frictionborn-guard
   }, []);
 
   const handleContextLost = useCallback(() => {
