@@ -3,6 +3,10 @@
   "private": true,
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hunainx/frictionborn.git"
+  },
   "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "echo \"dev: docs site + harness (M1/M2)\"",

@@ -4,6 +4,8 @@
 
 Docs: https://frictionborn.com/docs
 Registry: https://frictionborn.com/r
+GitHub: https://github.com/hunainx/frictionborn
+Agent Skill: npx skills add hunainx/frictionborn --skill frictionborn --full-depth
 
 ## Core Principles
 - **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].

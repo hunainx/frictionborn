@@ -1,6 +1,7 @@
 // Original — Frictionborn Motion shadcn registry builder
 import fs from "node:fs";
 import path from "node:path";
+import { REPO_URL } from "./config.ts";
 
 interface FileEntry {
   path: string;
@@ -200,7 +201,7 @@ export function buildRegistry(): void {
   const registryIndex = {
     $schema: "https://ui.shadcn.com/schema/registry.json",
     name: "frictionborn",
-    homepage: "https://github.com/hunainx/frictionborn",
+    homepage: REPO_URL,
     items: registryItems,
   };
 

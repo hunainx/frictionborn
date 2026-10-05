@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { SITE_URL, REGISTRY_BASE_URL } from "./config.ts";
+import { SITE_URL, REGISTRY_BASE_URL, REPO_URL, SKILL_INSTALL_COMMAND } from "./config.ts";
 
 /** What the item's own source actually does (the generator reads the code, so the sheet cannot claim what it does not do). */
 export interface SourceFacts {
@@ -277,7 +277,9 @@ export function generateLlmsTxt(items: any[]): string {
   let txt = `# Frictionborn Motion\n\n`;
   txt += `> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16. Every item has a spec sheet generated from its code and a recorded test run.\n\n`;
   txt += `Docs: ${SITE_URL}/docs\n`;
-  txt += `Registry: ${REGISTRY_BASE_URL}/r\n\n`;
+  txt += `Registry: ${REGISTRY_BASE_URL}/r\n`;
+  txt += `GitHub: ${REPO_URL}\n`;
+  txt += `Agent Skill: ${SKILL_INSTALL_COMMAND}\n\n`;
   txt += `## Core Principles\n`;
   txt += `- **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].\n`;
   txt += `- **Single Frame Loop**: Animated items share one loop (useFrame from @frictionborn/runtime). Direct requestAnimationFrame is forbidden.\n`;
