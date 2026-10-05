@@ -49,7 +49,14 @@ export default function MeshGradientGL({
 
   const elapsedClock = useRef(0);
   const activePalette = useRef(colors);
-  activePalette.current = colors;
+  const lostHandler = useRef(onContextLost);
+  const restoredHandler = useRef(onContextRestored);
+
+  useEffect(() => {
+    activePalette.current = colors;
+    lostHandler.current = onContextLost;
+    restoredHandler.current = onContextRestored;
+  });
 
   const isGlobalPaused = usePaused();
 
@@ -61,11 +68,6 @@ export default function MeshGradientGL({
   const maxDpr = tier >= 3 ? 2.0 : 1.5;
   const meshScale = tier >= 3 ? 1.0 : 0.75;
   const meshOctaves = tier >= 3 ? 4 : 2;
-
-  const lostHandler = useRef(onContextLost);
-  lostHandler.current = onContextLost;
-  const restoredHandler = useRef(onContextRestored);
-  restoredHandler.current = onContextRestored;
 
   const flushMeshState = useCallback(
     (timeValue: number) => {
@@ -84,7 +86,7 @@ export default function MeshGradientGL({
       if (uTime) gl.uniform1f(uTime, timeValue);
 
       const uSpeed = u.get("u_speed");
-      if (uSpeed) gl.uniform1f(uSpeed, speed);
+      if (uSpeed) gl.uniform1f(uSpeed, speed * 0.35);
 
       const uDistort = u.get("u_distortion");
       if (uDistort) gl.uniform1f(uDistort, distortion);
@@ -163,7 +165,6 @@ export default function MeshGradientGL({
       const surface = createSurface(cvs, {
         maxDpr,
         scale: meshScale,
-        deferDpr: true,
         onContextLost: () => {
           cvs.style.display = "none";
           lostHandler.current?.();
