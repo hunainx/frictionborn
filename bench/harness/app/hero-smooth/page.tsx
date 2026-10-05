@@ -8,7 +8,11 @@ import { AmbientHero } from "../../../../registry/items/ambient-hero/ambient-her
 export default function HeroSmoothPage() {
   return (
     <SmoothScroll>
-      <AmbientHero />
+      <AmbientHero
+        headline="Precision acoustic geometry engineered for pristine isolation."
+        body="Kona creates modular acoustic barriers for production studios and quiet spaces."
+        primaryCta={{ label: "Explore Systems", href: "#systems" }}
+      />
       <div style={{ height: 3000, padding: "2rem" }}>
         <p>Scrollable content below the hero.</p>
       </div>

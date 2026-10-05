@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
+import { useCapability } from "@frictionborn/runtime";
 import DummyDemo from "../../../../../registry/items/dummy/demo";
 import NoiseFieldDemo from "../../../../../registry/items/noise-field/demo";
 import TextRevealDemo from "../../../../../registry/items/text-reveal/demo";
@@ -145,6 +146,9 @@ export default function ItemBenchPage({
     );
   }
 
+  const { tier: runtimeTier } = useCapability();
+  const displayTier = tier !== undefined ? `T${tier}` : `Auto (T${runtimeTier})`;
+
   return (
     <div
       data-testid="bench-container"
@@ -172,7 +176,7 @@ export default function ItemBenchPage({
             Item Benchmark: {name}
           </span>
           <span className="mono" style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
-            Tier: {tier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/{targetCycles}
+            Tier: {displayTier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/{targetCycles}
           </span>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
