@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion AmbientHero composition
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCapability, usePaused, resumeAll } from "@frictionborn/runtime";
 import { NoiseField } from "@/components/ui/noise-field";
 import { MeshGradient } from "@/components/ui/mesh-gradient";
@@ -17,316 +17,378 @@ export interface AmbientHeroCta {
   onClick?: () => void;
 }
 
-export interface AmbientHeroProps {
+export interface AmbientHeroProps extends React.HTMLAttributes<HTMLElement> {
+  /** Primary headline rendered with TextReveal as an h1 (required in TypeScript). */
+  headline: string;
+  /** Descriptive body copy under the headline (required in TypeScript). */
+  body: string;
+  /** Primary call-to-action button/link with magnetic pull (required in TypeScript). */
+  primaryCta: AmbientHeroCta;
   /** Ambient background generator variant (exactly 1 WebGL context). */
   variant?: AmbientHeroVariant;
+  /** Custom background slot overriding variant if provided. */
+  background?: React.ReactNode;
   /** Eyebrow label above the primary headline. */
   eyebrow?: string;
-  /** Primary headline rendered with TextReveal as an h1. */
-  title?: string;
-  /** Descriptive body copy under the headline. */
-  description?: string;
-  /** Primary call-to-action button/link with magnetic pull. */
-  primaryCta?: AmbientHeroCta;
   /** Secondary call-to-action button/link. */
   secondaryCta?: AmbientHeroCta;
   /** Show WCAG 2.2.2 compliant pause button for ambient animation. */
   showPauseButton?: boolean;
-  /** Additional CSS class names. */
-  className?: string;
-  /** Custom inline styles. */
-  style?: React.CSSProperties;
+  /** Universal paused prop. */
+  paused?: boolean;
+  /** Backwards-compatibility alias for headline. */
+  title?: string;
+  /** Backwards-compatibility alias for body. */
+  description?: string;
 }
 
-// Stable defaults: an object literal in the parameter list is a new object on every render (AGENTS lesson 1)
-const DEFAULT_PRIMARY_CTA: AmbientHeroCta = { label: "Explore engineering", href: "#engineering" };
-const DEFAULT_SECONDARY_CTA: AmbientHeroCta = { label: "Technical specifications", href: "#specifications" };
+export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
+  function AmbientHero(
+    {
+      headline,
+      title,
+      body,
+      description,
+      primaryCta,
+      secondaryCta,
+      eyebrow,
+      variant = "mesh",
+      background,
+      showPauseButton = true,
+      paused: propPaused = false,
+      className,
+      style,
+      ...rest
+    },
+    ref
+  ) {
+    const cap = useCapability(); // @frictionborn-guard
+    const isGlobalPaused = usePaused();
+    const [internalPaused, setInternalPaused] = useState(false);
+    const [leaseReady, setLeaseReady] = useState(false);
 
-export function AmbientHero({
-  variant = "mesh",
-  eyebrow = "Studio Series · Gen 3",
-  title = "Acoustic precision, sculpted in aluminum.",
-  description = "Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration.",
-  primaryCta = DEFAULT_PRIMARY_CTA,
-  secondaryCta = DEFAULT_SECONDARY_CTA,
-  showPauseButton = true,
-  className,
-  style,
-}: AmbientHeroProps) {
-  const cap = useCapability(); // @frictionborn-guard
-  const isPaused = usePaused();
-  const [internalPaused, setInternalPaused] = useState(false);
+    // Defer GL lease until after initial paint / LCP so typography renders first without GPU contention
+    useEffect(() => {
+      if (typeof window === "undefined") return;
 
-  const paused = isPaused || internalPaused;
+      let activated = false;
+      const activate = () => {
+        if (activated) return;
+        activated = true;
+        setLeaseReady(true);
+      };
 
-  // The button stops the hero's own background (the `paused` prop of the variant). It used to call the global pauseAll(),
-  // which stops the shared frame loop for the whole page, including SmoothScroll's Lenis stepping: with SmoothScroll
-  // mounted, wheel scrolling died until Resume was pressed (measured in a fresh Next app).
-  const togglePause = () => {
-    if (paused) {
-      if (isPaused) resumeAll(); // a pause set elsewhere on the page: Resume lifts it, as the label says
-      setInternalPaused(false);
-    } else {
-      setInternalPaused(true);
-    }
-  };
+      let po: PerformanceObserver | null = null;
+      try {
+        if (
+          typeof PerformanceObserver !== "undefined" &&
+          PerformanceObserver.supportedEntryTypes?.includes("largest-contentful-paint")
+        ) {
+          po = new PerformanceObserver(() => {
+            if ("requestIdleCallback" in window) {
+              (window as unknown as { requestIdleCallback: (cb: () => void, opt: { timeout: number }) => number }).requestIdleCallback(
+                activate,
+                { timeout: 600 }
+              );
+            } else {
+              setTimeout(activate, 100);
+            }
+          });
+          po.observe({ type: "largest-contentful-paint", buffered: true });
+        }
+      } catch {
+        // Fallback if PO throws
+      }
 
-  const renderBackground = () => {
-    // Only one background component is ever rendered (at most 1 WebGL context)
-    if (variant === "noise") {
-      return (
-        <NoiseField
-          speed={0.4}
-          scale={1.8}
-          paused={paused}
-          style={{ width: "100%", height: "100%" }}
-        />
-      );
-    }
-    if (variant === "particles") {
-      return (
-        <ParticleField
-          count={2500}
-          speed={0.4}
-          paused={paused}
-          style={{ width: "100%", height: "100%" }}
-        />
-      );
-    }
-    // Default: "mesh"
-    return (
-      <MeshGradient
-        speed={0.3}
-        paused={paused}
-        style={{ width: "100%", height: "100%" }}
-      />
-    );
-  };
+      const fallbackTimer = setTimeout(activate, 1500);
 
-  return (
-    <header
-      data-frictionborn-item="ambient-hero"
-      data-tier={cap.tier}
-      className={className}
-      style={{
-        position: "relative",
-        width: "100%",
-        minHeight: "560px",
-        height: "calc(100vh - 4rem)",
-        maxHeight: "840px",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "2rem 1.5rem",
-        boxSizing: "border-box",
-        background: "var(--background, #0d0f12)",
-        color: "var(--foreground, #e9ebf0)",
-        ...style,
-      }}
-    >
-      {/* 1. Ambient Background (at most 1 WebGL context above the fold) */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      >
-        {renderBackground()}
-      </div>
+      return () => {
+        po?.disconnect();
+        clearTimeout(fallbackTimer);
+      };
+    }, []);
 
-      {/* 2. Contrast Scrim (ensures contrast >= 4.5:1 across dark and light) */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 1,
-          pointerEvents: "none",
-          background:
-            "radial-gradient(ellipse at 50% 50%, rgba(13, 15, 18, 0.45) 0%, rgba(13, 15, 18, 0.85) 100%), linear-gradient(to bottom, rgba(13, 15, 18, 0.6) 0%, rgba(13, 15, 18, 0.3) 40%, rgba(13, 15, 18, 0.8) 100%)",
-          backdropFilter: "blur(0.5px)",
-        }}
-      />
+    const paused = isGlobalPaused || internalPaused || propPaused;
 
-      {/* 3. WCAG 2.2.2 Accessible Pause Control */}
-      {showPauseButton && (
-        <button
-          type="button"
-          onClick={togglePause}
-          aria-label={paused ? "Resume ambient background motion" : "Pause ambient background motion"}
-          aria-pressed={paused}
-          style={{
-            position: "absolute",
-            top: "1.25rem",
-            right: "1.25rem",
-            zIndex: 10,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.4rem 0.75rem",
-            fontSize: "0.75rem",
-            fontFamily: "var(--font-mono, monospace)",
-            color: "rgba(255, 255, 255, 0.9)",
-            background: "rgba(13, 15, 18, 0.65)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            borderRadius: "999px",
-            backdropFilter: "blur(8px)",
-            cursor: "pointer",
-            transition: "all 150ms ease",
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              background: paused ? "#f59e0b" : "#10b981",
-              boxShadow: paused ? "0 0 6px #f59e0b" : "0 0 6px #10b981",
-            }}
+    // The button stops the hero's own background (the `paused` prop of the variant). It used to call the global pauseAll(),
+    // which stops the shared frame loop for the whole page, including SmoothScroll's Lenis stepping.
+    const togglePause = () => {
+      if (paused) {
+        if (isGlobalPaused) resumeAll();
+        setInternalPaused(false);
+      } else {
+        setInternalPaused(true);
+      }
+    };
+
+    const displayHeadline = headline ?? title ?? "";
+    const displayBody = body ?? description ?? "";
+
+    const renderBackground = () => {
+      if (background) return background;
+      if (!leaseReady) return null;
+
+      // Only one background component is ever rendered (at most 1 WebGL context)
+      if (variant === "noise") {
+        return (
+          <NoiseField
+            speed={0.4}
+            scale={1.8}
+            paused={paused}
+            style={{ width: "100%", height: "100%" }}
           />
-          <span>{paused ? "Paused" : "Motion"}</span>
-        </button>
-      )}
+        );
+      }
+      if (variant === "particles") {
+        return (
+          <ParticleField
+            count={2500}
+            speed={0.4}
+            paused={paused}
+            style={{ width: "100%", height: "100%" }}
+          />
+        );
+      }
+      // Default: "mesh"
+      return (
+        <MeshGradient
+          speed={0.3}
+          paused={paused}
+          style={{ width: "100%", height: "100%" }}
+        />
+      );
+    };
 
-      {/* 4. Semantic Content (Single <h1>, fully accessible, keyboard reachable) */}
-      <div
+    return (
+      <header
+        ref={ref}
+        data-frictionborn-item="ambient-hero"
+        data-tier={cap.tier}
+        className={className}
         style={{
           position: "relative",
-          zIndex: 2,
-          maxWidth: "800px",
           width: "100%",
-          margin: "0 auto",
-          textAlign: "center",
+          minHeight: "560px",
+          height: "calc(100vh - 4rem)",
+          maxHeight: "840px",
+          overflow: "hidden",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          gap: "1.25rem",
+          justifyContent: "center",
+          padding: "2rem 1.5rem",
+          boxSizing: "border-box",
+          background: "var(--background, Canvas)",
+          color: "var(--foreground, CanvasText)",
+          ...style,
         }}
+        {...rest}
       >
-        {eyebrow && (
-          <div
+        {/* 1. Ambient Background (at most 1 WebGL context above the fold) */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          {renderBackground()}
+        </div>
+
+        {/* 2. Contrast Scrim (ensures contrast >= 4.5:1 across dark and light using host background token) */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            pointerEvents: "none",
+            background:
+              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, #000) 45%, transparent) 0%, color-mix(in srgb, var(--background, #000) 85%, transparent) 100%), linear-gradient(to bottom, color-mix(in srgb, var(--background, #000) 60%, transparent) 0%, color-mix(in srgb, var(--background, #000) 30%, transparent) 40%, color-mix(in srgb, var(--background, #000) 80%, transparent) 100%)",
+            backdropFilter: "blur(0.5px)",
+          }}
+        />
+
+        {/* 3. WCAG 2.2.2 Accessible Pause Control */}
+        {showPauseButton && (
+          <button
+            type="button"
+            onClick={togglePause}
+            aria-label={paused ? "Resume ambient background motion" : "Pause ambient background motion"}
+            aria-pressed={paused}
             style={{
+              position: "absolute",
+              top: "1.25rem",
+              right: "1.25rem",
+              zIndex: 10,
               display: "inline-flex",
               alignItems: "center",
-              padding: "0.3rem 0.85rem",
-              borderRadius: "999px",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
+              gap: "0.5rem",
+              padding: "0.4rem 0.75rem",
+              fontSize: "0.75rem",
               fontFamily: "var(--font-mono, monospace)",
-              color: "#fb923c",
-              // dark enough that the orange label keeps >= 4.5:1 over any canvas colour (measured on real pixels in light and dark)
-              background: "rgba(13, 15, 18, 0.82)",
-              border: "1px solid rgba(251, 146, 60, 0.28)",
+              color: "var(--foreground, currentColor)",
+              background: "color-mix(in srgb, var(--background, #000) 65%, transparent)",
+              border: "1px solid var(--border, color-mix(in srgb, currentColor 20%, transparent))",
+              borderRadius: "999px",
+              backdropFilter: "blur(8px)",
+              cursor: "pointer",
+              transition: "all 150ms ease",
             }}
           >
-            {eyebrow}
-          </div>
+            <span
+              aria-hidden="true"
+              style={{
+                width: "7px",
+                height: "7px",
+                borderRadius: "50%",
+                background: paused ? "var(--warning, #f59e0b)" : "var(--primary, #10b981)",
+                boxShadow: paused ? "0 0 6px var(--warning, #f59e0b)" : "0 0 6px var(--primary, #10b981)",
+              }}
+            />
+            <span>{paused ? "Paused" : "Motion"}</span>
+          </button>
         )}
 
-        <TextReveal
-          as="h1"
-          by="word"
-          style={{
-            margin: 0,
-            fontSize: "clamp(2rem, 5vw, 3.75rem)",
-            fontWeight: 600,
-            lineHeight: 1.15,
-            letterSpacing: "-0.03em",
-            color: "#ffffff",
-            textShadow: "0 2px 20px rgba(0, 0, 0, 0.6)",
-          }}
-        >
-          {title}
-        </TextReveal>
-
-        {description && (
-          <p
-            style={{
-              margin: 0,
-              maxWidth: "600px",
-              fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)",
-              lineHeight: 1.6,
-              color: "rgba(233, 235, 240, 0.92)",
-              textShadow: "0 1px 8px rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            {description}
-          </p>
-        )}
-
-        {/* Action CTAs with MagneticButton */}
+        {/* 4. Semantic Content (Single <h1>, fully accessible, keyboard reachable) */}
         <div
           style={{
+            position: "relative",
+            zIndex: 2,
+            maxWidth: "800px",
+            width: "100%",
+            margin: "0 auto",
+            textAlign: "center",
             display: "flex",
-            flexWrap: "wrap",
-            gap: "1rem",
-            justifyContent: "center",
+            flexDirection: "column",
             alignItems: "center",
-            marginTop: "0.75rem",
+            gap: "1.25rem",
           }}
         >
-          {primaryCta && (
-            <MagneticButton strength={18}>
-              <a
-                href={primaryCta.href || "#"}
-                onClick={primaryCta.onClick}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: "44px",
-                  padding: "0 1.5rem",
-                  borderRadius: "8px",
-                  fontSize: "0.95rem",
-                  fontWeight: 500,
-                  textDecoration: "none",
-                  color: "#0d0f12",
-                  background: "#ffffff",
-                  boxShadow: "0 4px 14px rgba(0, 0, 0, 0.35)",
-                  transition: "background 150ms ease, transform 150ms ease",
-                }}
-              >
-                {primaryCta.label}
-              </a>
-            </MagneticButton>
+          {eyebrow && (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "0.3rem 0.85rem",
+                borderRadius: "999px",
+                fontSize: "0.8rem",
+                fontWeight: 500,
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--primary, currentColor)",
+                background: "color-mix(in srgb, var(--background, #000) 82%, transparent)",
+                border: "1px solid color-mix(in srgb, var(--primary, currentColor) 28%, transparent)",
+              }}
+            >
+              {eyebrow}
+            </div>
           )}
 
-          {secondaryCta && (
-            <MagneticButton strength={14}>
-              <a
-                href={secondaryCta.href || "#"}
-                onClick={secondaryCta.onClick}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: "44px",
-                  padding: "0 1.35rem",
-                  borderRadius: "8px",
-                  fontSize: "0.95rem",
-                  fontWeight: 500,
-                  textDecoration: "none",
-                  color: "#ffffff",
-                  background: "rgba(255, 255, 255, 0.08)",
-                  border: "1px solid rgba(255, 255, 255, 0.22)",
-                  backdropFilter: "blur(6px)",
-                  transition: "background 150ms ease, border-color 150ms ease",
-                }}
-              >
-                {secondaryCta.label}
-              </a>
-            </MagneticButton>
+          <TextReveal
+            as="h1"
+            by="word"
+            style={{
+              margin: 0,
+              fontSize: "clamp(2rem, 5vw, 3.75rem)",
+              fontWeight: 600,
+              lineHeight: 1.15,
+              letterSpacing: "-0.03em",
+              color: "var(--foreground, currentColor)",
+              textShadow: "0 2px 20px color-mix(in srgb, var(--background, #000) 60%, transparent)",
+            }}
+          >
+            {displayHeadline}
+          </TextReveal>
+
+          {displayBody && (
+            <p
+              style={{
+                margin: 0,
+                maxWidth: "600px",
+                fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)",
+                lineHeight: 1.6,
+                color: "var(--muted-foreground, color-mix(in srgb, currentColor 80%, transparent))",
+                textShadow: "0 1px 8px color-mix(in srgb, var(--background, #000) 50%, transparent)",
+              }}
+            >
+              {displayBody}
+            </p>
           )}
+
+          {/* Action CTAs with MagneticButton */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "1rem",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: "0.75rem",
+            }}
+          >
+            {primaryCta && (
+              <MagneticButton pullDistance={18}>
+                <a
+                  href={primaryCta.href || "#"}
+                  onClick={primaryCta.onClick}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: "44px",
+                    padding: "0 1.5rem",
+                    borderRadius: "8px",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    color: "var(--primary-foreground, Canvas)",
+                    background: "var(--primary, CanvasText)",
+                    boxShadow: "0 4px 14px color-mix(in srgb, var(--background, #000) 35%, transparent)",
+                    transition: "background 150ms ease, transform 150ms ease",
+                  }}
+                >
+                  {primaryCta.label}
+                </a>
+              </MagneticButton>
+            )}
+
+            {secondaryCta && (
+              <MagneticButton pullDistance={14}>
+                <a
+                  href={secondaryCta.href || "#"}
+                  onClick={secondaryCta.onClick}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: "44px",
+                    padding: "0 1.35rem",
+                    borderRadius: "8px",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    color: "var(--foreground, CanvasText)",
+                    background: "var(--secondary, color-mix(in srgb, currentColor 8%, transparent))",
+                    border: "1px solid var(--border, color-mix(in srgb, currentColor 22%, transparent))",
+                    backdropFilter: "blur(6px)",
+                    transition: "background 150ms ease, border-color 150ms ease",
+                  }}
+                >
+                  {secondaryCta.label}
+                </a>
+              </MagneticButton>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
-  );
-}
+      </header>
+    );
+  }
+);
+
+AmbientHero.displayName = "AmbientHero";
+
 export default AmbientHero;
+

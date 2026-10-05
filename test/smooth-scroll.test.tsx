@@ -66,7 +66,18 @@ describe("SmoothScroll", () => {
     const active = lenisInstances.filter((i) => !i.destroyed);
     expect(active.length).toBe(1);
     expect(lastLenisOptions?.autoRaf).toBe(false);
+    expect(lastLenisOptions?.duration).toBe(1.2); // default 1200ms converted to 1.2s
     expect(container.textContent).toContain("Content");
+  });
+
+  it("converts duration prop in milliseconds to seconds for Lenis options", () => {
+    render(
+      <SmoothScroll duration={1800}>
+        <div>Custom duration</div>
+      </SmoothScroll>
+    );
+
+    expect(lastLenisOptions?.duration).toBe(1.8);
   });
 
   it("warns and no-ops when a duplicate SmoothScroll instance is mounted", () => {

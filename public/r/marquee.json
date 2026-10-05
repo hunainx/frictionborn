@@ -12,9 +12,257 @@
   "files": [
     {
       "path": "registry/items/marquee/marquee.tsx",
-      "content": "// Original — Frictionborn Motion Marquee\n\"use client\";\n\nimport React, { useRef, useState, useEffect } from \"react\";\nimport { useInView, useReducedMotion, useCapability, useHydrated, usePaused } from \"@frictionborn/runtime\";\n\nexport interface MarqueeProps {\n  children: React.ReactNode;\n  speed?: number;\n  direction?: \"left\" | \"right\";\n  pauseOnHover?: boolean;\n  pauseOnFocus?: boolean;\n  showPauseButton?: boolean;\n  gap?: string | number;\n  className?: string;\n  style?: React.CSSProperties;\n  maxTier?: number;\n}\n\nexport function Marquee({\n  children,\n  speed = 40,\n  direction = \"left\",\n  pauseOnHover = true,\n  pauseOnFocus = true,\n  showPauseButton = true,\n  gap = \"2rem\",\n  className = \"\",\n  style,\n  maxTier = 3,\n}: MarqueeProps) {\n  const containerRef = useRef<HTMLDivElement>(null);\n  const trackRef = useRef<HTMLDivElement>(null);\n\n  const hydrated = useHydrated();\n  const prefersReduced = useReducedMotion();\n  const globalPaused = usePaused();\n  const { tier: rawTier } = useCapability();\n  const tier = Math.min(rawTier, maxTier);\n\n  const [localPaused, setLocalPaused] = useState(false);\n  const [duration, setDuration] = useState(25);\n\n  const inView = useInView(containerRef as React.RefObject<HTMLElement>, {\n    rootMargin: \"100px\",\n  });\n\n  // Calculate duration from track width and desired pixels/second\n  useEffect(() => {\n    if (!trackRef.current) return;\n    const trackWidth = trackRef.current.scrollWidth;\n    if (trackWidth > 0 && speed > 0) {\n      setDuration(Math.max(5, trackWidth / speed));\n    }\n  }, [children, speed, gap]);\n\n  const formattedGap = typeof gap === \"number\" ? `${gap}px` : gap;\n  const isPaused = !inView || globalPaused || localPaused || prefersReduced || tier === 0;\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"marquee\"\n      data-tier={tier}\n      data-paused={isPaused ? \"true\" : undefined}\n      className={`fb-marquee ${className}`}\n      style={{\n        position: \"relative\",\n        width: \"100%\",\n        overflow: \"hidden\",\n        display: \"flex\",\n        alignItems: \"center\",\n        gap: \"0.75rem\",\n        ...style,\n      }}\n    >\n      <style>{`\n        @keyframes fb-mq-slide-left {\n          0% { transform: translateX(0%); }\n          100% { transform: translateX(calc(-100% - var(--fb-mq-gap, 2rem))); }\n        }\n\n        @keyframes fb-mq-slide-right {\n          0% { transform: translateX(calc(-100% - var(--fb-mq-gap, 2rem))); }\n          100% { transform: translateX(0%); }\n        }\n\n        .fb-marquee-track {\n          display: flex;\n          flex-shrink: 0;\n          align-items: center;\n          gap: var(--fb-mq-gap, 2rem);\n          will-change: transform;\n        }\n\n        [data-motion=\"ok\"] .fb-marquee-track.anim-left {\n          animation: fb-mq-slide-left var(--fb-mq-dur, 25s) linear infinite;\n        }\n\n        [data-motion=\"ok\"] .fb-marquee-track.anim-right {\n          animation: fb-mq-slide-right var(--fb-mq-dur, 25s) linear infinite;\n        }\n\n        /* Scoped to the viewport, not the root: the Pause/Play button is a sibling of the viewport, and a root-level\n           :hover / :focus-within rule also matched the button, so Play could not resume while it had focus or the pointer */\n        .fb-marquee-viewport:hover [data-pause-hover=\"true\"] .fb-marquee-track {\n          animation-play-state: paused;\n        }\n\n        .fb-marquee-viewport:focus-within [data-pause-focus=\"true\"] .fb-marquee-track {\n          animation-play-state: paused;\n        }\n\n        .fb-marquee[data-paused=\"true\"] .fb-marquee-track {\n          animation-play-state: paused !important;\n        }\n\n        @media (prefers-reduced-motion: reduce) {\n          .fb-marquee-track {\n            animation: none !important;\n          }\n        }\n      `}</style>\n\n      {/* Marquee Viewport with subtle edge fade before pause control */}\n      <div\n        className=\"fb-marquee-viewport\"\n        style={{\n          flex: 1,\n          minWidth: 0,\n          overflow: \"hidden\",\n          display: \"flex\",\n          alignItems: \"center\",\n          WebkitMaskImage: \"linear-gradient(to right, black calc(100% - 24px), transparent 100%)\",\n          maskImage: \"linear-gradient(to right, black calc(100% - 24px), transparent 100%)\",\n        }}\n      >\n        {/* Marquee Content Wrap */}\n        <div\n          data-pause-hover={pauseOnHover ? \"true\" : undefined}\n          data-pause-focus={pauseOnFocus ? \"true\" : undefined}\n          // Under reduced motion this box scrolls by hand (overflow: auto); a scrollable region must be reachable by keyboard (WCAG 2.1.1)\n          tabIndex={prefersReduced ? 0 : undefined}\n          role={prefersReduced ? \"group\" : undefined}\n          aria-label={prefersReduced ? \"Scrollable list\" : undefined}\n          style={\n            {\n              display: \"flex\",\n              width: \"max-content\",\n              overflow: prefersReduced ? \"auto\" : \"visible\",\n              \"--fb-mq-gap\": formattedGap,\n              \"--fb-mq-dur\": `${duration}s`,\n            } as React.CSSProperties\n          }\n        >\n          {/* Original items (interactive, accessible to screen readers) */}\n          <div\n            ref={trackRef}\n            className={`fb-marquee-track ${direction === \"left\" ? \"anim-left\" : \"anim-right\"}`}\n            style={{ paddingRight: formattedGap }}\n          >\n            {children}\n          </div>\n\n          {/* Inert duplicate copy (aria-hidden and inert so screen readers & keyboard only visit items once) */}\n          {(!prefersReduced && hydrated && tier > 0) && (\n            <div\n              aria-hidden=\"true\"\n              inert={true as any}\n              className={`fb-marquee-track ${direction === \"left\" ? \"anim-left\" : \"anim-right\"}`}\n            >\n              {children}\n            </div>\n          )}\n        </div>\n      </div>\n\n      {/* Accessible Pause/Play Toggle Button (WCAG 2.2.2) - positioned outside scrolling track */}\n      {showPauseButton && hydrated && !prefersReduced && (\n        <button\n          type=\"button\"\n          onClick={() => setLocalPaused((p) => !p)}\n          aria-label={localPaused ? \"Play scrolling ticker\" : \"Pause scrolling ticker\"}\n          style={{\n            flexShrink: 0,\n            padding: \"0.375rem 0.625rem\",\n            fontSize: \"0.75rem\",\n            fontWeight: 500,\n            borderRadius: \"4px\",\n            border: \"1px solid var(--border, currentColor)\",\n            background: \"var(--background, transparent)\",\n            color: \"var(--foreground, inherit)\",\n            cursor: \"pointer\",\n            marginRight: \"0.5rem\",\n          }}\n        >\n          {localPaused ? \"Play\" : \"Pause\"}\n        </button>\n      )}\n    </div>\n  );\n}\n\nexport default Marquee;\n",
+      "content": "// Original — Frictionborn Motion Marquee\n\"use client\";\n\nimport React, { useRef, useState, useEffect, useImperativeHandle } from \"react\";\nimport { useInView, useReducedMotion, useCapability, useHydrated, usePaused } from \"@frictionborn/runtime\";\n\nexport interface MarqueeProps extends React.HTMLAttributes<HTMLDivElement> {\n  children: React.ReactNode;\n  pixelsPerSecond?: number;\n  speed?: number; // backwards-compatible alias\n  direction?: \"left\" | \"right\";\n  pauseOnHover?: boolean;\n  pauseOnFocus?: boolean;\n  showPauseButton?: boolean;\n  gap?: string | number;\n  className?: string;\n  style?: React.CSSProperties;\n  maxTier?: number;\n  paused?: boolean;\n  nonce?: string;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\nexport function Marquee({\n  children,\n  pixelsPerSecond,\n  speed = 40,\n  direction = \"left\",\n  pauseOnHover = true,\n  pauseOnFocus = true,\n  showPauseButton = true,\n  gap = \"2rem\",\n  className = \"\",\n  style,\n  maxTier = 3,\n  paused = false,\n  nonce,\n  ref,\n  ...rest\n}: MarqueeProps) {\n  const containerRef = useRef<HTMLDivElement>(null);\n  const trackRef = useRef<HTMLDivElement>(null);\n\n  const effectivePps = pixelsPerSecond ?? speed;\n\n  const hydrated = useHydrated();\n  const prefersReduced = useReducedMotion();\n  const globalPaused = usePaused();\n  const { tier: rawTier } = useCapability();\n  const tier = Math.min(rawTier, maxTier);\n\n  const [localPaused, setLocalPaused] = useState(false);\n  const [duration, setDuration] = useState(25);\n\n  const inView = useInView(containerRef as React.RefObject<HTMLElement>, {\n    rootMargin: \"100px\",\n  });\n\n  // Calculate duration from track width and desired pixels/second\n  useEffect(() => {\n    if (!trackRef.current) return;\n    const trackWidth = trackRef.current.scrollWidth;\n    if (trackWidth > 0 && effectivePps > 0) {\n      setDuration(Math.max(5, trackWidth / effectivePps));\n    }\n  }, [children, effectivePps, gap]);\n\n  const formattedGap = typeof gap === \"number\" ? `${gap}px` : gap;\n  const isPaused = !inView || globalPaused || localPaused || paused || prefersReduced || tier === 0;\n\n  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"marquee\"\n      data-tier={tier}\n      data-paused={isPaused ? \"true\" : undefined}\n      className={`fb-marquee ${className}`}\n      style={{\n        position: \"relative\",\n        width: \"100%\",\n        overflow: \"hidden\",\n        display: \"flex\",\n        alignItems: \"center\",\n        gap: \"0.75rem\",\n        ...style,\n      }}\n      {...rest}\n    >\n      <style nonce={nonce}>{`\n        @keyframes fb-mq-slide-left {\n          0% { transform: translateX(0%); }\n          100% { transform: translateX(calc(-100% - var(--fb-mq-gap, 2rem))); }\n        }\n\n        @keyframes fb-mq-slide-right {\n          0% { transform: translateX(calc(-100% - var(--fb-mq-gap, 2rem))); }\n          100% { transform: translateX(0%); }\n        }\n\n        .fb-marquee-track {\n          display: flex;\n          flex-shrink: 0;\n          align-items: center;\n          gap: var(--fb-mq-gap, 2rem);\n          will-change: transform;\n        }\n\n        [data-motion=\"ok\"] .fb-marquee-track.anim-left {\n          animation: fb-mq-slide-left var(--fb-mq-dur, 25s) linear infinite;\n        }\n\n        [data-motion=\"ok\"] .fb-marquee-track.anim-right {\n          animation: fb-mq-slide-right var(--fb-mq-dur, 25s) linear infinite;\n        }\n\n        /* Scoped to the viewport, not the root: the Pause/Play button is a sibling of the viewport, and a root-level\n           :hover / :focus-within rule also matched the button, so Play could not resume while it had focus or the pointer */\n        .fb-marquee-viewport:hover [data-pause-hover=\"true\"] .fb-marquee-track {\n          animation-play-state: paused;\n        }\n\n        .fb-marquee-viewport:focus-within [data-pause-focus=\"true\"] .fb-marquee-track {\n          animation-play-state: paused;\n        }\n\n        .fb-marquee[data-paused=\"true\"] .fb-marquee-track {\n          animation-play-state: paused !important;\n        }\n\n        @media (prefers-reduced-motion: reduce) {\n          .fb-marquee-track {\n            animation: none !important;\n          }\n        }\n      `}</style>\n\n      {/* Marquee Viewport with subtle edge fade before pause control */}\n      <div\n        className=\"fb-marquee-viewport\"\n        style={{\n          flex: 1,\n          minWidth: 0,\n          overflow: \"hidden\",\n          display: \"flex\",\n          alignItems: \"center\",\n          WebkitMaskImage: \"linear-gradient(to right, black calc(100% - 24px), transparent 100%)\",\n          maskImage: \"linear-gradient(to right, black calc(100% - 24px), transparent 100%)\",\n        }}\n      >\n        {/* Marquee Content Wrap */}\n        <div\n          data-pause-hover={pauseOnHover ? \"true\" : undefined}\n          data-pause-focus={pauseOnFocus ? \"true\" : undefined}\n          // Under reduced motion this box scrolls by hand (overflow: auto); a scrollable region must be reachable by keyboard (WCAG 2.1.1)\n          tabIndex={prefersReduced ? 0 : undefined}\n          role={prefersReduced ? \"group\" : undefined}\n          aria-label={prefersReduced ? \"Scrollable list\" : undefined}\n          style={\n            {\n              display: \"flex\",\n              width: \"max-content\",\n              overflow: prefersReduced ? \"auto\" : \"visible\",\n              \"--fb-mq-gap\": formattedGap,\n              \"--fb-mq-dur\": `${duration}s`,\n            } as React.CSSProperties\n          }\n        >\n          {/* Original items (interactive, accessible to screen readers) */}\n          <div\n            ref={trackRef}\n            className={`fb-marquee-track ${direction === \"left\" ? \"anim-left\" : \"anim-right\"}`}\n            style={{ paddingRight: formattedGap }}\n          >\n            {children}\n          </div>\n\n          {/* Inert duplicate copy (aria-hidden and inert so screen readers & keyboard only visit items once) */}\n          {(!prefersReduced && hydrated && tier > 0) && (\n            <div\n              aria-hidden=\"true\"\n              inert={true as any}\n              className={`fb-marquee-track ${direction === \"left\" ? \"anim-left\" : \"anim-right\"}`}\n            >\n              {children}\n            </div>\n          )}\n        </div>\n      </div>\n\n      {/* Accessible Pause/Play Toggle Button (WCAG 2.2.2) - positioned outside scrolling track */}\n      {showPauseButton && hydrated && !prefersReduced && (\n        <button\n          type=\"button\"\n          onClick={() => setLocalPaused((p) => !p)}\n          aria-label={localPaused ? \"Play scrolling ticker\" : \"Pause scrolling ticker\"}\n          style={{\n            flexShrink: 0,\n            padding: \"0.375rem 0.625rem\",\n            fontSize: \"0.75rem\",\n            fontWeight: 500,\n            borderRadius: \"4px\",\n            border: \"1px solid var(--border, currentColor)\",\n            background: \"var(--background, transparent)\",\n            color: \"var(--foreground, inherit)\",\n            cursor: \"pointer\",\n            marginRight: \"0.5rem\",\n          }}\n        >\n          {localPaused ? \"Play\" : \"Pause\"}\n        </button>\n      )}\n    </div>\n  );\n}\n\nexport default Marquee;\n",
       "type": "registry:ui",
       "target": "components/ui/marquee.tsx"
     }
-  ]
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "marquee",
+      "version": "0.1.0",
+      "summary": "strip: Infinite marquee with inert duplicate, hover/focus pause, and pause button (dom, server-safe, reduced motion -> static, mobile -> animates)",
+      "slot": "strip",
+      "kind": "dom"
+    },
+    "intent": {
+      "useWhen": [
+        "Logo clouds, customer testimonials, and partner strips",
+        "Continuous market tickers, tech badges, and announcement banners",
+        "Visual social proof ribbons requiring smooth continuous transit"
+      ],
+      "avoidWhen": [
+        "Critical action buttons or primary call-to-action links that users must click immediately",
+        "Dense paragraphs of essential reading material",
+        "Pages where multiple moving strips compete for visual attention"
+      ],
+      "alternatives": [
+        {
+          "name": "scroll-reveal",
+          "when": "When cards or media should reveal progressively upon scrolling rather than auto-looping"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "while-visible",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "Animation paused and no duplicate copy rendered; the track is a static row, not animated (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+        "1": "CSS marquee animation; same behaviour as tiers 2 and 3 (speed does not vary by tier)",
+        "2": "CSS marquee animation with hover/focus pause, width-based duration calibration and the pause button",
+        "3": "Same as tier 2"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "The animation does not run: the track is rendered static (not animated), with no duplicate copy and no pause button."
+      },
+      "input": {
+        "pointer": "Hovering over the marquee pauses the animation when pauseOnHover is true",
+        "touch": "No touch-specific behaviour; the animation runs on touch devices unless reduced motion is set",
+        "keyboard": "Focus inside the marquee pauses it when pauseOnFocus is true; duplicate items are inert so each item is tabbed once"
+      }
+    },
+    "a11y": {
+      "role": "content",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "built-in",
+      "wcag": [
+        "2.2.2"
+      ],
+      "notes": "The duplicate copy is aria-hidden and inert so screen readers and keyboard users encounter each element once. A built-in pause/play button is shown unless showPauseButton is false or reduced motion is set."
+    },
+    "composition": {
+      "maxPerPage": 4,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "noise-field",
+        "text-reveal",
+        "scroll-reveal",
+        "scroll-showcase"
+      ]
+    },
+    "props": [
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Required. Content elements repeated across the strip (rendered twice; avoid fixed ids)."
+      },
+      {
+        "name": "pixelsPerSecond",
+        "type": "number",
+        "default": 40,
+        "effect": "Transit rate in physical pixels per second."
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "default": 1,
+        "effect": "Unitless speed multiplier (1 = default speed)."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop. Freezes ticker transit."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "Optional CSP nonce forwarded to internal scoped <style> element."
+      },
+      {
+        "name": "direction",
+        "type": "\"left\" | \"right\"",
+        "default": "left",
+        "effect": "Scroll direction of the ticker."
+      },
+      {
+        "name": "pauseOnHover",
+        "type": "boolean",
+        "default": true,
+        "effect": "Freezes scroll transit while the pointer hovers over the strip."
+      },
+      {
+        "name": "pauseOnFocus",
+        "type": "boolean",
+        "default": true,
+        "effect": "Freezes scroll transit while any element inside the strip holds keyboard focus."
+      },
+      {
+        "name": "showPauseButton",
+        "type": "boolean",
+        "default": true,
+        "effect": "Renders a pause/play button (not rendered under reduced motion). Keep it for marquees that run longer than 5 s."
+      },
+      {
+        "name": "gap",
+        "type": "string | number",
+        "default": "2rem",
+        "effect": "Spacing between items (a number is treated as px)."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "CSS classes applied to the outer container (the built-in class fb-marquee is kept)."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Optional. No default. Inline styles on the outer container, merged last (consumer wins)."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@latest add @frictionborn/marquee",
+      "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee speed={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
+      "mistakes": [
+        "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",
+        "Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2).",
+        "The animation only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the strip is static.",
+        "Children are rendered twice, so do not give them fixed id attributes. Marquee accepts only the listed props; data-* and aria-* attributes are not forwarded."
+      ],
+      "verify": [
+        "Verify screen reader encounters each badge/item exactly once.",
+        "Verify hovering or focusing an item pauses animation transit.",
+        "Verify reduced motion stops the animation and renders a static row without a duplicate copy or pause button.",
+        "Confirm Pause then Play resumes the animation while the pointer or keyboard focus is still on the button."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    },
+    "measured": {
+      "commit": "7f3e58a",
+      "date": "2026-10-04",
+      "sizeKB": {
+        "initial": 2.23,
+        "deferred": 0.02,
+        "method": "gzip-9"
+      },
+      "cls": 0,
+      "framesWhenIdle": {
+        "offscreen": 0,
+        "hiddenTab": 0,
+        "reducedMotion": 0
+      },
+      "axe": {
+        "serious": 0,
+        "critical": 0
+      },
+      "devices": [
+        {
+          "env": "Chromium Desktop (SwiftShader)",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "Chromium Mobile (Pixel 7 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "14 passed, 0 failed"
+        },
+        {
+          "env": "Firefox Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Mobile (iPhone 14 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "14 passed, 0 failed"
+        }
+      ]
+    }
+  }
 }

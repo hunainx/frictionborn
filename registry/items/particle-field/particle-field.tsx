@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion ParticleField wrapper
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy, useImperativeHandle } from "react";
 import {
   useCapability,
   useHydrated,
@@ -23,6 +23,7 @@ export interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement>
   paused?: boolean;
   maxTier?: number;
   reducedMotion?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
@@ -38,12 +39,14 @@ export function ParticleField({
   paused = false,
   maxTier = 3,
   reducedMotion: propReduced,
+  ref,
   className = "",
   style,
   children,
   ...props
 }: ParticleFieldProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const uid = useId();
   const isHydrated = useHydrated(); // @frictionborn-guard
   const capability = useCapability(); // @frictionborn-guard
   const isReduced = useReducedMotion(); // @frictionborn-guard
@@ -52,7 +55,7 @@ export function ParticleField({
 
   const [hasLease, setHasLease] = useState(false);
   const leaseRef = useRef<Lease | null>(null);
-  const instanceId = useRef("particle-field-" + Math.random().toString(36).slice(2, 8));
+  const instanceId = useRef("particle-field-" + uid);
   const [contextLost, setContextLost] = useState(false);
   const [activeTier, setActiveTier] = useState<number>(() =>
     isHydrated ? Math.min(capability.tier, maxTier) : 0
@@ -160,6 +163,8 @@ export function ParticleField({
   const posterBackground = `radial-gradient(circle at 50% 50%, ${dotColor} 1.2px, transparent 1.2px)`;
 
   const shouldRenderGL = hasLease && !motionDisabled && activeTier >= 2;
+
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
   return (
     <div

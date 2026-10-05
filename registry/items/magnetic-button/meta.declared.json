@@ -91,10 +91,16 @@
       "effect": "Required. A single interactive element (button or link) wrapped by the magnetic controller."
     },
     {
-      "name": "strength",
+      "name": "pullDistance",
       "type": "number",
       "default": 16,
-      "effect": "Maximum pull translation in pixels."
+      "effect": "Maximum pull translation in pixels (replaces deprecated strength)."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Freezes magnetic displacement calculation."
     },
     {
       "name": "tension",

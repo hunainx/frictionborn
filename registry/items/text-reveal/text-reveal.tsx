@@ -1,10 +1,10 @@
 // Original — Frictionborn Motion TextReveal
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo, useId } from "react";
+import React, { useEffect, useRef, useState, useMemo, useId, useImperativeHandle } from "react";
 import { useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
-export interface TextRevealProps {
+export interface TextRevealProps extends React.HTMLAttributes<HTMLElement> {
   children: string;
   as?: React.ElementType;
   by?: "word" | "character" | "line";
@@ -15,6 +15,9 @@ export interface TextRevealProps {
   style?: React.CSSProperties;
   maxTier?: number;
   replayKey?: string | number;
+  paused?: boolean;
+  nonce?: string;
+  ref?: React.Ref<any>;
 }
 
 export function TextReveal({
@@ -28,6 +31,10 @@ export function TextReveal({
   style,
   maxTier = 3,
   replayKey,
+  paused = false,
+  nonce,
+  ref,
+  ...rest
 }: TextRevealProps) {
   const containerRef = useRef<HTMLElement>(null);
   const id = useId();
@@ -55,7 +62,7 @@ export function TextReveal({
   }
 
   const isSsrPainted = isSsrInitial.current && replayKey === undefined;
-  const shouldAnimate = hydrated && !prefersReduced && tier > 0 && !isSsrPainted;
+  const shouldAnimate = hydrated && !prefersReduced && !paused && tier > 0 && !isSsrPainted;
 
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -153,9 +160,11 @@ export function TextReveal({
     setLineGroups(lines);
   }, [by, fontsLoaded, lineGroups.length, children, replayKey]);
 
+  useImperativeHandle(ref, () => containerRef.current as any);
+
   return (
     <Component
-      ref={containerRef as any}
+      ref={containerRef}
       id={id}
       data-frictionborn-item="text-reveal"
       data-ssr={!hydrated ? "true" : undefined}
@@ -166,8 +175,9 @@ export function TextReveal({
         display: "block",
         ...style,
       }}
+      {...rest}
     >
-      <style>{`
+      <style nonce={nonce}>{`
         [data-motion="ok"] .fb-tr-token {
           display: inline-block;
           opacity: 0;

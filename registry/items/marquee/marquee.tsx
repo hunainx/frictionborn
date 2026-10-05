@@ -1,12 +1,13 @@
 // Original — Frictionborn Motion Marquee
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useImperativeHandle } from "react";
 import { useInView, useReducedMotion, useCapability, useHydrated, usePaused } from "@frictionborn/runtime";
 
-export interface MarqueeProps {
+export interface MarqueeProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  speed?: number;
+  pixelsPerSecond?: number;
+  speed?: number; // backwards-compatible alias
   direction?: "left" | "right";
   pauseOnHover?: boolean;
   pauseOnFocus?: boolean;
@@ -15,10 +16,14 @@ export interface MarqueeProps {
   className?: string;
   style?: React.CSSProperties;
   maxTier?: number;
+  paused?: boolean;
+  nonce?: string;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 export function Marquee({
   children,
+  pixelsPerSecond,
   speed = 40,
   direction = "left",
   pauseOnHover = true,
@@ -28,9 +33,15 @@ export function Marquee({
   className = "",
   style,
   maxTier = 3,
+  paused = false,
+  nonce,
+  ref,
+  ...rest
 }: MarqueeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+
+  const effectivePps = pixelsPerSecond ?? speed;
 
   const hydrated = useHydrated();
   const prefersReduced = useReducedMotion();
@@ -49,13 +60,15 @@ export function Marquee({
   useEffect(() => {
     if (!trackRef.current) return;
     const trackWidth = trackRef.current.scrollWidth;
-    if (trackWidth > 0 && speed > 0) {
-      setDuration(Math.max(5, trackWidth / speed));
+    if (trackWidth > 0 && effectivePps > 0) {
+      setDuration(Math.max(5, trackWidth / effectivePps));
     }
-  }, [children, speed, gap]);
+  }, [children, effectivePps, gap]);
 
   const formattedGap = typeof gap === "number" ? `${gap}px` : gap;
-  const isPaused = !inView || globalPaused || localPaused || prefersReduced || tier === 0;
+  const isPaused = !inView || globalPaused || localPaused || paused || prefersReduced || tier === 0;
+
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
   return (
     <div
@@ -73,8 +86,9 @@ export function Marquee({
         gap: "0.75rem",
         ...style,
       }}
+      {...rest}
     >
-      <style>{`
+      <style nonce={nonce}>{`
         @keyframes fb-mq-slide-left {
           0% { transform: translateX(0%); }
           100% { transform: translateX(calc(-100% - var(--fb-mq-gap, 2rem))); }

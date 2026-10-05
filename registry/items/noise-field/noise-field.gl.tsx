@@ -140,6 +140,7 @@ export default function NoiseFieldGL({
       const surface = createSurface(canvas, {
         maxDpr,
         scale: renderScale,
+        deferDpr: true,
         onContextLost: () => {
           canvas.style.display = "none";
           onContextLostRef.current?.();

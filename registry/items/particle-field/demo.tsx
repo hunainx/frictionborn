@@ -148,7 +148,7 @@ export default function ParticleFieldDemo() {
       </nav>
 
       {/* Hero Visual Area */}
-      <div id="demo-mount-point" style={{ position: "relative", flex: 1, minHeight: "560px" }}>
+      <div style={{ position: "relative", flex: 1, minHeight: "560px" }}>
         <ParticleField
           count={pointCount}
           speed={driftVelocity}

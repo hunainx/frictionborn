@@ -71,9 +71,18 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `steps` | `StoryStep[]` | `"DEFAULT_STEPS (3 built-in demo steps about studio monitors: enclosure, transducer, crossover)"` | Steps for the StickyScrollStory ({ id, title, description, badge?, media }; StoryStep is exported by sticky-scroll-story). Only the sticky story is configurable. |
-| `showMarquee` | `boolean` | `true` | Includes the studio reference marquee. Its content (8 studio names) is hard-coded and cannot be overridden. |
+| `headline` | `string` | `—` | Required. Primary section headline rendered as an h2. |
+| `description` | `string` | `—` | Required. Section narrative description below the headline. |
+| `steps` | `StoryStep[]` | `—` | Required. Narrative steps for StickyScrollStory ({ id, title, description, badge?, media }). |
+| `eyebrow` | `string` | `—` | Optional. Eyebrow badge above the headline. |
+| `specs` | `ScrollShowcaseSpec[]` | `—` | Optional. Specifications / highlights grid items ({ metric, label, detail }). |
+| `specsHeading` | `string` | `"Laboratory verification standards"` | Optional. Specifications section heading. |
+| `specsEyebrow` | `string` | `"Measured Tolerances"` | Optional. Specifications eyebrow badge. |
+| `showMarquee` | `boolean` | `true` | Includes the reference marquee ticker. |
+| `marqueeItems` | `React.ReactNode[]` | `—` | Optional. Array of items to display in the marquee ticker. |
+| `marqueeLabel` | `string` | `"Reference deployments in critical listening rooms"` | Optional. Label above the marquee ticker. |
 | `smoothScroll` | `boolean` | `false` | Wraps the composition in the SmoothScroll provider (off by default). |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes all internal motion. |
 | `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root container. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root container, merged last (consumer wins). |
 

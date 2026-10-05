@@ -261,7 +261,6 @@ export default function NoiseFieldDemo() {
 
       {/* Main NoiseField Visual Canvas */}
       <div
-        id="demo-mount-point"
         style={{
           position: "relative",
           flex: 1,

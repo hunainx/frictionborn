@@ -24,9 +24,305 @@
     },
     {
       "path": "registry/items/distortion-image/distortion-image.tsx",
-      "content": "// Original — Frictionborn Motion\n\"use client\";\n\nimport React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from \"react\";\nimport {\n  useCapability,\n  useHydrated,\n  useReducedMotion,\n  useInView,\n  glBudget,\n  type Lease,\n} from \"@frictionborn/runtime\";\n\nconst DistortionImageGL = lazy(() => import(\"./distortion-image.gl\"));\n\n// A pointer or focus that does nothing for this long eases the ripple out, then gives the context back.\nconst IDLE_RELEASE_MS = 3000;\nconst FADE_OUT_MS = 400;\n\n// Focus ring drawn inside the box, above the canvas: an outline outside the box is clipped by any\n// overflow:hidden card around the image. Two tones so it stays visible on any picture. The transparent\n// outline is what forced-colors / high-contrast modes paint instead of the shadows.\nconst FOCUS_RING_STYLE: React.CSSProperties = {\n  position: \"absolute\",\n  inset: 0,\n  zIndex: 4,\n  pointerEvents: \"none\",\n  borderRadius: \"inherit\",\n  outline: \"2px solid transparent\",\n  outlineOffset: \"-2px\",\n  boxShadow:\n    \"inset 0 0 0 3px var(--ring, var(--primary, Highlight)), inset 0 0 0 5px var(--background, Canvas)\",\n};\n\nexport interface DistortionImageProps extends React.HTMLAttributes<HTMLDivElement> {\n  src: string;\n  alt: string;\n  width?: number | string;\n  height?: number | string;\n  strength?: number;\n  speed?: number;\n  maxTier?: number;\n  crossOrigin?: \"anonymous\" | \"use-credentials\" | \"\";\n  loading?: \"eager\" | \"lazy\";\n  decoding?: \"async\" | \"auto\" | \"sync\";\n  fetchPriority?: \"high\" | \"low\" | \"auto\";\n  fetchpriority?: \"high\" | \"low\" | \"auto\";\n  srcSet?: string;\n  sizes?: string;\n  imgClassName?: string;\n  imgStyle?: React.CSSProperties;\n  children?: React.ReactNode;\n}\n\nexport function DistortionImage({\n  src,\n  alt,\n  width,\n  height,\n  strength = 0.25,\n  speed = 1.0,\n  maxTier = 3,\n  crossOrigin,\n  loading = \"lazy\",\n  decoding = \"async\",\n  fetchPriority,\n  fetchpriority,\n  srcSet,\n  sizes,\n  imgClassName = \"\",\n  imgStyle,\n  className = \"\",\n  style,\n  children,\n  onPointerEnter,\n  onPointerMove,\n  onPointerLeave,\n  onFocus,\n  onBlur,\n  ...props\n}: DistortionImageProps) {\n  const containerRef = useRef<HTMLDivElement | null>(null);\n  const imgRef = useRef<HTMLImageElement | null>(null);\n  const instanceId = useRef(\"distortion-image-\" + Math.random().toString(36).slice(2, 8));\n  const leaseRef = useRef<Lease | null>(null);\n  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);\n\n  const hydrated = useHydrated(); // @frictionborn-guard\n  const cap = useCapability(); // @frictionborn-guard\n  const prefersReduced = useReducedMotion(); // @frictionborn-guard\n  const inView = useInView(containerRef); // @frictionborn-guard\n\n  const [hasLease, setHasLease] = useState(false);\n  const [needsLease, setNeedsLease] = useState(false);\n  const [isHovered, setIsHovered] = useState(false);\n  const [pointerPos, setPointerPos] = useState({ x: 0.5, y: 0.5 });\n  const [imgLoaded, setImgLoaded] = useState(false);\n  const [taintedCORS, setTaintedCORS] = useState(false);\n  const [glFailed, setGlFailed] = useState(false);\n  const [isFinePointer, setIsFinePointer] = useState(false);\n  const [focusVisible, setFocusVisible] = useState(false);\n\n  // Detect fine pointer capability and hover support ((hover: hover) and (pointer: fine))\n  useEffect(() => {\n    if (typeof window === \"undefined\" || !window.matchMedia) return;\n    const media = window.matchMedia(\"(hover: hover) and (pointer: fine)\");\n    setIsFinePointer(media.matches);\n    const listener = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);\n    media.addEventListener(\"change\", listener);\n    return () => media.removeEventListener(\"change\", listener);\n  }, []);\n\n  const effectiveTier = Math.min(cap.tier, maxTier);\n\n  // Compute pointer coordinates normalized [0, 1] relative to the element bounding box\n  const updatePointer = useCallback((e: React.PointerEvent<HTMLDivElement>) => {\n    const el = containerRef.current;\n    if (!el) return;\n    const rect = el.getBoundingClientRect();\n    if (rect.width > 0 && rect.height > 0) {\n      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));\n      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));\n      setPointerPos({ x, y });\n    }\n  }, []);\n\n  const clearIdleTimer = useCallback(() => {\n    if (idleTimerRef.current) {\n      clearTimeout(idleTimerRef.current);\n      idleTimerRef.current = null;\n    }\n  }, []);\n\n  // Any interaction restarts the idle clock. After IDLE_RELEASE_MS of nothing the ripple eases out, the\n  // lease is marked evictable straight away, and the context is released once the fade has finished.\n  const armIdleTimer = useCallback(() => {\n    clearIdleTimer();\n    idleTimerRef.current = setTimeout(() => {\n      setIsHovered(false);\n      leaseRef.current?.setOffScreen(true);\n      idleTimerRef.current = setTimeout(() => {\n        idleTimerRef.current = null;\n        setNeedsLease(false);\n      }, FADE_OUT_MS);\n    }, IDLE_RELEASE_MS);\n  }, [clearIdleTimer]);\n\n  const activate = useCallback(() => {\n    setIsHovered(true);\n    setNeedsLease(true);\n    leaseRef.current?.setOffScreen(false);\n    armIdleTimer();\n  }, [armIdleTimer]);\n\n  // Pointer left or focus moved away: ease out now, keep the context for a grace period so coming back is\n  // instant, but let another image take the slot if it needs one (the budget evicts idle leases, LRU first).\n  const deactivate = useCallback(() => {\n    setIsHovered(false);\n    leaseRef.current?.setOffScreen(true);\n    clearIdleTimer();\n    idleTimerRef.current = setTimeout(() => {\n      idleTimerRef.current = null;\n      setNeedsLease(false);\n    }, IDLE_RELEASE_MS);\n  }, [clearIdleTimer]);\n\n  const handlePointerEnter = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerEnter?.(e);\n      if (e.pointerType === \"touch\") return; // Touch pointers fall back to plain image (0 contexts)\n      updatePointer(e);\n      activate();\n    },\n    [onPointerEnter, updatePointer, activate]\n  );\n\n  const handlePointerMove = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerMove?.(e);\n      if (e.pointerType === \"touch\") return;\n      updatePointer(e);\n      activate();\n    },\n    [onPointerMove, updatePointer, activate]\n  );\n\n  const handlePointerLeave = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerLeave?.(e);\n      deactivate();\n    },\n    [onPointerLeave, deactivate]\n  );\n\n  const handleFocus = useCallback(\n    (e: React.FocusEvent<HTMLDivElement>) => {\n      onFocus?.(e);\n      let visible = true;\n      try {\n        visible = (e.target as HTMLElement).matches(\":focus-visible\");\n      } catch {\n        // :focus-visible unsupported: show the ring\n      }\n      setFocusVisible(visible);\n      activate();\n    },\n    [onFocus, activate]\n  );\n\n  const handleBlur = useCallback(\n    (e: React.FocusEvent<HTMLDivElement>) => {\n      onBlur?.(e);\n      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {\n        setFocusVisible(false);\n        deactivate();\n      }\n    },\n    [onBlur, deactivate]\n  );\n\n  // Support wrapped-in-link pattern: when wrapped in <a> or button, focus on parent activates effect\n  useEffect(() => {\n    const el = containerRef.current;\n    if (!el) return;\n    const parentInteractive = el.closest<HTMLElement>(\"a, button\");\n    if (!parentInteractive) return;\n\n    const handleParentFocus = () => {\n      let visible = true;\n      try {\n        visible = parentInteractive.matches(\":focus-visible\");\n      } catch {\n        // fallback\n      }\n      setFocusVisible(visible);\n      activate();\n    };\n\n    const handleParentBlur = (e: FocusEvent) => {\n      if (!parentInteractive.contains(e.relatedTarget as Node | null)) {\n        setFocusVisible(false);\n        deactivate();\n      }\n    };\n\n    parentInteractive.addEventListener(\"focus\", handleParentFocus as EventListener);\n    parentInteractive.addEventListener(\"blur\", handleParentBlur as EventListener);\n    return () => {\n      parentInteractive.removeEventListener(\"focus\", handleParentFocus as EventListener);\n      parentInteractive.removeEventListener(\"blur\", handleParentBlur as EventListener);\n    };\n  }, [activate, deactivate]);\n\n  // When leaving the viewport, immediately release any lease and cancel idle timers\n  useEffect(() => {\n    if (!inView) {\n      clearIdleTimer();\n      setNeedsLease(false);\n      setIsHovered(false);\n    }\n  }, [inView, clearIdleTimer]);\n\n  // Context lease management with S8-11 retry subscription\n  useEffect(() => {\n    const shouldAcquire =\n      hydrated &&\n      inView &&\n      needsLease &&\n      effectiveTier >= 2 &&\n      !prefersReduced &&\n      isFinePointer &&\n      !taintedCORS &&\n      !glFailed;\n\n    let unsubscribeBudget: (() => void) | null = null;\n\n    const requestInteractiveLease = () => {\n      if (leaseRef.current) return;\n      const acquired = glBudget.acquire({\n        id: instanceId.current,\n        priority: 2, // Active hover has elevated priority over ambient backgrounds\n        onEvict: () => {\n          // Evicted (idle LRU, or by a higher-priority item). The next pointer move asks again.\n          leaseRef.current = null;\n          setHasLease(false);\n          setNeedsLease(false);\n          setIsHovered(false);\n        },\n      });\n      if (acquired) {\n        leaseRef.current = acquired;\n        setHasLease(true);\n      }\n    };\n\n    if (shouldAcquire) {\n      requestInteractiveLease();\n      // S8-11: Subscribe to budget frees so waiting visible items retry lease acquisition\n      unsubscribeBudget = glBudget.subscribe(() => {\n        if (!leaseRef.current) {\n          requestInteractiveLease();\n        }\n      });\n    } else if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n\n    return () => {\n      unsubscribeBudget?.();\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n        setHasLease(false);\n      }\n    };\n  }, [hydrated, inView, needsLease, effectiveTier, prefersReduced, isFinePointer, taintedCORS, glFailed]);\n\n  // Cleanup on unmount\n  useEffect(() => {\n    return () => {\n      if (idleTimerRef.current) {\n        clearTimeout(idleTimerRef.current);\n      }\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n      }\n    };\n  }, []);\n\n  const markImageReady = useCallback(() => {\n    const img = imgRef.current;\n    if (!img) return;\n    if (typeof img.decode === \"function\") {\n      img.decode().then(\n        () => setImgLoaded(true),\n        () => setImgLoaded(true)\n      );\n    } else {\n      setImgLoaded(true);\n    }\n  }, []);\n\n  useEffect(() => {\n    if (imgRef.current?.complete) {\n      markImageReady();\n    }\n  }, [src, markImageReady]);\n\n  const handleImageLoad = markImageReady;\n\n  const handleTaintedCORS = useCallback(() => {\n    setTaintedCORS(true);\n    if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n  }, []);\n\n  const handleInitError = useCallback(() => {\n    setGlFailed(true);\n    if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n  }, []);\n\n  const shouldRenderGL =\n    hydrated &&\n    hasLease &&\n    imgLoaded &&\n    !taintedCORS &&\n    !glFailed &&\n    !prefersReduced &&\n    isFinePointer &&\n    effectiveTier >= 2;\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"distortion-image\"\n      data-tier={effectiveTier}\n      className={`relative inline-block overflow-hidden ${className}`}\n      style={{\n        position: \"relative\",\n        display: \"inline-block\",\n        overflow: \"hidden\",\n        outline: \"none\", // the ring below replaces the default outline\n        width,\n        height,\n        ...style,\n      }}\n      {...props}\n      onPointerEnter={handlePointerEnter}\n      onPointerMove={handlePointerMove}\n      onPointerLeave={handlePointerLeave}\n      onFocus={handleFocus}\n      onBlur={handleBlur}\n    >\n      {/* Real HTML <img> is always in DOM, defines layout, and provides accessible semantics */}\n      <img\n        ref={imgRef}\n        data-frictionborn-poster=\"\"\n        src={src}\n        alt={alt}\n        width={width}\n        height={height}\n        loading={loading}\n        decoding={decoding}\n        fetchPriority={fetchPriority ?? fetchpriority}\n        crossOrigin={crossOrigin}\n        srcSet={srcSet}\n        sizes={sizes}\n        onLoad={handleImageLoad}\n        className={`w-full h-full object-cover block select-none ${imgClassName}`}\n        style={{\n          width: \"100%\",\n          height: \"100%\",\n          objectFit: \"cover\",\n          display: \"block\",\n          userSelect: \"none\",\n          ...imgStyle,\n        }}\n      />\n\n      {/* WebGL2 Canvas Overlay: loaded via React.lazy + Suspense only when lease acquired */}\n      {shouldRenderGL && (\n        <Suspense fallback={null}>\n          <DistortionImageGL\n            imageElement={imgRef.current}\n            pointerPos={pointerPos}\n            isHovered={isHovered}\n            strength={strength}\n            speed={speed}\n            tier={effectiveTier}\n            onDowngrade={() => {\n              if (leaseRef.current) {\n                leaseRef.current.release(); // @frictionborn-guard\n                leaseRef.current = null;\n                setHasLease(false);\n              }\n            }}\n            onTaintedCORS={handleTaintedCORS}\n            onInitError={handleInitError}\n          />\n        </Suspense>\n      )}\n\n      {children && (\n        <div style={{ position: \"absolute\", inset: 0, zIndex: 3, pointerEvents: \"auto\" }}>\n          {children}\n        </div>\n      )}\n\n      {focusVisible && <span aria-hidden=\"true\" data-frictionborn-focus-ring=\"\" style={FOCUS_RING_STYLE} />}\n    </div>\n  );\n}\n",
+      "content": "// Original — Frictionborn Motion\n\"use client\";\n\nimport React, { useState, useEffect, useRef, useCallback, Suspense, lazy, useImperativeHandle } from \"react\";\nimport {\n  useCapability,\n  useHydrated,\n  useReducedMotion,\n  useInView,\n  glBudget,\n  type Lease,\n} from \"@frictionborn/runtime\";\n\nconst DistortionImageGL = lazy(() => import(\"./distortion-image.gl\"));\n\n// A pointer or focus that does nothing for this long eases the ripple out, then gives the context back.\nconst IDLE_RELEASE_MS = 3000;\nconst FADE_OUT_MS = 400;\n\n// Focus ring drawn inside the box, above the canvas: an outline outside the box is clipped by any\n// overflow:hidden card around the image. Two tones so it stays visible on any picture. The transparent\n// outline is what forced-colors / high-contrast modes paint instead of the shadows.\nconst FOCUS_RING_STYLE: React.CSSProperties = {\n  position: \"absolute\",\n  inset: 0,\n  zIndex: 4,\n  pointerEvents: \"none\",\n  borderRadius: \"inherit\",\n  outline: \"2px solid transparent\",\n  outlineOffset: \"-2px\",\n  boxShadow:\n    \"inset 0 0 0 3px var(--ring, var(--primary, Highlight)), inset 0 0 0 5px var(--background, Canvas)\",\n};\n\nexport interface DistortionImageProps extends React.HTMLAttributes<HTMLDivElement> {\n  src: string;\n  alt: string;\n  width?: number | string;\n  height?: number | string;\n  strength?: number;\n  speed?: number;\n  maxTier?: number;\n  crossOrigin?: \"anonymous\" | \"use-credentials\" | \"\";\n  loading?: \"eager\" | \"lazy\";\n  decoding?: \"async\" | \"auto\" | \"sync\";\n  fetchPriority?: \"high\" | \"low\" | \"auto\";\n  fetchpriority?: \"high\" | \"low\" | \"auto\";\n  srcSet?: string;\n  sizes?: string;\n  imgClassName?: string;\n  imgStyle?: React.CSSProperties;\n  paused?: boolean;\n  ref?: React.Ref<HTMLDivElement>;\n  children?: React.ReactNode;\n}\n\nexport function DistortionImage({\n  src,\n  alt,\n  width,\n  height,\n  strength = 0.25,\n  speed = 1.0,\n  maxTier = 3,\n  crossOrigin,\n  loading = \"lazy\",\n  decoding = \"async\",\n  fetchPriority,\n  fetchpriority,\n  srcSet,\n  sizes,\n  imgClassName = \"\",\n  imgStyle,\n  paused = false,\n  ref,\n  className = \"\",\n  style,\n  children,\n  onPointerEnter,\n  onPointerMove,\n  onPointerLeave,\n  onFocus,\n  onBlur,\n  ...props\n}: DistortionImageProps) {\n  const containerRef = useRef<HTMLDivElement | null>(null);\n  const uid = React.useId();\n  const imgRef = useRef<HTMLImageElement | null>(null);\n  const instanceId = useRef(\"distortion-image-\" + uid);\n  const leaseRef = useRef<Lease | null>(null);\n  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);\n\n  const hydrated = useHydrated(); // @frictionborn-guard\n  const cap = useCapability(); // @frictionborn-guard\n  const prefersReduced = useReducedMotion(); // @frictionborn-guard\n  const inView = useInView(containerRef); // @frictionborn-guard\n\n  const [hasLease, setHasLease] = useState(false);\n  const [needsLease, setNeedsLease] = useState(false);\n  const [isHovered, setIsHovered] = useState(false);\n  const [pointerPos, setPointerPos] = useState({ x: 0.5, y: 0.5 });\n  const [imgLoaded, setImgLoaded] = useState(false);\n  const [taintedCORS, setTaintedCORS] = useState(false);\n  const [glFailed, setGlFailed] = useState(false);\n  const [isFinePointer, setIsFinePointer] = useState(false);\n  const [focusVisible, setFocusVisible] = useState(false);\n\n  // Detect fine pointer capability and hover support ((hover: hover) and (pointer: fine))\n  useEffect(() => {\n    if (typeof window === \"undefined\" || !window.matchMedia) return;\n    const media = window.matchMedia(\"(hover: hover) and (pointer: fine)\");\n    setIsFinePointer(media.matches);\n    const listener = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);\n    media.addEventListener(\"change\", listener);\n    return () => media.removeEventListener(\"change\", listener);\n  }, []);\n\n  const effectiveTier = Math.min(cap.tier, maxTier);\n\n  // Compute pointer coordinates normalized [0, 1] relative to the element bounding box\n  const updatePointer = useCallback((e: React.PointerEvent<HTMLDivElement>) => {\n    const el = containerRef.current;\n    if (!el) return;\n    const rect = el.getBoundingClientRect();\n    if (rect.width > 0 && rect.height > 0) {\n      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));\n      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));\n      setPointerPos({ x, y });\n    }\n  }, []);\n\n  const clearIdleTimer = useCallback(() => {\n    if (idleTimerRef.current) {\n      clearTimeout(idleTimerRef.current);\n      idleTimerRef.current = null;\n    }\n  }, []);\n\n  // Any interaction restarts the idle clock. After IDLE_RELEASE_MS of nothing the ripple eases out, the\n  // lease is marked evictable straight away, and the context is released once the fade has finished.\n  const armIdleTimer = useCallback(() => {\n    clearIdleTimer();\n    idleTimerRef.current = setTimeout(() => {\n      setIsHovered(false);\n      leaseRef.current?.setOffScreen(true);\n      idleTimerRef.current = setTimeout(() => {\n        idleTimerRef.current = null;\n        setNeedsLease(false);\n      }, FADE_OUT_MS);\n    }, IDLE_RELEASE_MS);\n  }, [clearIdleTimer]);\n\n  const activate = useCallback(() => {\n    if (paused) return;\n    setIsHovered(true);\n    setNeedsLease(true);\n    leaseRef.current?.setOffScreen(false);\n    armIdleTimer();\n  }, [paused, armIdleTimer]);\n\n  useEffect(() => {\n    if (paused) {\n      setIsHovered(false);\n      clearIdleTimer();\n      setNeedsLease(false);\n      if (leaseRef.current) {\n        leaseRef.current.release();\n        leaseRef.current = null;\n        setHasLease(false);\n      }\n    }\n  }, [paused, clearIdleTimer]);\n\n  // Pointer left or focus moved away: ease out now, keep the context for a grace period so coming back is\n  // instant, but let another image take the slot if it needs one (the budget evicts idle leases, LRU first).\n  const deactivate = useCallback(() => {\n    setIsHovered(false);\n    leaseRef.current?.setOffScreen(true);\n    clearIdleTimer();\n    idleTimerRef.current = setTimeout(() => {\n      idleTimerRef.current = null;\n      setNeedsLease(false);\n    }, IDLE_RELEASE_MS);\n  }, [clearIdleTimer]);\n\n  const handlePointerEnter = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerEnter?.(e);\n      if (e.pointerType === \"touch\") return; // Touch pointers fall back to plain image (0 contexts)\n      updatePointer(e);\n      activate();\n    },\n    [onPointerEnter, updatePointer, activate]\n  );\n\n  const handlePointerMove = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerMove?.(e);\n      if (e.pointerType === \"touch\") return;\n      updatePointer(e);\n      activate();\n    },\n    [onPointerMove, updatePointer, activate]\n  );\n\n  const handlePointerLeave = useCallback(\n    (e: React.PointerEvent<HTMLDivElement>) => {\n      onPointerLeave?.(e);\n      deactivate();\n    },\n    [onPointerLeave, deactivate]\n  );\n\n  const handleFocus = useCallback(\n    (e: React.FocusEvent<HTMLDivElement>) => {\n      onFocus?.(e);\n      let visible = true;\n      try {\n        visible = (e.target as HTMLElement).matches(\":focus-visible\");\n      } catch {\n        // :focus-visible unsupported: show the ring\n      }\n      setFocusVisible(visible);\n      activate();\n    },\n    [onFocus, activate]\n  );\n\n  const handleBlur = useCallback(\n    (e: React.FocusEvent<HTMLDivElement>) => {\n      onBlur?.(e);\n      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {\n        setFocusVisible(false);\n        deactivate();\n      }\n    },\n    [onBlur, deactivate]\n  );\n\n  // Support wrapped-in-link pattern: when wrapped in <a> or button, focus on parent activates effect\n  useEffect(() => {\n    const el = containerRef.current;\n    if (!el) return;\n    const parentInteractive = el.closest<HTMLElement>(\"a, button\");\n    if (!parentInteractive) return;\n\n    const handleParentFocus = () => {\n      let visible = true;\n      try {\n        visible = parentInteractive.matches(\":focus-visible\");\n      } catch {\n        // fallback\n      }\n      setFocusVisible(visible);\n      activate();\n    };\n\n    const handleParentBlur = (e: FocusEvent) => {\n      if (!parentInteractive.contains(e.relatedTarget as Node | null)) {\n        setFocusVisible(false);\n        deactivate();\n      }\n    };\n\n    parentInteractive.addEventListener(\"focus\", handleParentFocus as EventListener);\n    parentInteractive.addEventListener(\"blur\", handleParentBlur as EventListener);\n    return () => {\n      parentInteractive.removeEventListener(\"focus\", handleParentFocus as EventListener);\n      parentInteractive.removeEventListener(\"blur\", handleParentBlur as EventListener);\n    };\n  }, [activate, deactivate]);\n\n  // When leaving the viewport, immediately release any lease and cancel idle timers\n  useEffect(() => {\n    if (!inView) {\n      clearIdleTimer();\n      setNeedsLease(false);\n      setIsHovered(false);\n    }\n  }, [inView, clearIdleTimer]);\n\n  // Context lease management with S8-11 retry subscription\n  useEffect(() => {\n    const shouldAcquire =\n      hydrated &&\n      inView &&\n      needsLease &&\n      effectiveTier >= 2 &&\n      !prefersReduced &&\n      isFinePointer &&\n      !taintedCORS &&\n      !glFailed;\n\n    let unsubscribeBudget: (() => void) | null = null;\n\n    const requestInteractiveLease = () => {\n      if (leaseRef.current) return;\n      const acquired = glBudget.acquire({\n        id: instanceId.current,\n        priority: 2, // Active hover has elevated priority over ambient backgrounds\n        onEvict: () => {\n          // Evicted (idle LRU, or by a higher-priority item). The next pointer move asks again.\n          leaseRef.current = null;\n          setHasLease(false);\n          setNeedsLease(false);\n          setIsHovered(false);\n        },\n      });\n      if (acquired) {\n        leaseRef.current = acquired;\n        setHasLease(true);\n      }\n    };\n\n    if (shouldAcquire) {\n      requestInteractiveLease();\n      // S8-11: Subscribe to budget frees so waiting visible items retry lease acquisition\n      unsubscribeBudget = glBudget.subscribe(() => {\n        if (!leaseRef.current) {\n          requestInteractiveLease();\n        }\n      });\n    } else if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n\n    return () => {\n      unsubscribeBudget?.();\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n        setHasLease(false);\n      }\n    };\n  }, [hydrated, inView, needsLease, effectiveTier, prefersReduced, isFinePointer, taintedCORS, glFailed]);\n\n  // Cleanup on unmount\n  useEffect(() => {\n    return () => {\n      if (idleTimerRef.current) {\n        clearTimeout(idleTimerRef.current);\n      }\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n      }\n    };\n  }, []);\n\n  const markImageReady = useCallback(() => {\n    const img = imgRef.current;\n    if (!img) return;\n    if (typeof img.decode === \"function\") {\n      img.decode().then(\n        () => setImgLoaded(true),\n        () => setImgLoaded(true)\n      );\n    } else {\n      setImgLoaded(true);\n    }\n  }, []);\n\n  useEffect(() => {\n    if (imgRef.current?.complete) {\n      markImageReady();\n    }\n  }, [src, markImageReady]);\n\n  const handleImageLoad = markImageReady;\n\n  const handleTaintedCORS = useCallback(() => {\n    setTaintedCORS(true);\n    if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n  }, []);\n\n  const handleInitError = useCallback(() => {\n    setGlFailed(true);\n    if (leaseRef.current) {\n      leaseRef.current.release(); // @frictionborn-guard\n      leaseRef.current = null;\n      setHasLease(false);\n    }\n  }, []);\n\n  const shouldRenderGL =\n    !paused &&\n    hydrated &&\n    hasLease &&\n    imgLoaded &&\n    !taintedCORS &&\n    !glFailed &&\n    !prefersReduced &&\n    isFinePointer &&\n    effectiveTier >= 2;\n\n  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"distortion-image\"\n      data-tier={effectiveTier}\n      className={`relative inline-block overflow-hidden ${className}`}\n      style={{\n        position: \"relative\",\n        display: \"inline-block\",\n        overflow: \"hidden\",\n        outline: \"none\", // the ring below replaces the default outline\n        width,\n        height,\n        ...style,\n      }}\n      {...props}\n      onPointerEnter={handlePointerEnter}\n      onPointerMove={handlePointerMove}\n      onPointerLeave={handlePointerLeave}\n      onFocus={handleFocus}\n      onBlur={handleBlur}\n    >\n      {/* Real HTML <img> is always in DOM, defines layout, and provides accessible semantics */}\n      <img\n        ref={imgRef}\n        data-frictionborn-poster=\"\"\n        src={src}\n        alt={alt}\n        width={width}\n        height={height}\n        loading={loading}\n        decoding={decoding}\n        fetchPriority={fetchPriority ?? fetchpriority}\n        crossOrigin={crossOrigin}\n        srcSet={srcSet}\n        sizes={sizes}\n        onLoad={handleImageLoad}\n        className={`w-full h-full object-cover block select-none ${imgClassName}`}\n        style={{\n          width: \"100%\",\n          height: \"100%\",\n          objectFit: \"cover\",\n          display: \"block\",\n          userSelect: \"none\",\n          ...imgStyle,\n        }}\n      />\n\n      {/* WebGL2 Canvas Overlay: loaded via React.lazy + Suspense only when lease acquired */}\n      {shouldRenderGL && (\n        <Suspense fallback={null}>\n          <DistortionImageGL\n            imageElement={imgRef.current}\n            pointerPos={pointerPos}\n            isHovered={isHovered}\n            strength={strength}\n            speed={speed}\n            tier={effectiveTier}\n            onDowngrade={() => {\n              if (leaseRef.current) {\n                leaseRef.current.release(); // @frictionborn-guard\n                leaseRef.current = null;\n                setHasLease(false);\n              }\n            }}\n            onTaintedCORS={handleTaintedCORS}\n            onInitError={handleInitError}\n          />\n        </Suspense>\n      )}\n\n      {children && (\n        <div style={{ position: \"absolute\", inset: 0, zIndex: 3, pointerEvents: \"auto\" }}>\n          {children}\n        </div>\n      )}\n\n      {focusVisible && <span aria-hidden=\"true\" data-frictionborn-focus-ring=\"\" style={FOCUS_RING_STYLE} />}\n    </div>\n  );\n}\n\nexport default DistortionImage;\n",
       "type": "registry:ui",
       "target": "components/ui/distortion-image.tsx"
     }
-  ]
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "distortion-image",
+      "version": "0.1.0",
+      "summary": "media: WebGL2 hover-displacement image overlay (webgl, client-only, reduced motion -> static image, mobile -> plain image / 0 contexts)",
+      "slot": "media",
+      "kind": "webgl"
+    },
+    "intent": {
+      "useWhen": [
+        "Portfolio galleries and editorial features requiring tactile pointer distortion",
+        "Product showcases where fine-pointer interaction reveals optical depth",
+        "Media elements benefiting from fluid ripple displacement over real images"
+      ],
+      "avoidWhen": [
+        "Long lists of small thumbnails on mobile where static images are optimal",
+        "High-frequency rapid scrolling feeds without user hovering",
+        "Images lacking CORS headers when hosted on cross-origin domains"
+      ],
+      "alternatives": [
+        {
+          "name": "noise-field",
+          "when": "When a generative ambient canvas background is needed instead of image distortion"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "static-layout",
+      "clientOnly": true,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "^4"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 4,
+      "tiers": {
+        "0": "Plain image, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+        "1": "Plain image (coarse pointer with low-end hints)",
+        "2": "WebGL2 displacement overlay at DPR <= 1.5, 0.75 render scale, texture <= 1024px, only when the device reports (hover: hover) and (pointer: fine); coarse-pointer devices at this tier get the plain image",
+        "3": "WebGL2 displacement overlay at DPR <= 2.0, full render scale, texture <= 2048px (fine pointer with hover)"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "Renders the plain static image with no WebGL context and no animation frames."
+      },
+      "input": {
+        "pointer": "Fine-pointer hover acquires a context lease and ripples around the cursor. The lease is released about 3 s after the pointer leaves or stops moving, and the render loop keeps running during that idle period (up to about 3.4 s). At most 4 contexts are live per page, shared by all instances; when the budget is full the least recently used idle image gives its slot up.",
+        "touch": "Touch pointers fall back to the plain static image with zero WebGL allocation",
+        "keyboard": "The wrapper is not focusable. For linked images (wrapped in <a> or containing a covering <a>), focus on the link triggers the ripple on fine-pointer devices and draws a two-tone inset focus ring above the canvas, inside the image box so parent overflow:hidden cannot clip it; exactly one tab stop is preserved. Purely decorative images have no keyboard activation. The canvas is aria-hidden"
+      }
+    },
+    "a11y": {
+      "role": "content",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "1.1.1",
+        "2.2.2",
+        "2.3.1"
+      ],
+      "notes": "The underlying HTML img element keeps the full accessible name via alt; the WebGL canvas overlay and focus ring are aria-hidden. A linked image gets exactly one tab stop (the link itself). Keyboard activation is supported whether the image is wrapped in an <a> or contains a covering <a> inside its children."
+    },
+    "composition": {
+      "maxPerPage": 30,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "sticky-scroll-story",
+        "text-reveal",
+        "scroll-reveal"
+      ]
+    },
+    "props": [
+      {
+        "name": "src",
+        "type": "string",
+        "default": null,
+        "effect": "Required. URL of the underlying image to display and distort."
+      },
+      {
+        "name": "alt",
+        "type": "string",
+        "default": null,
+        "effect": "Required. Accessible alternative text for the image."
+      },
+      {
+        "name": "width",
+        "type": "number | string",
+        "default": null,
+        "effect": "Optional. No default. Layout width of the wrapper and the img."
+      },
+      {
+        "name": "height",
+        "type": "number | string",
+        "default": null,
+        "effect": "Optional. No default. Layout height of the wrapper and the img."
+      },
+      {
+        "name": "strength",
+        "type": "number",
+        "default": 0.25,
+        "effect": "Displacement ripple magnitude on hover."
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "default": 1,
+        "effect": "Frequency and wave propagation rate during interaction."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier (0 to 3)."
+      },
+      {
+        "name": "crossOrigin",
+        "type": "\"anonymous\" | \"use-credentials\" | \"\"",
+        "default": null,
+        "effect": "Optional. No default. CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors."
+      },
+      {
+        "name": "fetchPriority",
+        "type": "\"high\" | \"low\" | \"auto\"",
+        "default": null,
+        "effect": "Optional. No default. Native fetchpriority attribute forwarded to the underlying img element."
+      },
+      {
+        "name": "fetchpriority",
+        "type": "\"high\" | \"low\" | \"auto\"",
+        "default": null,
+        "effect": "Optional. No default. Lower-case alias of fetchPriority, used only when fetchPriority is not set."
+      },
+      {
+        "name": "loading",
+        "type": "\"eager\" | \"lazy\"",
+        "default": "lazy",
+        "effect": "Native browser image loading attribute."
+      },
+      {
+        "name": "decoding",
+        "type": "\"async\" | \"auto\" | \"sync\"",
+        "default": "async",
+        "effect": "Native browser image decoding behavior."
+      },
+      {
+        "name": "srcSet",
+        "type": "string",
+        "default": null,
+        "effect": "Optional. No default. Native srcset. When the browser picks another candidate (resize, DPR change) the new pixels are uploaded to the texture."
+      },
+      {
+        "name": "sizes",
+        "type": "string",
+        "default": null,
+        "effect": "Optional. No default. Native sizes attribute for srcSet."
+      },
+      {
+        "name": "imgClassName",
+        "type": "string",
+        "default": "",
+        "effect": "Class names for the inner img."
+      },
+      {
+        "name": "imgStyle",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Optional. No default. Inline styles merged onto the inner img."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the wrapper div. Other HTML div attributes (data-*, aria-*) are passed to the wrapper, not to the img."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins)."
+      },
+      {
+        "name": "onPointerEnter",
+        "type": "React.PointerEventHandler<HTMLDivElement>",
+        "default": null,
+        "effect": "Optional. No default. Composed: called first, then the component's own handling. onPointerMove, onPointerLeave, onFocus and onBlur are composed the same way."
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Optional. No default. Content layered above the image and canvas, for example a caption or a link."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@latest add @frictionborn/distortion-image",
+      "usage": "import { DistortionImage } from \"@/components/ui/distortion-image\";\n\nexport default function GalleryCard() {\n  return (\n    <DistortionImage\n      src=\"/art-1.webp\"\n      alt=\"Wheat Field with Cypresses by Vincent van Gogh\"\n      width={600}\n      height={400}\n      strength={0.25}\n    />\n  );\n}",
+      "mistakes": [
+        "Do not set crossOrigin='anonymous' unless the host server actually sends CORS headers (Access-Control-Allow-Origin); setting it on a non-CORS host causes the browser to block the image entirely. Omit it to let DistortionImage cleanly display the static image without errors.",
+        "Do not set position: absolute on the underlying img without specifying container dimensions; let the image define layout to avoid CLS.",
+        "Do not attempt to animate strength or pointer coordinates manually with requestAnimationFrame; the component handles internal interaction loops."
+      ],
+      "verify": [
+        "Confirm the real img element is rendered in server HTML before hydration (CLS <= 0.01).",
+        "Confirm that when hovering with a fine pointer, a WebGL context lease is acquired and released after about 3s idle.",
+        "Confirm that coarse touch pointers and reduced-motion render the plain image with 0 WebGL contexts."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": [
+        "Wheat Field with Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436535 - CC0 1.0 (The Met Open Access)",
+        "Irises (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436528 - CC0 1.0 (The Met Open Access)",
+        "Cypresses (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/437980 - CC0 1.0 (The Met Open Access)",
+        "Under the Wave off Kanagawa (Katsushika Hokusai) - https://www.metmuseum.org/art/collection/search/45434 - CC0 1.0 (The Met Open Access)",
+        "Sunflowers (Vincent van Gogh) - https://www.metmuseum.org/art/collection/search/436524 - CC0 1.0 (The Met Open Access)",
+        "The Shepherd's Song (Pierre Puvis de Chavannes) - https://www.metmuseum.org/art/collection/search/437344 - CC0 1.0 (The Met Open Access)"
+      ]
+    },
+    "measured": {
+      "commit": "d984bb8",
+      "date": "2026-10-04",
+      "sizeKB": {
+        "initial": 4.01,
+        "deferred": 4.29,
+        "method": "gzip-9"
+      },
+      "cls": 0,
+      "framesWhenIdle": {
+        "offscreen": 0,
+        "hiddenTab": 0,
+        "reducedMotion": 0
+      },
+      "axe": {
+        "serious": 0,
+        "critical": 0
+      },
+      "devices": [
+        {
+          "env": "Chromium Desktop (SwiftShader)",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "27 passed, 0 failed"
+        },
+        {
+          "env": "Chromium Mobile (Pixel 7 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "25 passed, 0 failed"
+        },
+        {
+          "env": "Firefox Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "25 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "23 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Mobile (iPhone 14 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "23 passed, 0 failed"
+        }
+      ]
+    }
+  }
 }

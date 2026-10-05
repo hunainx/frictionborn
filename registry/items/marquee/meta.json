@@ -90,10 +90,28 @@
       "effect": "Required. Content elements repeated across the strip (rendered twice; avoid fixed ids)."
     },
     {
-      "name": "speed",
+      "name": "pixelsPerSecond",
       "type": "number",
       "default": 40,
-      "effect": "Approximate transit rate in pixels per second (duration = track width / speed, at least 5 s)."
+      "effect": "Transit rate in physical pixels per second."
+    },
+    {
+      "name": "speed",
+      "type": "number",
+      "default": 1,
+      "effect": "Unitless speed multiplier (1 = default speed)."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Freezes ticker transit."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "Optional CSP nonce forwarded to internal scoped <style> element."
     },
     {
       "name": "direction",

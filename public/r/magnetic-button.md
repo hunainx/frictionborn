@@ -71,7 +71,8 @@
 | Prop | Type | Default | Effect |
 |---|---|---|---|
 | `children` | `React.ReactElement` | `—` | Required. A single interactive element (button or link) wrapped by the magnetic controller. |
-| `strength` | `number` | `16` | Maximum pull translation in pixels. |
+| `pullDistance` | `number` | `16` | Maximum pull translation in pixels (replaces deprecated strength). |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes magnetic displacement calculation. |
 | `tension` | `number` | `180` | Spring stiffness coefficient. |
 | `damping` | `number` | `16` | Spring velocity damping coefficient. |
 | `className` | `string` | `""` | Additional CSS classes applied to the outer wrapper div (the built-in class fb-magnetic-button is kept). |

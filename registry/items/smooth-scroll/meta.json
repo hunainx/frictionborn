@@ -100,8 +100,14 @@
     {
       "name": "duration",
       "type": "number",
-      "default": 1.2,
-      "effect": "Scroll easing duration in seconds."
+      "default": 1200,
+      "effect": "Scroll easing duration in milliseconds (e.g. 1200 means 1.2 seconds)."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Freezes kinetic smooth scrolling."
     },
     {
       "name": "easing",

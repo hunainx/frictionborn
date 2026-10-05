@@ -96,7 +96,6 @@ export default function SmoothScrollDemo() {
       {/* Main Content Area Wrapped with SmoothScroll */}
       <SmoothScroll enabled={enabled}>
         <div
-          id="demo-mount-point"
           style={{
             position: "relative",
             padding: "2.5rem 1.5rem",

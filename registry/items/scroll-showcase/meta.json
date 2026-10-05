@@ -93,22 +93,76 @@
   },
   "props": [
     {
+      "name": "headline",
+      "type": "string",
+      "default": null,
+      "effect": "Required. Primary section headline rendered as an h2."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": null,
+      "effect": "Required. Section narrative description below the headline."
+    },
+    {
       "name": "steps",
       "type": "StoryStep[]",
-      "default": "DEFAULT_STEPS (3 built-in demo steps about studio monitors: enclosure, transducer, crossover)",
-      "effect": "Steps for the StickyScrollStory ({ id, title, description, badge?, media }; StoryStep is exported by sticky-scroll-story). Only the sticky story is configurable."
+      "default": null,
+      "effect": "Required. Narrative steps for StickyScrollStory ({ id, title, description, badge?, media })."
+    },
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "default": null,
+      "effect": "Optional. Eyebrow badge above the headline."
+    },
+    {
+      "name": "specs",
+      "type": "ScrollShowcaseSpec[]",
+      "default": null,
+      "effect": "Optional. Specifications / highlights grid items ({ metric, label, detail })."
+    },
+    {
+      "name": "specsHeading",
+      "type": "string",
+      "default": "Laboratory verification standards",
+      "effect": "Optional. Specifications section heading."
+    },
+    {
+      "name": "specsEyebrow",
+      "type": "string",
+      "default": "Measured Tolerances",
+      "effect": "Optional. Specifications eyebrow badge."
     },
     {
       "name": "showMarquee",
       "type": "boolean",
       "default": true,
-      "effect": "Includes the studio reference marquee. Its content (8 studio names) is hard-coded and cannot be overridden."
+      "effect": "Includes the reference marquee ticker."
+    },
+    {
+      "name": "marqueeItems",
+      "type": "React.ReactNode[]",
+      "default": null,
+      "effect": "Optional. Array of items to display in the marquee ticker."
+    },
+    {
+      "name": "marqueeLabel",
+      "type": "string",
+      "default": "Reference deployments in critical listening rooms",
+      "effect": "Optional. Label above the marquee ticker."
     },
     {
       "name": "smoothScroll",
       "type": "boolean",
       "default": false,
       "effect": "Wraps the composition in the SmoothScroll provider (off by default)."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Freezes all internal motion."
     },
     {
       "name": "className",

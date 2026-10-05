@@ -139,7 +139,6 @@ export default function MeshGradientDemo() {
 
       {/* Primary Viewport Canvas with Overlaid Product Headline */}
       <div
-        id="demo-mount-point"
         style={{
           position: "relative",
           height: "420px",

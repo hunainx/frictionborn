@@ -163,6 +163,7 @@ export default function MeshGradientGL({
       const surface = createSurface(cvs, {
         maxDpr,
         scale: meshScale,
+        deferDpr: true,
         onContextLost: () => {
           cvs.style.display = "none";
           lostHandler.current?.();

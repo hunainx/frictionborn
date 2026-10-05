@@ -181,7 +181,7 @@ export default function StickyScrollStoryDemo() {
         </div>
       </header>
 
-      <div id="demo-mount-point" style={{ maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
+      <div style={{ maxWidth: "1000px", margin: "0 auto", width: "100%" }}>
         <div style={{ marginBottom: "1.25rem", textAlign: "left" }}>
           <span
             className="mono"

@@ -17,76 +17,87 @@ export interface StoryStep {
   };
 }
 
-export interface StickyScrollStoryProps {
+export interface StickyScrollStoryProps extends React.HTMLAttributes<HTMLDivElement> {
   steps: StoryStep[];
   className?: string;
   style?: React.CSSProperties;
   mediaPosition?: "left" | "right";
+  paused?: boolean;
+  nonce?: string;
   onStepChange?: (stepId: string) => void;
 }
 
-export function StickyScrollStory({
-  steps,
-  className = "",
-  style,
-  mediaPosition = "right",
-  onStepChange,
-}: StickyScrollStoryProps) {
-  const [activeStep, setActiveStep] = useState(0);
-  const hydrated = useHydrated(); // @frictionborn-guard
-  const prefersReduced = useReducedMotion(); // @frictionborn-guard
-  const capability = useCapability(); // @frictionborn-guard
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const onStepChangeRef = useRef(onStepChange);
-  onStepChangeRef.current = onStepChange;
+export const StickyScrollStory = React.forwardRef<HTMLDivElement, StickyScrollStoryProps>(
+  function StickyScrollStory(
+    {
+      steps,
+      className = "",
+      style,
+      mediaPosition = "right",
+      paused = false,
+      nonce,
+      onStepChange,
+      ...rest
+    },
+    ref
+  ) {
+    const [activeStep, setActiveStep] = useState(0);
+    const hydrated = useHydrated(); // @frictionborn-guard
+    const prefersReduced = useReducedMotion(); // @frictionborn-guard
+    const capability = useCapability(); // @frictionborn-guard
+    const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const onStepChangeRef = useRef(onStepChange);
+    onStepChangeRef.current = onStepChange;
 
-  // Zero window scroll listeners: use IntersectionObserver to detect active step in viewport
-  useEffect(() => {
-    if (!hydrated || typeof IntersectionObserver === "undefined") return;
+    // Zero window scroll listeners: use IntersectionObserver to detect active step in viewport
+    useEffect(() => {
+      if (paused || !hydrated || typeof IntersectionObserver === "undefined") return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const indexStr = entry.target.getAttribute("data-step-index");
-            if (indexStr !== null) {
-              const idx = parseInt(indexStr, 10);
-              if (!isNaN(idx)) {
-                setActiveStep(idx);
-                if (onStepChangeRef.current && steps[idx]) {
-                  onStepChangeRef.current(steps[idx].id);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const indexStr = entry.target.getAttribute("data-step-index");
+              if (indexStr !== null) {
+                const idx = parseInt(indexStr, 10);
+                if (!isNaN(idx)) {
+                  setActiveStep(idx);
+                  if (onStepChangeRef.current && steps[idx]) {
+                    onStepChangeRef.current(steps[idx].id);
+                  }
                 }
               }
             }
           }
+        },
+        {
+          root: null,
+          rootMargin: "-30% 0px -30% 0px", // active in center 40% band of screen
+          threshold: 0.1,
         }
-      },
-      {
-        root: null,
-        rootMargin: "-30% 0px -30% 0px", // active in center 40% band of screen
-        threshold: 0.1,
-      }
-    );
+      );
 
-    stepRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
-    });
+      stepRefs.current.forEach((el) => {
+        if (el) observer.observe(el);
+      });
 
-    return () => observer.disconnect();
-  }, [hydrated, steps.length]);
+      return () => observer.disconnect();
+    }, [hydrated, steps.length, paused]);
 
-  return (
-    <div
-      data-frictionborn-item="sticky-scroll-story"
-      data-tier={capability.tier}
-      className={`fb-sticky-scroll-story ${className}`}
-      style={{
-        position: "relative",
-        width: "100%",
-        ...style,
-      }}
-    >
-      <style>{`
+    return (
+      <div
+        ref={ref}
+        data-frictionborn-item="sticky-scroll-story"
+        data-tier={capability.tier}
+        className={`fb-sticky-scroll-story ${className}`}
+        style={{
+          position: "relative",
+          width: "100%",
+          ...style,
+        }}
+        {...rest}
+      >
+        <style nonce={nonce}>{`
         .fb-sss-container {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -321,4 +332,8 @@ export function StickyScrollStory({
       </div>
     </div>
   );
-}
+});
+
+StickyScrollStory.displayName = "StickyScrollStory";
+
+export default StickyScrollStory;

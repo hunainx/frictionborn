@@ -12,9 +12,240 @@
   "files": [
     {
       "path": "registry/items/text-reveal/text-reveal.tsx",
-      "content": "// Original — Frictionborn Motion TextReveal\n\"use client\";\n\nimport React, { useEffect, useRef, useState, useMemo, useId } from \"react\";\nimport { useReducedMotion, useCapability, useHydrated } from \"@frictionborn/runtime\";\n\nexport interface TextRevealProps {\n  children: string;\n  as?: React.ElementType;\n  by?: \"word\" | \"character\" | \"line\";\n  delay?: number;\n  stagger?: number;\n  duration?: number;\n  className?: string;\n  style?: React.CSSProperties;\n  maxTier?: number;\n  replayKey?: string | number;\n}\n\nexport function TextReveal({\n  children,\n  as: Component = \"h1\",\n  by = \"word\",\n  delay = 0,\n  stagger = 60,\n  duration = 400,\n  className = \"\",\n  style,\n  maxTier = 3,\n  replayKey,\n}: TextRevealProps) {\n  const containerRef = useRef<HTMLElement>(null);\n  const id = useId();\n  const hydrated = useHydrated();\n  const prefersReduced = useReducedMotion();\n  const { tier: rawTier } = useCapability();\n  const tier = Math.min(rawTier, maxTier);\n\n  // Check if this component was pre-rendered in SSR HTML\n  const isSsrInitial = useRef<boolean | null>(null);\n  if (isSsrInitial.current === null) {\n    if (typeof document !== \"undefined\") {\n      const el = document.getElementById(id);\n      isSsrInitial.current = Boolean(el && el.getAttribute(\"data-ssr\") === \"true\");\n    } else {\n      isSsrInitial.current = true;\n    }\n  }\n\n  // When replayKey changes, allow animated re-reveal even if initially SSR-rendered\n  const prevReplayRef = useRef(replayKey);\n  if (prevReplayRef.current !== replayKey) {\n    prevReplayRef.current = replayKey;\n    isSsrInitial.current = false;\n  }\n\n  const isSsrPainted = isSsrInitial.current && replayKey === undefined;\n  const shouldAnimate = hydrated && !prefersReduced && tier > 0 && !isSsrPainted;\n\n  const [fontsLoaded, setFontsLoaded] = useState(false);\n  const [containerWidth, setContainerWidth] = useState(0);\n\n  // Wait for web fonts before measuring layout for line splitting\n  useEffect(() => {\n    if (typeof document !== \"undefined\" && \"fonts\" in document) {\n      document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));\n    } else {\n      setFontsLoaded(true);\n    }\n  }, []);\n\n  // Track container width for line re-splitting\n  useEffect(() => {\n    const el = containerRef.current;\n    if (!el || typeof ResizeObserver === \"undefined\") return;\n\n    const ro = new ResizeObserver((entries) => {\n      for (const entry of entries) {\n        setContainerWidth(entry.contentRect.width);\n      }\n    });\n\n    ro.observe(el);\n    return () => ro.disconnect();\n  }, [hydrated]);\n\n  // Adjust stagger on mobile / tier 1\n  const effectiveStagger = tier <= 1 ? Math.min(stagger, 40) : stagger;\n\n  // Split text into tokens\n  const tokens = useMemo(() => {\n    if (!children || typeof children !== \"string\") return [];\n    if (by === \"character\") {\n      // Split into words first to prevent mid-word line breaking\n      const words = children.split(/(\\s+)/);\n      let charIndex = 0;\n      return words.map((segment) => {\n        if (/^\\s+$/.test(segment)) {\n          return { isSpace: true, text: segment, chars: [] };\n        }\n        const chars = Array.from(segment).map((ch) => ({\n          char: ch,\n          index: charIndex++,\n        }));\n        return { isSpace: false, text: segment, chars };\n      });\n    }\n\n    // Word mode default\n    const rawTokens = children.split(/(\\s+)/);\n    let wordIndex = 0;\n    return rawTokens.map((tok) => {\n      const isSpace = /^\\s+$/.test(tok);\n      return {\n        text: tok,\n        isSpace,\n        index: isSpace ? -1 : wordIndex++,\n      };\n    });\n  }, [children, by]);\n\n  // Words only (no whitespace tokens): line groups index into this list\n  const words = useMemo(() => tokens.filter((t: any) => !t.isSpace), [tokens]);\n\n  // Line splitting after fonts load\n  const [lineGroups, setLineGroups] = useState<number[][]>([]);\n  // Width or text changed: drop the grouping so the flat word spans render and can be re-measured\n  useEffect(() => {\n    if (by === \"line\") setLineGroups([]);\n  }, [by, containerWidth, children, replayKey]);\n\n  useEffect(() => {\n    if (by !== \"line\" || !fontsLoaded || lineGroups.length > 0 || !containerRef.current) return;\n    const wordElements = containerRef.current.querySelectorAll<HTMLElement>(\"[data-tr-word]\");\n    if (wordElements.length === 0) return;\n\n    const lines: number[][] = [];\n    let currentLine: number[] = [];\n    let currentTop = -1;\n\n    wordElements.forEach((el, idx) => {\n      const top = el.offsetTop;\n      if (currentTop === -1 || Math.abs(top - currentTop) < 4) {\n        currentLine.push(idx);\n        currentTop = top;\n      } else {\n        lines.push(currentLine);\n        currentLine = [idx];\n        currentTop = top;\n      }\n    });\n    if (currentLine.length > 0) lines.push(currentLine);\n    setLineGroups(lines);\n  }, [by, fontsLoaded, lineGroups.length, children, replayKey]);\n\n  return (\n    <Component\n      ref={containerRef as any}\n      id={id}\n      data-frictionborn-item=\"text-reveal\"\n      data-ssr={!hydrated ? \"true\" : undefined}\n      data-tier={tier}\n      className={`fb-text-reveal ${className}`}\n      style={{\n        position: \"relative\",\n        display: \"block\",\n        ...style,\n      }}\n    >\n      <style>{`\n        [data-motion=\"ok\"] .fb-tr-token {\n          display: inline-block;\n          opacity: 0;\n          transform: translateY(var(--fb-distance, 20px));\n          animation: fb-tr-fade-up var(--fb-tr-dur, 400ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;\n          animation-delay: var(--fb-tr-del, 0ms);\n          will-change: transform, opacity;\n        }\n        @media (prefers-reduced-motion: reduce) {\n          [data-motion=\"ok\"] .fb-tr-token {\n            opacity: 1 !important;\n            transform: none !important;\n            animation: none !important;\n          }\n        }\n        @keyframes fb-tr-fade-up {\n          from {\n            opacity: 0;\n            transform: translateY(var(--fb-distance, 20px));\n          }\n          to {\n            opacity: 1;\n            transform: translateY(0);\n          }\n        }\n      `}</style>\n\n      {/* Screen reader unfragmented text */}\n      <span\n        style={{\n          position: \"absolute\",\n          width: \"1px\",\n          height: \"1px\",\n          padding: 0,\n          margin: \"-1px\",\n          overflow: \"hidden\",\n          clip: \"rect(0, 0, 0, 0)\",\n          whiteSpace: \"nowrap\",\n          border: 0,\n        }}\n      >\n        {children}\n      </span>\n\n      {/* Visual content: static in SSR/reduced motion, split tokens when animated */}\n      {!shouldAnimate ? (\n        <span aria-hidden=\"true\">{children}</span>\n      ) : (\n        <span aria-hidden=\"true\" key={String(replayKey ?? \"default\")}>\n          {by === \"character\" &&\n            tokens.map((group: any, gIdx) =>\n              group.isSpace ? (\n                <span key={gIdx}>{group.text}</span>\n              ) : (\n                <span key={gIdx} style={{ display: \"inline-block\", whiteSpace: \"nowrap\" }}>\n                  {group.chars.map((c: any) => (\n                    <span\n                      key={c.index}\n                      className=\"fb-tr-token\"\n                      style={\n                        {\n                          \"--fb-tr-dur\": `${duration}ms`,\n                          \"--fb-tr-del\": `${delay + c.index * effectiveStagger}ms`,\n                        } as React.CSSProperties\n                      }\n                    >\n                      {c.char}\n                    </span>\n                  ))}\n                </span>\n              )\n            )}\n\n          {by === \"word\" &&\n            tokens.map((token: any, idx) =>\n              token.isSpace ? (\n                <span key={idx}>{token.text}</span>\n              ) : (\n                <span\n                  key={idx}\n                  className=\"fb-tr-token\"\n                  style={\n                    {\n                      \"--fb-tr-dur\": `${duration}ms`,\n                      \"--fb-tr-del\": `${delay + token.index * effectiveStagger}ms`,\n                    } as React.CSSProperties\n                  }\n                >\n                  {token.text}\n                </span>\n              )\n            )}\n\n          {by === \"line\" && (\n            <span style={{ display: \"block\" }}>\n              {lineGroups.length === 0\n                ? tokens.map((token: any, idx) => (\n                    <span\n                      key={idx}\n                      data-tr-word={!token.isSpace ? \"true\" : undefined}\n                      style={{ display: \"inline-block\" }}\n                    >\n                      {token.text}\n                    </span>\n                  ))\n                : lineGroups.map((indices, lineIdx) => (\n                    <span\n                      key={lineIdx}\n                      style={{\n                        display: \"block\",\n                        overflow: \"hidden\",\n                      }}\n                    >\n                      <span\n                        className=\"fb-tr-token\"\n                        style={\n                          {\n                            display: \"inline-block\",\n                            \"--fb-tr-dur\": `${duration}ms`,\n                            \"--fb-tr-del\": `${delay + lineIdx * (effectiveStagger * 1.5)}ms`,\n                          } as React.CSSProperties\n                        }\n                      >\n                        {indices.map((wIdx) => words[wIdx]?.text).join(\" \")}\n                      </span>\n                    </span>\n                  ))}\n            </span>\n          )}\n        </span>\n      )}\n    </Component>\n  );\n}\n\nexport default TextReveal;\n",
+      "content": "// Original — Frictionborn Motion TextReveal\n\"use client\";\n\nimport React, { useEffect, useRef, useState, useMemo, useId, useImperativeHandle } from \"react\";\nimport { useReducedMotion, useCapability, useHydrated } from \"@frictionborn/runtime\";\n\nexport interface TextRevealProps extends React.HTMLAttributes<HTMLElement> {\n  children: string;\n  as?: React.ElementType;\n  by?: \"word\" | \"character\" | \"line\";\n  delay?: number;\n  stagger?: number;\n  duration?: number;\n  className?: string;\n  style?: React.CSSProperties;\n  maxTier?: number;\n  replayKey?: string | number;\n  paused?: boolean;\n  nonce?: string;\n  ref?: React.Ref<any>;\n}\n\nexport function TextReveal({\n  children,\n  as: Component = \"h1\",\n  by = \"word\",\n  delay = 0,\n  stagger = 60,\n  duration = 400,\n  className = \"\",\n  style,\n  maxTier = 3,\n  replayKey,\n  paused = false,\n  nonce,\n  ref,\n  ...rest\n}: TextRevealProps) {\n  const containerRef = useRef<HTMLElement>(null);\n  const id = useId();\n  const hydrated = useHydrated();\n  const prefersReduced = useReducedMotion();\n  const { tier: rawTier } = useCapability();\n  const tier = Math.min(rawTier, maxTier);\n\n  // Check if this component was pre-rendered in SSR HTML\n  const isSsrInitial = useRef<boolean | null>(null);\n  if (isSsrInitial.current === null) {\n    if (typeof document !== \"undefined\") {\n      const el = document.getElementById(id);\n      isSsrInitial.current = Boolean(el && el.getAttribute(\"data-ssr\") === \"true\");\n    } else {\n      isSsrInitial.current = true;\n    }\n  }\n\n  // When replayKey changes, allow animated re-reveal even if initially SSR-rendered\n  const prevReplayRef = useRef(replayKey);\n  if (prevReplayRef.current !== replayKey) {\n    prevReplayRef.current = replayKey;\n    isSsrInitial.current = false;\n  }\n\n  const isSsrPainted = isSsrInitial.current && replayKey === undefined;\n  const shouldAnimate = hydrated && !prefersReduced && !paused && tier > 0 && !isSsrPainted;\n\n  const [fontsLoaded, setFontsLoaded] = useState(false);\n  const [containerWidth, setContainerWidth] = useState(0);\n\n  // Wait for web fonts before measuring layout for line splitting\n  useEffect(() => {\n    if (typeof document !== \"undefined\" && \"fonts\" in document) {\n      document.fonts.ready.then(() => setFontsLoaded(true)).catch(() => setFontsLoaded(true));\n    } else {\n      setFontsLoaded(true);\n    }\n  }, []);\n\n  // Track container width for line re-splitting\n  useEffect(() => {\n    const el = containerRef.current;\n    if (!el || typeof ResizeObserver === \"undefined\") return;\n\n    const ro = new ResizeObserver((entries) => {\n      for (const entry of entries) {\n        setContainerWidth(entry.contentRect.width);\n      }\n    });\n\n    ro.observe(el);\n    return () => ro.disconnect();\n  }, [hydrated]);\n\n  // Adjust stagger on mobile / tier 1\n  const effectiveStagger = tier <= 1 ? Math.min(stagger, 40) : stagger;\n\n  // Split text into tokens\n  const tokens = useMemo(() => {\n    if (!children || typeof children !== \"string\") return [];\n    if (by === \"character\") {\n      // Split into words first to prevent mid-word line breaking\n      const words = children.split(/(\\s+)/);\n      let charIndex = 0;\n      return words.map((segment) => {\n        if (/^\\s+$/.test(segment)) {\n          return { isSpace: true, text: segment, chars: [] };\n        }\n        const chars = Array.from(segment).map((ch) => ({\n          char: ch,\n          index: charIndex++,\n        }));\n        return { isSpace: false, text: segment, chars };\n      });\n    }\n\n    // Word mode default\n    const rawTokens = children.split(/(\\s+)/);\n    let wordIndex = 0;\n    return rawTokens.map((tok) => {\n      const isSpace = /^\\s+$/.test(tok);\n      return {\n        text: tok,\n        isSpace,\n        index: isSpace ? -1 : wordIndex++,\n      };\n    });\n  }, [children, by]);\n\n  // Words only (no whitespace tokens): line groups index into this list\n  const words = useMemo(() => tokens.filter((t: any) => !t.isSpace), [tokens]);\n\n  // Line splitting after fonts load\n  const [lineGroups, setLineGroups] = useState<number[][]>([]);\n  // Width or text changed: drop the grouping so the flat word spans render and can be re-measured\n  useEffect(() => {\n    if (by === \"line\") setLineGroups([]);\n  }, [by, containerWidth, children, replayKey]);\n\n  useEffect(() => {\n    if (by !== \"line\" || !fontsLoaded || lineGroups.length > 0 || !containerRef.current) return;\n    const wordElements = containerRef.current.querySelectorAll<HTMLElement>(\"[data-tr-word]\");\n    if (wordElements.length === 0) return;\n\n    const lines: number[][] = [];\n    let currentLine: number[] = [];\n    let currentTop = -1;\n\n    wordElements.forEach((el, idx) => {\n      const top = el.offsetTop;\n      if (currentTop === -1 || Math.abs(top - currentTop) < 4) {\n        currentLine.push(idx);\n        currentTop = top;\n      } else {\n        lines.push(currentLine);\n        currentLine = [idx];\n        currentTop = top;\n      }\n    });\n    if (currentLine.length > 0) lines.push(currentLine);\n    setLineGroups(lines);\n  }, [by, fontsLoaded, lineGroups.length, children, replayKey]);\n\n  useImperativeHandle(ref, () => containerRef.current as any);\n\n  return (\n    <Component\n      ref={containerRef}\n      id={id}\n      data-frictionborn-item=\"text-reveal\"\n      data-ssr={!hydrated ? \"true\" : undefined}\n      data-tier={tier}\n      className={`fb-text-reveal ${className}`}\n      style={{\n        position: \"relative\",\n        display: \"block\",\n        ...style,\n      }}\n      {...rest}\n    >\n      <style nonce={nonce}>{`\n        [data-motion=\"ok\"] .fb-tr-token {\n          display: inline-block;\n          opacity: 0;\n          transform: translateY(var(--fb-distance, 20px));\n          animation: fb-tr-fade-up var(--fb-tr-dur, 400ms) cubic-bezier(0.22, 1, 0.36, 1) forwards;\n          animation-delay: var(--fb-tr-del, 0ms);\n          will-change: transform, opacity;\n        }\n        @media (prefers-reduced-motion: reduce) {\n          [data-motion=\"ok\"] .fb-tr-token {\n            opacity: 1 !important;\n            transform: none !important;\n            animation: none !important;\n          }\n        }\n        @keyframes fb-tr-fade-up {\n          from {\n            opacity: 0;\n            transform: translateY(var(--fb-distance, 20px));\n          }\n          to {\n            opacity: 1;\n            transform: translateY(0);\n          }\n        }\n      `}</style>\n\n      {/* Screen reader unfragmented text */}\n      <span\n        style={{\n          position: \"absolute\",\n          width: \"1px\",\n          height: \"1px\",\n          padding: 0,\n          margin: \"-1px\",\n          overflow: \"hidden\",\n          clip: \"rect(0, 0, 0, 0)\",\n          whiteSpace: \"nowrap\",\n          border: 0,\n        }}\n      >\n        {children}\n      </span>\n\n      {/* Visual content: static in SSR/reduced motion, split tokens when animated */}\n      {!shouldAnimate ? (\n        <span aria-hidden=\"true\">{children}</span>\n      ) : (\n        <span aria-hidden=\"true\" key={String(replayKey ?? \"default\")}>\n          {by === \"character\" &&\n            tokens.map((group: any, gIdx) =>\n              group.isSpace ? (\n                <span key={gIdx}>{group.text}</span>\n              ) : (\n                <span key={gIdx} style={{ display: \"inline-block\", whiteSpace: \"nowrap\" }}>\n                  {group.chars.map((c: any) => (\n                    <span\n                      key={c.index}\n                      className=\"fb-tr-token\"\n                      style={\n                        {\n                          \"--fb-tr-dur\": `${duration}ms`,\n                          \"--fb-tr-del\": `${delay + c.index * effectiveStagger}ms`,\n                        } as React.CSSProperties\n                      }\n                    >\n                      {c.char}\n                    </span>\n                  ))}\n                </span>\n              )\n            )}\n\n          {by === \"word\" &&\n            tokens.map((token: any, idx) =>\n              token.isSpace ? (\n                <span key={idx}>{token.text}</span>\n              ) : (\n                <span\n                  key={idx}\n                  className=\"fb-tr-token\"\n                  style={\n                    {\n                      \"--fb-tr-dur\": `${duration}ms`,\n                      \"--fb-tr-del\": `${delay + token.index * effectiveStagger}ms`,\n                    } as React.CSSProperties\n                  }\n                >\n                  {token.text}\n                </span>\n              )\n            )}\n\n          {by === \"line\" && (\n            <span style={{ display: \"block\" }}>\n              {lineGroups.length === 0\n                ? tokens.map((token: any, idx) => (\n                    <span\n                      key={idx}\n                      data-tr-word={!token.isSpace ? \"true\" : undefined}\n                      style={{ display: \"inline-block\" }}\n                    >\n                      {token.text}\n                    </span>\n                  ))\n                : lineGroups.map((indices, lineIdx) => (\n                    <span\n                      key={lineIdx}\n                      style={{\n                        display: \"block\",\n                        overflow: \"hidden\",\n                      }}\n                    >\n                      <span\n                        className=\"fb-tr-token\"\n                        style={\n                          {\n                            display: \"inline-block\",\n                            \"--fb-tr-dur\": `${duration}ms`,\n                            \"--fb-tr-del\": `${delay + lineIdx * (effectiveStagger * 1.5)}ms`,\n                          } as React.CSSProperties\n                        }\n                      >\n                        {indices.map((wIdx) => words[wIdx]?.text).join(\" \")}\n                      </span>\n                    </span>\n                  ))}\n            </span>\n          )}\n        </span>\n      )}\n    </Component>\n  );\n}\n\nexport default TextReveal;\n",
       "type": "registry:ui",
       "target": "components/ui/text-reveal.tsx"
     }
-  ]
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "text-reveal",
+      "version": "0.1.0",
+      "summary": "headline: word/line/char text reveal (dom, server-safe); SSR text stays static; reduced motion -> static; low-end mobile -> 40 ms stagger",
+      "slot": "headline",
+      "kind": "dom"
+    },
+    "intent": {
+      "useWhen": [
+        "Hero headlines and section titles requiring editorial typographic reveals",
+        "Marketing landing pages with high-signal opening statements",
+        "Feature headings that need stepped entrance animations"
+      ],
+      "avoidWhen": [
+        "Long paragraphs or running prose (> 2 lines of body text)",
+        "Frequently updating real-time data or tickers",
+        "Forms and interactive controls"
+      ],
+      "alternatives": [
+        {
+          "name": "scroll-reveal",
+          "when": "When revealing whole blocks, cards, or media rather than individual text tokens"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "no",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "none",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "Plain static text, no splitting (server render, prefers-reduced-motion, Save-Data, or no WebGL2)",
+        "1": "Animated reveal with the stagger capped at 40 ms (coarse pointer with low-end hints)",
+        "2": "Animated reveal with the configured stagger (60 ms by default)",
+        "3": "Same as tier 2; the `by` mode (word, character, line) is honoured at every animated tier"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "Renders plain static text without splitting or animations."
+      },
+      "input": {
+        "pointer": "None. The reveal plays once when the component mounts on the client (for example in a Vite SPA or after client-side navigation) or when replayKey changes. A server-rendered instance is painted as static final text and does not animate unless replayKey is set.",
+        "touch": "Same as pointer; the stagger is capped at 40 ms only on tier 1 and tier 0 devices",
+        "keyboard": "None; the text is not focusable. It stays selectable. Screen readers read a visually hidden copy of the full text; the animated tokens are aria-hidden."
+      }
+    },
+    "a11y": {
+      "role": "content",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "not-needed",
+      "wcag": [
+        "1.3.1",
+        "1.4.3",
+        "2.2.2"
+      ],
+      "notes": "Original text is preserved in a visually-hidden span while animated tokens are marked aria-hidden='true', ensuring screen readers never read fragmented letters or words."
+    },
+    "composition": {
+      "maxPerPage": 5,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "noise-field",
+        "magnetic-button",
+        "ambient-hero"
+      ]
+    },
+    "props": [
+      {
+        "name": "children",
+        "type": "string",
+        "default": null,
+        "effect": "Required. Plain text string to split and reveal (not JSX)."
+      },
+      {
+        "name": "as",
+        "type": "React.ElementType",
+        "default": "h1",
+        "effect": "HTML tag to render as root container."
+      },
+      {
+        "name": "by",
+        "type": "\"word\" | \"character\" | \"line\"",
+        "default": "word",
+        "effect": "Token granularity for entrance stagger."
+      },
+      {
+        "name": "delay",
+        "type": "number",
+        "default": 0,
+        "effect": "Initial delay in ms before animation begins."
+      },
+      {
+        "name": "stagger",
+        "type": "number",
+        "default": 60,
+        "effect": "Delay in ms between subsequent token animations. Capped at 40 ms when the tier is 1 or lower."
+      },
+      {
+        "name": "duration",
+        "type": "number",
+        "default": 400,
+        "effect": "Duration in ms for each token entrance."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root element (the built-in class fb-text-reveal is kept)."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Optional. No default. Inline styles on the root element, merged after position: relative and display: block (consumer wins)."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "replayKey",
+        "type": "string | number",
+        "default": null,
+        "effect": "Optional. No default. When set (or changed), the entrance animation plays after hydration even for a server-rendered instance."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@latest add @frictionborn/text-reveal",
+      "usage": "import { TextReveal } from \"@/components/ui/text-reveal\";\n\nexport default function HeroHeadline() {\n  return (\n    <TextReveal as=\"h1\" by=\"word\" className=\"text-4xl font-bold tracking-tight\">\n      Engineered Motion for High-Signal Interfaces\n    </TextReveal>\n  );\n}",
+      "mistakes": [
+        "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",
+        "Do not hide text with opacity: 0 before hydration; the component handles static visibility safely.",
+        "A server-rendered TextReveal is painted as final static text and does not animate unless replayKey is set; do not expect a reveal on a Next.js server-rendered hero without it.",
+        "TextReveal accepts only the listed props; id, data-* and aria-* attributes are not forwarded to the root element.",
+        "The reveal styles apply only when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
+      ],
+      "verify": [
+        "Verify full headline text is present in server HTML before JavaScript executes.",
+        "Verify screen reader reads text as a single coherent sentence without letter-by-letter pauses.",
+        "Verify reduced motion produces immediate static text with zero rAF cycles."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    },
+    "measured": {
+      "commit": "5c74d38",
+      "date": "2026-10-04",
+      "sizeKB": {
+        "initial": 2.86,
+        "deferred": 0.02,
+        "method": "gzip-9"
+      },
+      "cls": 0,
+      "framesWhenIdle": {
+        "offscreen": 0,
+        "hiddenTab": 0,
+        "reducedMotion": 0
+      },
+      "axe": {
+        "serious": 0,
+        "critical": 0
+      },
+      "devices": [
+        {
+          "env": "Chromium Desktop (SwiftShader)",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "13 passed, 0 failed; all specs verified"
+        },
+        {
+          "env": "Chromium Mobile (Pixel 7 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "13 passed, 0 failed; all specs verified"
+        },
+        {
+          "env": "Firefox Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "13 passed, 0 failed; all specs verified"
+        },
+        {
+          "env": "WebKit Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "13 passed, 0 failed; all specs verified"
+        },
+        {
+          "env": "WebKit Mobile (iPhone 14 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "13 passed, 0 failed; all specs verified"
+        }
+      ]
+    }
+  }
 }

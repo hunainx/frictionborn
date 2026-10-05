@@ -1,10 +1,10 @@
 // Original — Frictionborn Motion ScrollReveal
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useImperativeHandle } from "react";
 import { useInView, useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
-export interface ScrollRevealProps {
+export interface ScrollRevealProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   as?: React.ElementType;
   animation?: "fade-up" | "fade" | "scale-up";
@@ -14,6 +14,9 @@ export interface ScrollRevealProps {
   style?: React.CSSProperties;
   once?: boolean;
   maxTier?: number;
+  paused?: boolean;
+  nonce?: string;
+  ref?: React.Ref<any>;
 }
 
 const SCROLL_REVEAL_STYLES = `
@@ -107,6 +110,10 @@ export function ScrollReveal({
   style,
   once = true,
   maxTier = 3,
+  paused = false,
+  nonce,
+  ref,
+  ...rest
 }: ScrollRevealProps) {
   const elemRef = useRef<HTMLElement>(null);
   const isClientHydrated = useHydrated();
@@ -146,6 +153,7 @@ export function ScrollReveal({
   const isRevealed =
     reducedMotionActive ||
     resolvedTier === 0 ||
+    paused ||
     (once ? hasEntered : (initialInView || inView));
 
   // Transform styles based on animation variant
@@ -156,9 +164,11 @@ export function ScrollReveal({
     initialTransform = `scale(0.96) translateY(${effectiveDistance / 2}px)`;
   }
 
+  useImperativeHandle(ref, () => elemRef.current as any);
+
   return (
     <Component
-      ref={elemRef as any}
+      ref={elemRef}
       data-frictionborn-item="scroll-reveal"
       data-tier={resolvedTier}
       className={`fb-scroll-reveal ${className}`}
@@ -167,8 +177,9 @@ export function ScrollReveal({
         position: "relative",
         ...style,
       }}
+      {...rest}
     >
-      <style href="fb-scroll-reveal" precedence="default">
+      <style nonce={nonce}>
         {SCROLL_REVEAL_STYLES}
       </style>
 

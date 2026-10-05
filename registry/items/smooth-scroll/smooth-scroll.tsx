@@ -1,7 +1,7 @@
 // Source: https://github.com/darkroomengineering/lenis — MIT — Darkroom Engineering
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useImperativeHandle } from "react";
 import Lenis from "lenis";
 import {
   useFrame,
@@ -11,9 +11,9 @@ import {
   usePaused,
 } from "@frictionborn/runtime";
 
-export interface SmoothScrollProps {
+export interface SmoothScrollProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  duration?: number;
+  duration?: number; // duration in milliseconds (e.g. 1200 means 1.2s)
   easing?: (t: number) => number;
   orientation?: "vertical" | "horizontal";
   gestureOrientation?: "vertical" | "horizontal" | "both";
@@ -21,8 +21,10 @@ export interface SmoothScrollProps {
   touchMultiplier?: number;
   infinite?: boolean;
   enabled?: boolean;
+  paused?: boolean;
   onScroll?: (e: any) => void;
   prevent?: (node: HTMLElement) => boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 // Module-level so its identity is stable: an inline default would change every render and make the
@@ -39,7 +41,7 @@ export function _resetSmoothScrollSingletonForTesting(): void {
 
 export function SmoothScroll({
   children,
-  duration = 1.2,
+  duration = 1200,
   easing = defaultEasing,
   orientation = "vertical",
   gestureOrientation = "vertical",
@@ -47,8 +49,11 @@ export function SmoothScroll({
   touchMultiplier = 1,
   infinite = false,
   enabled = true,
+  paused = false,
   onScroll,
   prevent,
+  ref,
+  ...rest
 }: SmoothScrollProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const isHydrated = useHydrated(); // @frictionborn-guard
@@ -75,27 +80,31 @@ export function SmoothScroll({
 
   // Decision 16: SmoothScroll is disabled on reduced motion and coarse pointers (mobile/touch)
   const isCoarsePointer = capability.pointer === "coarse";
-  const shouldEnable = isHydrated && enabled && !prefersReduced && !isCoarsePointer;
+  const shouldEnable = isHydrated && enabled && !paused && !prefersReduced && !isCoarsePointer;
 
   // Wake the shared loop on input; it stops again as soon as Lenis reports it is no longer scrolling
   const idleFramesRef = useRef(0);
   const needsClockResetRef = useRef(true);
   const wakeLoop = useCallback(() => {
-    // The shared loop was idle: Lenis would see one huge frame delta and jump instead of easing
+    idleFramesRef.current = 0;
     needsClockResetRef.current = true;
     setIsScrolling(true);
     if (settleTimerRef.current) clearTimeout(settleTimerRef.current);
-    // Safety net only: if no frame ever confirms a settle (e.g. no scroll resulted), go idle after 10 s
     settleTimerRef.current = setTimeout(() => {
-      setIsScrolling(false);
-    }, 10000);
+      const lenis = lenisRef.current;
+      if (!lenis?.isScrolling && !(lenis as any)?.animate?.isRunning) {
+        setIsScrolling(false);
+      }
+    }, 150);
   }, []);
 
   useEffect(() => {
     if (!shouldEnable) {
-      if (lenisRef.current) {
+      if (isMasterRef.current && lenisRef.current) {
         lenisRef.current.destroy();
         lenisRef.current = null;
+        activeSingleton = false;
+        isMasterRef.current = false;
         setIsActive(false);
       }
       return;
@@ -112,8 +121,11 @@ export function SmoothScroll({
     activeSingleton = true;
     isMasterRef.current = true;
 
+    // Lenis expects duration in seconds (duration in ms / 1000)
+    const lenisDurationSec = duration / 1000;
+
     const lenis = new Lenis({
-      duration,
+      duration: lenisDurationSec,
       easing: (t: number) => easingRef.current(t),
       orientation,
       gestureOrientation,
@@ -194,6 +206,8 @@ export function SmoothScroll({
     { active: isActive && !isPaused && isScrolling }
   );
 
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+
   return (
     <div
       ref={containerRef}
@@ -201,8 +215,11 @@ export function SmoothScroll({
       data-active={isActive}
       data-tier={capability.tier}
       style={{ display: "contents" }}
+      {...rest}
     >
       {children}
     </div>
   );
 }
+
+export default SmoothScroll;

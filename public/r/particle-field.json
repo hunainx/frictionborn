@@ -18,9 +18,252 @@
     },
     {
       "path": "registry/items/particle-field/particle-field.tsx",
-      "content": "// Original — Frictionborn Motion ParticleField wrapper\n\"use client\";\n\nimport React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from \"react\";\nimport {\n  useCapability,\n  useHydrated,\n  useReducedMotion,\n  useInView,\n  resolveCssColor,\n  glBudget,\n  type Lease,\n} from \"@frictionborn/runtime\";\n\nconst ParticleFieldGL = lazy(() => import(\"./particle-field.gl\"));\n\nexport interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement> {\n  color?: string;\n  speed?: number;\n  count?: number;\n  interactive?: boolean;\n  scrim?: boolean;\n  paused?: boolean;\n  maxTier?: number;\n  reducedMotion?: boolean;\n  children?: React.ReactNode;\n}\n\nconst DEFAULT_COLOR = \"var(--primary, CanvasText)\";\nconst NEUTRAL_RGB: [number, number, number] = [0.5, 0.5, 0.5];\n\nexport function ParticleField({\n  color = DEFAULT_COLOR,\n  speed = 1.0,\n  count = 2000,\n  interactive = true,\n  scrim = false,\n  paused = false,\n  maxTier = 3,\n  reducedMotion: propReduced,\n  className = \"\",\n  style,\n  children,\n  ...props\n}: ParticleFieldProps) {\n  const containerRef = useRef<HTMLDivElement | null>(null);\n  const isHydrated = useHydrated(); // @frictionborn-guard\n  const capability = useCapability(); // @frictionborn-guard\n  const isReduced = useReducedMotion(); // @frictionborn-guard\n  const motionDisabled = propReduced !== undefined ? propReduced : isReduced; // @frictionborn-guard\n  const isVisible = useInView(containerRef); // @frictionborn-guard\n\n  const [hasLease, setHasLease] = useState(false);\n  const leaseRef = useRef<Lease | null>(null);\n  const instanceId = useRef(\"particle-field-\" + Math.random().toString(36).slice(2, 8));\n  const [contextLost, setContextLost] = useState(false);\n  const [activeTier, setActiveTier] = useState<number>(() =>\n    isHydrated ? Math.min(capability.tier, maxTier) : 0\n  );\n\n  const [resolvedRgb, setResolvedRgb] = useState<[number, number, number]>(NEUTRAL_RGB);\n\n  const updateColor = useCallback(() => {\n    const next = resolveCssColor(containerRef.current, color) ?? NEUTRAL_RGB;\n    // Keep the previous array when nothing changed so unrelated <html> mutations do not re-render\n    setResolvedRgb((prev) =>\n      prev[0] === next[0] && prev[1] === next[1] && prev[2] === next[2] ? prev : next\n    );\n  }, [color]);\n\n  useEffect(() => {\n    updateColor();\n    if (typeof MutationObserver === \"undefined\") return;\n    const observer = new MutationObserver(updateColor);\n    observer.observe(document.documentElement, {\n      attributes: true,\n      attributeFilter: [\"class\", \"data-theme\", \"data-mode\", \"style\"],\n    });\n    return () => observer.disconnect();\n  }, [updateColor]);\n\n  const resolvedTargetTier = Math.min(capability.tier, maxTier);\n  useEffect(() => {\n    if (isHydrated) {\n      setActiveTier(resolvedTargetTier);\n    }\n  }, [isHydrated, resolvedTargetTier]);\n\n  // Context lease management (Decision 19: reduced motion = no WebGL)\n  const canRunWebGL = isHydrated && isVisible && activeTier >= 2 && !motionDisabled;\n\n  useEffect(() => {\n    if (!canRunWebGL) {\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n        setHasLease(false);\n      }\n      return;\n    }\n\n    const tryAcquire = () => {\n      if (leaseRef.current) return;\n      const lease = glBudget.acquire({\n        id: instanceId.current,\n        priority: 1,\n        onEvict: () => {\n          leaseRef.current = null;\n          setHasLease(false);\n        },\n      }); // @frictionborn-guard\n      if (lease) {\n        leaseRef.current = lease;\n        setHasLease(true);\n        // A new lease means a new GL instance: a loss that was never restored must not leave it suspended (same fix as NoiseField, 5c74d38)\n        setContextLost(false);\n      }\n    };\n\n    tryAcquire();\n\n    const unsubscribe = typeof glBudget.subscribe === \"function\"\n      ? glBudget.subscribe(() => {\n          if (!leaseRef.current) {\n            tryAcquire();\n          }\n        })\n      : () => {};\n\n    return () => {\n      unsubscribe();\n    };\n  }, [canRunWebGL, contextLost]);\n\n  useEffect(() => {\n    return () => {\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n      }\n    };\n  }, []);\n\n  const onTierStepDown = useCallback((targetTier?: number) => {\n    setActiveTier((lvl) => (targetTier !== undefined ? targetTier : lvl > 0 ? lvl - 1 : 0)); // @frictionborn-guard\n  }, []);\n\n  const onContextDrop = useCallback(() => {\n    setContextLost(true); // @frictionborn-guard\n  }, []);\n\n  const onContextRecover = useCallback(() => {\n    setContextLost(false); // @frictionborn-guard\n  }, []);\n\n  const shouldBeInteractive = interactive && capability.pointer === \"fine\";\n\n  // Pure CSS from the same colour prop, so the server poster already matches the host theme\n  const dotColor = `color-mix(in srgb, ${color} 18%, transparent)`;\n  const posterBackground = `radial-gradient(circle at 50% 50%, ${dotColor} 1.2px, transparent 1.2px)`;\n\n  const shouldRenderGL = hasLease && !motionDisabled && activeTier >= 2;\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"particle-field\"\n      data-tier={activeTier}\n      className={`fb-particle-field ${className}`}\n      style={{\n        position: \"relative\",\n        width: \"100%\",\n        height: \"100%\",\n        minHeight: \"240px\",\n        overflow: \"hidden\",\n        backgroundColor: \"var(--background, Canvas)\",\n        ...style,\n      }}\n      {...props}\n    >\n      <div\n        data-frictionborn-poster=\"true\"\n        aria-hidden=\"true\"\n        style={{\n          position: \"absolute\",\n          inset: 0,\n          backgroundImage: posterBackground,\n          backgroundSize: \"28px 28px\",\n          pointerEvents: \"none\",\n        }}\n      />\n      {shouldRenderGL && (\n        <Suspense fallback={null}>\n          <ParticleFieldGL\n            suspended={contextLost}\n            color={resolvedRgb}\n            speed={speed}\n            count={count}\n            interactive={shouldBeInteractive}\n            tier={activeTier}\n            paused={paused}\n            reducedMotion={motionDisabled}\n            onDowngrade={onTierStepDown}\n            onContextLost={onContextDrop}\n            onContextRestored={onContextRecover}\n          />\n        </Suspense>\n      )}\n\n      {scrim && (\n        <div\n          aria-hidden=\"true\"\n          style={{\n            position: \"absolute\",\n            inset: 0,\n            background:\n              \"linear-gradient(to bottom, color-mix(in srgb, var(--background, Canvas) 40%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 75%, transparent) 100%)\",\n            pointerEvents: \"none\",\n            zIndex: 1,\n          }}\n        />\n      )}\n\n      {children && (\n        <div\n          style={{\n            position: \"relative\",\n            zIndex: 2,\n            width: \"100%\",\n            height: \"100%\",\n          }}\n        >\n          {children}\n        </div>\n      )}\n    </div>\n  );\n}\n\nexport default ParticleField;\n",
+      "content": "// Original — Frictionborn Motion ParticleField wrapper\n\"use client\";\n\nimport React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy, useImperativeHandle } from \"react\";\nimport {\n  useCapability,\n  useHydrated,\n  useReducedMotion,\n  useInView,\n  resolveCssColor,\n  glBudget,\n  type Lease,\n} from \"@frictionborn/runtime\";\n\nconst ParticleFieldGL = lazy(() => import(\"./particle-field.gl\"));\n\nexport interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement> {\n  color?: string;\n  speed?: number;\n  count?: number;\n  interactive?: boolean;\n  scrim?: boolean;\n  paused?: boolean;\n  maxTier?: number;\n  reducedMotion?: boolean;\n  ref?: React.Ref<HTMLDivElement>;\n  children?: React.ReactNode;\n}\n\nconst DEFAULT_COLOR = \"var(--primary, CanvasText)\";\nconst NEUTRAL_RGB: [number, number, number] = [0.5, 0.5, 0.5];\n\nexport function ParticleField({\n  color = DEFAULT_COLOR,\n  speed = 1.0,\n  count = 2000,\n  interactive = true,\n  scrim = false,\n  paused = false,\n  maxTier = 3,\n  reducedMotion: propReduced,\n  ref,\n  className = \"\",\n  style,\n  children,\n  ...props\n}: ParticleFieldProps) {\n  const containerRef = useRef<HTMLDivElement | null>(null);\n  const uid = useId();\n  const isHydrated = useHydrated(); // @frictionborn-guard\n  const capability = useCapability(); // @frictionborn-guard\n  const isReduced = useReducedMotion(); // @frictionborn-guard\n  const motionDisabled = propReduced !== undefined ? propReduced : isReduced; // @frictionborn-guard\n  const isVisible = useInView(containerRef); // @frictionborn-guard\n\n  const [hasLease, setHasLease] = useState(false);\n  const leaseRef = useRef<Lease | null>(null);\n  const instanceId = useRef(\"particle-field-\" + uid);\n  const [contextLost, setContextLost] = useState(false);\n  const [activeTier, setActiveTier] = useState<number>(() =>\n    isHydrated ? Math.min(capability.tier, maxTier) : 0\n  );\n\n  const [resolvedRgb, setResolvedRgb] = useState<[number, number, number]>(NEUTRAL_RGB);\n\n  const updateColor = useCallback(() => {\n    const next = resolveCssColor(containerRef.current, color) ?? NEUTRAL_RGB;\n    // Keep the previous array when nothing changed so unrelated <html> mutations do not re-render\n    setResolvedRgb((prev) =>\n      prev[0] === next[0] && prev[1] === next[1] && prev[2] === next[2] ? prev : next\n    );\n  }, [color]);\n\n  useEffect(() => {\n    updateColor();\n    if (typeof MutationObserver === \"undefined\") return;\n    const observer = new MutationObserver(updateColor);\n    observer.observe(document.documentElement, {\n      attributes: true,\n      attributeFilter: [\"class\", \"data-theme\", \"data-mode\", \"style\"],\n    });\n    return () => observer.disconnect();\n  }, [updateColor]);\n\n  const resolvedTargetTier = Math.min(capability.tier, maxTier);\n  useEffect(() => {\n    if (isHydrated) {\n      setActiveTier(resolvedTargetTier);\n    }\n  }, [isHydrated, resolvedTargetTier]);\n\n  // Context lease management (Decision 19: reduced motion = no WebGL)\n  const canRunWebGL = isHydrated && isVisible && activeTier >= 2 && !motionDisabled;\n\n  useEffect(() => {\n    if (!canRunWebGL) {\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n        setHasLease(false);\n      }\n      return;\n    }\n\n    const tryAcquire = () => {\n      if (leaseRef.current) return;\n      const lease = glBudget.acquire({\n        id: instanceId.current,\n        priority: 1,\n        onEvict: () => {\n          leaseRef.current = null;\n          setHasLease(false);\n        },\n      }); // @frictionborn-guard\n      if (lease) {\n        leaseRef.current = lease;\n        setHasLease(true);\n        // A new lease means a new GL instance: a loss that was never restored must not leave it suspended (same fix as NoiseField, 5c74d38)\n        setContextLost(false);\n      }\n    };\n\n    tryAcquire();\n\n    const unsubscribe = typeof glBudget.subscribe === \"function\"\n      ? glBudget.subscribe(() => {\n          if (!leaseRef.current) {\n            tryAcquire();\n          }\n        })\n      : () => {};\n\n    return () => {\n      unsubscribe();\n    };\n  }, [canRunWebGL, contextLost]);\n\n  useEffect(() => {\n    return () => {\n      if (leaseRef.current) {\n        leaseRef.current.release(); // @frictionborn-guard\n        leaseRef.current = null;\n      }\n    };\n  }, []);\n\n  const onTierStepDown = useCallback((targetTier?: number) => {\n    setActiveTier((lvl) => (targetTier !== undefined ? targetTier : lvl > 0 ? lvl - 1 : 0)); // @frictionborn-guard\n  }, []);\n\n  const onContextDrop = useCallback(() => {\n    setContextLost(true); // @frictionborn-guard\n  }, []);\n\n  const onContextRecover = useCallback(() => {\n    setContextLost(false); // @frictionborn-guard\n  }, []);\n\n  const shouldBeInteractive = interactive && capability.pointer === \"fine\";\n\n  // Pure CSS from the same colour prop, so the server poster already matches the host theme\n  const dotColor = `color-mix(in srgb, ${color} 18%, transparent)`;\n  const posterBackground = `radial-gradient(circle at 50% 50%, ${dotColor} 1.2px, transparent 1.2px)`;\n\n  const shouldRenderGL = hasLease && !motionDisabled && activeTier >= 2;\n\n  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);\n\n  return (\n    <div\n      ref={containerRef}\n      data-frictionborn-item=\"particle-field\"\n      data-tier={activeTier}\n      className={`fb-particle-field ${className}`}\n      style={{\n        position: \"relative\",\n        width: \"100%\",\n        height: \"100%\",\n        minHeight: \"240px\",\n        overflow: \"hidden\",\n        backgroundColor: \"var(--background, Canvas)\",\n        ...style,\n      }}\n      {...props}\n    >\n      <div\n        data-frictionborn-poster=\"true\"\n        aria-hidden=\"true\"\n        style={{\n          position: \"absolute\",\n          inset: 0,\n          backgroundImage: posterBackground,\n          backgroundSize: \"28px 28px\",\n          pointerEvents: \"none\",\n        }}\n      />\n      {shouldRenderGL && (\n        <Suspense fallback={null}>\n          <ParticleFieldGL\n            suspended={contextLost}\n            color={resolvedRgb}\n            speed={speed}\n            count={count}\n            interactive={shouldBeInteractive}\n            tier={activeTier}\n            paused={paused}\n            reducedMotion={motionDisabled}\n            onDowngrade={onTierStepDown}\n            onContextLost={onContextDrop}\n            onContextRestored={onContextRecover}\n          />\n        </Suspense>\n      )}\n\n      {scrim && (\n        <div\n          aria-hidden=\"true\"\n          style={{\n            position: \"absolute\",\n            inset: 0,\n            background:\n              \"linear-gradient(to bottom, color-mix(in srgb, var(--background, Canvas) 40%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 75%, transparent) 100%)\",\n            pointerEvents: \"none\",\n            zIndex: 1,\n          }}\n        />\n      )}\n\n      {children && (\n        <div\n          style={{\n            position: \"relative\",\n            zIndex: 2,\n            width: \"100%\",\n            height: \"100%\",\n          }}\n        >\n          {children}\n        </div>\n      )}\n    </div>\n  );\n}\n\nexport default ParticleField;\n",
       "type": "registry:ui",
       "target": "components/ui/particle-field.tsx"
     }
-  ]
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "particle-field",
+      "version": "0.1.0",
+      "summary": "background: WebGL2 vertex-shader particle drift with pointer repel (webgl2, client-only, reduced motion -> poster, mobile -> tier 2 / tier 1 poster)",
+      "slot": "background",
+      "kind": "webgl"
+    },
+    "intent": {
+      "useWhen": [
+        "Hero sections requiring discrete starry or kinetic depth points",
+        "Telemetry or scientific landing pages needing particle drift and fine pointer interaction",
+        "Surfaces seeking subtle stellar motion with constant GPU cost"
+      ],
+      "avoidWhen": [
+        "Dense text sections where text contrast over the particles has not been verified",
+        "Pages already running a continuous full-screen shader",
+        "Low-power mobile devices where the static dot pattern is preferred"
+      ],
+      "alternatives": [
+        {
+          "name": "noise-field",
+          "when": "When continuous organic liquid waves are preferred over discrete points"
+        },
+        {
+          "name": "mesh-gradient",
+          "when": "When soft blurred color transitions are preferred"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "poster",
+      "clientOnly": true,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "while-visible",
+      "webglContexts": 1,
+      "tiers": {
+        "0": "CSS dot-pattern poster only, no WebGL (server render, prefers-reduced-motion, Save-Data, no WebGL2, or frame-guard downgrade)",
+        "1": "CSS dot-pattern poster only (coarse pointer with low-end hints: deviceMemory <= 2 or <= 4 cores)",
+        "2": "WebGL2 at DPR <= 1.5 with 35% of `count` particles (coarse pointer without low-end hints, or fine pointer with low-end hints or viewport < 480px)",
+        "3": "WebGL2 at DPR <= 2.0 with `count` particles, up to 4,000 (fine pointer with hover, no low-end hints)"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "Renders the static CSS dot-pattern poster with no WebGL context and no animation frames. Under prefers-reduced-motion the runtime tier is 0, so WebGL does not start."
+      },
+      "input": {
+        "pointer": "Pointer repulsion within a 140px radius, only when interactive is true and the device reports pointer: fine (window pointermove listener, mouse and pen only)",
+        "touch": "No pointer listeners are attached when the device does not report pointer: fine. Coarse pointers with low-end hints get the tier 1 poster; other coarse-pointer devices run the drift at tier 2.",
+        "keyboard": "None; the component has no interactive elements. Poster, scrim and canvas layers are aria-hidden; children keep their own semantics."
+      }
+    },
+    "a11y": {
+      "role": "decorative",
+      "hiddenFromAT": true,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "2.2.2",
+        "2.3.1"
+      ],
+      "notes": "The poster, scrim and canvas layers are aria-hidden; the root element and children are not. Particle twinkle runs at about 0.3 Hz (sin(phase + time * 1.8) in the vertex shader), well below 3 flashes per second. There is no built-in pause button: pause with the paused prop or the runtime pauseAll()/resumeAll(). The optional scrim lowers background luminance but contrast is not computed; verify text contrast for your colours."
+    },
+    "composition": {
+      "maxPerPage": 1,
+      "singleton": false,
+      "conflictsWith": [
+        "noise-field",
+        "mesh-gradient"
+      ],
+      "pairsWith": [
+        "text-reveal",
+        "magnetic-button",
+        "scroll-reveal"
+      ]
+    },
+    "props": [
+      {
+        "name": "color",
+        "type": "string",
+        "default": "var(--primary, CanvasText)",
+        "effect": "Particle CSS colour, resolved from CSS variables or theme tokens and also used for the dot-pattern poster."
+      },
+      {
+        "name": "speed",
+        "type": "number",
+        "default": 1,
+        "effect": "Kinematic drift rate multiplier."
+      },
+      {
+        "name": "count",
+        "type": "number",
+        "default": 2000,
+        "effect": "Target particle count on Tier 3 (clamped to 4,000). Tier 2 renders 35% of it."
+      },
+      {
+        "name": "interactive",
+        "type": "boolean",
+        "default": true,
+        "effect": "Enables pointer repulsion; only active when the device reports pointer: fine."
+      },
+      {
+        "name": "scrim",
+        "type": "boolean",
+        "default": false,
+        "effect": "Renders a vertical gradient of the host --background token (40% to 75% opacity) over the canvas to lower background luminance behind children. Does not guarantee text contrast; verify for your colours."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Freezes this instance's particle loop. The global pauseAll() also stops it."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Upper bound on the capability tier (0 to 3); the tier is the minimum of this and the runtime tier."
+      },
+      {
+        "name": "reducedMotion",
+        "type": "boolean",
+        "default": null,
+        "effect": "Optional. No default (follows prefers-reduced-motion). true forces the static poster. false only skips the prop-level check: under prefers-reduced-motion the runtime tier is still 0, so WebGL still does not start. Leave unset."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root div (the built-in class fb-particle-field is kept)."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background (consumer wins)."
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@latest add @frictionborn/particle-field",
+      "usage": "import { ParticleField } from \"@/components/ui/particle-field\";\n\nexport default function Hero() {\n  return (\n    <ParticleField count={2000} className=\"min-h-[600px] flex items-center justify-center\">\n      <h1 className=\"text-5xl font-bold tracking-tight text-foreground\">Sub-Angstrom Kinematics</h1>\n    </ParticleField>\n  );\n}",
+      "mistakes": [
+        "Do not attach your own window mouse listeners for repulsion; ParticleField already adds one window pointermove listener, only on devices that report pointer: fine.",
+        "Do not combine multiple ParticleField instances in the same viewport.",
+        "scrim defaults to false. It only lowers background luminance and does not guarantee 4.5:1 contrast: verify contrast for your colours and use host foreground tokens for text.",
+        "Do not set reducedMotion={false} to try to force WebGL; it does not override the user's preference (the runtime tier stays 0 under prefers-reduced-motion).",
+        "Never call requestAnimationFrame directly to animate particles."
+      ],
+      "verify": [
+        "Confirm the static CSS dot-pattern poster renders in server HTML (CLS <= 0.01).",
+        "Confirm that when prefers-reduced-motion is active, the static poster renders with zero WebGL contexts allocated and zero rAF cycles.",
+        "Confirm context lease is released when scrolled out of view."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    },
+    "measured": {
+      "commit": "d984bb8",
+      "date": "2026-10-04",
+      "sizeKB": {
+        "initial": 2.31,
+        "deferred": 3.5,
+        "method": "gzip-9"
+      },
+      "cls": 0.0003,
+      "framesWhenIdle": {
+        "offscreen": 0,
+        "hiddenTab": 0,
+        "reducedMotion": 0
+      },
+      "axe": {
+        "serious": 0,
+        "critical": 0
+      },
+      "devices": [
+        {
+          "env": "Chromium Desktop (SwiftShader)",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "16 passed, 0 failed"
+        },
+        {
+          "env": "Chromium Mobile (Pixel 7 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "16 passed, 0 failed"
+        },
+        {
+          "env": "Firefox Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "14 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "14 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Mobile (iPhone 14 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-04",
+          "notes": "14 passed, 0 failed"
+        }
+      ]
+    }
+  }
 }

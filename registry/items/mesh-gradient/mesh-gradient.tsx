@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion MeshGradient
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy, useImperativeHandle } from "react";
 import {
   useCapability,
   useHydrated,
@@ -25,6 +25,7 @@ export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> 
   paused?: boolean;
   maxTier?: number;
   reducedMotion?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
@@ -55,12 +56,14 @@ export function MeshGradient({
   paused = false,
   maxTier = 3,
   reducedMotion: propReduced,
+  ref,
   className = "",
   style,
   children,
   ...props
 }: MeshGradientProps) {
   const hostElementRef = useRef<HTMLDivElement | null>(null);
+  const uid = useId();
   const isClientHydrated = useHydrated(); // @frictionborn-guard
   const runtimeCap = useCapability(); // @frictionborn-guard
   const prefersReduce = useReducedMotion(); // @frictionborn-guard
@@ -69,7 +72,7 @@ export function MeshGradient({
 
   const [hasContextLease, setHasContextLease] = useState(false);
   const leaseHandle = useRef<Lease | null>(null);
-  const instanceTag = useRef(`mesh-${Math.random().toString(36).slice(2, 9)}`);
+  const instanceTag = useRef(`mesh-${uid}`);
   const [contextSevered, setContextSevered] = useState(false);
 
   const [effectiveTier, setEffectiveTier] = useState<number>(0);
@@ -190,6 +193,8 @@ export function MeshGradient({
   const posterArt = `radial-gradient(circle at 20% 30%, color-mix(in srgb, ${colors[1] ?? colors[0]} 38%, transparent) 0%, transparent 65%), radial-gradient(circle at 80% 70%, color-mix(in srgb, ${colors[2] ?? colors[0]} 34%, transparent) 0%, transparent 60%), radial-gradient(circle at 50% 50%, color-mix(in srgb, ${colors[3] ?? colors[0]} 40%, transparent) 0%, transparent 70%), ${bgBase}`;
 
   const renderWebGLMesh = hasContextLease && !suppressMotion && effectiveTier >= 2;
+
+  useImperativeHandle(ref, () => hostElementRef.current as HTMLDivElement);
 
   return (
     <div

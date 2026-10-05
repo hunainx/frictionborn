@@ -50,8 +50,8 @@ export default function AmbientHeroDemo() {
       <AmbientHero
         variant={variant}
         eyebrow="Studio Series · Gen 3"
-        title="Acoustic precision, sculpted in aluminum."
-        description="Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration."
+        headline="Acoustic precision, sculpted in aluminum."
+        body="Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration."
         primaryCta={{ label: "Explore engineering", href: "#engineering" }}
         secondaryCta={{ label: "Technical specifications", href: "#specifications" }}
         showPauseButton={true}

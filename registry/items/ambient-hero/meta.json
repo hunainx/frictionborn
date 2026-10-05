@@ -98,52 +98,58 @@
   },
   "props": [
     {
-      "name": "variant",
-      "type": "\"mesh\" | \"noise\" | \"particles\"",
-      "default": "mesh",
-      "effect": "Selects which ambient background to mount (exactly one WebGL context). Its settings are fixed and not configurable: mesh speed 0.3, noise speed 0.4 scale 1.8, particles count 2500 speed 0.4."
+      "name": "headline",
+      "type": "string",
+      "default": null,
+      "effect": "Required. Primary document h1 heading rendered by TextReveal by word."
     },
     {
-      "name": "eyebrow",
+      "name": "body",
       "type": "string",
-      "default": "Studio Series · Gen 3",
-      "effect": "Small pill tag displayed above the headline (demo copy by default)."
-    },
-    {
-      "name": "title",
-      "type": "string",
-      "default": "Acoustic precision, sculpted in aluminum.",
-      "effect": "Primary document h1 heading rendered by TextReveal by word (demo copy by default). A server-rendered headline is painted static and does not animate; the word reveal runs only when the component mounts on the client."
-    },
-    {
-      "name": "description",
-      "type": "string",
-      "default": "Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration.",
-      "effect": "Supporting description copy below the headline (demo copy by default)."
+      "default": null,
+      "effect": "Required. Supporting description copy below the headline."
     },
     {
       "name": "primaryCta",
       "type": "AmbientHeroCta = { label: string; href?: string; onClick?: () => void }",
-      "default": {
-        "label": "Explore engineering",
-        "href": "#engineering"
-      },
-      "effect": "Primary action link with magnetic pull. Rendered as an <a>; href falls back to '#'."
+      "default": null,
+      "effect": "Required. Primary action link with magnetic pull. Rendered as an <a>; href falls back to '#'."
+    },
+    {
+      "name": "variant",
+      "type": "\"mesh\" | \"noise\" | \"particles\"",
+      "default": "mesh",
+      "effect": "Selects which ambient background to mount (exactly one WebGL context). Its settings are fixed: mesh speed 0.3, noise speed 0.4 scale 1.8, particles count 2500 speed 0.4."
+    },
+    {
+      "name": "background",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Optional. Custom background slot overriding the ambient generator variant."
+    },
+    {
+      "name": "eyebrow",
+      "type": "string",
+      "default": null,
+      "effect": "Optional. Small pill tag displayed above the headline."
     },
     {
       "name": "secondaryCta",
       "type": "AmbientHeroCta = { label: string; href?: string; onClick?: () => void }",
-      "default": {
-        "label": "Technical specifications",
-        "href": "#specifications"
-      },
-      "effect": "Secondary action link with magnetic pull. Rendered as an <a>; href falls back to '#'."
+      "default": null,
+      "effect": "Optional. Secondary action link with magnetic pull. Rendered as an <a>; href falls back to '#'."
     },
     {
       "name": "showPauseButton",
       "type": "boolean",
       "default": true,
       "effect": "Renders a pause/resume button that stops and restarts the hero background only."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Freezes ambient background animation."
     },
     {
       "name": "className",

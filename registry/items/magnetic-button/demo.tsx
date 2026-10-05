@@ -170,7 +170,7 @@ export default function MagneticButtonDemo() {
           justifyContent: "center",
         }}
       >
-        <MagneticButton strength={magneticRadius}>
+        <MagneticButton pullDistance={magneticRadius}>
           <button
             type="button"
             style={{
@@ -192,7 +192,7 @@ export default function MagneticButtonDemo() {
           </button>
         </MagneticButton>
 
-        <MagneticButton strength={Math.round(magneticRadius * 0.6)}>
+        <MagneticButton pullDistance={Math.round(magneticRadius * 0.6)}>
           <button
             type="button"
             style={{

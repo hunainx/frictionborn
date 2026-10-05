@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy, useImperativeHandle } from "react";
 import {
   useCapability,
   useHydrated,
@@ -49,6 +49,8 @@ export interface DistortionImageProps extends React.HTMLAttributes<HTMLDivElemen
   sizes?: string;
   imgClassName?: string;
   imgStyle?: React.CSSProperties;
+  paused?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
@@ -69,6 +71,8 @@ export function DistortionImage({
   sizes,
   imgClassName = "",
   imgStyle,
+  paused = false,
+  ref,
   className = "",
   style,
   children,
@@ -80,8 +84,9 @@ export function DistortionImage({
   ...props
 }: DistortionImageProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const uid = React.useId();
   const imgRef = useRef<HTMLImageElement | null>(null);
-  const instanceId = useRef("distortion-image-" + Math.random().toString(36).slice(2, 8));
+  const instanceId = useRef("distortion-image-" + uid);
   const leaseRef = useRef<Lease | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -146,11 +151,25 @@ export function DistortionImage({
   }, [clearIdleTimer]);
 
   const activate = useCallback(() => {
+    if (paused) return;
     setIsHovered(true);
     setNeedsLease(true);
     leaseRef.current?.setOffScreen(false);
     armIdleTimer();
-  }, [armIdleTimer]);
+  }, [paused, armIdleTimer]);
+
+  useEffect(() => {
+    if (paused) {
+      setIsHovered(false);
+      clearIdleTimer();
+      setNeedsLease(false);
+      if (leaseRef.current) {
+        leaseRef.current.release();
+        leaseRef.current = null;
+        setHasLease(false);
+      }
+    }
+  }, [paused, clearIdleTimer]);
 
   // Pointer left or focus moved away: ease out now, keep the context for a grace period so coming back is
   // instant, but let another image take the slot if it needs one (the budget evicts idle leases, LRU first).
@@ -370,6 +389,7 @@ export function DistortionImage({
   }, []);
 
   const shouldRenderGL =
+    !paused &&
     hydrated &&
     hasLease &&
     imgLoaded &&
@@ -378,6 +398,8 @@ export function DistortionImage({
     !prefersReduced &&
     isFinePointer &&
     effectiveTier >= 2;
+
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
 
   return (
     <div
@@ -460,3 +482,5 @@ export function DistortionImage({
     </div>
   );
 }
+
+export default DistortionImage;

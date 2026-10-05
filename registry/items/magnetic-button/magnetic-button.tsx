@@ -1,32 +1,39 @@
 // Original — Frictionborn Motion MagneticButton
 "use client";
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback, useImperativeHandle } from "react";
 import { useFrame, useReducedMotion, useCapability, useHydrated } from "@frictionborn/runtime";
 
-export interface MagneticButtonProps {
+export interface MagneticButtonProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactElement<{
     className?: string;
     style?: React.CSSProperties;
     onFocus?: React.FocusEventHandler;
     onBlur?: React.FocusEventHandler;
   }>;
-  strength?: number;
+  pullDistance?: number;
   tension?: number;
   damping?: number;
   className?: string;
   style?: React.CSSProperties;
   maxTier?: number;
+  paused?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
 export function MagneticButton({
   children,
-  strength = 16,
+  pullDistance = 16,
   tension = 180,
   damping = 16,
   className = "",
   style,
   maxTier = 3,
+  paused = false,
+  ref,
+  onPointerMove,
+  onPointerLeave,
+  ...rest
 }: MagneticButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -47,16 +54,19 @@ export function MagneticButton({
 
   // Gate pointer listeners strictly to fine pointers (hover: hover and pointer: fine)
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      setIsFinePointer(true);
+      return;
+    }
     const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
     setIsFinePointer(mql.matches);
 
     const handler = (e: MediaQueryListEvent) => setIsFinePointer(e.matches);
-    mql.addEventListener("change", handler);
-    return () => mql.removeEventListener("change", handler);
+    mql.addEventListener?.("change", handler);
+    return () => mql.removeEventListener?.("change", handler);
   }, []);
 
-  const shouldEnable = hydrated && !prefersReduced && tier > 1 && isFinePointer;
+  const shouldEnable = !paused && hydrated && !prefersReduced && tier > 1 && isFinePointer;
 
   // Spring animation loop driven by shared useFrame
   useFrame(
@@ -107,12 +117,12 @@ export function MagneticButton({
       const relY = (e.clientY - centerY) / (rect.height / 2);
 
       targetRef.current = {
-        x: Math.max(-strength, Math.min(strength, relX * strength)),
-        y: Math.max(-strength, Math.min(strength, relY * strength)),
+        x: Math.max(-pullDistance, Math.min(pullDistance, relX * pullDistance)),
+        y: Math.max(-pullDistance, Math.min(pullDistance, relY * pullDistance)),
       };
       setIsActive(true);
     },
-    [shouldEnable, strength]
+    [shouldEnable, pullDistance]
   );
 
   const handlePointerLeave = useCallback(() => {
@@ -131,14 +141,32 @@ export function MagneticButton({
     setIsActive(false);
   }, []);
 
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+
+  const composedPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      onPointerMove?.(e);
+      if (shouldEnable) handlePointerMove(e);
+    },
+    [onPointerMove, shouldEnable, handlePointerMove]
+  );
+
+  const composedPointerLeave = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      onPointerLeave?.(e);
+      if (shouldEnable) handlePointerLeave();
+    },
+    [onPointerLeave, shouldEnable, handlePointerLeave]
+  );
+
   return (
     <div
       ref={containerRef}
       data-frictionborn-item="magnetic-button"
       data-tier={tier}
       className={`fb-magnetic-button ${className}`}
-      onPointerMove={shouldEnable ? handlePointerMove : undefined}
-      onPointerLeave={shouldEnable ? handlePointerLeave : undefined}
+      onPointerMove={composedPointerMove}
+      onPointerLeave={composedPointerLeave}
       style={{
         display: "inline-block",
         position: "relative",
@@ -146,6 +174,7 @@ export function MagneticButton({
         willChange: isActive ? "transform" : "auto",
         ...style,
       }}
+      {...rest}
     >
       {React.cloneElement(children, {
         onFocus: (e: React.FocusEvent) => {

@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from "react";
+import React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy, useImperativeHandle } from "react";
 import {
   useCapability,
   useHydrated,
@@ -24,6 +24,7 @@ export interface NoiseFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   time?: number;
   maxTier?: number;
   reducedMotion?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
@@ -44,12 +45,14 @@ export function NoiseField({
   time,
   maxTier = 3,
   reducedMotion: propReduced,
+  ref,
   className = "",
   style,
   children,
   ...props
 }: NoiseFieldProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const uid = useId();
   const hydrated = useHydrated(); // @frictionborn-guard
   const cap = useCapability(); // @frictionborn-guard
   const systemReduced = useReducedMotion(); // @frictionborn-guard
@@ -58,7 +61,7 @@ export function NoiseField({
 
   const [hasLease, setHasLease] = useState(false);
   const leaseRef = useRef<Lease | null>(null);
-  const instanceId = useRef("noise-field-" + Math.random().toString(36).slice(2, 8));
+  const instanceId = useRef("noise-field-" + uid);
   const [contextLost, setContextLost] = useState(false);
   const [glKey, setGlKey] = useState(0);
   const [effectiveTier, setEffectiveTier] = useState<number>(() =>
@@ -185,7 +188,9 @@ export function NoiseField({
     background: `radial-gradient(circle at center, color-mix(in srgb, ${colors[0]} 25%, transparent) 0%, color-mix(in srgb, ${colors[0]} 80%, transparent) 100%)`,
   };
 
-  const canRenderWebGL = hydrated && inView && effectiveTier >= 2 && hasLease && !reduced;
+  useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+
+  const canRenderWebGL = hasLease && !reduced && effectiveTier >= 2;
 
   return (
     <div
@@ -233,3 +238,5 @@ export function NoiseField({
     </div>
   );
 }
+
+export default NoiseField;

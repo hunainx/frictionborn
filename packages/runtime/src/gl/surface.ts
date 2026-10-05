@@ -3,6 +3,7 @@
 export interface SurfaceOptions {
   maxDpr?: number;
   scale?: number;
+  deferDpr?: boolean;
   onContextLost?: (event: Event) => void;
   onContextRestored?: () => void;
   onError?: (error: Error) => void;
@@ -74,6 +75,7 @@ export function createSurface(
   const {
     maxDpr = 2,
     scale = 1.0,
+    deferDpr = false,
     onContextLost,
     onContextRestored,
     onError,
@@ -111,11 +113,14 @@ export function createSurface(
 
   initBuffers();
 
-  // Resize calculation with clamps
+  let frameCount = 0;
+
+  // Resize calculation with clamps (lower initial DPR on first 5 frames if deferDpr is true)
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
     const rawDpr = window.devicePixelRatio || 1;
-    const dpr = Math.min(rawDpr, maxDpr);
+    const targetMaxDpr = deferDpr && frameCount < 60 ? Math.min(maxDpr, 1.0) : maxDpr;
+    const dpr = Math.min(rawDpr, targetMaxDpr);
 
     let displayWidth = Math.floor(rect.width * dpr * scale);
     let displayHeight = Math.floor(rect.height * dpr * scale);
@@ -202,6 +207,12 @@ export function createSurface(
   };
 
   const draw = () => {
+    if (deferDpr && frameCount < 60) {
+      frameCount++;
+      if (frameCount === 60) {
+        resize();
+      }
+    }
     gl.bindVertexArray(vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.bindVertexArray(null);
