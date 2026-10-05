@@ -22,7 +22,7 @@ export default function ItemBenchPage({
   searchParams,
 }: {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ tier?: string; offscreen?: string; leak?: string }>;
+  searchParams: Promise<{ tier?: string; offscreen?: string; leak?: string; cycles?: string }>;
 }) {
   const resolvedParams = use(params);
   const resolvedQuery = use(searchParams);
@@ -51,14 +51,10 @@ export default function ItemBenchPage({
     }
   }, [isLeakTest]);
 
-  const [targetCycles, setTargetCycles] = useState(() => {
-    if (typeof window !== "undefined") {
-      const p = new URLSearchParams(window.location.search);
-      const c = parseInt(p.get("cycles") || "", 10);
-      if (!isNaN(c) && c > 0) return c;
-    }
-    return 50;
-  });
+  // From the searchParams prop, not window.location: the server and the client must render the same number
+  // (a lazy useState reading window.location printed 50 on the server and 25 on the client: hydration mismatch).
+  const parsedCycles = parseInt(resolvedQuery.cycles ?? "", 10);
+  const targetCycles = !isNaN(parsedCycles) && parsedCycles > 0 ? parsedCycles : 50;
 
   // Leak test cycle: mount/unmount cycles ending unmounted per PRD 6.0
   useEffect(() => {
