@@ -58,6 +58,7 @@ const ROOT = process.cwd();
 const TARGET_DIRS = [
   path.join(ROOT, "registry", "items"),
   path.join(ROOT, "bench", "harness", "app"),
+  path.join(ROOT, "apps", "docs", "app"),
 ];
 
 interface Violation {
@@ -128,7 +129,8 @@ export function checkCopy(rev?: string): Violation[] {
         const isDemo = entry.name === "demo.tsx";
         const isComposition = entry.name === "ambient-hero.tsx" || entry.name === "scroll-showcase.tsx";
         const isHarnessPage = fullPath.includes("bench" + path.sep + "harness" + path.sep + "app");
-        if (!isDemo && !isComposition && !isHarnessPage) continue;
+        const isDocsPage = fullPath.includes("apps" + path.sep + "docs");
+        if (!isDemo && !isComposition && !isHarnessPage && !isDocsPage) continue;
 
         const content = fs.readFileSync(fullPath, "utf8");
         checkContent(path.relative(ROOT, fullPath), content);

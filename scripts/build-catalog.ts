@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { SITE_URL, REGISTRY_BASE_URL } from "./config.ts";
 
 /** What the item's own source actually does (the generator reads the code, so the sheet cannot claim what it does not do). */
 export interface SourceFacts {
@@ -275,8 +276,8 @@ export function generateCatalog(items: any[]): string {
 export function generateLlmsTxt(items: any[]): string {
   let txt = `# Frictionborn Motion\n\n`;
   txt += `> Frictionborn Motion is a verified motion and WebGL component registry for React 19 and Next.js 16, engineered for zero visual slop, static server rendering, and zero-idle resource usage.\n\n`;
-  txt += `Docs: https://frictionborn.com/docs\n`;
-  txt += `Registry: https://frictionborn.com/r\n\n`;
+  txt += `Docs: ${SITE_URL}/docs\n`;
+  txt += `Registry: ${REGISTRY_BASE_URL}/r\n\n`;
   txt += `## Core Principles\n`;
   txt += `- **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].\n`;
   txt += `- **Single Frame Loop**: Animated items share one loop (useFrame from @frictionborn/runtime). Direct requestAnimationFrame is forbidden.\n`;
@@ -287,7 +288,7 @@ export function generateLlmsTxt(items: any[]): string {
   txt += `| :--- | :--- | :--- | :--- |\n`;
   for (const m of items) {
     const item = m.item || {};
-    txt += `| [${item.name}](https://frictionborn.com/docs/items/${item.name}) | \`${item.slot || "ui"}\` | ${item.summary} | [Spec Sheet](agents/skill/frictionborn/references/items/${item.name}.md) |\n`;
+    txt += `| [${item.name}](${SITE_URL}/docs/items/${item.name}) | \`${item.slot || "ui"}\` | ${item.summary} | [Spec Sheet](agents/skill/frictionborn/references/items/${item.name}.md) |\n`;
   }
   txt += `\n## Setup\n${SETUP_MD}`;
   txt += `\n## Runtime Usage\n`;

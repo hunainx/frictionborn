@@ -216,6 +216,18 @@ export function buildRegistry(): void {
     fs.writeFileSync(path.join(publicRDir, "llms.txt"), llmsContent, "utf8");
   }
 
+  // Sync to the-private-website-repo/public if the-private-website-repo exists
+  const docsPublicDir = path.join(root, "apps", "docs", "public");
+  if (fs.existsSync(path.join(root, "apps", "docs"))) {
+    fs.mkdirSync(path.join(docsPublicDir, "r"), { recursive: true });
+    fs.cpSync(publicRDir, path.join(docsPublicDir, "r"), { recursive: true });
+    fs.copyFileSync(path.join(publicDir, "registry.json"), path.join(docsPublicDir, "registry.json"));
+    if (fs.existsSync(llmsPath)) {
+      fs.copyFileSync(llmsPath, path.join(docsPublicDir, "llms.txt"));
+    }
+    console.log(`✔ Synced registry and llms.txt to the-private-website-repo/public for docs site deployment.`);
+  }
+
   console.log(`✔ Registry build complete: ${registryItems.length} public items published.`);
 }
 

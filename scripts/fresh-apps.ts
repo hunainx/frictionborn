@@ -733,7 +733,6 @@ async function checkPage(
         await page.mouse.move(2, 2);
       });
     }
-  }
 
   // 4. anything the console or network said during ALL of the above fails the run (not only at load time)
   summary.consoleMessages = messages.length;
