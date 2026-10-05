@@ -48,6 +48,12 @@ const BANNED_SHIPPED_PATTERNS: Array<{ name: string; pattern: RegExp; reason: st
     pattern: /__fbCapture|__fbResults|__fbCtx/,
     reason: "Harness test hooks must not appear in shipped items",
   },
+  {
+    name: "forbidden-registry-import",
+    registryOnly: true,
+    pattern: /\b(?:import|from)\s+['"](?:three|gsap|postprocessing|matter-js)(?:\/[^'"]*)?['"]|\brequire\s*\(\s*['"](?:three|gsap|postprocessing|matter-js)(?:\/[^'"]*)?['"]\s*\)/,
+    reason: "three, gsap, postprocessing, and matter-js are website-only dependencies and must never be imported under registry/items/**",
+  },
 ];
 
 interface Violation {
