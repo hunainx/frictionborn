@@ -205,7 +205,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
             zIndex: 1,
             pointerEvents: "none",
             background:
-              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, Canvas) 25%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 65%, transparent) 100%)",
+              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, Canvas) 32%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 72%, transparent) 100%)",
           }}
         />
 
