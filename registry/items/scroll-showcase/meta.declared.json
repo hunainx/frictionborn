@@ -81,7 +81,7 @@
       "2.4.1",
       "2.4.6"
     ],
-    "notes": "Sections are named through aria-labelledby (the headline, and the specs heading when you pass one) or aria-label (marqueeLabel when you pass one); ids are generated per instance with useId, so two sections on one page never clash. Heading levels run h2 (headline), h2 (each step title, from StickyScrollStory), h3 (specsHeading), h4 (spec labels): place the section under an h1 and check the outline for your page. media.alt applies only to media.type 'image'. Every colour is a host token (--background, --foreground, --primary, --muted-foreground, --card, --border) with a system-colour fallback; contrast follows your theme and is not verified for your content."
+    "notes": "Sections are named through aria-labelledby (the headline, and the specs heading when you pass one) or aria-label (marqueeLabel when you pass one); ids are generated per instance with useId, so two sections on one page never clash. Heading levels run h2 (headline), h2 (each step title, from StickyScrollStory), h3 (specsHeading), h4 (spec labels): place the section under an h1 and check the outline for your page. media.alt applies only to media.type 'image'. Every colour is a host token (--background, --foreground, --primary, --muted-foreground, --card, --border) with a system-colour fallback; contrast follows your theme: measured on real pixels in a fresh Next 16 app with shadcn's default tokens (sample content, light and dark, 1440 and 390 px) every text element was at least 4.7:1 (light) and 6.9:1 (dark); verify your own content."
   },
   "composition": {
     "maxPerPage": 1,

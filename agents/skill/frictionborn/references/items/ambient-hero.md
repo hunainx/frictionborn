@@ -58,7 +58,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `built-in`
 - **WCAG Criteria**: 2.1.1, 2.2.2, 2.3.1
-- **Notes**: Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree.
+- **Notes**: Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Measured on real pixels over the live canvas in a fresh Next 16 app with shadcn's default tokens (3 variants x light/dark x 1440/390 px, sample copy): every text element at least 10:1. The scrim is strong, so a bolder background needs mesh-gradient (or another background item) directly instead of this composition. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree.
 
 ## Composition
 
@@ -123,6 +123,7 @@ export default function Hero() {
 - Reveal styles only apply when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite).
 - Under a nonce-based CSP pass nonce: AmbientHero forwards it to the <style> element of its headline reveal.
 - The pause button pauses the hero background only. Motion elsewhere on the page (other items, Marquee) needs its own pause control or the runtime pauseAll().
+- The scrim keeps the text readable by muting the background (about 45-85% of --background); the animated background is subtle by design. If the background should be the star, compose your own hero around mesh-gradient, noise-field or particle-field.
 
 ### How to Verify
 - Verify that exactly one <h1> element exists in the rendered DOM.

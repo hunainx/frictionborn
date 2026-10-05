@@ -311,7 +311,8 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                 maxWidth: "600px",
                 fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)",
                 lineHeight: 1.6,
-                color: "var(--muted-foreground, color-mix(in srgb, currentColor 80%, transparent))",
+                // Full foreground, not muted: over a live canvas the muted token measured 3.3-3.9:1 in the light theme (mesh, noise)
+                color: "var(--foreground, CanvasText)",
                 textShadow: "0 1px 8px color-mix(in srgb, var(--background, Canvas) 50%, transparent)",
               }}
             >
