@@ -265,6 +265,16 @@ export default function FreshAppView() {${nextImageSetup}
 // Browser side: framebuffer readback at draw time, and the quality gate.
 // ---------------------------------------------------------------------------------------------------------------
 
+// A 2-vCPU CI runner reports hardwareConcurrency 2, which the runtime's tier gate reads as a low-end device (tier 1: no WebGL),
+// so every GL check silently ran against posters on CI (nightly run 37302311390: "gl-item-mesh-gradient never showed a canvas",
+// cores: 2). The Lighthouse gatherer emulates the audited phone for the same reason; the fresh-apps check measures a capable machine.
+const CAPABLE_MACHINE_INIT_SCRIPT = `
+  try {
+    Object.defineProperty(navigator, "hardwareConcurrency", { get: () => 8 });
+    Object.defineProperty(navigator, "deviceMemory", { get: () => 8 });
+  } catch (e) {}
+`;
+
 const READBACK_INIT_SCRIPT = `
 (() => {
   window.__fbCapture = null;   // canvas we want a readback of
@@ -514,6 +524,7 @@ async function checkPage(
     colorScheme: mode.dark ? "dark" : "light",
     reducedMotion: mode.reduced ? "reduce" : "no-preference",
   });
+  await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
   await context.addInitScript(READBACK_INIT_SCRIPT);
   // A cross-origin picture from a host that sends NO CORS headers (what a CDN without CORS looks like).
   const artwork = fs.readFileSync(path.join(root, "public", "assets", "distortion", "art-1.webp"));
@@ -739,6 +750,7 @@ async function checkPage(
 // Dev-server smoke: Vite dev does not statically replace `process.env.NODE_ENV` the way a build does.
 async function checkViteDev(browser: Browser, url: string, root: string): Promise<void> {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await context.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
   const artwork = fs.readFileSync(path.join(root, "public", "assets", "distortion", "art-1.webp"));
   await context.route("https://cdn.fresh-noncors.test/**", (route) => route.fulfill({ status: 200, contentType: "image/webp", body: artwork }));
   const page = await context.newPage();
@@ -986,6 +998,7 @@ createRoot(document.getElementById("root")!).render(
     console.log("--> negative controls: the pixel gate must reject every kind of blank canvas");
     {
       const ctx = await browser.newContext();
+      await ctx.addInitScript(CAPABLE_MACHINE_INIT_SCRIPT);
       await ctx.addInitScript(READBACK_INIT_SCRIPT);
       const p = await ctx.newPage();
       await p.goto(`http://127.0.0.1:${VITE_PORT}`, { waitUntil: "networkidle" });

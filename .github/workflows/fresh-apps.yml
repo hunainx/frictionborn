@@ -55,9 +55,12 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-  # Lighthouse CI on the production harness build: 3 runs, median, live composition vs poster-only, and a hard check
-  # that WebGL actually rendered during the live runs (bench/lighthouse/*). Software GL (SwiftShader), so the numbers are
-  # a pessimistic bound for a phone with a real GPU. Results are uploaded, never merged into metadata.
+  # Lighthouse CI on the production harness build: 3 runs, median, live composition vs poster-only (bench/lighthouse/*).
+  # A 2-vCPU runner has only software GL (SwiftShader): the frame guard downgrades the GL to its poster there (nightly run
+  # 37302311390: GL rendered 0/3), so this job runs with --informational: it proves the harness and the poster control, and reports
+  # whether the GL ran, but a run where it did not is flagged "not a valid measurement" instead of failing. The definition-of-done
+  # measurement is `pnpm lighthouse --chrome-flags "--headless --no-sandbox"` on a real GPU (DECISIONS 33). Results are uploaded,
+  # never merged into metadata.
   lighthouse:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -85,7 +88,7 @@ jobs:
         run: pnpm build
 
       - name: Lighthouse (production build, mobile, 3 runs, GL confirmed)
-        run: pnpm lighthouse
+        run: pnpm lighthouse --informational
 
       - name: Upload Lighthouse results
         if: always()

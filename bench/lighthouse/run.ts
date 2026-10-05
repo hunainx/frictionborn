@@ -28,6 +28,10 @@ const arg = (name: string, fallback: string): string => {
 const RUNS = Number(arg("runs", "3"));
 const PORT = Number(arg("port", process.env.LH_PORT ?? "3110"));
 const ONLY = argv.includes("--item") ? arg("item", "") : "";
+// --informational: for software-GL runners (CI). A run where the GL did not render long enough inside the observed window, or
+// where software GL pushes the delta over the limit, is reported as NOT a valid measurement instead of failing the job.
+// The definition-of-done measurement is the same command on a real GPU without this flag (DECISIONS 33).
+const INFORMATIONAL = argv.includes("--informational");
 const BASE = `http://localhost:${PORT}`;
 const MAX_DELTA = 5;
 // Software GL (SwiftShader) is the default so a CI runner without a GPU and a dev machine measure the same thing.
@@ -188,18 +192,25 @@ async function main() {
       const poster = summarise("poster");
       const delta = live.score - poster.score;
       const problems: string[] = [];
+      const soft: string[] = []; // invalid-measurement causes that --informational tolerates
       if (!live.mobileEmulation) problems.push("not a mobile-emulated run");
-      if (comp.usesGl && live.glRanRuns !== RUNS) problems.push(`GL rendered in only ${live.glRanRuns}/${RUNS} live runs: the comparison is meaningless`);
+      if (comp.usesGl && live.glRanRuns !== RUNS) soft.push(`GL rendered in only ${live.glRanRuns}/${RUNS} live runs: the comparison is meaningless`);
       // The GL must have been drawing for at least 1 s and 30 draw calls inside the observed window of EVERY live run.
       if (comp.usesGl && live.glRanRuns === RUNS && (live.glInWindowMs.some((ms: number) => ms < 1000) || live.drawsInWindow.some((n: number) => n < 30))) {
-        problems.push(`GL ran less than 1 s / 30 draw calls inside the observed window (first draw ${live.firstDrawMs} ms, trace end ${live.traceEndMs} ms): the score does not include the GL`);
+        soft.push(`GL ran less than 1 s / 30 draw calls inside the observed window (first draw ${live.firstDrawMs} ms, trace end ${live.traceEndMs} ms): the score does not include the GL`);
       }
       if (!comp.usesGl && live.draws.some((n: number | null) => (n ?? 0) > 0)) problems.push("a composition declared GL-free issued WebGL draw calls");
       // The capability probe creates (and immediately loses) one context: only draw calls count as "rendered".
       if (poster.glRanRuns !== 0 || poster.draws.some((n: number | null) => (n ?? 0) > 0)) problems.push("the poster-only control rendered WebGL");
-      if (delta < -MAX_DELTA) problems.push(`live is ${-delta} points below poster-only (limit ${MAX_DELTA})`);
-      if (problems.length) failed = true;
-      results.push({ name: comp.name, usesGl: comp.usesGl, forcedStart: !!comp.forcedStart, live, poster, delta, pass: problems.length === 0, problems });
+      if (delta < -MAX_DELTA) soft.push(`live is ${-delta} points below poster-only (limit ${MAX_DELTA})`);
+      if (INFORMATIONAL) {
+        for (const x of soft) problems.push(`[informational, NOT a valid definition-of-done measurement] ${x}`);
+        if (problems.some((x) => !x.startsWith("[informational"))) failed = true;
+      } else {
+        problems.push(...soft);
+        if (problems.length) failed = true;
+      }
+      results.push({ name: comp.name, usesGl: comp.usesGl, forcedStart: !!comp.forcedStart, live, poster, delta, pass: problems.length === 0, informational: INFORMATIONAL, problems });
     }
 
     const summary = { date: new Date().toISOString(), runs: RUNS, preset: "mobile", chromeFlags: CHROME_FLAGS, server: "next start (production build)", results };
