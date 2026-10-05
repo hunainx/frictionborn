@@ -9,7 +9,7 @@ This document establishes the uniform API standards across all 12 Frictionborn r
 | Concept | Prop Name | Type & Unit | Conventions & Rules |
 | :--- | :--- | :--- | :--- |
 | **Duration** | `duration` | `number` (milliseconds) | All animation durations are strictly in **milliseconds**. E.g., `SmoothScroll duration={1200}` means 1.2 seconds (a seconds value such as `1.2` now means 1.2 ms). |
-| **Speed Multiplier** | `speed` | `number` (unitless) | `1` is the item's standard speed, `0.5` half, `2` double. On Marquee it multiplies `pixelsPerSecond`. MeshGradient's default is `0.35` (its standard speed is already slow), not `1`. |
+| **Speed Multiplier** | `speed` | `number` (unitless) | `1` is the item's standard speed, `0.5` half, `2` double. On Marquee it multiplies `pixelsPerSecond`. MeshGradient's default is `1` (its standard speed is already slow: 0.35 shader seconds per real second, checked by `bench/specs/mesh-speed.spec.ts`). |
 | **Pixel Velocity** | `pixelsPerSecond` | `number` (px/s) | Physical pixel drift rate (used by `Marquee`, default 40). Never named `speed`. |
 | **Strength / Intensity** | `strength` | `number` (0.0 – 1.0) | Unitless fraction indicating effect magnitude (`DistortionImage`). It is passed to the shader as given and is not clamped. |
 | **Physical Distance** | `pullDistance` | `number` (px) | Physical displacement in pixels (`MagneticButton pullDistance={18}`). Never named `strength`. |

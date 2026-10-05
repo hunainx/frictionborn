@@ -22,7 +22,7 @@ const PALETTES = [
 
 export default function MeshGradientDemo() {
   const [selectedPalette, setSelectedPalette] = useState(0);
-  const [speed, setSpeed] = useState(0.4);
+  const [speed, setSpeed] = useState(1.15);
   const [distortion, setDistortion] = useState(0.5);
   const [swirl, setSwirl] = useState(0.3);
   const [scrim, setScrim] = useState(true);

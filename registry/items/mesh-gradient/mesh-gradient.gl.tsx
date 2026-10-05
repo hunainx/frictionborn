@@ -6,6 +6,9 @@ import { createSurface, type Surface } from "@frictionborn/runtime/gl";
 import { useFrame, useFrameGuard, usePaused } from "@frictionborn/runtime";
 import { vertexShaderSource, fragmentShaderSource } from "./mesh-gradient.glsl";
 
+/** Shader seconds per real second at `speed` 1: the drift this item has always had by default (DESIGN A2: slow ambient motion). */
+const TIME_SCALE = 0.35;
+
 export interface MeshGradientGLProps {
   colors: [
     [number, number, number],
@@ -29,7 +32,7 @@ export interface MeshGradientGLProps {
 
 export default function MeshGradientGL({
   colors,
-  speed = 0.35,
+  speed = 1,
   distortion = 0.5,
   swirl = 0.25,
   grainMixer = 0.08,
@@ -86,7 +89,7 @@ export default function MeshGradientGL({
       if (uTime) gl.uniform1f(uTime, timeValue);
 
       const uSpeed = u.get("u_speed");
-      if (uSpeed) gl.uniform1f(uSpeed, speed * 0.35);
+      if (uSpeed) gl.uniform1f(uSpeed, speed * TIME_SCALE);
 
       const uDistort = u.get("u_distortion");
       if (uDistort) gl.uniform1f(uDistort, distortion);
@@ -203,7 +206,7 @@ export default function MeshGradientGL({
 
   useFrame(
     ({ dt }) => {
-      elapsedClock.current += (dt * 0.001) * speed;
+      elapsedClock.current += (dt * 0.001) * speed * TIME_SCALE;
       flushMeshState(elapsedClock.current);
     },
     { active: !paused && !isGlobalPaused && !reducedMotion && !suspended } // @frictionborn-guard

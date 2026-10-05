@@ -152,7 +152,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
       // Default: "mesh"
       return (
         <MeshGradient
-          speed={0.3}
+          speed={0.85}
           paused={paused}
           style={{ width: "100%", height: "100%" }}
         />

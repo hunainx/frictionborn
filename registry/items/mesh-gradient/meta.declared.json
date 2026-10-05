@@ -103,8 +103,8 @@
     {
       "name": "speed",
       "type": "number",
-      "default": 0.35,
-      "effect": "Wave drift speed multiplier."
+      "default": 1,
+      "effect": "Unitless multiplier of the standard drift. 1 is the standard speed, which is already slow (0.35 shader seconds per second); 0.5 is half and 2 is double."
     },
     {
       "name": "distortion",
