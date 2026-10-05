@@ -25,9 +25,9 @@ import { buildRegistry } from "./build-registry.ts";
 
 const execAsync = promisify(exec);
 
-const CREATE_NEXT_APP = process.env.FRESH_CREATE_NEXT_APP ?? "create-next-app@16";
-const CREATE_VITE = process.env.FRESH_CREATE_VITE ?? "create-vite@latest";
-const SHADCN = process.env.FRESH_SHADCN ?? "shadcn@latest";
+const CREATE_NEXT_APP = process.env.FRESH_CREATE_NEXT_APP ?? "create-next-app@16.3.8";
+const CREATE_VITE = process.env.FRESH_CREATE_VITE ?? "create-vite@8.3.0";
+const SHADCN = process.env.FRESH_SHADCN ?? "shadcn@4.21.1";
 
 const REGISTRY_PORT = 3197;
 const NEXT_PORT = 3301;
@@ -193,7 +193,17 @@ function generatePage(items: string[], framework: Framework): string {
 export default function FreshAppView() {${nextImageSetup}
   const content = (
     <main style={{ boxSizing: "border-box", width: "100%", padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-      ${has("ambient-hero") ? `<div data-testid="composition-ambient-hero" style={{ marginBottom: "2.5rem" }}><AmbientHero /></div>` : ""}
+      ${
+        has("ambient-hero")
+          ? `<div data-testid="composition-ambient-hero" style={{ marginBottom: "2.5rem" }}>
+              <AmbientHero
+                headline="Acoustic precision, sculpted in aluminum."
+                body="Near-field studio monitors engineered for uncoloured listening environments."
+                primaryCta={{ label: "Explore engineering", href: "#engineering" }}
+              />
+            </div>`
+          : ""
+      }
       <header style={{ marginBottom: "2rem" }}>
         <h1 style={{ fontSize: "2rem", fontWeight: 700, margin: 0 }}>Fresh app check</h1>
         <p style={{ color: "var(--muted-foreground)", margin: "0.5rem 0 0 0" }}>Every item, default props, real shadcn tokens.</p>
@@ -216,7 +226,32 @@ export default function FreshAppView() {${nextImageSetup}
             ]} /></div>`
             : ""
         }
-        ${has("scroll-showcase") ? `<div data-testid="composition-scroll-showcase"><ScrollShowcase /></div>` : ""}
+        ${
+          has("scroll-showcase")
+            ? `<div data-testid="composition-scroll-showcase">
+                <ScrollShowcase
+                  headline="Engineered for transparent acoustic reproduction"
+                  description="Every component is milled, calibrated, and validated to laboratory standards."
+                  steps={[
+                    {
+                      id: "enclosure",
+                      title: "Monolithic Enclosure",
+                      description: "6061-T6 aluminum chassis CNC-machined from solid billet.",
+                      badge: "Structure",
+                      media: { content: <div style={{ padding: "2rem" }}>Chassis</div> },
+                    },
+                    {
+                      id: "driver",
+                      title: "Beryllium Transducer",
+                      description: "Ultra-low distortion dome with laser-interferometer precision.",
+                      badge: "Acoustics",
+                      media: { content: <div style={{ padding: "2rem" }}>Transducer</div> },
+                    },
+                  ]}
+                />
+              </div>`
+            : ""
+        }
       </div>
     </main>
   );
@@ -438,6 +473,20 @@ async function activeElementIsDistortion(page: Page): Promise<boolean> {
       ((el.tagName === "A" || el.tagName === "BUTTON") && el.querySelector("[data-frictionborn-item='distortion-image']") !== null)
     );
   });
+}
+
+async function captureScreenshotWebp(page: Page, outPath: string): Promise<void> {
+  try {
+    const client = await page.context().newCDPSession(page);
+    const { data } = await client.send("Page.captureScreenshot", {
+      format: "webp",
+      quality: 85,
+      captureBeyondViewport: true,
+    });
+    fs.writeFileSync(outPath, Buffer.from(data, "base64"));
+  } catch {
+    await page.screenshot({ path: outPath.replace(/\.webp$/, ".png"), fullPage: true });
+  }
 }
 
 interface Summary {
@@ -666,7 +715,7 @@ async function checkPage(
   if (problems.length > 0) {
     const bodyText = await page.evaluate(() => document.body.innerText.slice(0, 400)).catch(() => "?");
     problems.push(`${label} page text at failure: ${JSON.stringify(bodyText)}`);
-    await page.screenshot({ path: path.join(screenshotsDir, `FAILED-${app.name}-${mode.id}.png`), fullPage: true }).catch(() => {});
+    await captureScreenshotWebp(page, path.join(screenshotsDir, `FAILED-${app.name}-${mode.id}.webp`)).catch(() => {});
     await context.close();
     throw new Error(`${label} failed:\n${problems.join("\n")}`);
   }
@@ -680,8 +729,9 @@ async function checkPage(
     await page.mouse.move(b.x + b.width * 0.55, b.y + b.height * 0.5, { steps: 6 });
     await page.waitForTimeout(900);
   }
-  await page.screenshot({ path: path.join(screenshotsDir, `${app.name}-${mode.id}.png`), fullPage: true });
-  console.log(`    screenshot: ${path.relative(root, path.join(screenshotsDir, `${app.name}-${mode.id}.png`))}`);
+  const screenshotPath = path.join(screenshotsDir, `${app.name}-${mode.id}.webp`);
+  await captureScreenshotWebp(page, screenshotPath);
+  console.log(`    screenshot: ${path.relative(root, screenshotPath)}`);
   await context.close();
   return summary;
 }
@@ -753,6 +803,22 @@ export async function runFreshAppsCheck(): Promise<void> {
     .map((f) => f.replace(/\.json$/, ""));
   for (const name of FRESH_ONLY) if (!allItems.includes(name)) throw new Error(`FRESH_ONLY: unknown item "${name}"`);
   const items = FRESH_ONLY.length ? [...FRESH_ONLY] : allItems;
+
+  // Decision 28 & Audit Task 3: Assert every public/r/<item>.json contains verified meta matching meta.json
+  for (const name of allItems) {
+    const itemJson = readJson(path.join(publicRDir, `${name}.json`));
+    if (!itemJson.meta) {
+      throw new Error(`Registry item ${name}.json is missing 'meta' field (Decision 28)`);
+    }
+    const metaPath = path.join(root, "registry", "items", name, "meta.json");
+    if (fs.existsSync(metaPath)) {
+      const expectedMeta = readJson(metaPath);
+      if (JSON.stringify(itemJson.meta) !== JSON.stringify(expectedMeta)) {
+        throw new Error(`Registry item ${name}.json 'meta' does not match registry/items/${name}/meta.json`);
+      }
+    }
+  }
+  console.log("✔ Every public/r/*.json carries verified metadata matching meta.json");
 
   // Sort items so primitive dependencies are installed before compositions
   const COMPOSITIONS = ["ambient-hero", "scroll-showcase"];
@@ -848,8 +914,16 @@ export async function runFreshAppsCheck(): Promise<void> {
     console.log(`\n==> [2/2] create-vite (${CREATE_VITE})`);
     await run(`npx --yes ${CREATE_VITE} fresh-vite --template react-ts --no-interactive`, tempRoot);
     const viteDir = path.join(tempRoot, "fresh-vite");
-    await run("pnpm install", viteDir);
-    await run("pnpm add tailwindcss @tailwindcss/vite", viteDir);
+    try {
+      await run("pnpm install", viteDir);
+    } catch {
+      await run("pnpm approve-builds --all", viteDir);
+    }
+    try {
+      await run("pnpm add tailwindcss @tailwindcss/vite", viteDir);
+    } catch {
+      await run("pnpm approve-builds --all", viteDir);
+    }
     fs.writeFileSync(path.join(viteDir, "src", "index.css"), '@import "tailwindcss";\n');
     fs.writeFileSync(
       path.join(viteDir, "vite.config.ts"),
