@@ -7,6 +7,8 @@ export interface MotionReadyScriptProps {
 
 const scriptContent = `(function(){try{if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-motion','ok');}}catch(e){}})();`;
 
+export const MOTION_READY_SCRIPT_HASH = "sha256-0rCKN4IxkW0L6T5owlXyjvucXpltGt0wY4vp1j8aAHc=";
+
 export function MotionReadyScript({ nonce }: MotionReadyScriptProps = {}): React.JSX.Element {
   return (
     <script
