@@ -1,8 +1,8 @@
 {
-  "commit": "da21af4",
+  "commit": "37a41eb",
   "date": "2026-10-05",
   "sizeKB": {
-    "initial": 2.75,
+    "initial": 2.72,
     "deferred": 0.02,
     "method": "gzip-9"
   },

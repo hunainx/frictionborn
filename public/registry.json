@@ -574,11 +574,11 @@
           ]
         },
         "measured": {
-          "commit": "da21af4",
+          "commit": "37a41eb",
           "date": "2026-10-05",
           "sizeKB": {
             "initial": 4.44,
-            "deferred": 4.3,
+            "deferred": 4.34,
             "method": "gzip-9"
           },
           "cls": 0,
@@ -598,7 +598,7 @@
               "tier": 3,
               "result": "pass",
               "date": "2026-10-05",
-              "notes": "28 passed, 0 failed"
+              "notes": "27 passed, 0 failed, 1 flaky (passed on retry)"
             },
             {
               "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -2535,10 +2535,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "da21af4",
+          "commit": "37a41eb",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 2.54,
+            "initial": 2.58,
             "deferred": 0.02,
             "method": "gzip-9"
           },
@@ -2819,10 +2819,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "da21af4",
+          "commit": "37a41eb",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 2.75,
+            "initial": 2.72,
             "deferred": 0.02,
             "method": "gzip-9"
           },
