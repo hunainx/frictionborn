@@ -48,10 +48,6 @@ const DIALOG_SELECTOR = '[role="dialog"], [aria-modal="true"], dialog[open], [da
 
 let activeSingleton = false;
 
-export const _resetSmoothScrollSingletonForTesting = (): void => {
-  activeSingleton = false;
-};
-
 export function SmoothScroll({
   children,
   duration = 1200,

@@ -6,9 +6,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = process.cwd();
-const ITEMS_DIR = path.join(ROOT, "registry", "items");
+const SCAN_DIRS = [
+  path.join(ROOT, "registry", "items"),
+  path.join(ROOT, "packages", "runtime", "src"),
+];
 
-const BANNED_SHIPPED_PATTERNS: Array<{ name: string; pattern: RegExp; reason: string }> = [
+const BANNED_SHIPPED_PATTERNS: Array<{ name: string; pattern: RegExp; reason: string; registryOnly?: boolean }> = [
   {
     name: "leak-hook",
     pattern: /leak=1/,
@@ -23,6 +26,22 @@ const BANNED_SHIPPED_PATTERNS: Array<{ name: string; pattern: RegExp; reason: st
     name: "location-search",
     pattern: /location\.search/,
     reason: "Query parameter parsing for test branches must not appear in shipped components",
+  },
+  {
+    name: "query-param-hook",
+    pattern: /\b(URLSearchParams|useSearchParams|searchParams)\b/,
+    reason: "Reading query parameters in a shipped component is a test/bench hook; keep it in the bench harness",
+  },
+  {
+    name: "window-global-hook",
+    pattern: /\b(window|globalThis)\.__\w+|\(window as [^)]+\)\.__\w+/,
+    reason: "Globals such as window.__bench or window.__fbX are harness hooks and must not ship",
+  },
+  {
+    name: "test-only-export",
+    registryOnly: true,
+    pattern: /\bexport\s+(const|function|let)\s+_?\w*(ForTesting|ForTest|ForBench)\b/,
+    reason: "Test-only exports ship to consumers and fail their lint (react-refresh/only-export-components); reset state through the public API in tests",
   },
   {
     name: "harness-globals",
@@ -42,12 +61,12 @@ interface Violation {
 export function checkShippedCode(): Violation[] {
   const violations: Violation[] = [];
 
-  function scan(dir: string) {
+  function scan(dir: string, isRegistry: boolean) {
     if (!fs.existsSync(dir)) return;
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        scan(full);
+        scan(full, isRegistry);
       } else if (entry.isFile() && (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts"))) {
         // demo.tsx is a registry demo, but core components (*.tsx excluding demo.tsx) must be 100% clean
         const isCoreComponent = !entry.name.endsWith(".test.tsx") && !entry.name.endsWith(".fixture.tsx");
@@ -60,6 +79,7 @@ export function checkShippedCode(): Violation[] {
           if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) return;
 
           for (const rule of BANNED_SHIPPED_PATTERNS) {
+            if (rule.registryOnly && !isRegistry) continue;
             const match = line.match(rule.pattern);
             if (match) {
               violations.push({
@@ -76,7 +96,7 @@ export function checkShippedCode(): Violation[] {
     }
   }
 
-  scan(ITEMS_DIR);
+  for (const dir of SCAN_DIRS) scan(dir, dir.includes("registry"));
   return violations;
 }
 
@@ -84,12 +104,12 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPat
 if (isMain) {
   const violations = checkShippedCode();
   if (violations.length > 0) {
-    console.error(`\n❌ Found ${violations.length} forbidden test hooks in shipped registry items:\n`);
+    console.error(`\n❌ Found ${violations.length} forbidden test hooks in shipped code (registry items and runtime):\n`);
     for (const v of violations) {
       console.error(`  ${v.file}:${v.line} [${v.patternName}] Found "${v.matchedText}" — ${v.reason}`);
     }
     process.exit(1);
   } else {
-    console.log("✔ Shipped code check passed: 0 benchmark hooks or test toggles in registry items.");
+    console.log("✔ Shipped code check passed: 0 benchmark hooks or test toggles in registry items and the runtime.");
   }
 }

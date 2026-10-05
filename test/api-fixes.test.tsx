@@ -4,11 +4,10 @@ import { describe, it, expect, afterEach } from "vitest";
 import React from "react";
 import { render, cleanup } from "@testing-library/react";
 import { Marquee } from "../registry/items/marquee/marquee";
-import { SmoothScroll, _resetSmoothScrollSingletonForTesting } from "../registry/items/smooth-scroll/smooth-scroll";
+import { SmoothScroll } from "../registry/items/smooth-scroll/smooth-scroll";
 
 afterEach(() => {
   cleanup();
-  _resetSmoothScrollSingletonForTesting();
 });
 
 describe("Marquee.speed is a unitless multiplier of pixelsPerSecond (Decision 30)", () => {

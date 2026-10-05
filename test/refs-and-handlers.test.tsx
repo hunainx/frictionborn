@@ -8,7 +8,7 @@ import { TextReveal } from "../registry/items/text-reveal/text-reveal";
 import { ScrollReveal } from "../registry/items/scroll-reveal/scroll-reveal";
 import { MagneticButton } from "../registry/items/magnetic-button/magnetic-button";
 import { Marquee } from "../registry/items/marquee/marquee";
-import { SmoothScroll, _resetSmoothScrollSingletonForTesting } from "../registry/items/smooth-scroll/smooth-scroll";
+import { SmoothScroll } from "../registry/items/smooth-scroll/smooth-scroll";
 import { StickyScrollStory } from "../registry/items/sticky-scroll-story/sticky-scroll-story";
 import { NoiseField } from "../registry/items/noise-field/noise-field";
 import { ParticleField } from "../registry/items/particle-field/particle-field";
@@ -19,7 +19,6 @@ import { ScrollShowcase } from "../registry/items/scroll-showcase/scroll-showcas
 
 afterEach(() => {
   cleanup();
-  _resetSmoothScrollSingletonForTesting();
 });
 
 const steps = [{ id: "a", title: "Step", description: "Text", media: { content: <div>m</div> } }];

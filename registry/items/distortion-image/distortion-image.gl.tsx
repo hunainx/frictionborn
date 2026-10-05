@@ -132,7 +132,7 @@ export default function DistortionImageGL({
           uploadSource = offscreen;
         } catch (taintErr) {
           // Canvas drawImage throws SecurityError if tainted
-          if (process.env?.NODE_ENV !== "production") {
+          if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
             console.warn(
               "[Frictionborn Motion] DistortionImage: Image is tainted by cross-origin restrictions. Falling back to plain image. Set crossOrigin='anonymous' only if the host server sends Access-Control-Allow-Origin headers.",
               taintErr
@@ -155,7 +155,7 @@ export default function DistortionImageGL({
           uploadSource
         );
       } catch (texErr) {
-        if (process.env?.NODE_ENV !== "production") {
+        if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
           console.warn(
             "[Frictionborn Motion] DistortionImage: Image is tainted by cross-origin restrictions. Falling back to plain image. Set crossOrigin='anonymous' to enable WebGL distortion.",
             texErr

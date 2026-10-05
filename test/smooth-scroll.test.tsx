@@ -5,7 +5,6 @@ import React from "react";
 import { render, cleanup, act } from "@testing-library/react";
 import {
   SmoothScroll,
-  _resetSmoothScrollSingletonForTesting,
 } from "../registry/items/smooth-scroll/smooth-scroll";
 
 // Mock Lenis constructor
@@ -36,7 +35,6 @@ vi.mock("lenis", () => {
 
 describe("SmoothScroll", () => {
   beforeEach(() => {
-    _resetSmoothScrollSingletonForTesting();
     lenisInstances = [];
     lastLenisOptions = null;
     window.matchMedia = ((query: string) => ({
