@@ -55,7 +55,7 @@ const DEMO_STEPS: StoryStep[] = [
     id: "enclosure",
     title: "Monolithic Enclosure",
     description:
-      "Milled from a single 45 kg block of aerospace-grade 6061-T6 aluminum. CNC-carved internal chambers eliminate internal parallel surfaces and cabinet wall resonance, yielding an inert acoustic platform.",
+      "Milled from a single block of 6061-T6 aluminum. The internal chambers have no parallel surfaces, so the cabinet walls add very little sound of their own.",
     media: {
       content: (
         <StepMediaCard subsystem="Subsystem 01" name="CNC Aluminum Unibody">
@@ -74,7 +74,7 @@ const DEMO_STEPS: StoryStep[] = [
     id: "transducer",
     title: "Vapor-Deposited Beryllium",
     description:
-      "A 28 mm pure beryllium dome driven by a dual-neodymium motor assembly and copper shorting ring. The first structural breakup mode occurs beyond 42 kHz, preserving pristine phase linearity across all audible octaves.",
+      "A pure beryllium dome driven by a neodymium motor and a copper shorting ring. The dome stays stiff across the audible range, so it moves as one piece.",
     media: {
       content: (
         <StepMediaCard subsystem="Subsystem 02" name="Beryllium High-Frequency Driver">
@@ -180,16 +180,16 @@ export default function ScrollShowcaseDemo() {
       </div>
 
       <ScrollShowcase
-        headline="Three systems, perfectly aligned in time and phase."
-        description="Near-field monitoring requires zero cabinet coloration, instantaneous transient recovery, and steep crossover slopes that remain coherent off-axis."
-        eyebrow="Engineering Architecture"
+        headline="Three parts, built to work as one."
+        description="A near-field monitor should add nothing of its own: a quiet cabinet, a clean start and stop, and a crossover that behaves off-axis too."
+        eyebrow="How it is made"
         steps={DEMO_STEPS}
         specs={DEMO_SPECS}
-        specsHeading="Laboratory verification standards"
-        specsEyebrow="Measured Tolerances"
+        specsHeading="What we listen for"
+        specsEyebrow="Listening notes"
         showMarquee={showMarquee}
         marqueeItems={DEMO_STUDIOS}
-        marqueeLabel="Reference deployments in critical listening rooms"
+        marqueeLabel="Rooms these monitors are designed for"
         smoothScroll={false}
       />
     </div>

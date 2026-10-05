@@ -7,15 +7,15 @@ import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/
 
 const PALETTES = [
   {
-    name: "Spectral Core",
+    name: "Warm Studio",
     colors: ["#0B0E14", "#38BDF8", "#818CF8", "#C084FC"] as [string, string, string, string],
   },
   {
-    name: "Atmospheric",
+    name: "Open Air",
     colors: ["#080A0E", "#F59E0B", "#10B981", "#3B82F6"] as [string, string, string, string],
   },
   {
-    name: "Prismatic Light",
+    name: "Soft Daylight",
     colors: ["#F8FAFC", "#60A5FA", "#F472B6", "#A78BFA"] as [string, string, string, string],
   },
 ];
@@ -370,7 +370,7 @@ export default function MeshGradientDemo() {
           {[
             { label: "Drift Speed", val: speed, min: 0, max: 1.5, step: 0.05, suffix: "x", set: setSpeed },
             { label: "Wave Distortion", val: distortion, min: 0, max: 1, step: 0.05, suffix: "", set: setDistortion },
-            { label: "Vortex Swirl", val: swirl, min: 0, max: 1, step: 0.05, suffix: "", set: setSwirl },
+            { label: "Swirl", val: swirl, min: 0, max: 1, step: 0.05, suffix: "", set: setSwirl },
           ].map((ctrl) => (
             <div key={ctrl.label} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <label style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem", color: isLight ? "#475569" : "var(--muted, #94A3B8)" }}>
@@ -406,7 +406,7 @@ export default function MeshGradientDemo() {
           padding: "0.5rem 0.25rem",
         }}
       >
-        <span>Engine: WebGL2 &bull; Simplex Noise Gradient</span>
+        <span>Background: MeshGradient</span>
         <span>
           State: {isPaused ? "Frozen" : effectiveReduced ? "Static Poster" : "Live Frame Loop"}
         </span>

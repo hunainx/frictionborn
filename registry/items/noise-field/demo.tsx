@@ -7,15 +7,15 @@ import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/
 
 const PALETTES = [
   {
-    name: "Spectral Core",
+    name: "Warm Studio",
     colors: ["var(--background)", "var(--primary)", "var(--accent)"] as [string, string, string],
   },
   {
-    name: "Deep Space",
+    name: "Night Room",
     colors: ["#0B0F19", "#6366F1", "#EC4899"] as [string, string, string],
   },
   {
-    name: "Atmospheric",
+    name: "Open Air",
     colors: ["#06110D", "#10B981", "#06B6D4"] as [string, string, string],
   },
 ];
@@ -391,7 +391,7 @@ export default function NoiseFieldDemo() {
           backgroundColor: "var(--surface, #15181D)",
         }}
       >
-        <span>Engine: WebGL2 (GLSL 300 es) · 2D Simplex</span>
+        <span>Background: NoiseField</span>
         <span>
           Status:{" "}
           {isPaused

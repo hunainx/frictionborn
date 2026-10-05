@@ -181,7 +181,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "0.75rem",
               }}
             >
-              Acoustic Dispersion Mapping
+              Air in the listening room
             </div>
             <h1
               style={{
@@ -206,7 +206,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              High-density air particle velocity modeling for control room geometry
+              Particles drifting through a room like dust in studio light, shaped around the geometry of a control room
               and acoustic baffle placement.
             </p>
 
@@ -238,7 +238,7 @@ export default function ParticleFieldDemo() {
           backgroundColor: "var(--card, #15181D)",
         }}
       >
-        <span>WebGL2 Vertex Shaders · Point Primitives</span>
+        <span>Background: ParticleField</span>
         <span>
           Density: {pointCount} particles · Status: {isStaticActive ? "Static Poster" : "Active Feed"}
         </span>

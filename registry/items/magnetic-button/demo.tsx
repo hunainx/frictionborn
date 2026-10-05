@@ -155,7 +155,7 @@ export default function MagneticButtonDemo() {
             zIndex: 2,
           }}
         >
-          Target: 0.00 μrad
+          Seat position: centred
         </span>
       </div>
 
@@ -187,7 +187,7 @@ export default function MagneticButtonDemo() {
               justifyContent: "center",
             }}
           >
-            Lock Optical Axis
+            Save position
           </button>
         </MagneticButton>
 
@@ -209,7 +209,7 @@ export default function MagneticButtonDemo() {
               justifyContent: "center",
             }}
           >
-            Recalibrate Gimbal
+            Reset position
           </button>
         </MagneticButton>
       </div>

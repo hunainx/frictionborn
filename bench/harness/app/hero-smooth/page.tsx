@@ -9,7 +9,7 @@ export default function HeroSmoothPage() {
   return (
     <SmoothScroll>
       <AmbientHero
-        headline="Precision acoustic geometry engineered for pristine isolation."
+        headline="Acoustic geometry shaped for quiet rooms."
         body="Kona creates modular acoustic barriers for production studios and quiet spaces."
         primaryCta={{ label: "Explore Systems", href: "#systems" }}
       />

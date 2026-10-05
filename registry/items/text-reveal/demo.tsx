@@ -152,9 +152,9 @@ export default function TextRevealDemo() {
         }}
         className="mono"
       >
-        <span>Baseline: 4,000 km Orbital Arc</span>
-        <span>Carrier: 1064 nm Nd:YAG</span>
-        <span>Status: Phase Locked</span>
+        <span>Series KA</span>
+        <span>Hand-assembled</span>
+        <span>Listening Room 04</span>
       </footer>
     </section>
   );

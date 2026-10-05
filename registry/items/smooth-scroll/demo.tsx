@@ -88,7 +88,7 @@ export default function SmoothScrollDemo() {
               justifyContent: "center",
             }}
           >
-            {enabled ? "Kinetic Scroll: Enabled" : "Kinetic Scroll: Native"}
+            {enabled ? "Smooth scroll: on" : "Smooth scroll: off"}
           </button>
         </div>
       </header>
@@ -119,7 +119,7 @@ export default function SmoothScrollDemo() {
                 marginBottom: "0.5rem",
               }}
             >
-              Technical Specification · Series 2026
+              Field notes · Series KA
             </span>
             <h1
               style={{
@@ -130,7 +130,7 @@ export default function SmoothScrollDemo() {
                 margin: "0 0 1rem 0",
               }}
             >
-              Orbit-8 Laser Baseline & Sub-Picometer Gravimetry
+              How a monitor enclosure is made quiet
             </h1>
             <p
               style={{
@@ -140,8 +140,8 @@ export default function SmoothScrollDemo() {
                 margin: 0,
               }}
             >
-              Design architecture for a 4,000-kilometer drag-free laser interferometric
-              constellation measuring milliHertz gravitational tensor perturbations.
+              How we shape the cabinet, damp the baffle and keep the desk out of the sound,
+              written for people who like to read the whole story.
             </p>
 
             {/* Quick Section Anchor Nav */}
@@ -217,8 +217,8 @@ export default function SmoothScrollDemo() {
               2. Baffle Damping and Transient Response
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1.25rem" }}>
-              Laser pre-stabilization utilizes a 30 cm monocrystalline silicon cavity cooled to 124 Kelvin,
-              where silicon’s thermal expansion coefficient passes through a zero-crossing.
+              A constrained layer of damping material is bonded behind the baffle, so the panel
+              stops ringing soon after the driver stops.
             </p>
 
             {/* SVG Frequency Stability Curve */}
@@ -238,9 +238,9 @@ export default function SmoothScrollDemo() {
                   marginBottom: "0.75rem",
                 }}
               >
-                Figure 2.1 · Allan Deviation σ_y(τ) vs Integration Time (s)
+                Figure 2.1 · A baffle that stops ringing (illustration)
               </div>
-              <svg viewBox="0 0 600 160" width="100%" height="160" aria-label="Allan deviation frequency curve">
+              <svg viewBox="0 0 600 160" width="100%" height="160" aria-label="Illustration of a vibration that fades away over time">
                 <line x1="40" y1="20" x2="40" y2="130" stroke="var(--border, #262B33)" strokeWidth="1" />
                 <line x1="40" y1="130" x2="580" y2="130" stroke="var(--border, #262B33)" strokeWidth="1" />
                 <path
@@ -251,16 +251,16 @@ export default function SmoothScrollDemo() {
                 />
                 <circle cx="280" cy="115" r="4" fill="var(--primary, #FB923C)" />
                 <text x="290" y="110" fill="var(--foreground, #E9EBF0)" fontSize="10" fontFamily="monospace">
-                  Min: 4e-17 @ 1.2s
+                  Settled
                 </text>
                 <text x="40" y="145" fill="var(--muted-foreground, #9AA1AF)" fontSize="10" fontFamily="monospace">
-                  10^-3
+                  start
                 </text>
                 <text x="280" y="145" fill="var(--muted-foreground, #9AA1AF)" fontSize="10" fontFamily="monospace">
-                  10^0
+                  time
                 </text>
                 <text x="540" y="145" fill="var(--muted-foreground, #9AA1AF)" fontSize="10" fontFamily="monospace">
-                  10^3 s
+                  later
                 </text>
               </svg>
             </div>
@@ -277,12 +277,11 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              3. Seismic Rejection & Test Mass Drag-Free Control
+              3. Isolation Mounting
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              Each satellite houses a 46 mm gold-platinum cubical test mass floating in free fall within an electrode
-              housing. Electrostatic capacitive sensors measure relative displacement with a resolution of 1 picometer
-              per root Hertz.
+              Each monitor rests on a decoupling pad that keeps desk vibration out of the cabinet
+              and cabinet vibration out of the desk.
             </p>
             <button
               type="button"
@@ -298,7 +297,7 @@ export default function SmoothScrollDemo() {
                 minHeight: "40px",
               }}
             >
-              Inspect Calibration Certificate (Modal Test)
+              Read the listening note
             </button>
           </section>
 
@@ -313,17 +312,17 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              4. Anechoic Chamber Test Log
+              4. Listening Log
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              Sequential automated microphone sweep log during production verification. This nested container maintains
-              independent native scroll without interference from the page-level SmoothScroll provider.
+              A running list of listening notes. This nested container keeps its own native scroll,
+              unaffected by the page-level SmoothScroll provider.
             </p>
 
             <div
               data-lenis-prevent="true"
               tabIndex={0}
-              aria-label="Nested Acoustic Test Log"
+              aria-label="Listening log"
               style={{
                 height: "220px",
                 overflowY: "auto",
@@ -342,7 +341,7 @@ export default function SmoothScrollDemo() {
                   <span style={{ color: "var(--primary, #FB923C)", marginRight: "1rem" }}>
                     [Step {(i + 1).toString().padStart(2, "0")}]
                   </span>
-                  <span>SWEEP FREQUENCY {((i + 1) * 320)} Hz · IMPEDANCE VERIFIED · PHASE LINEAR</span>
+                  <span>Listening position {i + 1} · note recorded</span>
                 </div>
               ))}
             </div>
@@ -381,11 +380,11 @@ export default function SmoothScrollDemo() {
             }}
           >
             <h2 id="cert-dialog-title" style={{ fontSize: "1.25rem", margin: "0 0 1rem 0" }}>
-              Acoustic Measurement Certificate
+              Listening note
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground, #9AA1AF)", lineHeight: 1.6 }}>
-              Kona Acoustics certifies that near-field monitors deployed under Series KA
-              were individually tested in our calibrated anechoic chamber for linear frequency response and phase alignment.
+              Each Series KA monitor is listened to in the same room before it leaves the workshop.
+              This text is sample copy for the demo.
             </p>
             <button
               type="button"
@@ -406,7 +405,7 @@ export default function SmoothScrollDemo() {
                 cursor: "pointer",
               }}
             >
-              Close Certificate
+              Close note
             </button>
           </div>
         </div>
