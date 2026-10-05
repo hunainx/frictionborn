@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "description": "Tiny verified motion runtime for Frictionborn Motion components",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hunainx/frictionborn.git",
+    "directory": "packages/runtime"
+  },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
