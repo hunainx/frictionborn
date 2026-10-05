@@ -284,9 +284,9 @@ export default function TestPage() {
     console.log("✔ TypeScript verification passed with 0 errors!");
 
     // 7. Run ESLint to ensure installed components pass default lint rules
-    console.log("==> Running ESLint check on installed components...");
+    console.log("==> Running a basic ESLint check (typescript-eslint recommended + no-explicit-any) on installed components...");
     await runCommand("npx eslint components/ui", tempDir);
-    console.log("✔ ESLint verification passed on installed components with 0 errors!");
+    console.log("✔ Basic ESLint check passed. This is NOT the consumer lint: it has no react-hooks, react-refresh or Next rules. The template-config gate (default Next 16 and Vite ESLint) is `pnpm fresh-apps`.");
   } finally {
     server.close();
     try {

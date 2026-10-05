@@ -807,6 +807,59 @@ function assertDependenciesInstalled(root: string, uiDir: string, requested: str
   console.log(`✔ dependency closure installed: ${[...seen].sort().join(", ")}`);
 }
 
+/**
+ * Runs the template's own lint script (`pnpm lint`, the template's eslint config, the whole app) and fails on any
+ * error in a file Frictionborn installed. Errors in files that the scaffolders or shadcn wrote themselves (for example
+ * shadcn's own button.tsx, which fails the default Vite react-refresh rule) are printed as upstream and do not fail:
+ * they are not ours to fix and would make the gate unpassable. The consumer config is never edited.
+ */
+async function lintInstalledItems(root: string, appDir: string, uiDir: string, requested: string[], label: string): Promise<void> {
+  const ours = new Set<string>();
+  const seen = new Set<string>();
+  const queue = [...requested];
+  while (queue.length) {
+    const name = queue.pop()!;
+    if (seen.has(name)) continue;
+    seen.add(name);
+    const json = readJson(path.join(root, "public", "r", `${name}.json`));
+    for (const f of json.files as { target: string }[]) ours.add(path.resolve(uiDir, "..", "..", f.target));
+    for (const dep of (json.registryDependencies ?? []) as string[]) queue.push(dep.replace(/^@frictionborn\//, ""));
+  }
+  const reportFile = path.join(appDir, "eslint-report.json");
+  fs.rmSync(reportFile, { force: true });
+  try {
+    await run(`pnpm lint --format json --output-file eslint-report.json`, appDir);
+  } catch {
+    // ESLint exits 1 when it finds errors; the report below decides.
+  }
+  if (!fs.existsSync(reportFile)) throw new Error(`${label} lint produced no report: the template's lint script did not run`);
+  const report = JSON.parse(fs.readFileSync(reportFile, "utf8")) as {
+    filePath: string;
+    errorCount: number;
+    warningCount: number;
+    messages: { severity: number; ruleId: string | null; line: number; message: string }[];
+  }[];
+  const ourFailures: string[] = [];
+  const upstream: string[] = [];
+  let linted = 0;
+  let ourWarnings = 0;
+  for (const file of report) {
+    const isOurs = ours.has(path.resolve(file.filePath));
+    if (isOurs) {
+      linted++;
+      ourWarnings += file.warningCount;
+    }
+    for (const m of file.messages) {
+      const line = `${path.relative(appDir, file.filePath)}:${m.line} ${m.ruleId ?? "parse"} ${m.message}`;
+      if (m.severity === 2) (isOurs ? ourFailures : upstream).push(line);
+    }
+  }
+  if (linted !== ours.size) throw new Error(`${label} lint covered ${linted} of ${ours.size} installed Frictionborn files: the template's config skipped some`);
+  for (const u of upstream) console.log(`  (upstream, not Frictionborn) ${u}`);
+  if (ourFailures.length) throw new Error(`${label} lint: ${ourFailures.length} error(s) in installed Frictionborn files:\n${ourFailures.join("\n")}`);
+  console.log(`✔ ${label} lint (template config, whole app): 0 errors in ${linted} installed Frictionborn files, ${ourWarnings} warning(s), ${upstream.length} upstream error(s) ignored`);
+}
+
 export async function runFreshAppsCheck(): Promise<void> {
   const root = process.cwd();
   console.log("==> Fresh-apps verification (official scaffolders, production builds, real Chromium)");
@@ -921,8 +974,7 @@ export async function runFreshAppsCheck(): Promise<void> {
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, nextDir);
     assertDependenciesInstalled(root, path.join(nextDir, "components", "ui"), items);
     console.log("==> run Next lint (pnpm lint) to ensure installed items pass default Next 16 ESLint");
-    await run("pnpm lint", nextDir);
-    console.log("✔ Next ESLint passed on installed items with 0 errors");
+    await lintInstalledItems(root, nextDir, path.join(nextDir, "components", "ui"), items, "Next");
     copyArt(path.join(nextDir, "public"));
     fs.writeFileSync(path.join(nextDir, "app", "page.tsx"), generatePage(items, "next"));
     // The documented Next setup step: <MotionReadyScript /> in the root layout (Vite calls initMotionReady() instead).
@@ -983,8 +1035,7 @@ export default defineConfig({
     await run(`npx --yes ${SHADCN} add ${itemUrls} --yes --overwrite`, viteDir);
     assertDependenciesInstalled(root, path.join(viteDir, "src", "components", "ui"), items);
     console.log("==> run Vite lint (pnpm lint) to ensure installed items pass default Vite ESLint");
-    await run("pnpm lint", viteDir);
-    console.log("✔ Vite ESLint passed on installed items with 0 errors");
+    await lintInstalledItems(root, viteDir, path.join(viteDir, "src", "components", "ui"), items, "Vite");
     copyArt(path.join(viteDir, "public"));
     fs.writeFileSync(path.join(viteDir, "src", "App.tsx"), generatePage(items, "vite"));
     fs.writeFileSync(
