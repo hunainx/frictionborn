@@ -5,8 +5,6 @@ import React, { useState, useEffect } from "react";
 import { DistortionImage } from "./distortion-image";
 import {
   glBudget,
-  pauseAll,
-  resumeAll,
   usePaused,
   useReducedMotion,
   useCapability,
@@ -127,14 +125,6 @@ export default function DistortionImageDemo() {
         document.documentElement.removeAttribute("data-theme");
       }
       window.dispatchEvent(new CustomEvent("themechange"));
-    }
-  };
-
-  const togglePlayback = () => {
-    if (isPaused) {
-      resumeAll();
-    } else {
-      pauseAll();
     }
   };
 
@@ -286,26 +276,6 @@ export default function DistortionImageDemo() {
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <button
-            type="button"
-            onClick={togglePlayback}
-            aria-pressed={isPaused}
-            style={{
-              minHeight: "44px",
-              minWidth: "44px",
-              padding: "0 1.25rem",
-              borderRadius: "6px",
-              border: `1px solid ${isLight ? "#D1D5DB" : "#374151"}`,
-              backgroundColor: isPaused ? "#38BDF8" : "transparent",
-              color: isPaused ? "#090B0F" : "inherit",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            {isPaused ? "Resume All" : "Pause All"}
-          </button>
-
           <button
             type="button"
             onClick={toggleTheme}

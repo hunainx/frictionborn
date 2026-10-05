@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { MeshGradient } from "./mesh-gradient";
-import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/runtime";
+import { usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 const PALETTES = [
   {
@@ -332,28 +332,6 @@ export default function MeshGradientDemo() {
               }}
             >
               {scrim ? "AA Scrim: On" : "AA Scrim: Off"}
-            </button>
-
-            <button
-              type="button"
-              aria-pressed={isPaused}
-              onClick={() => (isPaused ? resumeAll() : pauseAll())}
-              style={{
-                minHeight: "44px",
-                padding: "0.5rem 1rem",
-                borderRadius: "6px",
-                border: `1px solid ${isPaused ? "var(--degraded, #FBBF24)" : isLight ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.15)"}`,
-                backgroundColor: isPaused ? "var(--degraded, #FBBF24)" : "transparent",
-                color: isPaused ? "#080A0E" : isLight ? "#0F172A" : "var(--foreground, #F1F5F9)",
-                fontWeight: 500,
-                fontSize: "0.85rem",
-                cursor: "pointer",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {isPaused ? "Resume Field" : "Freeze Field"}
             </button>
           </div>
         </div>

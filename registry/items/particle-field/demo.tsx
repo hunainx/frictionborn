@@ -3,13 +3,12 @@
 
 import React, { useState } from "react";
 import { ParticleField } from "./particle-field";
-import { useReducedMotion, usePaused, pauseAll, resumeAll } from "@frictionborn/runtime";
+import { useReducedMotion, usePaused } from "@frictionborn/runtime";
 
 export default function ParticleFieldDemo() {
   const [pointCount, setPointCount] = useState<number>(2000);
   const [driftVelocity, setDriftVelocity] = useState<number>(1.0);
   const [forceStatic, setForceStatic] = useState(false);
-  const [tierLimit, setTierLimit] = useState<number | undefined>(undefined);
 
   const globalPaused = usePaused();
   const systemReduced = useReducedMotion();
@@ -86,29 +85,6 @@ export default function ParticleFieldDemo() {
             ))}
           </div>
 
-          {/* Tier Overrides */}
-          <div style={{ display: "flex", gap: "2px", border: "1px solid var(--border, #262B33)", borderRadius: "4px", padding: "2px" }}>
-            {[undefined, 1, 2, 3].map((t) => (
-              <button
-                key={t ?? "auto"}
-                type="button"
-                onClick={() => setTierLimit(t)}
-                style={{
-                  padding: "0.375rem 0.625rem",
-                  fontSize: "11px",
-                  border: "none",
-                  borderRadius: "2px",
-                  background: tierLimit === t ? "var(--border, #262B33)" : "transparent",
-                  color: tierLimit === t ? "var(--primary, #FB923C)" : "var(--muted-foreground, #9AA1AF)",
-                  cursor: "pointer",
-                  minHeight: "44px",
-                }}
-              >
-                {t === undefined ? "Auto" : `T${t}`}
-              </button>
-            ))}
-          </div>
-
           {/* Static/Reduced Toggle */}
           <button
             type="button"
@@ -126,24 +102,6 @@ export default function ParticleFieldDemo() {
           >
             {isStaticActive ? "Poster: Static" : "Stream: Dynamic"}
           </button>
-
-          {/* Global Pause */}
-          <button
-            type="button"
-            onClick={() => (globalPaused ? resumeAll() : pauseAll())}
-            style={{
-              padding: "0.375rem 0.75rem",
-              fontSize: "11px",
-              borderRadius: "4px",
-              border: "1px solid var(--border, #262B33)",
-              background: globalPaused ? "var(--degraded, #FBBF24)" : "transparent",
-              color: globalPaused ? "var(--background, #0D0F12)" : "var(--foreground, #E9EBF0)",
-              cursor: "pointer",
-              minHeight: "44px",
-            }}
-          >
-            {globalPaused ? "Resume" : "Pause"}
-          </button>
         </div>
       </nav>
 
@@ -152,7 +110,6 @@ export default function ParticleFieldDemo() {
         <ParticleField
           count={pointCount}
           speed={driftVelocity}
-          maxTier={tierLimit}
           paused={globalPaused}
           reducedMotion={isStaticActive}
           scrim={true}

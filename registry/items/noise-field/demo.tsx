@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { NoiseField } from "./noise-field";
-import { pauseAll, resumeAll, usePaused, useReducedMotion } from "@frictionborn/runtime";
+import { usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 const PALETTES = [
   {
@@ -22,7 +22,6 @@ const PALETTES = [
 
 export default function NoiseFieldDemo() {
   const [selectedPalette, setSelectedPalette] = useState(0);
-  const [activeTier, setActiveTier] = useState<number | undefined>(undefined);
   const [isLight, setIsLight] = useState(false);
   const isPaused = usePaused();
   const systemReduced = useReducedMotion();
@@ -144,51 +143,6 @@ export default function NoiseFieldDemo() {
             ))}
           </div>
 
-          {/* Tier Selector */}
-          <div
-            style={{
-              display: "flex",
-              gap: "4px",
-              background: "rgba(0, 0, 0, 0.2)",
-              padding: "2px",
-              borderRadius: "6px",
-              border: "1px solid var(--line, #262B33)",
-              flexWrap: "wrap",
-            }}
-          >
-            {[
-              { label: "Auto", val: undefined },
-              { label: "T0", val: 0 },
-              { label: "T1", val: 1 },
-              { label: "T2", val: 2 },
-              { label: "T3", val: 3 },
-            ].map((t) => (
-              <button
-                key={t.label}
-                type="button"
-                aria-pressed={activeTier === t.val}
-                onClick={() => setActiveTier(t.val)}
-                style={{
-                  padding: "0.375rem 0.625rem",
-                  fontSize: "12px",
-                  borderRadius: "4px",
-                  border: "none",
-                  cursor: "pointer",
-                  background: activeTier === t.val ? "var(--line, #262B33)" : "transparent",
-                  color: activeTier === t.val ? "var(--signal, #FB923C)" : "var(--muted, #9AA1AF)",
-                  fontWeight: activeTier === t.val ? 600 : 400,
-                  minHeight: "44px",
-                  minWidth: "44px",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
           {/* Theme Toggle (Dark / Light) */}
           <button
             type="button"
@@ -233,29 +187,6 @@ export default function NoiseFieldDemo() {
           >
             {effectiveReduced ? "Motion: Static" : "Motion: Fluid"}
           </button>
-
-          {/* Pause / Resume */}
-          <button
-            type="button"
-            aria-pressed={isPaused}
-            onClick={() => (isPaused ? resumeAll() : pauseAll())}
-            style={{
-              padding: "0.375rem 0.75rem",
-              fontSize: "12px",
-              borderRadius: "4px",
-              border: "1px solid var(--line, #262B33)",
-              background: isPaused ? "var(--degraded, #FBBF24)" : "transparent",
-              color: isPaused ? "var(--bg, #0D0F12)" : "var(--ink, #E9EBF0)",
-              cursor: "pointer",
-              fontWeight: 500,
-              minHeight: "44px",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {isPaused ? "Resume" : "Pause"}
-          </button>
         </div>
       </div>
 
@@ -272,7 +203,6 @@ export default function NoiseFieldDemo() {
       >
         <NoiseField
           colors={PALETTES[selectedPalette].colors}
-          maxTier={activeTier}
           paused={isPaused}
           reducedMotion={effectiveReduced}
           scrim={true}
