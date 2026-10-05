@@ -36,19 +36,15 @@ export interface AmbientHeroProps extends React.HTMLAttributes<HTMLElement> {
   showPauseButton?: boolean;
   /** Universal paused prop. */
   paused?: boolean;
-  /** Backwards-compatibility alias for headline. */
-  title?: string;
-  /** Backwards-compatibility alias for body. */
-  description?: string;
+  /** CSP nonce, forwarded to the `<style>` element of the headline reveal. */
+  nonce?: string;
 }
 
 export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
   function AmbientHero(
     {
       headline,
-      title,
       body,
-      description,
       primaryCta,
       secondaryCta,
       eyebrow,
@@ -56,6 +52,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
       background,
       showPauseButton = true,
       paused: propPaused = false,
+      nonce,
       className,
       style,
       ...rest
@@ -78,11 +75,8 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
         setLeaseReady(true);
       };
 
-      // If page already finished initial load (client navigation) or running leak benchmark, activate immediately
-      if (
-        document.readyState === "complete" ||
-        (typeof location !== "undefined" && location.search.includes("leak=1"))
-      ) {
+      // If the page already finished loading (client-side navigation, a re-mount), activate immediately
+      if (document.readyState === "complete") {
         activate();
         return;
       }
@@ -129,9 +123,6 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
         setInternalPaused(true);
       }
     };
-
-    const displayHeadline = headline ?? title ?? "";
-    const displayBody = body ?? description ?? "";
 
     const renderBackground = () => {
       if (background) return background;
@@ -214,7 +205,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
             zIndex: 1,
             pointerEvents: "none",
             background:
-              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, #000) 45%, transparent) 0%, color-mix(in srgb, var(--background, #000) 85%, transparent) 100%), linear-gradient(to bottom, color-mix(in srgb, var(--background, #000) 60%, transparent) 0%, color-mix(in srgb, var(--background, #000) 30%, transparent) 40%, color-mix(in srgb, var(--background, #000) 80%, transparent) 100%)",
+              "radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--background, Canvas) 45%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 85%, transparent) 100%), linear-gradient(to bottom, color-mix(in srgb, var(--background, Canvas) 60%, transparent) 0%, color-mix(in srgb, var(--background, Canvas) 30%, transparent) 40%, color-mix(in srgb, var(--background, Canvas) 80%, transparent) 100%)",
             backdropFilter: "blur(0.5px)",
           }}
         />
@@ -238,7 +229,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
               fontSize: "0.75rem",
               fontFamily: "var(--font-mono, monospace)",
               color: "var(--foreground, currentColor)",
-              background: "color-mix(in srgb, var(--background, #000) 65%, transparent)",
+              background: "color-mix(in srgb, var(--background, Canvas) 65%, transparent)",
               border: "1px solid var(--border, color-mix(in srgb, currentColor 20%, transparent))",
               borderRadius: "999px",
               backdropFilter: "blur(8px)",
@@ -252,8 +243,8 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                 width: "7px",
                 height: "7px",
                 borderRadius: "50%",
-                background: paused ? "var(--warning, #f59e0b)" : "var(--primary, #10b981)",
-                boxShadow: paused ? "0 0 6px var(--warning, #f59e0b)" : "0 0 6px var(--primary, #10b981)",
+                background: paused ? "var(--muted-foreground, GrayText)" : "var(--primary, Highlight)",
+                boxShadow: paused ? "0 0 6px var(--muted-foreground, GrayText)" : "0 0 6px var(--primary, Highlight)",
               }}
             />
             <span>{paused ? "Paused" : "Motion"}</span>
@@ -288,7 +279,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                 textTransform: "uppercase",
                 fontFamily: "var(--font-mono, monospace)",
                 color: "var(--primary, currentColor)",
-                background: "color-mix(in srgb, var(--background, #000) 82%, transparent)",
+                background: "color-mix(in srgb, var(--background, Canvas) 82%, transparent)",
                 border: "1px solid color-mix(in srgb, var(--primary, currentColor) 28%, transparent)",
               }}
             >
@@ -299,6 +290,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
           <TextReveal
             as="h1"
             by="word"
+            nonce={nonce}
             style={{
               margin: 0,
               fontSize: "clamp(2rem, 5vw, 3.75rem)",
@@ -306,13 +298,13 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
               lineHeight: 1.15,
               letterSpacing: "-0.03em",
               color: "var(--foreground, currentColor)",
-              textShadow: "0 2px 20px color-mix(in srgb, var(--background, #000) 60%, transparent)",
+              textShadow: "0 2px 20px color-mix(in srgb, var(--background, Canvas) 60%, transparent)",
             }}
           >
-            {displayHeadline}
+            {headline}
           </TextReveal>
 
-          {displayBody && (
+          {body && (
             <p
               style={{
                 margin: 0,
@@ -320,10 +312,10 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                 fontSize: "clamp(0.95rem, 1.8vw, 1.15rem)",
                 lineHeight: 1.6,
                 color: "var(--muted-foreground, color-mix(in srgb, currentColor 80%, transparent))",
-                textShadow: "0 1px 8px color-mix(in srgb, var(--background, #000) 50%, transparent)",
+                textShadow: "0 1px 8px color-mix(in srgb, var(--background, Canvas) 50%, transparent)",
               }}
             >
-              {displayBody}
+              {body}
             </p>
           )}
 
@@ -353,9 +345,9 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
                     fontSize: "0.95rem",
                     fontWeight: 500,
                     textDecoration: "none",
-                    color: "var(--primary-foreground, #0d0f12)",
-                    background: "var(--primary, #fb923c)",
-                    boxShadow: "0 4px 14px color-mix(in srgb, var(--background, #000) 35%, transparent)",
+                    color: "var(--primary-foreground, HighlightText)",
+                    background: "var(--primary, Highlight)",
+                    boxShadow: "0 4px 14px color-mix(in srgb, var(--background, Canvas) 35%, transparent)",
                     transition: "background 150ms ease, transform 150ms ease",
                   }}
                 >

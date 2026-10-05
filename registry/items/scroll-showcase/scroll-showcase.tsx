@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion ScrollShowcase composition
 "use client";
 
-import React from "react";
+import React, { useId } from "react";
 import { useCapability } from "@frictionborn/runtime";
 import { StickyScrollStory, type StoryStep } from "@/components/ui/sticky-scroll-story";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -25,16 +25,18 @@ export interface ScrollShowcaseProps extends React.HTMLAttributes<HTMLDivElement
   eyebrow?: string;
   /** Optional specifications / highlights grid. */
   specs?: ScrollShowcaseSpec[];
-  /** Optional specifications section heading. */
+  /** Heading above the specifications grid. No default: nothing is rendered unless you pass one. */
   specsHeading?: string;
-  /** Optional specifications eyebrow. */
+  /** Small label above the specifications heading. No default. */
   specsEyebrow?: string;
-  /** Include the reference marquee strip (default: true if marqueeItems provided). */
+  /** Show the marquee strip (only rendered when `marqueeItems` is non-empty). Default: true. */
   showMarquee?: boolean;
   /** Items to display in the marquee strip. */
   marqueeItems?: React.ReactNode[];
-  /** Eyebrow label for the marquee strip. */
+  /** Label above the marquee strip, also its accessible name. No default. */
   marqueeLabel?: string;
+  /** CSP nonce, forwarded to the `<style>` element of every item the section renders. */
+  nonce?: string;
   /** Enable SmoothScroll provider (off by default per PRD 6.12). */
   smoothScroll?: boolean;
   /** Universal paused prop. */
@@ -51,11 +53,12 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
       steps,
       eyebrow,
       specs,
-      specsHeading = "Laboratory verification standards",
-      specsEyebrow = "Measured Tolerances",
+      specsHeading,
+      specsEyebrow,
       showMarquee = true,
       marqueeItems,
-      marqueeLabel = "Reference deployments in critical listening rooms",
+      marqueeLabel,
+      nonce,
       smoothScroll = false,
       paused = false,
       className,
@@ -65,6 +68,10 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
     ref
   ) {
     const cap = useCapability(); // @frictionborn-guard
+    // Ids are per instance, so two sections on one page never share an id or label each other
+    const uid = useId();
+    const headlineId = `${uid}-headline`;
+    const specsHeadingId = `${uid}-specs`;
 
     const content = (
       <div
@@ -83,7 +90,7 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
       >
         {/* 1. Header Section */}
         <section
-          aria-labelledby="architecture-heading"
+          aria-labelledby={headlineId}
           style={{
             maxWidth: "1000px",
             margin: "0 auto",
@@ -108,9 +115,9 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
               {eyebrow}
             </span>
           )}
-          <ScrollReveal paused={paused}>
+          <ScrollReveal paused={paused} nonce={nonce}>
             <h2
-              id="architecture-heading"
+              id={headlineId}
               style={{
                 margin: "0 0 1rem 0",
                 fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
@@ -123,7 +130,7 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
               {headline}
             </h2>
           </ScrollReveal>
-          <ScrollReveal paused={paused}>
+          <ScrollReveal paused={paused} nonce={nonce}>
             <p
               style={{
                 margin: "0 auto",
@@ -139,17 +146,14 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
         </section>
 
         {/* 2. Sticky Scroll Story */}
-        <section
-          aria-label="Interactive architecture deep-dive"
-          style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}
-        >
-          <StickyScrollStory steps={steps} paused={paused} />
+        <section aria-labelledby={headlineId} style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 1.5rem" }}>
+          <StickyScrollStory steps={steps} paused={paused} nonce={nonce} />
         </section>
 
         {/* 3. Feature Specifications Grid with ScrollReveal (if provided) */}
         {specs && specs.length > 0 && (
           <section
-            aria-labelledby="performance-heading"
+            aria-labelledby={specsHeading ? specsHeadingId : undefined}
             style={{
               maxWidth: "1000px",
               margin: "4rem auto 0 auto",
@@ -175,9 +179,10 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
                   {specsEyebrow}
                 </span>
               )}
-              <ScrollReveal paused={paused}>
+              {specsHeading && (
+              <ScrollReveal paused={paused} nonce={nonce}>
                 <h3
-                  id="performance-heading"
+                  id={specsHeadingId}
                   style={{
                     margin: 0,
                     fontSize: "clamp(1.5rem, 3vw, 2.25rem)",
@@ -190,6 +195,7 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
                   {specsHeading}
                 </h3>
               </ScrollReveal>
+              )}
             </div>
 
             <div
@@ -199,8 +205,8 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
                 gap: "1.5rem",
               }}
             >
-              {specs.map((spec) => (
-                <ScrollReveal key={spec.label} paused={paused}>
+              {specs.map((spec, index) => (
+                <ScrollReveal key={`${index}-${spec.label}`} paused={paused} nonce={nonce}>
                   <div
                     style={{
                       padding: "2rem",
@@ -251,7 +257,7 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
         {/* 4. Client / Reference Marquee (if items provided and enabled) */}
         {showMarquee && marqueeItems && marqueeItems.length > 0 && (
           <section
-            aria-label="Reference deployments"
+            aria-label={marqueeLabel}
             style={{
               padding: "3rem 0 5rem 0",
               borderTop: "1px solid var(--border, color-mix(in srgb, currentColor 18%, transparent))",
@@ -274,7 +280,7 @@ export const ScrollShowcase = React.forwardRef<HTMLDivElement, ScrollShowcasePro
                 </span>
               </div>
             )}
-            <Marquee pixelsPerSecond={32} paused={paused} pauseOnHover={true} pauseOnFocus={true}>
+            <Marquee pixelsPerSecond={32} paused={paused} nonce={nonce} pauseOnHover={true} pauseOnFocus={true}>
               {marqueeItems.map((item, idx) => (
                 <span
                   key={idx}
