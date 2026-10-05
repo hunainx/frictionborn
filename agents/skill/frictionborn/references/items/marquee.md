@@ -71,7 +71,10 @@
 | Prop | Type | Default | Effect |
 |---|---|---|---|
 | `children` | `React.ReactNode` | `—` | Required. Content elements repeated across the strip (rendered twice; avoid fixed ids). |
-| `speed` | `number` | `40` | Approximate transit rate in pixels per second (duration = track width / speed, at least 5 s). |
+| `pixelsPerSecond` | `number` | `40` | Transit rate in physical pixels per second. |
+| `speed` | `number` | `1` | Unitless speed multiplier (1 = default speed). |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes ticker transit. |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to internal scoped <style> element. |
 | `direction` | `"left" \| "right"` | `"left"` | Scroll direction of the ticker. |
 | `pauseOnHover` | `boolean` | `true` | Freezes scroll transit while the pointer hovers over the strip. |
 | `pauseOnFocus` | `boolean` | `true` | Freezes scroll transit while any element inside the strip holds keyboard focus. |

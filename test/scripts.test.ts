@@ -493,3 +493,70 @@ describe("audit M3: registry build guards", () => {
     }
   });
 });
+
+describe("step 11: agent layer guarantees", () => {
+  const root = path.resolve(__dirname, "..");
+  const ITEMS = [
+    "ambient-hero",
+    "distortion-image",
+    "magnetic-button",
+    "marquee",
+    "mesh-gradient",
+    "noise-field",
+    "particle-field",
+    "scroll-reveal",
+    "scroll-showcase",
+    "smooth-scroll",
+    "sticky-scroll-story",
+    "text-reveal",
+  ];
+
+  it("enforces line budgets on agent entry points", () => {
+    const skillPath = path.join(root, "agents", "skill", "frictionborn", "SKILL.md");
+    expect(fs.existsSync(skillPath)).toBe(true);
+    const skillLines = fs.readFileSync(skillPath, "utf8").trim().split("\n").length;
+    expect(skillLines).toBeLessThan(150);
+
+    const snippetPath = path.join(root, "agents", "AGENTS.snippet.md");
+    expect(fs.existsSync(snippetPath)).toBe(true);
+    const snippetLines = fs.readFileSync(snippetPath, "utf8").trim().split("\n").length;
+    expect(snippetLines).toBeLessThan(40);
+
+    const llmsPath = path.join(root, "llms.txt");
+    expect(fs.existsSync(llmsPath)).toBe(true);
+    const llmsLines = fs.readFileSync(llmsPath, "utf8").trim().split("\n").length;
+    expect(llmsLines).toBeLessThan(200);
+  });
+
+  it("verifies all 12 items have matching spec sheets and catalog entries", () => {
+    const catalogPath = path.join(root, "agents", "skill", "frictionborn", "references", "catalog.md");
+    expect(fs.existsSync(catalogPath)).toBe(true);
+    const catalogContent = fs.readFileSync(catalogPath, "utf8");
+
+    for (const name of ITEMS) {
+      expect(catalogContent).toContain(`[${name}](items/${name}.md)`);
+
+      const specPath = path.join(root, "agents", "skill", "frictionborn", "references", "items", `${name}.md`);
+      expect(fs.existsSync(specPath)).toBe(true);
+      const specContent = fs.readFileSync(specPath, "utf8");
+
+      const metaPath = path.join(root, "registry", "items", name, "meta.declared.json");
+      expect(fs.existsSync(metaPath)).toBe(true);
+      const meta = JSON.parse(fs.readFileSync(metaPath, "utf8"));
+
+      // Slot and summary match
+      expect(specContent).toContain(`- **Slot**: \`${meta.item.slot}\``);
+
+      // Every prop in meta.declared.json is documented in the props table
+      for (const prop of meta.props || []) {
+        expect(specContent).toContain(`\`${prop.name}\``);
+      }
+
+      // Registry dependencies match
+      const regDeps = meta.dependencies?.registry || [];
+      for (const dep of regDeps) {
+        expect(specContent).toContain(`\`${dep}\``);
+      }
+    }
+  });
+});

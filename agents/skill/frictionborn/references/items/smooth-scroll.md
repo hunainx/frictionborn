@@ -72,7 +72,8 @@
 | Prop | Type | Default | Effect |
 |---|---|---|---|
 | `children` | `React.ReactNode` | `—` | Optional. No default. Child components wrapped inside the provider (rendered in a display: contents div). |
-| `duration` | `number` | `1.2` | Scroll easing duration in seconds. |
+| `duration` | `number` | `1200` | Scroll easing duration in milliseconds (e.g. 1200 means 1.2 seconds). |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes kinetic smooth scrolling. |
 | `easing` | `(t: number) => number` | `"(t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))"` | Easing function (default is a module-level function). Read through a ref, so an inline function does not recreate Lenis. |
 | `orientation` | `"vertical" \| "horizontal"` | `"vertical"` | Primary scroll orientation. |
 | `gestureOrientation` | `"vertical" \| "horizontal" \| "both"` | `"vertical"` | Gesture direction Lenis listens to. |

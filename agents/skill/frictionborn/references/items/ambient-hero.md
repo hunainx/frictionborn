@@ -71,13 +71,15 @@
 
 | Prop | Type | Default | Effect |
 |---|---|---|---|
-| `variant` | `"mesh" \| "noise" \| "particles"` | `"mesh"` | Selects which ambient background to mount (exactly one WebGL context). Its settings are fixed and not configurable: mesh speed 0.3, noise speed 0.4 scale 1.8, particles count 2500 speed 0.4. |
-| `eyebrow` | `string` | `"Studio Series · Gen 3"` | Small pill tag displayed above the headline (demo copy by default). |
-| `title` | `string` | `"Acoustic precision, sculpted in aluminum."` | Primary document h1 heading rendered by TextReveal by word (demo copy by default). A server-rendered headline is painted static and does not animate; the word reveal runs only when the component mounts on the client. |
-| `description` | `string` | `"Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration."` | Supporting description copy below the headline (demo copy by default). |
-| `primaryCta` | `AmbientHeroCta = { label: string; href?: string; onClick?: () => void }` | `{"label":"Explore engineering","href":"#engineering"}` | Primary action link with magnetic pull. Rendered as an <a>; href falls back to '#'. |
-| `secondaryCta` | `AmbientHeroCta = { label: string; href?: string; onClick?: () => void }` | `{"label":"Technical specifications","href":"#specifications"}` | Secondary action link with magnetic pull. Rendered as an <a>; href falls back to '#'. |
+| `headline` | `string` | `—` | Required. Primary document h1 heading rendered by TextReveal by word. |
+| `body` | `string` | `—` | Required. Supporting description copy below the headline. |
+| `primaryCta` | `AmbientHeroCta = { label: string; href?: string; onClick?: () => void }` | `—` | Required. Primary action link with magnetic pull. Rendered as an <a>; href falls back to '#'. |
+| `variant` | `"mesh" \| "noise" \| "particles"` | `"mesh"` | Selects which ambient background to mount (exactly one WebGL context). Its settings are fixed: mesh speed 0.3, noise speed 0.4 scale 1.8, particles count 2500 speed 0.4. |
+| `background` | `React.ReactNode` | `—` | Optional. Custom background slot overriding the ambient generator variant. |
+| `eyebrow` | `string` | `—` | Optional. Small pill tag displayed above the headline. |
+| `secondaryCta` | `AmbientHeroCta = { label: string; href?: string; onClick?: () => void }` | `—` | Optional. Secondary action link with magnetic pull. Rendered as an <a>; href falls back to '#'. |
 | `showPauseButton` | `boolean` | `true` | Renders a pause/resume button that stops and restarts the hero background only. |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes ambient background animation. |
 | `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root header element. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root header element, merged last (consumer wins). |
 

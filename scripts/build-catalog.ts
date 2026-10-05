@@ -239,16 +239,20 @@ export function generateCatalog(items: any[]): string {
 
 export function generateLlmsTxt(items: any[]): string {
   let txt = `# Frictionborn Motion\n\n`;
-  txt += `> Frictionborn Motion is a library of verified motion and WebGL UI components built for React 19 and Next.js 16, engineered for zero visual slop, static server rendering, and zero-idle resource usage.\n\n`;
+  txt += `> Frictionborn Motion is a verified motion and WebGL component registry for React 19 and Next.js 16, engineered for zero visual slop, static server rendering, and zero-idle resource usage.\n\n`;
+  txt += `Docs: https://frictionborn.com/docs\n`;
+  txt += `Registry: https://frictionborn.com/r\n\n`;
   txt += `## Core Principles\n`;
   txt += `- **Server Output is Static**: No opacity: 0 or transforms in server HTML. Hidden-before-reveal CSS only under [data-motion="ok"].\n`;
-  txt += `- **Single Frame Loop**: animated items share one loop (useFrame from @frictionborn/runtime). Direct requestAnimationFrame is forbidden.\n`;
-  txt += `- **Strict WebGL Leases**: at most 4 live WebGL contexts per page on a fine pointer, 2 on a coarse pointer. WebGL code is loaded only when in view and a lease is granted.\n`;
+  txt += `- **Single Frame Loop**: Animated items share one loop (useFrame from @frictionborn/runtime). Direct requestAnimationFrame is forbidden.\n`;
+  txt += `- **Strict WebGL Leases**: At most 4 live WebGL contexts per page on a fine pointer, 2 on coarse. WebGL code loads only when leased.\n`;
   txt += `- **Reduced Motion is Architectural**: Mode is declared and verified (static, still-frame, opacity-only, or off).\n\n`;
-  txt += `## Components\n`;
+  txt += `## Components\n\n`;
+  txt += `| Item | Slot | Summary | Spec Sheet |\n`;
+  txt += `| :--- | :--- | :--- | :--- |\n`;
   for (const m of items) {
     const item = m.item || {};
-    txt += `- **${item.name}**: ${item.summary} (Install: \`npx shadcn@latest add @frictionborn/${item.name}\`)\n`;
+    txt += `| [${item.name}](https://frictionborn.com/docs/items/${item.name}) | \`${item.slot || "ui"}\` | ${item.summary} | [Spec Sheet](agents/skill/frictionborn/references/items/${item.name}.md) |\n`;
   }
   txt += `\n## Setup\n${SETUP_MD}`;
   txt += `\n## Runtime Usage\n`;
