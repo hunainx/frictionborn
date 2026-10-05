@@ -233,10 +233,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "e1ffb2e",
+          "commit": "cb09809",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 3.62,
+            "initial": 3.57,
             "deferred": 0.02,
             "method": "gzip-9"
           },
@@ -1093,10 +1093,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "53fd14c",
+          "commit": "cb09809",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 2.38,
+            "initial": 2.47,
             "deferred": 0.02,
             "method": "gzip-9"
           },
@@ -2535,10 +2535,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "53fd14c",
+          "commit": "cb09809",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 2.37,
+            "initial": 2.54,
             "deferred": 0.02,
             "method": "gzip-9"
           },
@@ -2819,10 +2819,10 @@
           "assets": []
         },
         "measured": {
-          "commit": "53fd14c",
+          "commit": "cb09809",
           "date": "2026-10-05",
           "sizeKB": {
-            "initial": 2.6,
+            "initial": 2.63,
             "deferred": 0.02,
             "method": "gzip-9"
           },

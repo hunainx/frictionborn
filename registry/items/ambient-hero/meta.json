@@ -203,10 +203,10 @@
     "assets": []
   },
   "measured": {
-    "commit": "e1ffb2e",
+    "commit": "cb09809",
     "date": "2026-10-05",
     "sizeKB": {
-      "initial": 3.62,
+      "initial": 3.57,
       "deferred": 0.02,
       "method": "gzip-9"
     },

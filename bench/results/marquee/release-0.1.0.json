@@ -1,8 +1,8 @@
 {
-  "commit": "53fd14c",
+  "commit": "cb09809",
   "date": "2026-10-05",
   "sizeKB": {
-    "initial": 2.38,
+    "initial": 2.47,
     "deferred": 0.02,
     "method": "gzip-9"
   },
