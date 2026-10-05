@@ -83,6 +83,7 @@
 | `reducedMotion` | `boolean` | `—` | Optional. No default (follows prefers-reduced-motion). true forces the static poster. false only skips the prop-level check: under prefers-reduced-motion the runtime tier is still 0, so WebGL still does not start. Leave unset. |
 | `className` | `string` | `""` | Extra classes on the root div (the built-in class fb-mesh-gradient is kept). |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root div, merged after the built-in layout and background colour (consumer wins). |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div> that holds the poster and the canvas. |
 | `children` | `React.ReactNode` | `—` | Optional. No default. Content layered above the poster, canvas and scrim. |
 
 ## Dependencies

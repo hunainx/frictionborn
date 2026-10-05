@@ -112,13 +112,13 @@
         "name": "pixelsPerSecond",
         "type": "number",
         "default": 40,
-        "effect": "Transit rate in physical pixels per second."
+        "effect": "Transit rate in physical pixels per second (default 40). speed multiplies it. The cycle is never shorter than 5 s."
       },
       {
         "name": "speed",
         "type": "number",
         "default": 1,
-        "effect": "Unitless speed multiplier (1 = default speed)."
+        "effect": "Unitless multiplier on pixelsPerSecond (1 = as given, 0.5 = half, 2 = double)."
       },
       {
         "name": "paused",
@@ -175,6 +175,12 @@
         "effect": "Optional. No default. Inline styles on the outer container, merged last (consumer wins)."
       },
       {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root <div>."
+      },
+      {
         "name": "maxTier",
         "type": "number",
         "default": 3,
@@ -183,12 +189,12 @@
     ],
     "agent": {
       "install": "npx shadcn@latest add @frictionborn/marquee",
-      "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee speed={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
+      "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee pixelsPerSecond={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
       "mistakes": [
         "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",
         "Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2).",
         "The animation only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the strip is static.",
-        "Children are rendered twice, so do not give them fixed id attributes. Marquee accepts only the listed props; data-* and aria-* attributes are not forwarded."
+        "Children are rendered twice, so do not give them fixed id attributes. Other props (id, data-*, aria-*, handlers) are spread on the root <div>."
       ],
       "verify": [
         "Verify screen reader encounters each badge/item exactly once.",

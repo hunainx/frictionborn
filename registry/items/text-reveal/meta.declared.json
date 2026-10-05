@@ -133,6 +133,12 @@
       "effect": "Optional. No default. Inline styles on the root element, merged after position: relative and display: block (consumer wins)."
     },
     {
+      "name": "ref",
+      "type": "React.Ref<any>",
+      "default": null,
+      "effect": "Receives the root element chosen by `as` (it also contains the scoped <style> and a screen-reader copy of the text)."
+    },
+    {
       "name": "maxTier",
       "type": "number",
       "default": 3,
@@ -143,6 +149,18 @@
       "type": "string | number",
       "default": null,
       "effect": "Optional. No default. When set (or changed), the entrance animation plays after hydration even for a server-rendered instance."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Renders plain static text instead of the animated tokens; un-pausing replays the reveal from the start (it does not freeze mid-animation)."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "Optional CSP nonce forwarded to the internal scoped <style> element."
     }
   ],
   "agent": {
@@ -152,7 +170,7 @@
       "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",
       "Do not hide text with opacity: 0 before hydration; the component handles static visibility safely.",
       "A server-rendered TextReveal is painted as final static text and does not animate unless replayKey is set; do not expect a reveal on a Next.js server-rendered hero without it.",
-      "TextReveal accepts only the listed props; id, data-* and aria-* attributes are not forwarded to the root element.",
+      "Other props (data-*, aria-*, handlers) are spread on the root element; do not pass your own id (the component uses its own to detect a server render).",
       "The reveal styles apply only when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
     ],
     "verify": [

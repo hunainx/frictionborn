@@ -1,6 +1,6 @@
 # scroll-showcase — Specification Sheet
 
-> Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee, fixed demo copy (DOM, reduced motion -> static/opacity, mobile -> stacked)
+> Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee; all copy comes from props (DOM, reduced motion -> static/opacity, mobile -> stacked)
 
 ## Overview
 
@@ -14,7 +14,7 @@
 
 ### Use When
 - Product feature narrative requiring sticky step progression and reveal on scroll
-- Architecture or engineering deep-dive with technical media and metrics (replace the built-in demo copy first)
+- Product or engineering deep-dive with step-by-step media and an optional metrics grid
 - Multi-section storytelling with accessible scroll-driven reveals
 
 ### Avoid When
@@ -58,7 +58,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `built-in`
 - **WCAG Criteria**: 2.1.1, 2.2.2, 2.4.1, 2.4.6
-- **Notes**: Sections carry aria-labelledby / aria-label with hard-coded ids (architecture-heading, performance-heading). Heading levels run h2 (section and step titles), h3, h4. The default step media is aria-hidden SVG inside visible caption cards; the `alt` strings in the default steps are not rendered because alt applies only to media.type 'image'. Colours are hard-coded: fixed light text and dark cards on a var(--background) section, so contrast is only suitable for a dark host theme and is not verified.
+- **Notes**: Sections are named through aria-labelledby (the headline, and the specs heading when you pass one) or aria-label (marqueeLabel when you pass one); ids are generated per instance with useId, so two sections on one page never clash. Heading levels run h2 (headline), h2 (each step title, from StickyScrollStory), h3 (specsHeading), h4 (spec labels): place the section under an h1 and check the outline for your page. media.alt applies only to media.type 'image'. Every colour is a host token (--background, --foreground, --primary, --muted-foreground, --card, --border) with a system-colour fallback; contrast follows your theme and is not verified for your content.
 
 ## Composition
 
@@ -76,15 +76,17 @@
 | `steps` | `StoryStep[]` | `—` | Required. Narrative steps for StickyScrollStory ({ id, title, description, badge?, media }). |
 | `eyebrow` | `string` | `—` | Optional. Eyebrow badge above the headline. |
 | `specs` | `ScrollShowcaseSpec[]` | `—` | Optional. Specifications / highlights grid items ({ metric, label, detail }). |
-| `specsHeading` | `string` | `"Laboratory verification standards"` | Optional. Specifications section heading. |
-| `specsEyebrow` | `string` | `"Measured Tolerances"` | Optional. Specifications eyebrow badge. |
-| `showMarquee` | `boolean` | `true` | Includes the reference marquee ticker. |
+| `specsHeading` | `string` | `—` | Optional. Heading above the specifications grid. Nothing is rendered when omitted. |
+| `specsEyebrow` | `string` | `—` | Optional. Small label above the specifications heading. Nothing is rendered when omitted. |
+| `showMarquee` | `boolean` | `true` | Shows the marquee ticker when marqueeItems is non-empty. |
 | `marqueeItems` | `React.ReactNode[]` | `—` | Optional. Array of items to display in the marquee ticker. |
-| `marqueeLabel` | `string` | `"Reference deployments in critical listening rooms"` | Optional. Label above the marquee ticker. |
+| `marqueeLabel` | `string` | `—` | Optional. Label above the marquee ticker, also its accessible name. Nothing is rendered when omitted. |
 | `smoothScroll` | `boolean` | `false` | Wraps the composition in the SmoothScroll provider (off by default). |
-| `paused` | `boolean` | `false` | Universal pause prop. Freezes all internal motion. |
-| `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root container. |
+| `paused` | `boolean` | `false` | Universal pause prop. Passed to the reveals, the story, the marquee and SmoothScroll (the reveals only react when the browser lacks CSS scroll-driven animation). |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to the <style> element of every item the section renders. |
+| `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root container. Any other HTML attribute (id, data-*, aria-*, event handlers) is spread on the root element; handlers the item uses itself are composed, not replaced. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root container, merged last (consumer wins). |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div>. |
 
 ## Dependencies
 
@@ -104,14 +106,22 @@ npx shadcn@latest add @frictionborn/scroll-showcase
 // Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.
 import { ScrollShowcase } from '@/components/ui/scroll-showcase';
 
-<ScrollShowcase showMarquee={true} />
+const steps = [
+  { id: 'one', title: 'First step', description: 'What happens first.', media: { content: <div>Illustration</div> } },
+  { id: 'two', title: 'Second step', description: 'What happens next.', media: { content: <div>Illustration</div> } },
+];
+
+export default function Story() {
+  return <ScrollShowcase headline="How it works" description="Three plain sentences." steps={steps} />;
+}
 ```
 
 ### Common Mistakes to Avoid
-- The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the stat-card and step-card colours are hard-coded (text on the host background uses --primary and --muted-foreground) demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.
-- Do not enable smoothScroll on dashboards or documentation pages.
+- headline, description and steps are required and the component contains no copy of its own: nothing is rendered for specsHeading, specsEyebrow or marqueeLabel unless you pass them.
+- StickyScrollStory renders each step's media.content twice (a sticky column and a stacked mobile copy), so do not put ids inside it.
+- Do not enable smoothScroll on dashboards or documentation pages, and never when another SmoothScroll is mounted (a second one warns and does nothing).
 - Do not place multiple sticky scroll sections immediately adjacent to each other without spacing.
-- Element ids are hard-coded, so use at most one ScrollShowcase per page.
+- Under a nonce-based CSP pass nonce: it is forwarded to every <style> the section renders.
 - Reveal and marquee animations only run when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite).
 
 ### How to Verify

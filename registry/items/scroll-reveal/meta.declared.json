@@ -133,10 +133,28 @@
       "effect": "Optional. No default. Inline styles on the root element, merged after display: block and position: relative (consumer wins)."
     },
     {
+      "name": "ref",
+      "type": "React.Ref<any>",
+      "default": null,
+      "effect": "Receives the root element chosen by `as`."
+    },
+    {
       "name": "maxTier",
       "type": "number",
       "default": 3,
       "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Forces the content visible and still. Where the browser supports CSS scroll-driven animation the reveal is driven by the scroll position and this prop has no effect."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "Optional CSP nonce forwarded to the internal scoped <style> element (one is rendered per instance)."
     }
   ],
   "agent": {
@@ -146,7 +164,7 @@
       "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",
       "Do not nest ScrollReveal components inside each other; keep entrance containers flat.",
       "The reveal only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the content is static.",
-      "ScrollReveal accepts only the listed props; data-*, aria-* and id attributes are not forwarded to the root element."
+      "Other props (id, data-*, aria-*, handlers) are spread on the root element."
     ],
     "verify": [
       "Verify content is visible in server HTML without JavaScript execution.",

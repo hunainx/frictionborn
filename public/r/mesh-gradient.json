@@ -198,6 +198,12 @@
         "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background colour (consumer wins)."
       },
       {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root <div> that holds the poster and the canvas."
+      },
+      {
         "name": "children",
         "type": "React.ReactNode",
         "default": null,

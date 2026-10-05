@@ -77,6 +77,7 @@
 | `strength` | `number` | `0.25` | Displacement ripple magnitude on hover. |
 | `speed` | `number` | `1` | Frequency and wave propagation rate during interaction. |
 | `maxTier` | `number` | `3` | Hard ceiling on the capability tier (0 to 3). |
+| `paused` | `boolean` | `false` | Universal pause prop. Releases the WebGL context and shows the plain image; hover or focus does nothing until un-paused. |
 | `crossOrigin` | `"anonymous" \| "use-credentials" \| ""` | `—` | Optional. No default. CORS setting for the image. Only set to 'anonymous' when the host server sends Access-Control-Allow-Origin headers. If set on a host without CORS headers, the browser blocks the image entirely. When omitted, images from non-CORS hosts cleanly fall back to static image display without errors. |
 | `fetchPriority` | `"high" \| "low" \| "auto"` | `—` | Optional. No default. Native fetchpriority attribute forwarded to the underlying img element. |
 | `fetchpriority` | `"high" \| "low" \| "auto"` | `—` | Optional. No default. Lower-case alias of fetchPriority, used only when fetchPriority is not set. |
@@ -88,6 +89,7 @@
 | `imgStyle` | `React.CSSProperties` | `—` | Optional. No default. Inline styles merged onto the inner img. |
 | `className` | `string` | `""` | Extra classes on the wrapper div. Other HTML div attributes (data-*, aria-*) are passed to the wrapper, not to the img. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins). |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the wrapper <div> around the <img> (not the <img> itself). |
 | `onPointerEnter` | `React.PointerEventHandler<HTMLDivElement>` | `—` | Optional. No default. Composed: called first, then the component's own handling. onPointerMove, onPointerLeave, onFocus and onBlur are composed the same way. |
 | `children` | `React.ReactNode` | `—` | Optional. No default. Content layered above the image and canvas, for example a caption or a link. |
 

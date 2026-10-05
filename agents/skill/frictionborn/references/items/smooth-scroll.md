@@ -81,8 +81,9 @@
 | `touchMultiplier` | `number` | `1` | Lenis touch multiplier (touch scrolling is not smoothed on coarse pointers because SmoothScroll is disabled there). |
 | `infinite` | `boolean` | `false` | Lenis infinite scroll option. |
 | `enabled` | `boolean` | `true` | Master toggle to enable or disable smooth scrolling. |
-| `onScroll` | `(e: any) => void` | `—` | Optional. No default. Callback invoked on every Lenis scroll event (for example to sync ScrollTrigger). |
+| `onScroll` | `(e: any) => void` | `—` | Called with the Lenis scroll event (not the DOM scroll event, even though the root is a <div>). |
 | `prevent` | `(node: HTMLElement) => boolean` | `—` | Optional. No default. Predicate to bypass smooth scrolling for specific DOM nodes. Nested scrollers (allowNestedScroll) and [role="dialog"], [aria-modal="true"], dialog[open], [data-lenis-prevent] are always bypassed. |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div>, which is display: contents, so its bounding box is empty (use it for data attributes, not geometry). |
 
 ## Dependencies
 
@@ -116,6 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 - Do not use on dashboards, forms-heavy pages, or data-dense web applications.
 - The registry installs lenis@1.3.26 and consumers accept lenis@^1.3.26; to pin exactly run: npm install --save-exact lenis@1.3.26 (or the equivalent for your package manager).
 - SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them.
+- duration is in milliseconds (1200 = 1.2 s). A seconds value such as 1.2 now means 1.2 ms and the scroll looks instant.
 
 ### How to Verify
 - Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.

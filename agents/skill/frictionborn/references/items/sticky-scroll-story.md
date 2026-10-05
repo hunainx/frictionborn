@@ -73,8 +73,11 @@
 | `steps` | `StoryStep[]` | `—` | Required. Array of { id: string; title: string; description: string; badge?: string; media: { type?: "image" \| "custom"; src?: string; alt?: string; content?: React.ReactNode } }. |
 | `mediaPosition` | `"left" \| "right"` | `"right"` | Alignment of the sticky media column relative to the text narrative. |
 | `onStepChange` | `(stepId: string) => void` | `—` | Optional. No default. Called with the step id when a step becomes active. |
+| `paused` | `boolean` | `false` | Universal pause prop. Stops tracking the scrolled step: the active step stays where it is. |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to the internal scoped <style> element. |
 | `className` | `string` | `""` | Optional CSS class names to apply to root container. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles for the root container. |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div>. |
 
 ## Dependencies
 
@@ -91,15 +94,15 @@ npx shadcn@latest add @frictionborn/sticky-scroll-story
 
 ### Usage
 ```tsx
-import { StickyScrollStory } from "@/components/ui/sticky-scroll-story";
+import { StickyScrollStory, type StoryStep } from "@/components/ui/sticky-scroll-story";
 
-const steps = [
+const steps: StoryStep[] = [
   {
     id: "step-1",
     title: "Feature One",
     description: "Detailed description of feature one.",
-    media: { type: "image", src: "/img1.webp", alt: "Feature 1 preview" }
-  }
+    media: { type: "image", src: "/img1.webp", alt: "Feature 1 preview" },
+  },
 ];
 
 export default function StorySection() {
@@ -112,6 +115,7 @@ export default function StorySection() {
 - Do not invert DOM order; reading order must match step sequence for assistive technology.
 - media.alt is only used when media.type is 'image'; for custom media put accessible text inside media.content.
 - The inactive-media hiding only applies under html[data-motion="ok"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion.
+- Each step's media.content is rendered twice (sticky column and stacked mobile copy): no ids inside it. Step titles are h2 elements; put your section heading above them accordingly.
 
 ### How to Verify
 - Verify mobile layout (<= 768px) cleanly stacks steps and media without sticky jumps.

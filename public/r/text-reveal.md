@@ -78,8 +78,11 @@
 | `duration` | `number` | `400` | Duration in ms for each token entrance. |
 | `className` | `string` | `""` | Extra classes on the root element (the built-in class fb-text-reveal is kept). |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root element, merged after position: relative and display: block (consumer wins). |
+| `ref` | `React.Ref<any>` | `—` | Receives the root element chosen by `as` (it also contains the scoped <style> and a screen-reader copy of the text). |
 | `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
 | `replayKey` | `string \| number` | `—` | Optional. No default. When set (or changed), the entrance animation plays after hydration even for a server-rendered instance. |
+| `paused` | `boolean` | `false` | Universal pause prop. Renders plain static text instead of the animated tokens; un-pausing replays the reveal from the start (it does not freeze mid-animation). |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to the internal scoped <style> element. |
 
 ## Dependencies
 
@@ -111,7 +114,7 @@ export default function HeroHeadline() {
 - Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.
 - Do not hide text with opacity: 0 before hydration; the component handles static visibility safely.
 - A server-rendered TextReveal is painted as final static text and does not animate unless replayKey is set; do not expect a reveal on a Next.js server-rendered hero without it.
-- TextReveal accepts only the listed props; id, data-* and aria-* attributes are not forwarded to the root element.
+- Other props (data-*, aria-*, handlers) are spread on the root element; do not pass your own id (the component uses its own to detect a server render).
 - The reveal styles apply only when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite).
 
 ### How to Verify

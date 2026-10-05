@@ -78,7 +78,10 @@
 | `once` | `boolean` | `true` | In the IntersectionObserver fallback, true keeps the content revealed after the first entry. The native view-timeline path is scroll-linked and reverses when scrolling back up regardless of this prop. |
 | `className` | `string` | `""` | Extra classes on the root element (the built-in class fb-scroll-reveal is kept). |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root element, merged after display: block and position: relative (consumer wins). |
+| `ref` | `React.Ref<any>` | `—` | Receives the root element chosen by `as`. |
 | `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
+| `paused` | `boolean` | `false` | Universal pause prop. Forces the content visible and still. Where the browser supports CSS scroll-driven animation the reveal is driven by the scroll position and this prop has no effect. |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to the internal scoped <style> element (one is rendered per instance). |
 
 ## Dependencies
 
@@ -113,7 +116,7 @@ export default function CardGrid() {
 - Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.
 - Do not nest ScrollReveal components inside each other; keep entrance containers flat.
 - The reveal only runs when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite); without it the content is static.
-- ScrollReveal accepts only the listed props; data-*, aria-* and id attributes are not forwarded to the root element.
+- Other props (id, data-*, aria-*, handlers) are spread on the root element.
 
 ### How to Verify
 - Verify content is visible in server HTML without JavaScript execution.

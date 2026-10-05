@@ -58,7 +58,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `built-in`
 - **WCAG Criteria**: 2.1.1, 2.2.2, 2.3.1
-- **Notes**: Single h1 heading (rendered by TextReveal). A fixed dark scrim (rgba(13,15,18)) sits between the canvas and white text to lower background luminance; contrast over the live canvas was measured on real pixels (every text element >= 4.9:1 in 3 variants x light/dark x 1440/390 px in a fresh Next app) but is not computed at runtime, so verify it for your content. Colours are hard-coded (dark theme), not host tokens. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree.
+- **Notes**: Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree.
 
 ## Composition
 
@@ -79,9 +79,11 @@
 | `eyebrow` | `string` | `—` | Optional. Small pill tag displayed above the headline. |
 | `secondaryCta` | `AmbientHeroCta = { label: string; href?: string; onClick?: () => void }` | `—` | Optional. Secondary action link with magnetic pull. Rendered as an <a>; href falls back to '#'. |
 | `showPauseButton` | `boolean` | `true` | Renders a pause/resume button that stops and restarts the hero background only. |
-| `paused` | `boolean` | `false` | Universal pause prop. Freezes ambient background animation. |
-| `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root header element. |
+| `paused` | `boolean` | `false` | Universal pause prop. Freezes the ambient background variant only (not a custom background slot, the headline or the buttons). |
+| `nonce` | `string` | `—` | Optional CSP nonce forwarded to the <style> element of the headline reveal. |
+| `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root header element. Any other HTML attribute (id, data-*, aria-*, event handlers) is spread on the root element; handlers the item uses itself are composed, not replaced. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root header element, merged last (consumer wins). |
+| `ref` | `React.Ref<HTMLElement>` | `—` | Receives the root <header> element. |
 
 ## Dependencies
 
@@ -101,14 +103,25 @@ npx shadcn@latest add @frictionborn/ambient-hero
 // Installing ambient-hero also installs noise-field, mesh-gradient, particle-field, text-reveal and magnetic-button; only the selected variant renders.
 import { AmbientHero } from '@/components/ui/ambient-hero';
 
-<AmbientHero variant="mesh" title="Your headline here" />
+export default function Hero() {
+  return (
+    <AmbientHero
+      headline="Your headline"
+      body="One or two plain sentences about what you offer."
+      primaryCta={{ label: 'Start now', href: '/signup' }}
+    />
+  );
+}
 ```
 
 ### Common Mistakes to Avoid
 - Do not place a second WebGL item above the fold alongside AmbientHero (violates single signature moment rule).
-- Do not treat the scrim as a contrast guarantee; it is a fixed dark overlay with hard-coded white text. Verify contrast for your content, and expect a dark-themed hero regardless of the host theme.
-- The default title, eyebrow, description and CTAs are demo copy about studio monitors; always pass your own.
+- headline, body and primaryCta are required and there is no default copy: TypeScript fails without them. Pass your own text; never ship the demo's.
+- The scrim is built from your --background token. It lowers background luminance but is not a contrast guarantee: verify contrast for your content in light and dark.
+- paused (and the built-in Pause button) reaches the ambient variant only; a custom background slot, the headline reveal and the buttons are not paused by it.
+- On a server-rendered page the headline is painted as final static text first (TextReveal does not replay on first paint), so do not expect a word-by-word entrance on load.
 - Reveal styles only apply when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite).
+- Under a nonce-based CSP pass nonce: AmbientHero forwards it to the <style> element of its headline reveal.
 - The pause button pauses the hero background only. Motion elsewhere on the page (other items, Marquee) needs its own pause control or the runtime pauseAll().
 
 ### How to Verify

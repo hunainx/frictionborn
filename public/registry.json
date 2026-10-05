@@ -111,7 +111,7 @@
             "2.2.2",
             "2.3.1"
           ],
-          "notes": "Single h1 heading (rendered by TextReveal). A fixed dark scrim (rgba(13,15,18)) sits between the canvas and white text to lower background luminance; contrast over the live canvas was measured on real pixels (every text element >= 4.9:1 in 3 variants x light/dark x 1440/390 px in a fresh Next app) but is not computed at runtime, so verify it for your content. Colours are hard-coded (dark theme), not host tokens. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree."
+          "notes": "Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree."
         },
         "composition": {
           "maxPerPage": 1,
@@ -179,29 +179,44 @@
             "name": "paused",
             "type": "boolean",
             "default": false,
-            "effect": "Universal pause prop. Freezes ambient background animation."
+            "effect": "Universal pause prop. Freezes the ambient background variant only (not a custom background slot, the headline or the buttons)."
+          },
+          {
+            "name": "nonce",
+            "type": "string",
+            "default": null,
+            "effect": "Optional CSP nonce forwarded to the <style> element of the headline reveal."
           },
           {
             "name": "className",
             "type": "string",
             "default": null,
-            "effect": "Optional. No default. Additional CSS class names on the root header element."
+            "effect": "Optional. No default. Additional CSS class names on the root header element. Any other HTML attribute (id, data-*, aria-*, event handlers) is spread on the root element; handlers the item uses itself are composed, not replaced."
           },
           {
             "name": "style",
             "type": "React.CSSProperties",
             "default": null,
             "effect": "Optional. No default. Inline styles on the root header element, merged last (consumer wins)."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLElement>",
+            "default": null,
+            "effect": "Receives the root <header> element."
           }
         ],
         "agent": {
           "install": "npx shadcn@latest add @frictionborn/ambient-hero",
-          "usage": "// Installing ambient-hero also installs noise-field, mesh-gradient, particle-field, text-reveal and magnetic-button; only the selected variant renders.\nimport { AmbientHero } from '@/components/ui/ambient-hero';\n\n<AmbientHero variant=\"mesh\" title=\"Your headline here\" />",
+          "usage": "// Installing ambient-hero also installs noise-field, mesh-gradient, particle-field, text-reveal and magnetic-button; only the selected variant renders.\nimport { AmbientHero } from '@/components/ui/ambient-hero';\n\nexport default function Hero() {\n  return (\n    <AmbientHero\n      headline=\"Your headline\"\n      body=\"One or two plain sentences about what you offer.\"\n      primaryCta={{ label: 'Start now', href: '/signup' }}\n    />\n  );\n}",
           "mistakes": [
             "Do not place a second WebGL item above the fold alongside AmbientHero (violates single signature moment rule).",
-            "Do not treat the scrim as a contrast guarantee; it is a fixed dark overlay with hard-coded white text. Verify contrast for your content, and expect a dark-themed hero regardless of the host theme.",
-            "The default title, eyebrow, description and CTAs are demo copy about studio monitors; always pass your own.",
+            "headline, body and primaryCta are required and there is no default copy: TypeScript fails without them. Pass your own text; never ship the demo's.",
+            "The scrim is built from your --background token. It lowers background luminance but is not a contrast guarantee: verify contrast for your content in light and dark.",
+            "paused (and the built-in Pause button) reaches the ambient variant only; a custom background slot, the headline reveal and the buttons are not paused by it.",
+            "On a server-rendered page the headline is painted as final static text first (TextReveal does not replay on first paint), so do not expect a word-by-word entrance on load.",
             "Reveal styles only apply when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite).",
+            "Under a nonce-based CSP pass nonce: AmbientHero forwards it to the <style> element of its headline reveal.",
             "The pause button pauses the hero background only. Motion elsewhere on the page (other items, Marquee) needs its own pause control or the runtime pauseAll()."
           ],
           "verify": [
@@ -439,6 +454,12 @@
             "effect": "Hard ceiling on the capability tier (0 to 3)."
           },
           {
+            "name": "paused",
+            "type": "boolean",
+            "default": false,
+            "effect": "Universal pause prop. Releases the WebGL context and shows the plain image; hover or focus does nothing until un-paused."
+          },
+          {
             "name": "crossOrigin",
             "type": "\"anonymous\" | \"use-credentials\" | \"\"",
             "default": null,
@@ -503,6 +524,12 @@
             "type": "React.CSSProperties",
             "default": null,
             "effect": "Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins)."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the wrapper <div> around the <img> (not the <img> itself)."
           },
           {
             "name": "onPointerEnter",
@@ -755,6 +782,12 @@
             "effect": "Optional. No default. Inline styles on the wrapper div, merged after display: inline-block and position: relative (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the wrapper <div> (not the child button)."
+          },
+          {
             "name": "maxTier",
             "type": "number",
             "default": 3,
@@ -763,12 +796,13 @@
         ],
         "agent": {
           "install": "npx shadcn@latest add @frictionborn/magnetic-button",
-          "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton strength={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
+          "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton pullDistance={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
           "mistakes": [
             "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",
             "Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links.",
             "MagneticButton renders a wrapper div (display: inline-block) around the child, so do not place it inside a <p> or another <button>.",
-            "It accepts only the listed props; data-* and aria-* attributes are not forwarded to the wrapper (put them on the child)."
+            "Props other than the listed ones (id, data-*, aria-*, onPointerMove, onPointerLeave) are spread on the wrapper <div> (onPointerMove / onPointerLeave are composed with the pull logic). Put aria-* for the control on the child button or link.",
+            "ref points at the wrapper <div>, not at the child button. While paused the button stays where it is (it does not spring back until un-paused)."
           ],
           "verify": [
             "Verify button is immediately clickable and focusable in server HTML.",
@@ -959,13 +993,13 @@
             "name": "pixelsPerSecond",
             "type": "number",
             "default": 40,
-            "effect": "Transit rate in physical pixels per second."
+            "effect": "Transit rate in physical pixels per second (default 40). speed multiplies it. The cycle is never shorter than 5 s."
           },
           {
             "name": "speed",
             "type": "number",
             "default": 1,
-            "effect": "Unitless speed multiplier (1 = default speed)."
+            "effect": "Unitless multiplier on pixelsPerSecond (1 = as given, 0.5 = half, 2 = double)."
           },
           {
             "name": "paused",
@@ -1022,6 +1056,12 @@
             "effect": "Optional. No default. Inline styles on the outer container, merged last (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div>."
+          },
+          {
             "name": "maxTier",
             "type": "number",
             "default": 3,
@@ -1030,12 +1070,12 @@
         ],
         "agent": {
           "install": "npx shadcn@latest add @frictionborn/marquee",
-          "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee speed={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
+          "usage": "import { Marquee } from \"@/components/ui/marquee\";\n\nexport default function PartnerStrip() {\n  return (\n    <Marquee pixelsPerSecond={40} gap=\"2rem\">\n      <span>Partner A</span>\n      <span>Partner B</span>\n      <span>Partner C</span>\n    </Marquee>\n  );\n}",
           "mistakes": [
             "Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.",
             "Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2).",
             "The animation only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the strip is static.",
-            "Children are rendered twice, so do not give them fixed id attributes. Marquee accepts only the listed props; data-* and aria-* attributes are not forwarded."
+            "Children are rendered twice, so do not give them fixed id attributes. Other props (id, data-*, aria-*, handlers) are spread on the root <div>."
           ],
           "verify": [
             "Verify screen reader encounters each badge/item exactly once.",
@@ -1311,6 +1351,12 @@
             "type": "React.CSSProperties",
             "default": null,
             "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background colour (consumer wins)."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div> that holds the poster and the canvas."
           },
           {
             "name": "children",
@@ -1604,6 +1650,12 @@
             "effect": "Optional. No default. Inline styles on the root div, merged after the built-in background colour (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div> that holds the poster and the canvas."
+          },
+          {
             "name": "children",
             "type": "React.ReactNode",
             "default": null,
@@ -1883,6 +1935,12 @@
             "effect": "Optional. No default. Inline styles on the root div, merged after the built-in layout and background (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div> that holds the poster and the canvas."
+          },
+          {
             "name": "children",
             "type": "React.ReactNode",
             "default": null,
@@ -2128,10 +2186,28 @@
             "effect": "Optional. No default. Inline styles on the root element, merged after display: block and position: relative (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<any>",
+            "default": null,
+            "effect": "Receives the root element chosen by `as`."
+          },
+          {
             "name": "maxTier",
             "type": "number",
             "default": 3,
             "effect": "Hard ceiling on the capability tier."
+          },
+          {
+            "name": "paused",
+            "type": "boolean",
+            "default": false,
+            "effect": "Universal pause prop. Forces the content visible and still. Where the browser supports CSS scroll-driven animation the reveal is driven by the scroll position and this prop has no effect."
+          },
+          {
+            "name": "nonce",
+            "type": "string",
+            "default": null,
+            "effect": "Optional CSP nonce forwarded to the internal scoped <style> element (one is rendered per instance)."
           }
         ],
         "agent": {
@@ -2141,7 +2217,7 @@
             "Do not use ScrollReveal on above-the-fold hero elements; hero text should be visible immediately for LCP.",
             "Do not nest ScrollReveal components inside each other; keep entrance containers flat.",
             "The reveal only runs when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite); without it the content is static.",
-            "ScrollReveal accepts only the listed props; data-*, aria-* and id attributes are not forwarded to the root element."
+            "Other props (id, data-*, aria-*, handlers) are spread on the root element."
           ],
           "verify": [
             "Verify content is visible in server HTML without JavaScript execution.",
@@ -2223,7 +2299,7 @@
       "name": "scroll-showcase",
       "type": "registry:block",
       "title": "ScrollShowcase",
-      "description": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee, fixed demo copy (DOM, reduced motion -> static/opacity, mobile -> stacked)",
+      "description": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee; all copy comes from props (DOM, reduced motion -> static/opacity, mobile -> stacked)",
       "dependencies": [
         "@frictionborn/runtime"
       ],
@@ -2247,14 +2323,14 @@
         "item": {
           "name": "scroll-showcase",
           "version": "0.1.0",
-          "summary": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee, fixed demo copy (DOM, reduced motion -> static/opacity, mobile -> stacked)",
+          "summary": "Scroll composition: StickyScrollStory + ScrollReveal + optional Marquee; all copy comes from props (DOM, reduced motion -> static/opacity, mobile -> stacked)",
           "slot": "composition",
           "kind": "composition"
         },
         "intent": {
           "useWhen": [
             "Product feature narrative requiring sticky step progression and reveal on scroll",
-            "Architecture or engineering deep-dive with technical media and metrics (replace the built-in demo copy first)",
+            "Product or engineering deep-dive with step-by-step media and an optional metrics grid",
             "Multi-section storytelling with accessible scroll-driven reveals"
           ],
           "avoidWhen": [
@@ -2325,7 +2401,7 @@
             "2.4.1",
             "2.4.6"
           ],
-          "notes": "Sections carry aria-labelledby / aria-label with hard-coded ids (architecture-heading, performance-heading). Heading levels run h2 (section and step titles), h3, h4. The default step media is aria-hidden SVG inside visible caption cards; the `alt` strings in the default steps are not rendered because alt applies only to media.type 'image'. Colours are hard-coded: fixed light text and dark cards on a var(--background) section, so contrast is only suitable for a dark host theme and is not verified."
+          "notes": "Sections are named through aria-labelledby (the headline, and the specs heading when you pass one) or aria-label (marqueeLabel when you pass one); ids are generated per instance with useId, so two sections on one page never clash. Heading levels run h2 (headline), h2 (each step title, from StickyScrollStory), h3 (specsHeading), h4 (spec labels): place the section under an h1 and check the outline for your page. media.alt applies only to media.type 'image'. Every colour is a host token (--background, --foreground, --primary, --muted-foreground, --card, --border) with a system-colour fallback; contrast follows your theme and is not verified for your content."
         },
         "composition": {
           "maxPerPage": 1,
@@ -2369,20 +2445,20 @@
           {
             "name": "specsHeading",
             "type": "string",
-            "default": "Laboratory verification standards",
-            "effect": "Optional. Specifications section heading."
+            "default": null,
+            "effect": "Optional. Heading above the specifications grid. Nothing is rendered when omitted."
           },
           {
             "name": "specsEyebrow",
             "type": "string",
-            "default": "Measured Tolerances",
-            "effect": "Optional. Specifications eyebrow badge."
+            "default": null,
+            "effect": "Optional. Small label above the specifications heading. Nothing is rendered when omitted."
           },
           {
             "name": "showMarquee",
             "type": "boolean",
             "default": true,
-            "effect": "Includes the reference marquee ticker."
+            "effect": "Shows the marquee ticker when marqueeItems is non-empty."
           },
           {
             "name": "marqueeItems",
@@ -2393,8 +2469,8 @@
           {
             "name": "marqueeLabel",
             "type": "string",
-            "default": "Reference deployments in critical listening rooms",
-            "effect": "Optional. Label above the marquee ticker."
+            "default": null,
+            "effect": "Optional. Label above the marquee ticker, also its accessible name. Nothing is rendered when omitted."
           },
           {
             "name": "smoothScroll",
@@ -2406,29 +2482,42 @@
             "name": "paused",
             "type": "boolean",
             "default": false,
-            "effect": "Universal pause prop. Freezes all internal motion."
+            "effect": "Universal pause prop. Passed to the reveals, the story, the marquee and SmoothScroll (the reveals only react when the browser lacks CSS scroll-driven animation)."
+          },
+          {
+            "name": "nonce",
+            "type": "string",
+            "default": null,
+            "effect": "Optional CSP nonce forwarded to the <style> element of every item the section renders."
           },
           {
             "name": "className",
             "type": "string",
             "default": null,
-            "effect": "Optional. No default. Additional CSS class names on the root container."
+            "effect": "Optional. No default. Additional CSS class names on the root container. Any other HTML attribute (id, data-*, aria-*, event handlers) is spread on the root element; handlers the item uses itself are composed, not replaced."
           },
           {
             "name": "style",
             "type": "React.CSSProperties",
             "default": null,
             "effect": "Optional. No default. Inline styles on the root container, merged last (consumer wins)."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div>."
           }
         ],
         "agent": {
           "install": "npx shadcn@latest add @frictionborn/scroll-showcase",
-          "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\n<ScrollShowcase showMarquee={true} />",
+          "usage": "// Installing scroll-showcase also installs sticky-scroll-story, scroll-reveal, marquee and smooth-scroll (and therefore lenis@1.3.26), even when smoothScroll stays false.\nimport { ScrollShowcase } from '@/components/ui/scroll-showcase';\n\nconst steps = [\n  { id: 'one', title: 'First step', description: 'What happens first.', media: { content: <div>Illustration</div> } },\n  { id: 'two', title: 'Second step', description: 'What happens next.', media: { content: <div>Illustration</div> } },\n];\n\nexport default function Story() {\n  return <ScrollShowcase headline=\"How it works\" description=\"Three plain sentences.\" steps={steps} />;\n}",
           "mistakes": [
-            "The section headings, the three lab-spec numbers (±0.8 dB, < 0.04%, 0.2 ms), the marquee's eight studio names and the stat-card and step-card colours are hard-coded (text on the host background uses --primary and --muted-foreground) demo content and cannot be overridden through props. Edit the copied source before shipping to a client; do not publish the numbers or studio names as real claims.",
-            "Do not enable smoothScroll on dashboards or documentation pages.",
+            "headline, description and steps are required and the component contains no copy of its own: nothing is rendered for specsHeading, specsEyebrow or marqueeLabel unless you pass them.",
+            "StickyScrollStory renders each step's media.content twice (a sticky column and a stacked mobile copy), so do not put ids inside it.",
+            "Do not enable smoothScroll on dashboards or documentation pages, and never when another SmoothScroll is mounted (a second one warns and does nothing).",
             "Do not place multiple sticky scroll sections immediately adjacent to each other without spacing.",
-            "Element ids are hard-coded, so use at most one ScrollShowcase per page.",
+            "Under a nonce-based CSP pass nonce: it is forwarded to every <style> the section renders.",
             "Reveal and marquee animations only run when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
           ],
           "verify": [
@@ -2683,13 +2772,19 @@
             "name": "onScroll",
             "type": "(e: any) => void",
             "default": null,
-            "effect": "Optional. No default. Callback invoked on every Lenis scroll event (for example to sync ScrollTrigger)."
+            "effect": "Called with the Lenis scroll event (not the DOM scroll event, even though the root is a <div>)."
           },
           {
             "name": "prevent",
             "type": "(node: HTMLElement) => boolean",
             "default": null,
             "effect": "Optional. No default. Predicate to bypass smooth scrolling for specific DOM nodes. Nested scrollers (allowNestedScroll) and [role=\"dialog\"], [aria-modal=\"true\"], dialog[open], [data-lenis-prevent] are always bypassed."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div>, which is display: contents, so its bounding box is empty (use it for data attributes, not geometry)."
           }
         ],
         "agent": {
@@ -2700,7 +2795,8 @@
             "Do not import Lenis directly or create separate requestAnimationFrame loops.",
             "Do not use on dashboards, forms-heavy pages, or data-dense web applications.",
             "The registry installs lenis@1.3.26 and consumers accept lenis@^1.3.26; to pin exactly run: npm install --save-exact lenis@1.3.26 (or the equivalent for your package manager).",
-            "SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them."
+            "SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them.",
+            "duration is in milliseconds (1200 = 1.2 s). A seconds value such as 1.2 now means 1.2 ms and the scroll looks instant."
           ],
           "verify": [
             "Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.",
@@ -2907,6 +3003,18 @@
             "effect": "Optional. No default. Called with the step id when a step becomes active."
           },
           {
+            "name": "paused",
+            "type": "boolean",
+            "default": false,
+            "effect": "Universal pause prop. Stops tracking the scrolled step: the active step stays where it is."
+          },
+          {
+            "name": "nonce",
+            "type": "string",
+            "default": null,
+            "effect": "Optional CSP nonce forwarded to the internal scoped <style> element."
+          },
+          {
             "name": "className",
             "type": "string",
             "default": "",
@@ -2917,16 +3025,23 @@
             "type": "React.CSSProperties",
             "default": null,
             "effect": "Optional. No default. Inline styles for the root container."
+          },
+          {
+            "name": "ref",
+            "type": "React.Ref<HTMLDivElement>",
+            "default": null,
+            "effect": "Receives the root <div>."
           }
         ],
         "agent": {
           "install": "npx shadcn@latest add @frictionborn/sticky-scroll-story",
-          "usage": "import { StickyScrollStory } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" }\n  }\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
+          "usage": "import { StickyScrollStory, type StoryStep } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps: StoryStep[] = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" },\n  },\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
           "mistakes": [
             "Do not attach window scroll listeners to calculate sticky step progress; StickyScrollStory uses IntersectionObserver.",
             "Do not invert DOM order; reading order must match step sequence for assistive technology.",
             "media.alt is only used when media.type is 'image'; for custom media put accessible text inside media.content.",
-            "The inactive-media hiding only applies under html[data-motion=\"ok\"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion."
+            "The inactive-media hiding only applies under html[data-motion=\"ok\"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion.",
+            "Each step's media.content is rendered twice (sticky column and stacked mobile copy): no ids inside it. Step titles are h2 elements; put your section heading above them accordingly."
           ],
           "verify": [
             "Verify mobile layout (<= 768px) cleanly stacks steps and media without sticky jumps.",
@@ -3157,6 +3272,12 @@
             "effect": "Optional. No default. Inline styles on the root element, merged after position: relative and display: block (consumer wins)."
           },
           {
+            "name": "ref",
+            "type": "React.Ref<any>",
+            "default": null,
+            "effect": "Receives the root element chosen by `as` (it also contains the scoped <style> and a screen-reader copy of the text)."
+          },
+          {
             "name": "maxTier",
             "type": "number",
             "default": 3,
@@ -3167,6 +3288,18 @@
             "type": "string | number",
             "default": null,
             "effect": "Optional. No default. When set (or changed), the entrance animation plays after hydration even for a server-rendered instance."
+          },
+          {
+            "name": "paused",
+            "type": "boolean",
+            "default": false,
+            "effect": "Universal pause prop. Renders plain static text instead of the animated tokens; un-pausing replays the reveal from the start (it does not freeze mid-animation)."
+          },
+          {
+            "name": "nonce",
+            "type": "string",
+            "default": null,
+            "effect": "Optional CSP nonce forwarded to the internal scoped <style> element."
           }
         ],
         "agent": {
@@ -3176,7 +3309,7 @@
             "Do not pass complex React elements or JSX as children; TextReveal expects a text string to tokenize.",
             "Do not hide text with opacity: 0 before hydration; the component handles static visibility safely.",
             "A server-rendered TextReveal is painted as final static text and does not animate unless replayKey is set; do not expect a reveal on a Next.js server-rendered hero without it.",
-            "TextReveal accepts only the listed props; id, data-* and aria-* attributes are not forwarded to the root element.",
+            "Other props (data-*, aria-*, handlers) are spread on the root element; do not pass your own id (the component uses its own to detect a server render).",
             "The reveal styles apply only when <html> has data-motion=\"ok\" (MotionReadyScript in Next, initMotionReady() in Vite)."
           ],
           "verify": [

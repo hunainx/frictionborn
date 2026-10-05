@@ -77,6 +77,7 @@
 | `damping` | `number` | `16` | Spring velocity damping coefficient. |
 | `className` | `string` | `""` | Additional CSS classes applied to the outer wrapper div (the built-in class fb-magnetic-button is kept). |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the wrapper div, merged after display: inline-block and position: relative (consumer wins). |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the wrapper <div> (not the child button). |
 | `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
 
 ## Dependencies
@@ -98,7 +99,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 
 export default function HeroCta() {
   return (
-    <MagneticButton strength={16}>
+    <MagneticButton pullDistance={16}>
       <button type="button" className="rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium">
         Get Started
       </button>
@@ -111,7 +112,8 @@ export default function HeroCta() {
 - Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.
 - Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links.
 - MagneticButton renders a wrapper div (display: inline-block) around the child, so do not place it inside a <p> or another <button>.
-- It accepts only the listed props; data-* and aria-* attributes are not forwarded to the wrapper (put them on the child).
+- Props other than the listed ones (id, data-*, aria-*, onPointerMove, onPointerLeave) are spread on the wrapper <div> (onPointerMove / onPointerLeave are composed with the pull logic). Put aria-* for the control on the child button or link.
+- ref points at the wrapper <div>, not at the child button. While paused the button stays where it is (it does not spring back until un-paused).
 
 ### How to Verify
 - Verify button is immediately clickable and focusable in server HTML.

@@ -103,6 +103,18 @@
       "effect": "Optional. No default. Called with the step id when a step becomes active."
     },
     {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Stops tracking the scrolled step: the active step stays where it is."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "Optional CSP nonce forwarded to the internal scoped <style> element."
+    },
+    {
       "name": "className",
       "type": "string",
       "default": "",
@@ -113,16 +125,23 @@
       "type": "React.CSSProperties",
       "default": null,
       "effect": "Optional. No default. Inline styles for the root container."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root <div>."
     }
   ],
   "agent": {
     "install": "npx shadcn@latest add @frictionborn/sticky-scroll-story",
-    "usage": "import { StickyScrollStory } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" }\n  }\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
+    "usage": "import { StickyScrollStory, type StoryStep } from \"@/components/ui/sticky-scroll-story\";\n\nconst steps: StoryStep[] = [\n  {\n    id: \"step-1\",\n    title: \"Feature One\",\n    description: \"Detailed description of feature one.\",\n    media: { type: \"image\", src: \"/img1.webp\", alt: \"Feature 1 preview\" },\n  },\n];\n\nexport default function StorySection() {\n  return <StickyScrollStory steps={steps} />;\n}",
     "mistakes": [
       "Do not attach window scroll listeners to calculate sticky step progress; StickyScrollStory uses IntersectionObserver.",
       "Do not invert DOM order; reading order must match step sequence for assistive technology.",
       "media.alt is only used when media.type is 'image'; for custom media put accessible text inside media.content.",
-      "The inactive-media hiding only applies under html[data-motion=\"ok\"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion."
+      "The inactive-media hiding only applies under html[data-motion=\"ok\"] (MotionReadyScript in Next, initMotionReady() in Vite) or after hydration with reduced motion.",
+      "Each step's media.content is rendered twice (sticky column and stacked mobile copy): no ids inside it. Step titles are h2 elements; put your section heading above them accordingly."
     ],
     "verify": [
       "Verify mobile layout (<= 768px) cleanly stacks steps and media without sticky jumps.",

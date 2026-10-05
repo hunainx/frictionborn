@@ -71,8 +71,8 @@
 | Prop | Type | Default | Effect |
 |---|---|---|---|
 | `children` | `React.ReactNode` | `—` | Required. Content elements repeated across the strip (rendered twice; avoid fixed ids). |
-| `pixelsPerSecond` | `number` | `40` | Transit rate in physical pixels per second. |
-| `speed` | `number` | `1` | Unitless speed multiplier (1 = default speed). |
+| `pixelsPerSecond` | `number` | `40` | Transit rate in physical pixels per second (default 40). speed multiplies it. The cycle is never shorter than 5 s. |
+| `speed` | `number` | `1` | Unitless multiplier on pixelsPerSecond (1 = as given, 0.5 = half, 2 = double). |
 | `paused` | `boolean` | `false` | Universal pause prop. Freezes ticker transit. |
 | `nonce` | `string` | `—` | Optional CSP nonce forwarded to internal scoped <style> element. |
 | `direction` | `"left" \| "right"` | `"left"` | Scroll direction of the ticker. |
@@ -82,6 +82,7 @@
 | `gap` | `string \| number` | `"2rem"` | Spacing between items (a number is treated as px). |
 | `className` | `string` | `""` | CSS classes applied to the outer container (the built-in class fb-marquee is kept). |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the outer container, merged last (consumer wins). |
+| `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div>. |
 | `maxTier` | `number` | `3` | Hard ceiling on the capability tier. |
 
 ## Dependencies
@@ -103,7 +104,7 @@ import { Marquee } from "@/components/ui/marquee";
 
 export default function PartnerStrip() {
   return (
-    <Marquee speed={40} gap="2rem">
+    <Marquee pixelsPerSecond={40} gap="2rem">
       <span>Partner A</span>
       <span>Partner B</span>
       <span>Partner C</span>
@@ -116,7 +117,7 @@ export default function PartnerStrip() {
 - Do not remove the inert attribute from duplicate tracks or screen readers will double-read every item.
 - Do not hide the pause control if the marquee runs continuously for more than 5 seconds (WCAG 2.2.2).
 - The animation only runs when <html> has data-motion="ok" (MotionReadyScript in Next, initMotionReady() in Vite); without it the strip is static.
-- Children are rendered twice, so do not give them fixed id attributes. Marquee accepts only the listed props; data-* and aria-* attributes are not forwarded.
+- Children are rendered twice, so do not give them fixed id attributes. Other props (id, data-*, aria-*, handlers) are spread on the root <div>.
 
 ### How to Verify
 - Verify screen reader encounters each badge/item exactly once.

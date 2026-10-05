@@ -146,6 +146,12 @@
         "effect": "Optional. No default. Inline styles on the wrapper div, merged after display: inline-block and position: relative (consumer wins)."
       },
       {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the wrapper <div> (not the child button)."
+      },
+      {
         "name": "maxTier",
         "type": "number",
         "default": 3,
@@ -154,12 +160,13 @@
     ],
     "agent": {
       "install": "npx shadcn@latest add @frictionborn/magnetic-button",
-      "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton strength={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
+      "usage": "import { MagneticButton } from \"@/components/ui/magnetic-button\";\n\nexport default function HeroCta() {\n  return (\n    <MagneticButton pullDistance={16}>\n      <button type=\"button\" className=\"rounded-full bg-primary px-6 py-3 text-primary-foreground font-medium\">\n        Get Started\n      </button>\n    </MagneticButton>\n  );\n}",
       "mistakes": [
         "Do not set overflow: hidden on MagneticButton or parent containers, or focus rings will be clipped.",
         "Do not wrap non-interactive static text in MagneticButton; reserve for buttons and action links.",
         "MagneticButton renders a wrapper div (display: inline-block) around the child, so do not place it inside a <p> or another <button>.",
-        "It accepts only the listed props; data-* and aria-* attributes are not forwarded to the wrapper (put them on the child)."
+        "Props other than the listed ones (id, data-*, aria-*, onPointerMove, onPointerLeave) are spread on the wrapper <div> (onPointerMove / onPointerLeave are composed with the pull logic). Put aria-* for the control on the child button or link.",
+        "ref points at the wrapper <div>, not at the child button. While paused the button stays where it is (it does not spring back until un-paused)."
       ],
       "verify": [
         "Verify button is immediately clickable and focusable in server HTML.",

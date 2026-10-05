@@ -127,6 +127,12 @@
       "effect": "Hard ceiling on the capability tier (0 to 3)."
     },
     {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop. Releases the WebGL context and shows the plain image; hover or focus does nothing until un-paused."
+    },
+    {
       "name": "crossOrigin",
       "type": "\"anonymous\" | \"use-credentials\" | \"\"",
       "default": null,
@@ -191,6 +197,12 @@
       "type": "React.CSSProperties",
       "default": null,
       "effect": "Optional. No default. Inline styles on the wrapper div, merged after width and height (consumer wins)."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the wrapper <div> around the <img> (not the <img> itself)."
     },
     {
       "name": "onPointerEnter",

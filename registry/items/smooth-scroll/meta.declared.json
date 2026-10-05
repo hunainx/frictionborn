@@ -155,13 +155,19 @@
       "name": "onScroll",
       "type": "(e: any) => void",
       "default": null,
-      "effect": "Optional. No default. Callback invoked on every Lenis scroll event (for example to sync ScrollTrigger)."
+      "effect": "Called with the Lenis scroll event (not the DOM scroll event, even though the root is a <div>)."
     },
     {
       "name": "prevent",
       "type": "(node: HTMLElement) => boolean",
       "default": null,
       "effect": "Optional. No default. Predicate to bypass smooth scrolling for specific DOM nodes. Nested scrollers (allowNestedScroll) and [role=\"dialog\"], [aria-modal=\"true\"], dialog[open], [data-lenis-prevent] are always bypassed."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root <div>, which is display: contents, so its bounding box is empty (use it for data attributes, not geometry)."
     }
   ],
   "agent": {
@@ -172,7 +178,8 @@
       "Do not import Lenis directly or create separate requestAnimationFrame loops.",
       "Do not use on dashboards, forms-heavy pages, or data-dense web applications.",
       "The registry installs lenis@1.3.26 and consumers accept lenis@^1.3.26; to pin exactly run: npm install --save-exact lenis@1.3.26 (or the equivalent for your package manager).",
-      "SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them."
+      "SmoothScroll is stepped by the shared useFrame loop. While the runtime pauseAll() is active (the runtime global pause; AmbientHero's own pause button no longer triggers it) that loop, and therefore SmoothScroll's stepping, is stopped; verify wheel scrolling on pages that combine them.",
+      "duration is in milliseconds (1200 = 1.2 s). A seconds value such as 1.2 now means 1.2 ms and the scroll looks instant."
     ],
     "verify": [
       "Verify keyboard navigation (Space, PageUp/Down, Arrows) works identically to native scrolling.",
