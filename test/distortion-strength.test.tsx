@@ -31,4 +31,32 @@ describe("DistortionImage strength", () => {
     render(<DistortionImage src="/a.webp" alt="a" strength={-0.5} />);
     expect(warn.mock.calls.some((c) => String(c[0]).includes("got -0.5"))).toBe(true);
   });
+
+  it("warns and clamps for NaN values", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(<DistortionImage src="/a.webp" alt="a" strength={Number.NaN} />);
+    expect(warn.mock.calls.some((c) => String(c[0]).includes("got NaN"))).toBe(true);
+  });
+
+  it("does not repeat warning when re-rendered with the same out-of-range strength", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const { rerender } = render(<DistortionImage src="/a.webp" alt="a" strength={2} />);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes("strength must be")).length).toBe(1);
+    rerender(<DistortionImage src="/a.webp" alt="a" strength={2} />);
+    expect(warn.mock.calls.filter((c) => String(c[0]).includes("strength must be")).length).toBe(1);
+  });
+
+  it("warns in a Vite dev environment where process.env.NODE_ENV is not set but import.meta.env.DEV is true", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const origEnv = process.env.NODE_ENV;
+    try {
+      // Simulate Vite browser dev: process.env.NODE_ENV is undefined, import.meta.env.DEV is true
+      delete (process.env as Record<string, string | undefined>).NODE_ENV;
+      (import.meta as unknown as { env: { DEV: boolean } }).env = { DEV: true };
+      render(<DistortionImage src="/a.webp" alt="a" strength={3} />);
+      expect(warn.mock.calls.some((c) => String(c[0]).includes("got 3"))).toBe(true);
+    } finally {
+      process.env.NODE_ENV = origEnv;
+    }
+  });
 });

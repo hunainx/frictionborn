@@ -153,11 +153,29 @@ export function DistortionImage({
   }
 
   let clampedStrength = strength;
-  if (strength < 0 || strength > 1) {
-    if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
+  const isOutOfRange = Number.isNaN(strength) || strength < 0 || strength > 1;
+  const warnedStrengthRef = useRef<number | null>(null);
+
+  if (isOutOfRange) {
+    let isDev = false;
+    try {
+      if (typeof process !== "undefined" && process.env?.NODE_ENV) {
+        isDev = process.env.NODE_ENV !== "production";
+      } else if (typeof import.meta !== "undefined") {
+        const meta = import.meta as unknown as { env?: { DEV?: boolean } };
+        if (meta?.env?.DEV !== undefined) {
+          isDev = Boolean(meta.env.DEV);
+        }
+      }
+    } catch {
+      isDev = false;
+    }
+
+    if (isDev && !Object.is(warnedStrengthRef.current, strength)) {
+      warnedStrengthRef.current = strength;
       console.warn(`[frictionborn/distortion-image] strength must be between 0 and 1, got ${strength}. Clamping.`);
     }
-    clampedStrength = Math.max(0, Math.min(1, strength));
+    clampedStrength = Number.isNaN(strength) ? 0 : Math.max(0, Math.min(1, strength));
   }
 
   const setImgRef = useCallback((node: HTMLImageElement | null) => {
