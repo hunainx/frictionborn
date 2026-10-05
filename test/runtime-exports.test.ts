@@ -7,7 +7,12 @@ const pkg = JSON.parse(fs.readFileSync(path.resolve("packages/runtime/package.js
 
 describe("@frictionborn/runtime exports", () => {
   it("every entry has a `default` condition so plain Vite/Node resolvers can resolve it", () => {
-    for (const [entry, conditions] of Object.entries<Record<string, string>>(pkg.exports)) {
+    for (const [entry, conditions] of Object.entries<Record<string, string> | string>(pkg.exports)) {
+      if (entry === "./package.json") {
+        expect(conditions).toBe("./package.json");
+        continue;
+      }
+      if (typeof conditions === "string") throw new Error(`exports["${entry}"] must be a conditions object`);
       expect(conditions.default, `exports["${entry}"].default`).toBeTruthy();
     }
   });

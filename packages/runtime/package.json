@@ -1,14 +1,28 @@
 {
   "name": "@frictionborn/runtime",
   "version": "0.1.0",
-  "description": "Tiny verified motion runtime for Frictionborn Motion components",
+  "description": "Shared frame loop, capability tiers and WebGL context budget for Frictionborn Motion components",
+  "keywords": [
+    "react",
+    "motion",
+    "animation",
+    "webgl",
+    "shadcn",
+    "reduced-motion",
+    "frictionborn"
+  ],
   "type": "module",
   "license": "MIT",
+  "homepage": "https://github.com/hunainx/frictionborn#readme",
+  "bugs": {
+    "url": "https://github.com/hunainx/frictionborn/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hunainx/frictionborn.git",
     "directory": "packages/runtime"
   },
+  "sideEffects": false,
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "exports": {
@@ -27,7 +41,8 @@
       "types": "./dist/gl/surface.d.mts",
       "import": "./dist/gl/surface.mjs",
       "default": "./dist/gl/surface.mjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist"
@@ -45,6 +60,7 @@
     "typescript": "5.9.3"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }
