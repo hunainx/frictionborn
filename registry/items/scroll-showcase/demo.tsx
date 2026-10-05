@@ -111,28 +111,28 @@ const DEMO_STEPS: StoryStep[] = [
 ];
 
 const DEMO_STUDIOS = [
-  "Abbey Road Studios · Studio Two",
-  "Capitol Studios · Mastering 1",
-  "Electric Lady Studios · Studio A",
-  "AIR Studios Lyndhurst Hall",
-  "Metropolis Studios · Mastering Suite",
-  "Galaxy Studios · Spatial Soundstage",
+  "Studio A · Near-Field Control Room",
+  "Studio B · Mastering Suite",
+  "Room C · Anechoic Chamber",
+  "Room D · Diffuse Field Lab",
+  "Suite E · Mix Verification",
+  "Suite F · Reference Listening",
 ];
 
 const DEMO_SPECS: ScrollShowcaseSpec[] = [
   {
-    metric: "32 Hz – 40 kHz",
-    label: "Frequency Response",
-    detail: "Anechoic linear response within ±1.5 dB across the entire operational monitor bandwidth.",
+    metric: "Full Range",
+    label: "Frequency Coverage",
+    detail: "Linear dispersion tuned for near-field listening environments and control room acoustics.",
   },
   {
-    metric: "< 0.18%",
-    label: "Total Harmonic Distortion",
-    detail: "Total harmonic distortion at reference 90 dB SPL output across all operational pass-bands.",
+    metric: "Low Distortion",
+    label: "Harmonic Purity",
+    detail: "Underhung motor topology minimizes voice coil flux modulation across the audio band.",
   },
   {
-    metric: "0.2 ms",
-    label: "Group Delay",
+    metric: "Phase Aligned",
+    label: "Transducer Integration",
     detail: "Acoustic center alignment preserves transient wave-front integrity without temporal blurring.",
   },
 ];

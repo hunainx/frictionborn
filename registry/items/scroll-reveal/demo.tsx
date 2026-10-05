@@ -13,25 +13,25 @@ interface InstrumentCard {
 
 const INSTRUMENTS: InstrumentCard[] = [
   {
-    serial: "AE-840",
-    subsystem: "Interferometric Cavity Stabilization",
+    serial: "KA-840",
+    subsystem: "Milled Billet Monitor Enclosure",
     summary:
-      "Ultra-low expansion cryogenic Fabry-Pérot cavity operating at 4 Kelvin with residual frequency drift suppressed below 0.1 Hz per diurnal cycle.",
-    specs: "Finesse: 240,000 · Spacer: Monocrystalline Si · Drift: <0.1 Hz/day",
+      "Solid aeronautical aluminum unibody enclosure dampens cabinet resonance and eliminates baffle diffraction across near-field listening axes.",
+    specs: "Material: 6061-T6 Aluminum · Finish: Hard-anodized · Volume: 14 Liters",
   },
   {
-    serial: "QD-120",
-    subsystem: "Phase-Sensitive Homodyne Detection",
+    serial: "KA-120",
+    subsystem: "Beryllium Dome High-Frequency Transducer",
     summary:
-      "Balanced optical receivers resolving single-photon quadrature fluctuations at 1064 nm with 98.4% quantum efficiency and 85 dB common-mode rejection.",
-    specs: "Bandwidth: DC–2.5 GHz · NEP: 3.2 pW/√Hz · CMRR: >85 dB",
+      "Pure vapor-deposited beryllium dome paired with an underhung neodymium motor assembly delivers linear phase response through high frequencies.",
+    specs: "Diaphragm: Pure Beryllium · Magnet: Neodymium N52 · Dispersion: 110° Conical",
   },
   {
-    serial: "SP-400",
-    subsystem: "Active Inertial Suspension Matrix",
+    serial: "KA-400",
+    subsystem: "Stepped Constant-Impedance Attenuator",
     summary:
-      "Six-degree-of-freedom inverted pendulum array decoupling micro-seismic ground motion and thermal expansion from subterranean optical test benches.",
-    specs: "Attenuation: 140 dB @ 10 Hz · Payload: 850 kg · Sensors: LVDT + Geophone",
+      "Precision rotary switch featuring matched thin-film resistors for transparent, click-free level control without active buffer distortion.",
+    specs: "Steps: 24 Positions · Tracking: Matched Resistors · Topology: Passive Balanced",
   },
 ];
 
@@ -71,7 +71,7 @@ export default function ScrollRevealDemo() {
               marginBottom: "0.35rem",
             }}
           >
-            Aetheric Instruments · Catalog 2026
+            Kona Acoustics · Reference Catalog
           </span>
           <h1
             style={{
@@ -81,7 +81,7 @@ export default function ScrollRevealDemo() {
               margin: 0,
             }}
           >
-            Core Optical Subsystems
+            Reference Studio Hardware
           </h1>
         </div>
 

@@ -45,18 +45,18 @@ function DiagramCard({
   );
 }
 
-const CHRONOS_STEPS: StoryStep[] = [
+const KONA_STEPS: StoryStep[] = [
   {
-    id: "step-lattice",
-    badge: "Subsystem 01 · Vacuum Matrix",
-    title: "Strontium Lattice Confinement",
+    id: "step-billet",
+    badge: "Phase 01 · Cabinet Architecture",
+    title: "Milled Billet Unibody",
     description:
-      "Neutral strontium-87 atoms are captured in a magic-wavelength 1D optical lattice at 813 nm, eliminating first-order Doppler shifts while preserving atomic coherence times beyond 10 seconds.",
+      "Each enclosure begins as a solid block of aircraft-grade 6061-T6 aluminum, carved on a 5-axis mill to eliminate cabinet resonance and seam vibration.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · Optical Lattice Trap (813 nm)">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Optical lattice diagram">
+        <DiagramCard caption="Schematic · 5-Axis Unibody Enclosure">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Enclosure diagram">
             <rect x="20" y="20" width="220" height="120" rx="8" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <line x1="5" y1="80" x2="255" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="2" strokeDasharray="3 3" />
             <rect x="35" y="55" width="8" height="50" rx="2" fill="var(--muted-foreground, #9AA1AF)" />
@@ -72,7 +72,7 @@ const CHRONOS_STEPS: StoryStep[] = [
               />
             ))}
             <text x="75" y="115" fill="var(--foreground, #E9EBF0)" fontSize="10" fontFamily="monospace">
-              Trapped 87Sr Ensemble
+              Machined Baffle Geometry
             </text>
           </svg>
         </DiagramCard>
@@ -80,16 +80,16 @@ const CHRONOS_STEPS: StoryStep[] = [
     },
   },
   {
-    id: "step-cavity",
-    badge: "Subsystem 02 · Reference Cavity",
-    title: "Sub-Hertz Cryogenic Resonator",
+    id: "step-driver",
+    badge: "Phase 02 · Transducer Assembly",
+    title: "Beryllium Ribbon Transducer",
     description:
-      "A diode laser locked to a 30 cm monocrystalline silicon cavity at 124 Kelvin achieves fractional frequency instability below 4 × 10⁻¹⁷ at one-second integration, insulated by dual gold-coated radiation shields.",
+      "High-frequency drivers are formed with vapor-deposited beryllium for exceptional stiffness-to-weight ratio, ensuring pistonic motion across the passband.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · Cryogenic Si Cavity (124 K)">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Cryogenic cavity diagram">
+        <DiagramCard caption="Schematic · Neodymium Motor Assembly">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Transducer diagram">
             <rect x="25" y="25" width="210" height="110" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1" />
             <rect x="40" y="40" width="180" height="80" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1" strokeDasharray="4 2" />
             <rect x="65" y="60" width="130" height="40" rx="3" fill="rgba(251, 146, 60, 0.15)" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
@@ -97,7 +97,7 @@ const CHRONOS_STEPS: StoryStep[] = [
             <circle cx="65" cy="80" r="3" fill="var(--primary, #FB923C)" />
             <circle cx="195" cy="80" r="3" fill="var(--primary, #FB923C)" />
             <text x="80" y="84" fill="var(--foreground, #E9EBF0)" fontSize="10" fontFamily="monospace">
-              Finesse: 240,000
+              Underhung Motor Alignment
             </text>
           </svg>
         </DiagramCard>
@@ -105,32 +105,32 @@ const CHRONOS_STEPS: StoryStep[] = [
     },
   },
   {
-    id: "step-comb",
-    badge: "Subsystem 03 · Frequency Comb",
-    title: "Octave-Spanning Optical Synthesizer",
+    id: "step-crossover",
+    badge: "Phase 03 · Signal Integration",
+    title: "Hand-Tuned Passive Crossover",
     description:
-      "An erbium-doped fiber femtosecond comb transfers clock stability across optical, near-infrared, and microwave regimes with negligible phase noise degradation.",
+      "Point-to-point wired filters utilize custom air-core inductors and metallized film capacitors, individually calibrated for linear phase response.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · f-to-2f Self-Referencing Comb">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Frequency comb diagram">
+        <DiagramCard caption="Schematic · Direct-Coupled Crossover Filter">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Crossover circuit diagram">
             <rect x="25" y="55" width="55" height="50" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <text x="32" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              Er:Fiber
+              Air-Core
             </text>
             <line x1="80" y1="80" x2="115" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <rect x="115" y="65" width="40" height="30" rx="3" fill="rgba(251, 146, 60, 0.2)" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <text x="123" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              PCF
+              Filter
             </text>
             <line x1="155" y1="80" x2="190" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <rect x="190" y="55" width="50" height="50" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <text x="198" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              f-to-2f
+              Output
             </text>
             <text x="65" y="130" fill="var(--muted-foreground, #9AA1AF)" fontSize="10" fontFamily="monospace">
-              f_ceo Beat Lock: 20 MHz
+              Phase Linear · Hand-Tuned
             </text>
           </svg>
         </DiagramCard>
@@ -140,11 +140,11 @@ const CHRONOS_STEPS: StoryStep[] = [
 ];
 
 export default function StickyScrollStoryDemo() {
-  const [activeStepId, setActiveStepId] = useState("step-lattice");
+  const [activeStepId, setActiveStepId] = useState("step-billet");
 
   return (
     <section
-      aria-label="Aetheric Instruments Chronos-4 Story"
+      aria-label="Kona Acoustics Monitor Engineering Story"
       style={{
         padding: "1rem",
         color: "var(--foreground, #E9EBF0)",
@@ -173,7 +173,7 @@ export default function StickyScrollStoryDemo() {
             }}
           />
           <span className="mono" style={{ fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Aetheric Instruments · Chronos-4 System
+            Kona Acoustics · KA-Series Engineering
           </span>
         </div>
         <div className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)" }}>
@@ -194,15 +194,15 @@ export default function StickyScrollStoryDemo() {
               marginBottom: "0.35rem",
             }}
           >
-            Instrumentation Narrative
+            Engineering Narrative
           </span>
           <h1 style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>
-            Chronos-4 Cryogenic Optical Clock
+            Crafting the Reference Near-Field Monitor
           </h1>
         </div>
 
         <StickyScrollStory
-          steps={CHRONOS_STEPS}
+          steps={KONA_STEPS}
           mediaPosition="right"
           onStepChange={(id) => setActiveStepId(id)}
         />

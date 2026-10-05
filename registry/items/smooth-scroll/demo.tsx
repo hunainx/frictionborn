@@ -29,7 +29,7 @@ export default function SmoothScrollDemo() {
         overflow: "hidden",
       }}
     >
-      {/* Sticky Telemetry Header */}
+      {/* Sticky Header */}
       <header
         style={{
           position: "sticky",
@@ -64,7 +64,7 @@ export default function SmoothScrollDemo() {
               textTransform: "uppercase",
             }}
           >
-            Aetheric Instruments · Monograph 08
+            Kona Acoustics · Field Monograph
           </span>
         </div>
 
@@ -155,10 +155,10 @@ export default function SmoothScrollDemo() {
               }}
             >
               {[
-                { label: "1. Baseline", href: "#sec-baseline" },
-                { label: "2. Resonator", href: "#sec-resonator" },
-                { label: "3. Seismic Attenuation", href: "#sec-seismic" },
-                { label: "4. Telemetry Buffer", href: "#sec-buffer" },
+                { label: "1. Enclosure Geometry", href: "#sec-baseline" },
+                { label: "2. Baffle Damping", href: "#sec-resonator" },
+                { label: "3. Isolation Mounting", href: "#sec-seismic" },
+                { label: "4. Test Log", href: "#sec-buffer" },
               ].map((link) => (
                 <a
                   key={link.href}
@@ -179,7 +179,7 @@ export default function SmoothScrollDemo() {
             </nav>
           </section>
 
-          {/* Section 1: Optical Baseline */}
+          {/* Section 1: Acoustic Enclosure Geometry */}
           <section id="sec-baseline" style={{ scrollMarginTop: "80px" }}>
             <h2
               style={{
@@ -190,21 +190,20 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              1. Optical Metrology Baseline
+              1. Acoustic Enclosure Geometry
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              The Orbit-8 constellation establishes three drag-free spacecraft positioned in an equilateral
-              triangular formation orbiting the Sun at 1 AU. Each arm comprises an active bidirectional laser link
-              delivering 2 Watts of single-mode 1064 nm light through 30 cm off-axis paraboloid telescopes.
+              The cabinet architecture features compound-radiused edges machined from solid 6061 aluminum billet.
+              By eliminating parallel internal surfaces and external hard corners, edge diffraction is suppressed
+              across the listening axis.
             </p>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)" }}>
-              Phase fluctuations resulting from inter-satellite distance variations are tracked using heterodyne
-              photodetection with a 25 MHz offset frequency. Time-delay interferometry (TDI) algorithms cancel laser
-              frequency noise by twenty orders of magnitude, isolating the differential gravitational strain tensor.
+              Internal standing waves are absorbed through constrained-layer viscoelastic damping materials,
+              yielding an acoustically inert enclosure that presents sound without coloration.
             </p>
           </section>
 
-          {/* Section 2: Cryogenic Optical Resonator */}
+          {/* Section 2: Baffle Damping and Transient Response */}
           <section id="sec-resonator" style={{ scrollMarginTop: "80px" }}>
             <h2
               style={{
@@ -215,7 +214,7 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              2. Cryogenic Optical Resonator Dynamics
+              2. Baffle Damping and Transient Response
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1.25rem" }}>
               Laser pre-stabilization utilizes a 30 cm monocrystalline silicon cavity cooled to 124 Kelvin,
@@ -303,7 +302,7 @@ export default function SmoothScrollDemo() {
             </button>
           </section>
 
-          {/* Section 4: Nested Telemetry Log Buffer */}
+          {/* Section 4: Nested Test Log Buffer */}
           <section id="sec-buffer" style={{ scrollMarginTop: "80px" }}>
             <h2
               style={{
@@ -314,17 +313,17 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              4. Deep Space Telemetry Log Buffer
+              4. Anechoic Chamber Test Log
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              Real-time ring buffer streaming optical phase lock telemetry. This nested container maintains
+              Sequential automated microphone sweep log during production verification. This nested container maintains
               independent native scroll without interference from the page-level SmoothScroll provider.
             </p>
 
             <div
               data-lenis-prevent="true"
               tabIndex={0}
-              aria-label="Nested Telemetry Log Stream"
+              aria-label="Nested Acoustic Test Log"
               style={{
                 height: "220px",
                 overflowY: "auto",
@@ -341,9 +340,9 @@ export default function SmoothScrollDemo() {
               {Array.from({ length: 60 }).map((_, i) => (
                 <div key={i} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
                   <span style={{ color: "var(--primary, #FB923C)", marginRight: "1rem" }}>
-                    [+{(i * 12.5).toFixed(1)}ms]
+                    [Step {(i + 1).toString().padStart(2, "0")}]
                   </span>
-                  <span>NODE-{(i % 3) + 1} HETERODYNE BEAT: LOCKED · RESIDUAL PHASE ERROR: 0.{((i * 17) % 89 + 10)} μrad</span>
+                  <span>SWEEP FREQUENCY {((i + 1) * 320)} Hz · IMPEDANCE VERIFIED · PHASE LINEAR</span>
                 </div>
               ))}
             </div>
@@ -382,11 +381,11 @@ export default function SmoothScrollDemo() {
             }}
           >
             <h2 id="cert-dialog-title" style={{ fontSize: "1.25rem", margin: "0 0 1rem 0" }}>
-              NIST Traceable Calibration Certificate
+              Acoustic Measurement Certificate
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground, #9AA1AF)", lineHeight: 1.6 }}>
-              Aetheric Instruments confirms that optical frequency synthesizers deployed under Series 2026
-              were verified against the primary Cesium fountain standard NIST-F2 with an uncertainty of 1.1 × 10⁻¹⁶.
+              Kona Acoustics certifies that near-field monitors deployed under Series KA
+              were individually tested in our calibrated anechoic chamber for linear frequency response and phase alignment.
             </p>
             <button
               type="button"

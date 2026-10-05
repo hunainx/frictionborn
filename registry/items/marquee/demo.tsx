@@ -4,21 +4,21 @@
 import React, { useState } from "react";
 import { Marquee } from "./marquee";
 
-interface StationNode {
-  code: string;
-  facility: string;
-  telemetry: string;
-  metric: string;
+interface InstrumentEntry {
+  model: string;
+  name: string;
+  material: string;
+  category: string;
 }
 
-const STATIONS: StationNode[] = [
-  { code: "APEX-8", facility: "Atacama Submillimeter Array", telemetry: "Carrier Lock", metric: "5000m Elevation" },
-  { code: "LIGO-H", facility: "Hanford 4km Interferometer", telemetry: "99.8% Coherence", metric: "1064nm Nd:YAG" },
-  { code: "VIRGO-C", facility: "Cascina Gravitational Antenna", telemetry: "Frequency Locked", metric: "3km Baseline" },
-  { code: "GEO-600", facility: "Ruthe Squeezed Vacuum Core", telemetry: "Quantum Enhanced", metric: "6dB Noise Squeeze" },
-  { code: "KAGRA-O", facility: "Kamioka Cryogenic Detector", telemetry: "20K Nominal", metric: "Sapphire Test Masses" },
-  { code: "LISA-PF", facility: "Drag-Free Orbital Sensor", telemetry: "Active Tracking", metric: "1.2 fN/√Hz" },
-  { code: "ALMA-OSF", facility: "High-Altitude Phased Array", telemetry: "Phase Aligned", metric: "66 Antennas Synced" },
+const INSTRUMENTS: InstrumentEntry[] = [
+  { model: "KA-100", name: "Near-field studio monitor", material: "Milled billet aluminum", category: "Reference" },
+  { model: "KA-200", name: "Three-way active field monitor", material: "Solid birch baffle", category: "Mastering" },
+  { model: "KA-300", name: "Sealed acoustic subwoofer", material: "Internal brace matrix", category: "Sub-bass" },
+  { model: "KA-400", name: "Analog monitor controller", material: "Stepped gold-contact attenuator", category: "Console" },
+  { model: "KA-500", name: "Open-back planar headphone", material: "Machined magnesium frame", category: "Listening" },
+  { model: "KA-600", name: "Beryllium ribbon transducer", material: "Neodymium motor assembly", category: "Driver" },
+  { model: "KA-700", name: "Diffraction horn waveguide", material: "Solid walnut throat", category: "Acoustics" },
 ];
 
 export default function MarqueeDemo() {
@@ -27,7 +27,7 @@ export default function MarqueeDemo() {
 
   return (
     <section
-      aria-label="Aetheric Instruments Global Telemetry Feed"
+      aria-label="Kona Acoustics Reference Instrument Catalog"
       style={{
         padding: "3rem 1rem",
         color: "var(--foreground, #E9EBF0)",
@@ -58,10 +58,10 @@ export default function MarqueeDemo() {
               marginBottom: "0.25rem",
             }}
           >
-            Aetheric Instruments · Global Telemetry Network
+            Kona Acoustics · Reference Catalog
           </span>
           <h1 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
-            Active Laser Observatory Links
+            Hand-assembled studio instruments
           </h1>
         </div>
 
@@ -83,7 +83,7 @@ export default function MarqueeDemo() {
             justifyContent: "center",
           }}
         >
-          Reverse: {flowDirection === "left" ? "Westward" : "Eastward"}
+          Direction: {flowDirection === "left" ? "Leftward" : "Rightward"}
         </button>
       </header>
 
@@ -96,9 +96,9 @@ export default function MarqueeDemo() {
         }}
       >
         <Marquee pixelsPerSecond={velocity} direction={flowDirection} gap="1.5rem" showPauseButton={true}>
-          {STATIONS.map((station) => (
+          {INSTRUMENTS.map((inst) => (
             <div
-              key={station.code}
+              key={inst.model}
               style={{
                 display: "inline-flex",
                 flexDirection: "column",
@@ -119,7 +119,7 @@ export default function MarqueeDemo() {
                     color: "var(--primary, #FB923C)",
                   }}
                 >
-                  {station.code}
+                  {inst.model}
                 </span>
                 <span
                   className="mono"
@@ -131,7 +131,7 @@ export default function MarqueeDemo() {
                     backgroundColor: "rgba(0, 0, 0, 0.3)",
                   }}
                 >
-                  {station.telemetry}
+                  {inst.category}
                 </span>
               </div>
               <span
@@ -141,7 +141,7 @@ export default function MarqueeDemo() {
                   color: "var(--foreground, #E9EBF0)",
                 }}
               >
-                {station.facility}
+                {inst.name}
               </span>
               <span
                 className="mono"
@@ -150,7 +150,7 @@ export default function MarqueeDemo() {
                   color: "var(--muted-foreground, #9AA1AF)",
                 }}
               >
-                {station.metric}
+                {inst.material}
               </span>
             </div>
           ))}
@@ -170,8 +170,8 @@ export default function MarqueeDemo() {
         }}
         className="mono"
       >
-        <span>Telemetry Velocity: {velocity} px/s</span>
-        <span>Hover, focus, or toggle button to hold feed</span>
+        <span>Drift speed: {velocity} px/s</span>
+        <span>Hover, focus, or toggle button to pause ticker</span>
       </footer>
     </section>
   );

@@ -30,9 +30,9 @@ export default function ParticleFieldDemo() {
         flexDirection: "column",
       }}
     >
-      {/* Telemetry Configuration Deck */}
+      {/* Acoustic Configuration Deck */}
       <nav
-        aria-label="Particle telemetry configuration"
+        aria-label="Acoustic particle configuration"
         style={{
           display: "flex",
           flexWrap: "wrap",
@@ -58,7 +58,7 @@ export default function ParticleFieldDemo() {
             }}
           />
           <span className="mono" style={{ fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Aetheric Telemetry · ParticleField
+            Kona Acoustics · ParticleField
           </span>
         </div>
 
@@ -181,7 +181,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "0.75rem",
               }}
             >
-              Orbital Gravimeter Telemetry
+              Acoustic Dispersion Mapping
             </div>
             <h1
               style={{
@@ -193,7 +193,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "1rem",
               }}
             >
-              Quantum Particle Drift Matrix
+              Sound in Physical Space
             </h1>
 
             <p
@@ -206,46 +206,19 @@ export default function ParticleFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              High-density particulate tracking and boundary-layer aerosol dispersion
-              calibrated for high-altitude scientific optical observation payloads.
+              High-density air particle velocity modeling for control room geometry
+              and acoustic baffle placement.
             </p>
 
-            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
-              <a
-                href="#instrument-matrix"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "10px 20px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  borderRadius: "6px",
-                  backgroundColor: "var(--primary, #FB923C)",
-                  color: "var(--background, #0D0F12)",
-                  textDecoration: "none",
-                  minHeight: "44px",
-                }}
-              >
-                Inspect Lattice
-              </a>
-              <a
-                href="#telemetry-feed"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "10px 20px",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  borderRadius: "6px",
-                  backgroundColor: "var(--card, #15181D)",
-                  color: "var(--foreground, #E9EBF0)",
-                  border: "1px solid var(--border, #262B33)",
-                  textDecoration: "none",
-                  minHeight: "44px",
-                }}
-              >
-                Live Drift Stream
-              </a>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginTop: "1.5rem" }}>
+              <div style={{ padding: "0.875rem 1rem", borderRadius: "6px", background: "var(--card, #15181D)", border: "1px solid var(--border, #262B33)", textAlign: "left" }}>
+                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Emitter Array</span>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>Beryllium Dome</span>
+              </div>
+              <div style={{ padding: "0.875rem 1rem", borderRadius: "6px", background: "var(--card, #15181D)", border: "1px solid var(--border, #262B33)", textAlign: "left" }}>
+                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Dispersion Geometry</span>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>Elliptical Waveguide</span>
+              </div>
             </div>
           </div>
         </ParticleField>

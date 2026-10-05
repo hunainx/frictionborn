@@ -4,10 +4,10 @@
 import React, { useState } from "react";
 import { TextReveal } from "./text-reveal";
 
-const TELEMETRY_HEADLINES = [
-  "Sub-angstrom laser interferometry reveals transient gravitational wave anomalies across orbital baselines.",
-  "Cryogenic optical reference cavities sustain fractional frequency instability below four parts in ten to the seventeenth.",
-  "Adaptive phase compensation stabilizes multi-gigawatt coherent beam arrays through severe atmospheric turbulence.",
+const ACOUSTIC_HEADLINES = [
+  "Acoustic precision sculpted in solid billet aluminum for uncoloured listening environments.",
+  "Near-field studio monitors engineered to reveal the subtle micro-dynamics of recorded sound.",
+  "Hand-tuned crossover networks preserve linear phase alignment across every octave band.",
 ];
 
 export default function TextRevealDemo() {
@@ -16,7 +16,7 @@ export default function TextRevealDemo() {
   const [cycleKey, setCycleKey] = useState(0);
 
   const nextHeadline = () => {
-    setHeadlineIdx((prev) => (prev + 1) % TELEMETRY_HEADLINES.length);
+    setHeadlineIdx((prev) => (prev + 1) % ACOUSTIC_HEADLINES.length);
     setCycleKey((prev) => prev + 1);
   };
 
@@ -27,7 +27,7 @@ export default function TextRevealDemo() {
 
   return (
     <section
-      aria-label="Aetheric Instruments Text Reveal"
+      aria-label="Kona Acoustics Text Reveal"
       style={{
         padding: "2.5rem 1.5rem",
         maxWidth: 900,
@@ -67,7 +67,7 @@ export default function TextRevealDemo() {
               color: "var(--muted-foreground, #9AA1AF)",
             }}
           >
-            Aetheric Observatory · Station 04
+            Kona Acoustics · Listening Room 04
           </span>
         </div>
 
@@ -115,7 +115,7 @@ export default function TextRevealDemo() {
               justifyContent: "center",
             }}
           >
-            Next Telemetry
+            Next statement
           </button>
         </nav>
       </header>
@@ -134,7 +134,7 @@ export default function TextRevealDemo() {
             margin: 0,
           }}
         >
-          {TELEMETRY_HEADLINES[headlineIdx]}
+          {ACOUSTIC_HEADLINES[headlineIdx]}
         </TextReveal>
       </article>
 

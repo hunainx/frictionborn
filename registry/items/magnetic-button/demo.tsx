@@ -9,7 +9,7 @@ export default function MagneticButtonDemo() {
 
   return (
     <section
-      aria-label="Aetheric Instruments Beam Alignment Deck"
+      aria-label="Kona Acoustics Monitor Alignment Deck"
       style={{
         padding: "3.5rem 1.5rem",
         textAlign: "center",
@@ -45,7 +45,7 @@ export default function MagneticButtonDemo() {
               color: "var(--muted-foreground, #9AA1AF)",
             }}
           >
-            Aetheric Instruments · Optical Beam Guidance
+            Kona Acoustics · Nearfield Monitoring Controls
           </span>
         </div>
 
@@ -58,7 +58,7 @@ export default function MagneticButtonDemo() {
             color: "var(--foreground, #E9EBF0)",
           }}
         >
-          Orbital Beam Axis Calibration
+          Nearfield Monitor Axis Alignment
         </h1>
         <p
           style={{
@@ -69,8 +69,7 @@ export default function MagneticButtonDemo() {
             color: "var(--muted-foreground, #9AA1AF)",
           }}
         >
-          Piezoelectric steerable mirror matrix compensating for spacecraft thermal jitter
-          during deep-space coherent laser communication locks.
+          Fine-tune desk listening position and tactile response for active control monitors.
         </p>
       </header>
 

@@ -111,7 +111,7 @@ export default function MeshGradientDemo() {
                 : "var(--primary, #38BDF8)",
             }}
           />
-          Aetheric Instruments &bull; Optical Metrology Division
+          Kona Acoustics &bull; Acoustic Surface Field
         </div>
         <h1
           style={{
@@ -121,7 +121,7 @@ export default function MeshGradientDemo() {
             letterSpacing: "-0.02em",
           }}
         >
-          Refractive Dispersion Metrology
+          Acoustic Diffusion Field
         </h1>
         <p
           style={{
@@ -132,8 +132,7 @@ export default function MeshGradientDemo() {
             maxWidth: "680px",
           }}
         >
-          Continuous multi-band chromatic interferometry and organic wavefront gradient standards
-          engineered for precision astronomical spectrographs.
+          Organic sound wave diffusion modeled for control room surfaces and critical listening environments.
         </p>
       </header>
 
@@ -191,7 +190,7 @@ export default function MeshGradientDemo() {
                   marginBottom: "0.35rem",
                 }}
               >
-                Model 9400 &bull; Chromatic Standard Cell
+                Kona KA-100 &bull; Acoustic Baffle
               </div>
               <div
                 style={{
@@ -202,7 +201,7 @@ export default function MeshGradientDemo() {
                   marginBottom: "0.35rem",
                 }}
               >
-                Active Multi-Band Refraction
+                Even Energy Distribution
               </div>
               <p
                 style={{
@@ -212,7 +211,7 @@ export default function MeshGradientDemo() {
                   color: isLight ? "#475569" : "var(--muted, #94A3B8)",
                 }}
               >
-                Simulates real-time boundary layer refractive fluctuations with continuous simplex phase integration.
+                Curved soundboard geometry diffuses early reflections for natural stereo imaging.
               </p>
             </div>
           </div>

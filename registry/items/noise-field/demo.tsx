@@ -303,7 +303,7 @@ export default function NoiseFieldDemo() {
                 marginBottom: "0.5rem",
               }}
             >
-              Quantum Optical Instrumentation
+              Precision Acoustic Engineering
             </span>
             <h1
               style={{
@@ -315,7 +315,7 @@ export default function NoiseFieldDemo() {
                 marginBottom: "1rem",
               }}
             >
-              Aetheric Instruments
+              Kona Acoustics
             </h1>
 
             <p
@@ -328,13 +328,13 @@ export default function NoiseFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              Sub-angstrom laser interferometry and quantum optical telemetry systems
-              engineered for planetary and orbital observation.
+              Near-field acoustic reference monitors and calibrated transducers
+              engineered for uncoloured studio listening environments.
             </p>
 
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
               <a
-                href="#instrumentation"
+                href="#instruments"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -350,10 +350,10 @@ export default function NoiseFieldDemo() {
                   minHeight: "44px",
                 }}
               >
-                Explore Instrumentation
+                Browse Instruments
               </a>
               <a
-                href="#telemetry"
+                href="#specifications"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -369,7 +369,7 @@ export default function NoiseFieldDemo() {
                   minHeight: "44px",
                 }}
               >
-                Live Observatory Feeds
+                View Specifications
               </a>
             </div>
           </div>

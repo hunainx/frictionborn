@@ -140,7 +140,7 @@ export default function DistortionImageDemo() {
 
   return (
     <div
-      className="aetheric-gallery-root"
+      className="kona-gallery-root"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr",
@@ -178,7 +178,7 @@ export default function DistortionImageDemo() {
         </p>
       </header>
 
-      {/* Verified Real Telemetry Panel */}
+      {/* Verified Live Status Panel */}
       <section
         aria-label="Live status"
         style={{
