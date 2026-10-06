@@ -24,3 +24,8 @@ scratch/
 .agents/
 .claude/
 *.tsbuildinfo
+
+_reference/
+
+the-private-website-repo/public/_local-assets/
+
