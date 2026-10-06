@@ -11,6 +11,8 @@ export default [
       "**/bench/results/**",
       ".agents/**",
       ".claude/**",
+      "_reference/**",
+      "**/_reference/**",
       "scratch/**"
     ]
   },
