@@ -29,3 +29,6 @@ _reference/
 
 the-private-website-repo/public/_local-assets/
 
+
+# website videos never go into git (decision 43): record them into this folder and attach them to the PR
+docs/videos/
