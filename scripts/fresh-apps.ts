@@ -182,7 +182,7 @@ function generatePage(items: string[], framework: Framework): string {
           <a href="#art-default" style={{ display: "block", textDecoration: "none" }}>
             <DistortionImage src="/art-1.webp" alt="Field Study in Golden Wheat" width={480} height={382} style={{ width: "100%", maxWidth: 480, height: "auto" }} />
           </a>
-        </div>`
+        </div>
         ${nextImageCase}
         <div data-testid="item-distortion-cross-origin" style={{ display: "block", maxWidth: 320 }}>
           <DistortionImage src="${NON_CORS_URL}" alt="A picture served from a host that sends no CORS headers" width={320} height={255} style={{ width: "100%", maxWidth: 320, height: "auto" }} />

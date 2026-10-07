@@ -51,6 +51,7 @@
     "size-limit": "11.2.0",
     "turbo": "2.11.5",
     "typescript": "5.9.3",
+    "typescript-eslint": "8.26.0",
     "vitest": "3.2.7"
   },
   "size-limit": [

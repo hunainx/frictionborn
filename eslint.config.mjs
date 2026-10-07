@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
 export default [
   {
@@ -9,6 +10,8 @@ export default [
       "**/node_modules/**",
       "**/coverage/**",
       "**/bench/results/**",
+      "bench/harness/public/**",
+      "docs/**",
       ".agents/**",
       ".claude/**",
       "_reference/**",
@@ -17,9 +20,15 @@ export default [
     ]
   },
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     rules: {
-      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-this-alias": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "no-unused-vars": "off",
       "no-undef": "off",
       "no-empty": "warn"
     }
