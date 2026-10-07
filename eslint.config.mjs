@@ -32,5 +32,16 @@ export default [
       "no-undef": "off",
       "no-empty": "warn"
     }
+  },
+  {
+    // Ported owner prototype code. It is kept line-for-line so it can be diffed against _reference/prototypes (see
+    // the-private-website-repo/lib/fire-engine/PORTING.md). Only these three rules are relaxed, only for these .js files: the
+    // prototype writes `a && a()`, has unused callback parameters and empty catch blocks. Everything else still applies.
+    files: ["the-private-website-repo/lib/fire-engine/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-empty": "off"
+    }
   }
 ];
