@@ -1,5 +1,5 @@
 // Original — Frictionborn Motion copy tone and compliance checker
-// Enforces DESIGN.md A7 voice guide: Kona Acoustics, plain human copy,
+// Enforces the Frictionborn voice guide (DESIGN.md A7): one fictional brand, plain human copy,
 // no fake metrics, no sci-fi jargon, no real company/studio/person endorsements.
 //
 // Matching runs over the whole file (not line by line), so a phrase that wraps onto the next line is still caught.
@@ -22,7 +22,7 @@ export const BANNED_PATTERNS: BannedPattern[] = [
   {
     name: "wrong-brand",
     pattern: /\b(Aetheric|Chronos)\b/i,
-    reason: "Use only 'Kona Acoustics' as the fictional brand per DESIGN.md A7",
+    reason: "Use only the one fictional brand defined in DESIGN.md A7",
   },
   // 2. Sci-fi jargon and fake lab terminology
   {
@@ -195,9 +195,9 @@ if (isMain) {
     for (const v of violations) {
       console.error(`  ${v.file}:${v.line} [${v.patternName}] Found "${v.matchedText}" — ${v.reason}`);
     }
-    console.error(`\nPlease rewrite copy to match Kona Acoustics voice guide in DESIGN.md.\n`);
+    console.error(`\nPlease rewrite copy to match the Frictionborn voice guide in DESIGN.md.\n`);
     process.exit(1);
   } else {
-    console.log(`✔ Copy check passed: All demos, compositions and docs pages adhere to Kona Acoustics voice guide${rev ? ` at ${rev}` : ""}.`);
+    console.log(`✔ Copy check passed: All demos, compositions and docs pages adhere to the Frictionborn voice guide${rev ? ` at ${rev}` : ""}.`);
   }
 }
