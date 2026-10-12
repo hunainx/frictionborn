@@ -27,7 +27,8 @@
     "docs:dev": "pnpm --filter @frictionborn/docs dev",
     "docs:build": "pnpm --filter @frictionborn/docs build",
     "docs:verify": "node --experimental-strip-types scripts/verify-docs.ts",
-    "parity:v2": "playwright test --config playwright.parity.config.ts"
+    "parity:v2": "playwright test --config playwright.parity.config.ts",
+    "parity:v3": "playwright test --config playwright.parity-v3.config.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

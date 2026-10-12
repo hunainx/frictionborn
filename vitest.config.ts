@@ -16,6 +16,6 @@ export default defineConfig({
     ],
   },
   test: {
-    exclude: ["**/node_modules/**", "**/dist/**", "bench/**", "scripts/parity-v2.spec.ts"], // the parity gate is a Playwright spec (pnpm parity:v2)
+    exclude: ["**/node_modules/**", "**/dist/**", "bench/**", "scripts/parity-v2.spec.ts", "scripts/parity-v3.spec.ts"], // the parity gates are Playwright specs (pnpm parity:v2, pnpm parity:v3)
   },
 });
