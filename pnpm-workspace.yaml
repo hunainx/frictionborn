@@ -5,3 +5,7 @@ packages:
 allowBuilds:
   esbuild: true
 
+# lightningcss (MPL-2.0) is a build-time dependency of Tailwind CSS in the-private-website-repo, approved by the owner on 2026-10-13 (DECISIONS 44).
+# Pinned exactly for every package that resolves it (@tailwindcss/node pins it, vite takes it as an optional peer).
+overrides:
+  lightningcss: 1.32.0

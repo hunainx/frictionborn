@@ -24,13 +24,63 @@ export default [
   {
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-empty-object-type": "off",
-      "@typescript-eslint/no-this-alias": "off",
-      "@typescript-eslint/no-require-imports": "off",
       "no-unused-vars": "off",
       "no-undef": "off",
       "no-empty": "warn"
+    }
+  },
+  {
+    // typescript-eslint@8.56.0, approved by the owner on 2026-10-13 (DECISIONS 45): the full recommended set applies again (until then
+    // no-explicit-any, no-empty-object-type, no-this-alias and no-require-imports were switched off for the whole repo). The files below
+    // already broke two of those rules before the approval (196 findings, listed with counts per file in docs/audit/v3/round-2.md); they
+    // stay at warning level until they are fixed one by one. Every other file, and every new file, gets the rules as errors.
+    files: [
+      "the-private-website-repo/app/brand-lab/v2/gate-engine.ts",
+      "the-private-website-repo/components/item-preview.tsx",
+      "the-private-website-repo/lib/registry-data.ts",
+      "bench/harness/app/items/\\[name\\]/page.tsx",
+      "bench/lighthouse/run.ts",
+      "bench/probes/context-counter.ts",
+      "bench/probes/frame-counter.ts",
+      "bench/probes/listener-counter.ts",
+      "bench/probes/performance-observer.ts",
+      "bench/run-bench.ts",
+      "bench/specs/ambient-hero.spec.ts",
+      "bench/specs/context-loss.spec.ts",
+      "bench/specs/distortion-image.spec.ts",
+      "bench/specs/mesh-speed.spec.ts",
+      "bench/specs/paused.spec.ts",
+      "bench/specs/text-reveal-flash.spec.ts",
+      "packages/runtime/src/capability.ts",
+      "packages/runtime/test/capability.test.ts",
+      "packages/runtime/test/gl-budget.test.ts",
+      "packages/runtime/test/gl-surface.test.ts",
+      "packages/runtime/test/in-view.test.ts",
+      "packages/runtime/test/motion-ready.test.tsx",
+      "packages/runtime/test/reduced-motion.test.ts",
+      "scripts/build-catalog.ts",
+      "scripts/build-registry.ts",
+      "scripts/check-provenance.ts",
+      "scripts/fresh-apps.ts",
+      "scripts/merge-evidence.ts",
+      "scripts/parity-v2.spec.ts",
+      "scripts/validate-meta.ts",
+      "scripts/verify-brand-lab.ts",
+      "scripts/verify-docs.ts",
+      "scripts/verify-v2.ts",
+      "test/distortion-image.test.tsx",
+      "test/fresh-app-all-items.test.tsx",
+      "test/noise-field-frame-guard.test.tsx",
+      "test/noise-field-render-loop.test.tsx",
+      "test/refs-and-handlers.test.tsx",
+      "test/scripts.test.ts",
+      "test/site-header-storage.test.tsx",
+      "test/smooth-scroll.test.tsx",
+      "test/vite-smoke.test.tsx",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-this-alias": "warn"
     }
   },
   {
