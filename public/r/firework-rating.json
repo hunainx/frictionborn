@@ -1,0 +1,194 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "firework-rating",
+  "type": "registry:ui",
+  "title": "FireworkRating",
+  "description": "control: Five-star rating as a real radio group; hover previews, and each chosen star bursts as a firework (canvas 2D, server-safe, reduced motion -> plain)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/firework-rating/firework-rating.tsx",
+      "content": "// Original — Frictionborn Motion FireworkRating (ported from the component lab, u3 · Firework Star Rating)\n\"use client\";\n\nimport React, { useCallback, useRef, useState } from \"react\";\nimport { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { Sparks, TAU, css, offscreen, paletteRamp, rand, ramp, relBox, type RGB, stage } from \"@frictionborn/runtime/canvas\";\n\nexport interface FireworkRatingProps extends Omit<React.HTMLAttributes<HTMLDivElement>, \"onChange\" | \"defaultValue\">, CanvasItemProps {\n  /** Controlled rating, 0 (not rated) to 5. */\n  value?: number;\n  defaultValue?: number;\n  onValueChange?: (value: number) => void;\n  /** Accessible name of the radio group. */\n  label?: string;\n  /** Words for 0–5 stars, shown and announced under the stars. Pass `null` to hide them. */\n  words?: [string, string, string, string, string, string] | null;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\nconst WORDS: [string, string, string, string, string, string] = [\"Not rated\", \"Poor\", \"Fair\", \"Good\", \"Great\", \"Spectacular\"];\n/** the lab's firework colours (FB_PAL) */\nconst FIRE_PAL: RGB[] = [[255, 196, 96], [255, 120, 44], [255, 238, 214], [255, 72, 44], [255, 160, 70]];\n\n/** the part of the lab's fireworks engine (fbShow) this item uses: peony bursts with a fading trail and a flash of light */\nfunction createShow(sparks: number) {\n  const o = { st: new Sparks(sparks), trail: null as HTMLCanvasElement | null, tx: null as CanvasRenderingContext2D | null, w: 0, h: 0, lights: [] as Array<{ x: number; y: number; c: RGB; a: number }> };\n  return {\n    size(w: number, h: number, dpr: number) {\n      o.w = w;\n      o.h = h;\n      [o.trail, o.tx] = offscreen(w * dpr, h * dpr);\n      o.tx.scale(dpr, dpr);\n    },\n    burst(x: number, y: number, c: RGB, scale = 1) {\n      const V = rand(120, 170) * scale;\n      for (let i = 0; i < 100; i++) {\n        const a = Math.random() * TAU, z = rand(-1, 1), kk = Math.sqrt(1 - z * z), v = V * rand(0.9, 1.05);\n        o.st.add(x, y, Math.cos(a) * kk * v, Math.sin(a) * kk * v, rand(1.1, 1.6), 1.7, 110, 1.4, c);\n      }\n      o.lights.push({ x, y, c, a: 1 });\n    },\n    step(dt: number) {\n      const tx = o.tx;\n      if (!tx) return;\n      o.st.step(dt);\n      o.lights.forEach((L) => (L.a *= Math.exp(-dt * 3)));\n      o.lights = o.lights.filter((L) => L.a > 0.02);\n      tx.globalCompositeOperation = \"destination-out\";\n      tx.fillStyle = `rgba(0,0,0,${1 - Math.exp(-dt * 7)})`;\n      tx.fillRect(0, 0, o.w, o.h);\n      tx.globalCompositeOperation = \"source-over\";\n      o.st.draw(tx);\n    },\n    draw(g: CanvasRenderingContext2D) {\n      if (!o.trail) return;\n      g.save();\n      g.globalCompositeOperation = \"lighter\";\n      for (const L of o.lights) {\n        const gr = g.createRadialGradient(L.x, L.y, 0, L.x, L.y, 260);\n        gr.addColorStop(0, css(L.c, 0.16 * L.a));\n        gr.addColorStop(1, css(L.c, 0));\n        g.fillStyle = gr;\n        g.fillRect(0, 0, o.w, o.h);\n      }\n      g.drawImage(o.trail, 0, 0, o.w, o.h);\n      g.restore();\n    },\n    /** still glowing: sparks alive or a flash fading (the trail fades within about a second after) */\n    get busy() {\n      return o.st.n > 0 || o.lights.length > 0;\n    },\n  };\n}\n\nexport function FireworkRating({ value, defaultValue = 0, onValueChange, label = \"Rating\", words = WORDS, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, ref, ...rest }: FireworkRatingProps) {\n  const rootRef = useItemRef(ref);\n  const fxRef = useRef<HTMLDivElement>(null);\n  const groupRef = useRef<HTMLDivElement>(null);\n  const [inner, setInner] = useState(defaultValue);\n  const rate = Math.max(0, Math.min(5, value ?? inner));\n  const [preview, setPreview] = useState(0);\n  const celebrate = useRef<((n: number) => void) | null>(null);\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n\n  // the bursts: the lab's u3 drawing (each chosen star bursts in turn, 90 ms apart)\n  const wake = useDrawLoop(\n    fxRef,\n    (fx, wakeUp) => {\n      const root = rootRef.current, group = groupRef.current;\n      if (!root || !group) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      const F = createShow(tier >= 3 ? 1600 : 700);\n      c.onResize(() => F.size(c.w, c.h, c.dpr));\n      F.size(c.w, c.h, c.dpr);\n      const cols: RGB[] = palette === \"fire\" ? FIRE_PAL : ((r) => [0.95, 0.6, 1, 0.45, 0.75].map((t) => ramp(r, t)))(paletteRamp(palette, readPalette(root, palette)));\n      const timers: number[] = [];\n      d.add(() => timers.forEach((t) => window.clearTimeout(t)));\n      let fading = 0;\n      celebrate.current = (n) => {\n        const stars = group.querySelectorAll<HTMLElement>(\"[role=radio]\");\n        for (let i = 0; i < n; i++)\n          timers.push(\n            window.setTimeout(() => {\n              const r = relBox(stars[i], fx);\n              F.burst(r.x + r.w / 2, r.y + r.h / 2, cols[i % 5], 0.45 + n * 0.08);\n              wakeUp();\n            }, i * 90),\n          );\n        wakeUp();\n      };\n      return {\n        tick(dt) {\n          F.step(dt);\n          c.g.clearRect(0, 0, c.w, c.h);\n          F.draw(c.g);\n          // keep drawing about a second after the last spark so the trail can fade out\n          fading = F.busy ? 1.2 : Math.max(0, fading - dt);\n          return F.busy || fading > 0;\n        },\n        destroy() {\n          celebrate.current = null;\n          d.dispose();\n        },\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}` },\n  );\n\n  const set = useCallback(\n    (n: number) => {\n      if (value === undefined) setInner(n);\n      onValueChange?.(n);\n      setPreview(0);\n      celebrate.current?.(n);\n      wake();\n    },\n    [value, onValueChange, wake],\n  );\n\n  const onKey = (e: React.KeyboardEvent, i: number) => {\n    const dir = e.key === \"ArrowRight\" || e.key === \"ArrowUp\" ? 1 : e.key === \"ArrowLeft\" || e.key === \"ArrowDown\" ? -1 : 0;\n    if (!dir) return;\n    e.preventDefault();\n    const j = Math.max(0, Math.min(4, i + dir));\n    set(j + 1);\n    groupRef.current?.querySelectorAll<HTMLElement>(\"[role=radio]\")[j]?.focus();\n  };\n\n  return (\n    <div ref={rootRef} data-frictionborn-item=\"firework-rating\" data-tier={tier} className={`fb-firework-rating ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>\n      <style nonce={nonce}>{`\n        /* the effect paints up to 200 px around the control without widening the page (no sideways scroll on phones) */\n        .fb-firework-rating { overflow: clip; overflow-clip-margin: 200px; }\n        .fb-firework-rating { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }\n        .fb-fr-fx { position: absolute; left: 50%; top: 23px; width: 520px; height: 360px; transform: translate(-50%, -50%); pointer-events: none; z-index: 2; }\n        .fb-fr-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-fr-group { display: flex; gap: 8px; }\n        .fb-fr-star { width: 46px; height: 46px; padding: 0; border: 0; border-radius: 10px; background: transparent; cursor: pointer; font-size: 38px; line-height: 1; color: #6b645d; }\n        [data-motion=\"ok\"] .fb-fr-star { transition: transform 0.15s, color 0.15s; }\n        .fb-fr-star:hover { transform: scale(1.12); }\n        .fb-fr-star[data-on=\"true\"] { color: var(--fb-heat-3, #ffc46a); text-shadow: 0 0 18px color-mix(in srgb, var(--fb-heat-2, #E8590C) 80%, transparent); }\n        .fb-fr-star[data-preview=\"true\"] { color: color-mix(in srgb, var(--fb-heat-3, #ffc46a) 60%, #6b645d); }\n        .fb-fr-star:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }\n        .fb-fr-words { font: 11px ui-monospace, \"Geist Mono\", monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-foreground, GrayText); }\n      `}</style>\n      <div ref={fxRef} className=\"fb-fr-fx\" aria-hidden=\"true\" />\n      <div ref={groupRef} role=\"radiogroup\" aria-label={label} className=\"fb-fr-group\" onPointerLeave={() => setPreview(0)}>\n        {[1, 2, 3, 4, 5].map((n, i) => (\n          <button\n            key={n}\n            type=\"button\"\n            role=\"radio\"\n            aria-checked={rate === n}\n            aria-label={`${n} star${n > 1 ? \"s\" : \"\"}`}\n            tabIndex={(rate || 1) === n ? 0 : -1}\n            className=\"fb-fr-star\"\n            data-on={n <= rate}\n            data-preview={preview > 0 && n <= preview && n > rate}\n            onClick={() => set(n)}\n            onPointerEnter={() => setPreview(n)}\n            onKeyDown={(e) => onKey(e, i)}\n          >\n            <span aria-hidden=\"true\">★</span>\n          </button>\n        ))}\n      </div>\n      {words && (\n        <span className=\"fb-fr-words\" aria-live=\"polite\">\n          {words[rate]}\n        </span>\n      )}\n    </div>\n  );\n}\n\nexport default FireworkRating;\n",
+      "type": "registry:ui",
+      "target": "components/ui/firework-rating.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "firework-rating",
+      "version": "0.1.0",
+      "summary": "control: Five-star rating as a real radio group; hover previews, and each chosen star bursts as a firework (canvas 2D, server-safe, reduced motion -> plain)",
+      "slot": "control",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "Asking for a rating at a moment worth celebrating (after a purchase, a finished task, a demo)",
+        "One rating per view"
+      ],
+      "avoidWhen": [
+        "Lists of read-only ratings (show plain stars)",
+        "Forms with many ratings in a row"
+      ],
+      "alternatives": []
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "The stars light up without bursts; no canvas."
+      },
+      "input": {
+        "pointer": "Hover previews, click rates",
+        "touch": "Tap rates",
+        "keyboard": "A radio group with roving focus: arrows move and rate (Right/Up up, Left/Down down)"
+      }
+    },
+    "a11y": {
+      "role": "interactive",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "1.3.1",
+        "1.4.11",
+        "2.1.1",
+        "4.1.2",
+        "4.1.3"
+      ],
+      "notes": "role=radiogroup with a name and five native buttons with role=radio, aria-checked and names (\"3 stars\"); one tab stop. The word for the rating is aria-live=polite. Unlit stars keep 3:1 against the dark ground. The firework canvas is aria-hidden."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "flint-button",
+        "fuse-toast"
+      ]
+    },
+    "props": [
+      {
+        "name": "value",
+        "type": "number",
+        "default": null,
+        "effect": "Controlled rating, 0 (not rated) to 5."
+      },
+      {
+        "name": "defaultValue",
+        "type": "number",
+        "default": 0,
+        "effect": "Initial rating when uncontrolled."
+      },
+      {
+        "name": "onValueChange",
+        "type": "(value: number) => void",
+        "default": null,
+        "effect": "Called with the new rating."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "default": "Rating",
+        "effect": "Accessible name of the radio group."
+      },
+      {
+        "name": "words",
+        "type": "[string, string, string, string, string, string] | null",
+        "default": "[\"Not rated\", \"Poor\", \"Fair\", \"Good\", \"Great\", \"Spectacular\"]",
+        "effect": "Words for 0-5 stars, shown and announced; null hides them."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root element."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/firework-rating",
+      "usage": "import { useState } from \"react\";\nimport { FireworkRating } from \"@/components/ui/firework-rating\";\n\nexport function Feedback() {\n  const [stars, setStars] = useState(0);\n  return <FireworkRating label=\"Rate this guide\" value={stars} onValueChange={setStars} />;\n}",
+      "mistakes": [
+        "The bursts spread about 200 px around the stars: leave room and do not clip the parent.",
+        "It sits on a dark ground by design; on a light page put it on a dark card.",
+        "Give the group a specific label (what is being rated)."
+      ],
+      "verify": [
+        "Server HTML has a radiogroup with five radios and one tab stop.",
+        "ArrowRight rates and moves focus; the word is announced.",
+        "The bursts fade and the loop stops within about two seconds."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

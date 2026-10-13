@@ -509,6 +509,18 @@ describe("step 11: agent layer guarantees", () => {
     "smooth-scroll",
     "sticky-scroll-story",
     "text-reveal",
+    "ash-text",
+    "eclipse-switch",
+    "ember-badge",
+    "firework-rating",
+    "flame-switch",
+    "flint-button",
+    "fuse-toast",
+    "hold-to-confirm",
+    "lantern-sky",
+    "light-leak-tabs",
+    "match-progress",
+    "temper-slider",
   ];
 
   it("enforces line budgets on agent entry points", () => {
@@ -528,7 +540,7 @@ describe("step 11: agent layer guarantees", () => {
     expect(llmsLines).toBeLessThan(200);
   });
 
-  it("verifies all 12 items have matching spec sheets and catalog entries", () => {
+  it("verifies all 24 items have matching spec sheets and catalog entries", () => {
     const catalogPath = path.join(root, "skills", "frictionborn", "references", "catalog.md");
     expect(fs.existsSync(catalogPath)).toBe(true);
     const catalogContent = fs.readFileSync(catalogPath, "utf8");

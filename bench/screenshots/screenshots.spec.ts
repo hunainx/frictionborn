@@ -16,6 +16,18 @@ const items = [
   "distortion-image",
   "ambient-hero",
   "scroll-showcase",
+  "ash-text",
+  "eclipse-switch",
+  "ember-badge",
+  "firework-rating",
+  "flame-switch",
+  "flint-button",
+  "fuse-toast",
+  "hold-to-confirm",
+  "lantern-sky",
+  "light-leak-tabs",
+  "match-progress",
+  "temper-slider",
 ];
 
 async function captureWebp(page: Page, outPath: string): Promise<void> {

@@ -26,7 +26,7 @@ describe("agent layer", () => {
   });
 
   it("the table has one row per catalog item, each linking its spec sheet", () => {
-    expect(metas.length).toBe(12);
+    expect(metas.length).toBe(24);
     for (const m of metas) expect(skill).toContain(`(references/items/${m.item.name}.md)`);
   });
 

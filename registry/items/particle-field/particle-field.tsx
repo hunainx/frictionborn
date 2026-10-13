@@ -10,12 +10,16 @@ import {
   resolveCssColor,
   glBudget,
   type Lease,
+  paletteVars,
+  type PaletteName,
 } from "@frictionborn/runtime";
 
 const ParticleFieldGL = lazy(() => import("./particle-field.gl"));
 
 export interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: string;
+  /** Colours from a palette (DESIGN.md A8): `fire` | `ice` | `neon` | `mono` | `custom` (reads `--fb-heat-0..4`). Overrides `color` (the particles take the bright colour); leave it out to keep the host's tokens. */
+  palette?: PaletteName;
   speed?: number;
   count?: number;
   interactive?: boolean;
@@ -28,10 +32,13 @@ export interface ParticleFieldProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 const DEFAULT_COLOR = "var(--primary, CanvasText)";
+/** round 4: the palette's bright colour (DESIGN.md A8); a preset sets it on the root, `custom` reads the page's */
+const HEAT_COLOR = "var(--fb-heat-3)";
 const NEUTRAL_RGB: [number, number, number] = [0.5, 0.5, 0.5];
 
 export function ParticleField({
-  color = DEFAULT_COLOR,
+  color: colorProp = DEFAULT_COLOR,
+  palette,
   speed = 1.0,
   count = 2000,
   interactive = true,
@@ -45,6 +52,7 @@ export function ParticleField({
   children,
   ...props
 }: ParticleFieldProps) {
+  const color = palette ? HEAT_COLOR : colorProp;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const uid = useId();
   const isHydrated = useHydrated(); // @frictionborn-guard
@@ -166,6 +174,7 @@ export function ParticleField({
       data-tier={activeTier}
       className={`fb-particle-field ${className}`}
       style={{
+        ...(palette ? paletteVars(palette) : null),
         position: "relative",
         width: "100%",
         height: "100%",

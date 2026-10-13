@@ -1,0 +1,192 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ash-text",
+  "type": "registry:ui",
+  "title": "AshText",
+  "description": "headline: One line of real text drawn as grains of ash; a click or its button blows it away with glowing edges and it gathers back (canvas 2D, server-safe text)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/ash-text/ash-text.tsx",
+      "content": "// Original — Frictionborn Motion AshText (ported from the component lab, c1 · Ash Disintegrate Text)\n\"use client\";\n\nimport React, { useCallback, useRef } from \"react\";\nimport { paletteVars, readPalette, resolveCssColor, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { heat, markDrawn, noise, offscreen, paletteRamp, rand, relBox, trackPointer, stage } from \"@frictionborn/runtime/canvas\";\n\ntype TextTag = \"h1\" | \"h2\" | \"h3\" | \"p\" | \"span\";\n\nexport interface AshTextProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {\n  /** The text (one line). It stays in the DOM as real text; the grains are drawn over it. */\n  children: string;\n  /** The element the text is rendered as. */\n  as?: TextTag;\n  /** Offer a button that blows the word away (and pointer clicks on the word). `false` keeps it as a still texture. */\n  interactive?: boolean;\n  /** Accessible name of that button. */\n  actionLabel?: string;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\ninterface Grain { hx: number; hy: number; x: number; y: number; vx: number; vy: number; h: number; d: number }\n\n/** sample points of `text` drawn in `el`'s own font at its own size, centred in the text's box `b` on a w × h canvas (step px apart, jittered like the lab) */\nfunction grainsOf(el: HTMLElement, text: string, w: number, h: number, b: { x: number; y: number; w: number; h: number }, step: number): Grain[] {\n  const cs = getComputedStyle(el), px = parseFloat(cs.fontSize) || 48;\n  const [, x] = offscreen(w, h);\n  x.font = `${cs.fontStyle} ${cs.fontWeight} ${px}px ${cs.fontFamily}`;\n  try {\n    (x as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = cs.letterSpacing === \"normal\" ? \"0px\" : cs.letterSpacing;\n  } catch {\n    /* older engines: no letter spacing */\n  }\n  x.textAlign = \"center\";\n  x.textBaseline = \"alphabetic\";\n  const m = x.measureText(text), asc = m.fontBoundingBoxAscent ?? px * 0.8, desc = m.fontBoundingBoxDescent ?? px * 0.2;\n  x.fillStyle = \"#fff\";\n  x.fillText(text, b.x + b.w / 2, b.y + (b.h - (asc + desc)) / 2 + asc);\n  const d = x.getImageData(0, 0, w, h).data, out: Grain[] = [];\n  for (let y = 0; y < h; y += step)\n    for (let X = 0; X < w; X += step)\n      if (d[(y * w + X) * 4 + 3] > 127) {\n        const gx = X + rand(-1, 1), gy = y + rand(-1, 1);\n        out.push({ hx: gx, hy: gy, x: gx, y: gy, vx: 0, vy: 0, h: 0, d: Math.random() });\n      }\n  return out;\n}\n\nexport function AshText({ children, as: Tag = \"h2\", interactive = true, actionLabel, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, ref, ...rest }: AshTextProps) {\n  const rootRef = useItemRef(ref);\n  const fxRef = useRef<HTMLDivElement>(null);\n  const textRef = useRef<HTMLElement>(null);\n  const blowRef = useRef<((x?: number) => void) | null>(null);\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n\n  // the grains: the lab's c1 drawing, in the text's own font, colour and place\n  const wake = useDrawLoop(\n    fxRef,\n    (fx, wakeUp) => {\n      const root = rootRef.current, el = textRef.current;\n      if (!root || !el) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      const pal = paletteRamp(palette, readPalette(root, palette));\n      const ink = resolveCssColor(el, getComputedStyle(el).color) ?? [0.93, 0.9, 0.86];\n      const inkCss = `rgb(${ink.map((v) => Math.round(v * 255)).join(\",\")})`;\n      // the pointer is tracked on the text itself (the canvas around it never takes pointer events), then moved into canvas space\n      const p = trackPointer(el, d, { move: () => wakeUp() });\n      let P: Grain[] = [], gone = -1, ox = 0, box = relBox(el, fx);\n      const step = tier >= 3 ? 3 : 4;\n      const build = () => { box = relBox(el, fx); P = grainsOf(el, children, c.w, c.h, box, step); };\n      c.onResize(() => { build(); wakeUp(); });\n      build();\n      markDrawn(root, d);\n      blowRef.current = (x) => {\n        if (gone >= 0) return;\n        gone = 0;\n        ox = box.x + (x ?? box.w / 2);\n        wakeUp();\n      };\n      return {\n        tick(dt, t) {\n          const g = c.g;\n          g.clearRect(0, 0, c.w, c.h);\n          if (gone >= 0) {\n            gone += dt;\n            if (gone > 4.2) gone = -1;\n          }\n          const blowing = gone >= 0 && gone < 2.6;\n          let moving = gone >= 0 || p.speed > 1;\n          for (const q of P) {\n            if (blowing) {\n              const delay = (Math.abs(q.hx - ox) / box.w) * 0.9 + q.d * 0.25;\n              if (gone > delay) {\n                if (q.h === 0) { q.vx = rand(40, 160) * (q.hx < ox ? -1 : 1) * 0.6 + 60; q.vy = -rand(20, 120); q.h = 1; }\n                q.vx += (noise(q.x * 0.02, t) - 0.45) * 400 * dt;\n                q.vy += (-30 + (noise(q.y * 0.02, t + 9) - 0.5) * 300) * dt;\n                q.x += q.vx * dt;\n                q.y += q.vy * dt;\n                q.h = Math.max(0.05, q.h - dt * 0.7);\n              }\n            } else {\n              q.x += (q.hx - q.x) * Math.min(1, dt * (2.5 + q.d * 2));\n              q.y += (q.hy - q.y) * Math.min(1, dt * (2.5 + q.d * 2));\n              q.h = Math.max(0, q.h - dt);\n              if (p.in) {\n                const dx = q.x - (p.x + box.x), dy = q.y - (p.y + box.y), d2 = dx * dx + dy * dy;\n                if (d2 < 900) { q.x += (dx / 30) * dt * 40; q.y += (dy / 30) * dt * 40; }\n              }\n              if (Math.abs(q.hx - q.x) > 0.05 || Math.abs(q.hy - q.y) > 0.05 || q.h > 0) moving = true;\n            }\n            let col: string;\n            if (q.h > 0.55) col = heat(pal, 0.5 + (q.h - 0.55));\n            else if (q.h > 0.05) col = `rgba(${(140 + q.h * 120) | 0},${(130 + q.h * 30) | 0},125,${0.4 + q.h})`;\n            else col = inkCss;\n            g.fillStyle = col;\n            const s = q.h > 0.05 ? 1.6 : step - 0.4;\n            g.fillRect(q.x, q.y, s, s);\n          }\n          p.decay(dt);\n          return moving;\n        },\n        destroy() {\n          blowRef.current = null;\n          d.dispose();\n        },\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}:${children}` },\n  );\n\n  const blow = useCallback(\n    (x?: number) => {\n      blowRef.current?.(x);\n      wake();\n    },\n    [wake],\n  );\n\n  return (\n    <div ref={rootRef} data-frictionborn-item=\"ash-text\" data-tier={tier} className={`fb-ash-text ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>\n      <style nonce={nonce}>{`\n        /* the effect paints up to 200 px around the control without widening the page (no sideways scroll on phones) */\n        .fb-ash-text { overflow: clip; overflow-clip-margin: 200px; }\n        .fb-ash-text { position: relative; display: inline-block; }\n        .fb-at-text { margin: 0; white-space: nowrap; font: inherit; letter-spacing: inherit; color: inherit; }\n        .fb-ash-text[data-drawn] .fb-at-text[data-interactive=\"true\"] { cursor: pointer; }\n        .fb-ash-text[data-drawn] .fb-at-text { color: transparent; }\n        .fb-at-fx { position: absolute; inset: -90px -180px -90px -90px; pointer-events: none; }\n        .fb-at-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-at-btn { position: absolute; right: 0; bottom: -2px; transform: translateY(100%); min-height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 25%, transparent); background: transparent; color: inherit; font: 12px ui-monospace, \"Geist Mono\", monospace; opacity: 0.7; cursor: pointer; }\n        .fb-at-btn:hover, .fb-at-btn:focus-visible { opacity: 1; }\n        .fb-at-btn:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }\n        .fb-ash-text:not([data-drawn]) .fb-at-btn { display: none; }\n      `}</style>\n      <Tag\n        ref={textRef as React.Ref<never>}\n        className=\"fb-at-text\"\n        data-interactive={interactive}\n        onClick={interactive ? (e: React.MouseEvent<HTMLElement>) => blow(e.clientX - e.currentTarget.getBoundingClientRect().left) : undefined}\n      >\n        {children}\n      </Tag>\n      <div ref={fxRef} className=\"fb-at-fx\" aria-hidden=\"true\" />\n      {interactive && (\n        <button type=\"button\" className=\"fb-at-btn\" onClick={() => blow()}>\n          {actionLabel ?? `Blow “${children}” away`}\n        </button>\n      )}\n    </div>\n  );\n}\n\nexport default AshText;\n",
+      "type": "registry:ui",
+      "target": "components/ui/ash-text.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "ash-text",
+      "version": "0.1.0",
+      "summary": "headline: One line of real text drawn as grains of ash; a click or its button blows it away with glowing edges and it gathers back (canvas 2D, server-safe text)",
+      "slot": "headline",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "One short word or line that deserves a moment (a hero word, a 404, a closing line)",
+        "Brand pages about fire, time or impermanence"
+      ],
+      "avoidWhen": [
+        "Body copy, long or wrapping text (it is one line)",
+        "Text that must stay crisp at all times (labels, navigation)"
+      ],
+      "alternatives": [
+        {
+          "name": "text-reveal",
+          "when": "When the text should arrive once, word by word"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "The real text, as it is in the server HTML: no grains, no canvas, no button."
+      },
+      "input": {
+        "pointer": "Click the word to blow it away from that point; hovering nudges the grains",
+        "touch": "Tap the word",
+        "keyboard": "A native button under the word (\"Blow … away\") does the same"
+      }
+    },
+    "a11y": {
+      "role": "content",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "1.3.1",
+        "1.4.3",
+        "2.1.1",
+        "2.2.2"
+      ],
+      "notes": "The text stays in the DOM as a real heading or paragraph (`as`), transparent only while the grains are drawn in its own colour. The effect is one gust of about 4 s, started by the visitor. The canvas is aria-hidden."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "flint-button",
+        "lantern-sky"
+      ]
+    },
+    "props": [
+      {
+        "name": "children",
+        "type": "string",
+        "default": null,
+        "effect": "Required. The text, one line."
+      },
+      {
+        "name": "as",
+        "type": "\"h1\" | \"h2\" | \"h3\" | \"p\" | \"span\"",
+        "default": "h2",
+        "effect": "The element the text is rendered as."
+      },
+      {
+        "name": "interactive",
+        "type": "boolean",
+        "default": true,
+        "effect": "Offer the click and the button; false keeps it as a still texture."
+      },
+      {
+        "name": "actionLabel",
+        "type": "string",
+        "default": null,
+        "effect": "Name of the button (default: Blow \"<text>\" away)."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root element."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/ash-text",
+      "usage": "import { AshText } from \"@/components/ui/ash-text\";\n\nexport function Closing() {\n  return (\n    <AshText as=\"h2\" style={{ fontSize: 96, fontWeight: 900 }}>\n      Ephemeral\n    </AshText>\n  );\n}",
+      "mistakes": [
+        "Pass plain text (a string), one line: it is drawn grain by grain.",
+        "Set the font on AshText itself (style or className); the text element inherits it.",
+        "The grains fly up to 200 px around the word: do not clip the parent with overflow: hidden."
+      ],
+      "verify": [
+        "Server HTML has the text as a real heading.",
+        "The button blows the word away and it gathers back within about 4 s.",
+        "Once gathered, nothing runs."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

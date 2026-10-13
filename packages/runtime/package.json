@@ -42,6 +42,11 @@
       "import": "./dist/gl/surface.mjs",
       "default": "./dist/gl/surface.mjs"
     },
+    "./canvas": {
+      "types": "./dist/canvas/index.d.mts",
+      "import": "./dist/canvas/index.mjs",
+      "default": "./dist/canvas/index.mjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [

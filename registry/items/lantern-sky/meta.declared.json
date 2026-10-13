@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "lantern-sky",
+    "version": "0.1.0",
+    "summary": "background: Night sky of paper lanterns rising at different depths; the pointer is a warm breeze (canvas 2D, server-safe, reduced motion -> still sky)",
+    "slot": "background",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "A calm closing section, a sign-up or thank-you screen",
+      "Behind a short headline and one call to action"
+    ],
+    "avoidWhen": [
+      "Behind long text (it moves for as long as it is on screen)",
+      "Two animated backgrounds on one page"
+    ],
+    "alternatives": [
+      {
+        "name": "particle-field",
+        "when": "When a WebGL background fits better (many more points, GPU)"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "while-visible",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "One still frame of the sky (reduced motion, Save-Data, no WebGL2)",
+      "1": "Same as tier 2",
+      "2": "Animated at DPR <= 1.5 with 60 % of the lanterns",
+      "3": "Animated at DPR <= 2 with every lantern"
+    },
+    "reducedMotion": {
+      "mode": "still-frame",
+      "description": "One still frame of the sky with its lanterns; nothing moves and no pause button is needed."
+    },
+    "input": {
+      "pointer": "Moving through the sky pushes nearby lanterns aside and lights unlit ones",
+      "touch": "None",
+      "keyboard": "The Pause / Play button"
+    }
+  },
+  "a11y": {
+    "role": "decorative",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "built-in",
+    "wcag": [
+      "1.4.3",
+      "2.2.2"
+    ],
+    "notes": "The canvas is aria-hidden; your children stay real content above it on a dark ground. The sky moves while it is visible, so a visible Pause / Play button is built in (showPauseButton) and the runtime's pauseAll stops it too."
+  },
+  "composition": {
+    "maxPerPage": 1,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "ash-text",
+      "flint-button"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Content shown over the sky."
+    },
+    {
+      "name": "density",
+      "type": "number",
+      "default": 1.1,
+      "effect": "Lanterns per 10,000 px² of sky."
+    },
+    {
+      "name": "showPauseButton",
+      "type": "boolean",
+      "default": true,
+      "effect": "A visible Pause / Play button (WCAG 2.2.2)."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/lantern-sky",
+    "usage": "import { LanternSky } from \"@/components/ui/lantern-sky\";\n\nexport function Closing() {\n  return (\n    <LanternSky style={{ minHeight: 420 }}>\n      <h2>Let it rise.</h2>\n      <a href=\"/start\">Start a project</a>\n    </LanternSky>\n  );\n}",
+    "mistakes": [
+      "Keep the content short and on the left or centre; the sky is the point.",
+      "Do not hide the pause button unless the page has its own pause for all motion.",
+      "One per page: it runs for as long as it is visible."
+    ],
+    "verify": [
+      "Server HTML shows the content on a dark gradient.",
+      "The Pause button stops the sky (no frames) and Play resumes it.",
+      "With reduced motion one still frame is drawn and nothing runs."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

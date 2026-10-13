@@ -3,6 +3,8 @@
 
 import React, { useState, useEffect, useRef, useCallback, useId, Suspense, lazy, useImperativeHandle } from "react";
 import {
+  paletteVars,
+  type PaletteName,
   useCapability,
   useHydrated,
   useReducedMotion,
@@ -16,6 +18,8 @@ const MeshGradientGL = lazy(() => import("./mesh-gradient.gl"));
 
 export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> {
   colors?: string[];
+  /** Colours from a palette (DESIGN.md A8): `fire` | `ice` | `neon` | `mono` | `custom` (reads `--fb-heat-0..4`). Overrides `colors`; leave it out to keep the host's tokens. */
+  palette?: PaletteName;
   speed?: number;
   distortion?: number;
   swirl?: number;
@@ -28,6 +32,9 @@ export interface MeshGradientProps extends React.HTMLAttributes<HTMLDivElement> 
   ref?: React.Ref<HTMLDivElement>;
   children?: React.ReactNode;
 }
+
+/** round 4: the palette's background, hot, bright and dark-glow colours (DESIGN.md A8); a preset sets them on the root, `custom` reads the page's */
+const HEAT_COLORS = ["var(--fb-heat-0)", "var(--fb-heat-2)", "var(--fb-heat-3)", "var(--fb-heat-1)"];
 
 // Host tokens with CSS system-colour fallbacks; stable module-level constant
 const DEFAULT_MESH_TOKENS = [
@@ -46,7 +53,8 @@ const DEFAULT_RGB_QUAD: [RgbTriple, RgbTriple, RgbTriple, RgbTriple] = [
 ];
 
 export function MeshGradient({
-  colors = DEFAULT_MESH_TOKENS,
+  colors: colorsProp = DEFAULT_MESH_TOKENS,
+  palette,
   speed = 1.0,
   distortion = 0.5,
   swirl = 0.25,
@@ -62,6 +70,7 @@ export function MeshGradient({
   children,
   ...props
 }: MeshGradientProps) {
+  const colors = palette ? HEAT_COLORS : colorsProp;
   const hostElementRef = useRef<HTMLDivElement | null>(null);
   const uid = useId();
   const isClientHydrated = useHydrated(); // @frictionborn-guard
@@ -200,6 +209,7 @@ export function MeshGradient({
       data-tier={effectiveTier}
       className={`fb-mesh-gradient ${className}`}
       style={{
+        ...(palette ? paletteVars(palette) : null),
         position: "relative",
         width: "100%",
         height: "100%",

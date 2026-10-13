@@ -1,15 +1,16 @@
 ---
 name: frictionborn
-description: Choose, install and use Frictionborn Motion items, verified React components for motion and WebGL on marketing pages (animated hero backgrounds, scroll reveals, sticky scroll stories, hover image effects, marquee, smooth scroll). Use when the user asks for an animated hero or background, scroll or hover effects, or a premium, smooth feel on a landing page. Do not use for dashboards, tables, filters, forms or other app UI.
+description: Choose, install and use Frictionborn Motion items, verified React components for motion and WebGL on marketing pages, plus fire-themed controls (switches, tabs, a slider, a rating, toasts, badges, buttons) (animated hero backgrounds, scroll reveals, sticky scroll stories, hover image effects, marquee, smooth scroll). Use when the user asks for an animated hero or background, scroll or hover effects, or a premium, smooth feel on a landing page. Do not use for dashboards, tables, filters, forms or other app UI.
 ---
 
 # Frictionborn Motion
 
-12 source-copied React items with measured budgets, installed through the shadcn CLI into `components/ui`. Before you use an item, read its spec sheet: `references/items/<name>.md` (props with units, gotchas, measured evidence). `references/catalog.md` lists all items.
+24 source-copied React items with measured budgets, installed through the shadcn CLI into `components/ui`. Before you use an item, read its spec sheet: `references/items/<name>.md` (props with units, gotchas, measured evidence). `references/catalog.md` lists all items.
 
 ## 1. Use it, or don't
 
 - Use for marketing and landing pages: heroes, feature and story sections, galleries, logo strips.
+- The canvas controls (`flame-switch`, `eclipse-switch`, `temper-slider`, `light-leak-tabs`, `firework-rating`, `flint-button`, `hold-to-confirm`, `fuse-toast`, `ember-badge`, `match-progress`) are for one or two focal controls on a page (a hero, a settings card, a moment worth marking), never for every row of a form or list.
 - Do not use for dashboards, tables, filters, forms, checkout or auth, modals, admin UI, or repeated list rows. Build those with plain shadcn components and say that Frictionborn was left out on purpose.
 - If no item fits the request, say so and build it without Frictionborn. Never invent a prop: if it is not in the spec sheet, it does not exist.
 
@@ -40,6 +41,9 @@ How common requests map to items:
 - **A story told in steps**: `sticky-scroll-story` (one media per step). Choose `scroll-showcase` only when you also want the metrics grid and the marquee strip around it.
 - **"Premium and smooth" for a whole page**: `smooth-scroll` once, in the root layout; `scroll-reveal` on blocks below the fold; `magnetic-button` on the one primary call to action; at most one hero background. Stop there: more motion is worse, not more premium.
 - **Logo or proof strip**: `marquee`.
+- **A switch, tabs, a slider or a rating with character**: `flame-switch` (on/off), `eclipse-switch` (light/dark theme), `light-leak-tabs`, `temper-slider` (a heat value, 180-360 °C), `firework-rating`.
+- **Buttons and feedback with character**: `flint-button` (one primary action), `hold-to-confirm` (destructive, with undo), `fuse-toast` (undo after an action), `ember-badge` (an unread count), `match-progress` (real progress).
+- **A word or a background with fire**: `ash-text` (one line that blows away and gathers back), `lantern-sky` (a calm closing background).
 
 ## 3. Install
 
@@ -52,8 +56,9 @@ How common requests map to items:
 ## 4. Props and units (the same on every item)
 
 - Durations are milliseconds: `duration={1200}` is 1.2 s. `speed` is a multiplier (1 = the item's normal speed). `strength` is 0 to 1. `pullDistance` is px, `pixelsPerSecond` is px per second.
-- Every item takes `paused`, `ref` and `className`/`style`, and spreads other HTML attributes on its root. The 4 items that render a `<style>` take `nonce`.
+- Every item takes `paused`, `ref` and `className`/`style`, and spreads other HTML attributes on its root. The items that render a `<style>` take `nonce` (`text-reveal`, `scroll-reveal`, `marquee`, `sticky-scroll-story`, the compositions and the twelve canvas items).
 - Colours: host design tokens only (`var(--background)`, `--foreground`, `--primary`, `--border`, `--muted-foreground`), or Tailwind utilities that map to them (`bg-background`). Never hard-code a colour. Never pass `var()` strings to a canvas yourself; the items resolve tokens.
+- `palette` (`"fire"` | `"ice"` | `"neon"` | `"mono"` | `"custom"`) sets the colours an item draws itself. The canvas items default to `fire`; `mesh-gradient`, `noise-field`, `particle-field` and `ambient-hero` keep the host tokens unless you pass it. `custom` reads `--fb-heat-0` (coldest) to `--fb-heat-4` (white-hot) from your CSS.
 
 ## 5. Rules
 
@@ -69,11 +74,12 @@ How common requests map to items:
 - `ambient-hero` and `scroll-showcase` take required content props; TypeScript fails without them. They contain no copy of their own and no demo text.
 - `sticky-scroll-story` renders each step's media twice (sticky and stacked copy), so no ids inside it, and step titles are `h2`.
 - `mesh-gradient`, `noise-field` and `particle-field` fill their container: give it a height. `distortion-image` takes its size from your `className` or `width`/`height`.
+- Canvas items with sparks or flames (`flame-switch`, `flint-button`, `firework-rating`, `ash-text`, `hold-to-confirm`, `ember-badge`, `fuse-toast`) paint up to 200 px around their control: leave space and never wrap them in `overflow: hidden`.
 - Installed files are vendored source. Under Next 16's default ESLint they report errors such as `react-hooks/refs`, `react-hooks/set-state-in-effect` and `no-explicit-any` (`pnpm lint` fails; `next build` does not). Do not hand-edit them to silence it: add every installed file to the ESLint ignores (one glob per item, and per item it pulls in: `ambient-hero` installs six) and tell the user.
 
 ## 7. Verify before you report
 
 1. `next build` (or the framework's build) passes.
 2. Open the page: 0 console errors, one `h1`, focus rings visible, at most one canvas above the fold.
-3. Turn on reduced motion in the OS or the browser: no canvas, nothing moving, all text visible.
+3. Turn on reduced motion in the OS or the browser: nothing moving, all text visible; WebGL items show a poster, and canvas items show either the plain control or one still frame.
 4. Report which items you installed and why, anything you could not verify, and the lint note above if it applies.

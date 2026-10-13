@@ -3,22 +3,10 @@
 
 import React, { useState, useEffect } from "react";
 import { MeshGradient } from "./mesh-gradient";
-import { usePaused, useReducedMotion } from "@frictionborn/runtime";
+import { PALETTE_NAMES, usePaused, useReducedMotion, type PaletteName } from "@frictionborn/runtime";
 
-const PALETTES = [
-  {
-    name: "Blue Flame",
-    colors: ["#0B0E14", "#38BDF8", "#818CF8", "#C084FC"] as [string, string, string, string],
-  },
-  {
-    name: "Open Air",
-    colors: ["#080A0E", "#F59E0B", "#10B981", "#3B82F6"] as [string, string, string, string],
-  },
-  {
-    name: "Soft Daylight",
-    colors: ["#F8FAFC", "#60A5FA", "#F472B6", "#A78BFA"] as [string, string, string, string],
-  },
-];
+// round 4: the palettes of DESIGN.md A8, then "Your theme" (no `palette`: the host's own tokens)
+const PALETTES: Array<{ name: string; palette?: PaletteName }> = [...PALETTE_NAMES.map((p) => ({ name: p[0].toUpperCase() + p.slice(1), palette: p })), { name: "Your theme" }];
 
 export default function MeshGradientDemo() {
   const [selectedPalette, setSelectedPalette] = useState(0);
@@ -148,7 +136,7 @@ export default function MeshGradientDemo() {
         }}
       >
         <MeshGradient
-          colors={PALETTES[selectedPalette].colors}
+          palette={PALETTES[selectedPalette].palette}
           speed={speed}
           distortion={distortion}
           swirl={swirl}

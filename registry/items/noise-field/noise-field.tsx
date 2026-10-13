@@ -8,6 +8,8 @@ import {
   useReducedMotion,
   useInView,
   resolveCssColor,
+  paletteVars,
+  type PaletteName,
   glBudget,
   type Lease,
 } from "@frictionborn/runtime";
@@ -16,6 +18,8 @@ const NoiseFieldGL = lazy(() => import("./noise-field.gl"));
 
 export interface NoiseFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   colors?: [string, string, string];
+  /** Colours from a palette (DESIGN.md A8): `fire` | `ice` | `neon` | `mono` | `custom` (reads `--fb-heat-0..4`). Overrides `colors`; leave it out to keep the host's tokens. */
+  palette?: PaletteName;
   speed?: number;
   scale?: number;
   intensity?: number;
@@ -28,6 +32,9 @@ export interface NoiseFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
 }
 
+/** round 4: the palette's background, hot and bright colours (DESIGN.md A8); a preset sets them on the root, `custom` reads the page's */
+const HEAT_COLORS: [string, string, string] = ["var(--fb-heat-0)", "var(--fb-heat-2)", "var(--fb-heat-3)"];
+
 // Stable default: a fresh array each render would re-trigger the colour resolver forever
 const DEFAULT_COLORS: [string, string, string] = [
   "var(--background, Canvas)",
@@ -36,7 +43,8 @@ const DEFAULT_COLORS: [string, string, string] = [
 ];
 
 export function NoiseField({
-  colors = DEFAULT_COLORS,
+  colors: colorsProp = DEFAULT_COLORS,
+  palette,
   speed = 1.0,
   scale = 1.8,
   intensity = 1.0,
@@ -51,6 +59,7 @@ export function NoiseField({
   children,
   ...props
 }: NoiseFieldProps) {
+  const colors = palette ? HEAT_COLORS : colorsProp;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const uid = useId();
   const hydrated = useHydrated(); // @frictionborn-guard
@@ -192,7 +201,7 @@ export function NoiseField({
       data-in-view={inView}
       data-reduced-motion={reduced}
       className={`relative w-full h-full min-h-[300px] overflow-hidden ${className}`}
-      style={{ backgroundColor: colors[0], ...style }}
+      style={{ ...(palette ? paletteVars(palette) : null), backgroundColor: colors[0], ...style }}
       {...props}
     >
       {/* 1. Server-rendered CSS gradient poster always present as fallback (CLS 0) */}

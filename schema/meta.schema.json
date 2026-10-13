@@ -16,8 +16,8 @@
         "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
         "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
         "summary": { "type": "string", "maxLength": 160, "description": "Becomes the shadcn description. Must state slot, what it is, client-only or not, weight, reduced-motion result, mobile result." },
-        "slot": { "enum": ["background", "headline", "cta", "media", "scroll-section", "strip", "page-provider", "composition"] },
-        "kind": { "enum": ["webgl", "dom", "scroll-provider", "composition"] }
+        "slot": { "enum": ["background", "headline", "cta", "media", "scroll-section", "strip", "page-provider", "composition", "control", "navigation", "feedback"] },
+        "kind": { "enum": ["webgl", "dom", "canvas", "scroll-provider", "composition"] }
       }
     },
     "intent": {

@@ -16,6 +16,18 @@ import { MeshGradient } from "../../../../registry/items/mesh-gradient/mesh-grad
 import { DistortionImage } from "../../../../registry/items/distortion-image/distortion-image";
 import { AmbientHero } from "../../../../registry/items/ambient-hero/ambient-hero";
 import { ScrollShowcase } from "../../../../registry/items/scroll-showcase/scroll-showcase";
+import { LanternSky } from "../../../../registry/items/lantern-sky/lantern-sky";
+import { AshText } from "../../../../registry/items/ash-text/ash-text";
+import { FireworkRating } from "../../../../registry/items/firework-rating/firework-rating";
+import { EclipseSwitch } from "../../../../registry/items/eclipse-switch/eclipse-switch";
+import { HoldToConfirm } from "../../../../registry/items/hold-to-confirm/hold-to-confirm";
+import { FlintButton } from "../../../../registry/items/flint-button/flint-button";
+import { FuseToast } from "../../../../registry/items/fuse-toast/fuse-toast";
+import { MatchProgress } from "../../../../registry/items/match-progress/match-progress";
+import { TemperSlider } from "../../../../registry/items/temper-slider/temper-slider";
+import { LightLeakTabs } from "../../../../registry/items/light-leak-tabs/light-leak-tabs";
+import { EmberBadge } from "../../../../registry/items/ember-badge/ember-badge";
+import { FlameSwitch } from "../../../../registry/items/flame-switch/flame-switch";
 
 const STEPS = [
   { id: "a", title: "First step", description: "The first thing that happens.", media: { content: <div>One</div> } },
@@ -77,6 +89,30 @@ function renderItem(item: string, paused: boolean) {
       );
     case "scroll-showcase":
       return <ScrollShowcase paused={paused} headline="A headline" description="Some copy." steps={STEPS} marqueeItems={["One", "Two"]} />;
+    case "flame-switch":
+      return <FlameSwitch paused={paused} label="Pilot flame" defaultChecked data-testid="subject" />;
+    case "ember-badge":
+      return <EmberBadge paused={paused} count={3} data-testid="subject"><button type="button">Inbox</button></EmberBadge>;
+    case "light-leak-tabs":
+      return <LightLeakTabs paused={paused} label="Tabs" tabs={[{ id: "a", label: "One", content: <p>One</p> }, { id: "b", label: "Two", content: <p>Two</p> }]} data-testid="subject" />;
+    case "temper-slider":
+      return <TemperSlider paused={paused} data-testid="subject" />;
+    case "match-progress":
+      return <MatchProgress paused={paused} value={60} label="Progress" data-testid="subject" />;
+    case "fuse-toast":
+      return <FuseToast paused={paused} open message="Saved." data-testid="subject" />;
+    case "flint-button":
+      return <FlintButton paused={paused} data-testid="subject">Strike</FlintButton>;
+    case "hold-to-confirm":
+      return <HoldToConfirm paused={paused} data-testid="subject">Hold to delete</HoldToConfirm>;
+    case "eclipse-switch":
+      return <EclipseSwitch paused={paused} data-testid="subject" />;
+    case "firework-rating":
+      return <FireworkRating paused={paused} data-testid="subject" />;
+    case "ash-text":
+      return <AshText paused={paused} data-testid="subject">Ephemeral</AshText>;
+    case "lantern-sky":
+      return <LanternSky paused={paused} data-testid="subject"><p>Sky</p></LanternSky>;
     default:
       return <p>Unknown item {item}</p>;
   }

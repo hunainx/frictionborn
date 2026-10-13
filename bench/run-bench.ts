@@ -5,6 +5,9 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { measureItemSize } from "./size/measure.ts";
 
+/** round 4 (DECISIONS 54): the 2D-canvas items, which also run bench/specs/canvas-items.spec.ts */
+const CANVAS_ITEMS = ["flame-switch", "ember-badge", "light-leak-tabs", "temper-slider", "match-progress", "fuse-toast", "flint-button", "hold-to-confirm", "eclipse-switch", "firework-rating", "ash-text", "lantern-sky"];
+
 function getGitCommit(): string {
   try {
     return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
@@ -90,6 +93,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
     } else if (itemName === "scroll-showcase") {
       specs.push("bench/specs/scroll-showcase.spec.ts");
     }
+    // round 4: the canvas items ported from the lab (keyboard path, pixels read back, quiet when idle)
+    if (CANVAS_ITEMS.includes(itemName)) specs.push("bench/specs/canvas-items.spec.ts");
     const specFiles = specs.join(" ");
     const cmd = project ? `${base} --project=${project} ${specFiles}` : `${base} ${specFiles}`;
     execSync(cmd, {

@@ -1,0 +1,193 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "flint-button",
+  "type": "registry:ui",
+  "title": "FlintButton",
+  "description": "cta: Button that strikes like flint: a steel rakes the stone and throws sparks; heat builds until it catches (canvas 2D, native button, reduced motion -> plain)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/flint-button/flint-button.tsx",
+      "content": "// Original — Frictionborn Motion FlintButton (ported from the component lab, a1 · Flint Strike Button)\n\"use client\";\n\nimport React, { useImperativeHandle, useRef, useState } from \"react\";\nimport { paletteVars, readPalette, useDrawLoop, useItemEnv, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { Sparks, paletteRamp, rand, relBox, trackPointer, stage } from \"@frictionborn/runtime/canvas\";\n\nexport interface FlintButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, \"children\">, CanvasItemProps {\n  /** The button's label while cold. */\n  children: React.ReactNode;\n  /** The label once the stone has caught (after enough strikes or a fast rub). */\n  litLabel?: React.ReactNode;\n  /** Visible heat status under the button, announced politely. Pass `null` to hide it. */\n  statusText?: { cold: string; warm: string; hot: string; burning: string } | null;\n  /** Receives the <button>. */\n  ref?: React.Ref<HTMLButtonElement>;\n}\n\nconst STATUS = { cold: \"Cold stone\", warm: \"Warm\", hot: \"Hot\", burning: \"Burning\" };\n\nexport function FlintButton({ children, litLabel = \"Lit\", statusText = STATUS, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, onClick, ref, ...rest }: FlintButtonProps) {\n  const rootRef = useRef<HTMLSpanElement>(null);\n  const fxRef = useRef<HTMLSpanElement>(null);\n  const btnRef = useRef<HTMLButtonElement>(null);\n  const steelRef = useRef<HTMLElement>(null);\n  const strikeRef = useRef<(() => void) | null>(null);\n  /** the heat as words: changes a handful of times per strike, so it is React state (label and status follow it) */\n  const [phase, setPhase] = useState<keyof typeof STATUS>(\"cold\");\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n  useImperativeHandle(ref, () => btnRef.current as HTMLButtonElement);\n\n  // the strike: the lab's a1 drawing (steel rakes the flint, sparks, heat that builds until the stone catches)\n  const wake = useDrawLoop(\n    fxRef,\n    (fx, wakeUp) => {\n      const root = rootRef.current, btn = btnRef.current, steel = steelRef.current;\n      if (!root || !btn || !steel) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      const sp = new Sparks(tier >= 3 ? 900 : 400, palette === \"fire\" ? null : paletteRamp(palette, readPalette(root, palette)));\n      const p = trackPointer(btn, d, { move: () => wakeUp() });\n      let heat = 0, strike = -1, lit = 0, shown = \"\";\n      strikeRef.current = () => { strike = 0; wakeUp(); };\n      return {\n        tick(dt) {\n          const b = relBox(btn, fx);\n          if (p.in && p.speed > 260) {\n            heat += (dt * p.speed) / 2600;\n            if (Math.random() < p.speed / 4000) sp.add(b.x + p.x, b.y + p.y, rand(-80, 80), -rand(40, 160), 0.4, 1, 500);\n          }\n          if (strike >= 0) {\n            strike += dt;\n            const u = strike / 0.26;\n            if (u <= 1) {\n              const x = b.w * (0.08 + 0.84 * u);\n              steel.style.opacity = \"1\";\n              steel.style.transform = `translateX(${x - 23}px) rotate(-14deg)`;\n              sp.burst(b.x + x, b.y + 2, 9, 250, 820, { dir: -Math.PI / 2 + 0.55, spread: 0.75, l0: 0.25, l1: 0.7 });\n              heat = Math.min(1.5, heat + dt * 3.6);\n            } else {\n              strike = -1;\n              steel.style.opacity = \"0\";\n            }\n          }\n          if (heat > 1 && !lit) {\n            lit = 2.4;\n            sp.burst(b.x + b.w / 2, b.y + b.h / 2, 60, 150, 600, { l1: 1 });\n          }\n          if (lit > 0) {\n            lit -= dt;\n            heat = Math.max(heat, 0.95);\n            if (Math.random() < dt * 30) sp.add(b.x + rand(10, b.w - 10), b.y + 4, rand(-20, 20), -rand(40, 120), rand(0.6, 1.4), 1, -40, 0.6);\n            if (lit <= 0) { lit = 0; heat = 0.9; }\n          }\n          heat = Math.max(0, heat - dt * (lit ? 0 : 0.32));\n          btn.style.setProperty(\"--fb-fb-h\", Math.min(1, heat).toFixed(3));\n          const key = lit ? \"burning\" : heat > 0.5 ? \"hot\" : heat > 0.15 ? \"warm\" : \"cold\";\n          if (key !== shown) {\n            shown = key;\n            setPhase(key);\n          }\n          p.decay(dt);\n          sp.step(dt);\n          c.g.clearRect(0, 0, c.w, c.h);\n          sp.draw(c.g);\n          return heat > 0.001 || strike >= 0 || lit > 0 || sp.n > 0 || p.speed > 1;\n        },\n        destroy() {\n          strikeRef.current = null;\n          btn.style.removeProperty(\"--fb-fb-h\");\n          setPhase(\"cold\");\n          d.dispose();\n        },\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}` },\n  );\n\n  return (\n    <span ref={rootRef} className=\"fb-flint-button\" style={paletteVars(palette)}>\n      <style nonce={nonce}>{`\n        /* the effect paints up to 200 px around the control without widening the page (no sideways scroll on phones) */\n        .fb-flint-button { overflow: clip; overflow-clip-margin: 200px; }\n        .fb-flint-button { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 12px; }\n        .fb-fl-fx { display: block; position: absolute; left: 50%; top: 34px; width: 420px; height: 300px; transform: translate(-50%, -70%); pointer-events: none; z-index: 2; }\n        .fb-fl-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-fl-btn { --fb-fb-h: 0; position: relative; min-width: 210px; height: 68px; padding: 0 28px; border-radius: 18px; border: 0; cursor: pointer; color: #cfc6bd; font-family: inherit; font-weight: 600; font-size: 16px; line-height: 1; letter-spacing: 0.02em;\n          background: radial-gradient(120% 90% at 30% 20%, #57504b, #2c2826 55%, #1a1716);\n          box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -6px 14px rgba(0,0,0,.5), 0 10px 24px rgba(0,0,0,.5),\n            inset 0 0 calc(var(--fb-fb-h) * 46px) color-mix(in srgb, var(--fb-heat-2, #E8590C) calc(var(--fb-fb-h) * 95%), transparent),\n            0 0 calc(var(--fb-fb-h) * 46px) color-mix(in srgb, var(--fb-heat-2, #E8590C) calc(var(--fb-fb-h) * 55%), transparent); }\n        [data-motion=\"ok\"] .fb-fl-btn { transition: transform 0.12s; }\n        .fb-fl-btn:active { transform: translateY(1px) scale(0.985); }\n        .fb-fl-btn:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 3px; }\n        .fb-fl-btn::before { content: \"\"; position: absolute; inset: 0; border-radius: inherit; opacity: 0.35; pointer-events: none;\n          background: repeating-radial-gradient(circle at 70% 60%, transparent 0 3px, rgba(255,255,255,.04) 3px 4px), repeating-linear-gradient(115deg, transparent 0 9px, rgba(0,0,0,.18) 9px 10px); }\n        .fb-fl-text { position: relative; z-index: 1; text-shadow: 0 0 calc(var(--fb-fb-h) * 18px) color-mix(in srgb, var(--fb-heat-3, #FFB15C) calc(var(--fb-fb-h) * 100%), transparent); }\n        .fb-fl-steel { position: absolute; left: 0; top: -12px; width: 46px; height: 12px; border-radius: 3px; background: linear-gradient(#e9edf0, #8d959c 50%, #555c62); transform-origin: left center; opacity: 0; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.6); }\n        .fb-fl-status { font: 11px ui-monospace, \"Geist Mono\", monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-foreground, GrayText); }\n      `}</style>\n      <span ref={fxRef} className=\"fb-fl-fx\" aria-hidden=\"true\" />\n      <button\n        ref={btnRef}\n        type=\"button\"\n        data-frictionborn-item=\"flint-button\"\n        data-tier={tier}\n        className={`fb-fl-btn ${className}`}\n        style={style}\n        onClick={(e) => {\n          strikeRef.current?.();\n          wake();\n          onClick?.(e);\n        }}\n        {...rest}\n      >\n        <span className=\"fb-fl-text\">{phase === \"burning\" ? litLabel : children}</span>\n        <i ref={steelRef} className=\"fb-fl-steel\" aria-hidden=\"true\" />\n      </button>\n      {statusText && (\n        <span className=\"fb-fl-status\" aria-live=\"polite\">\n          {statusText[phase]}\n        </span>\n      )}\n    </span>\n  );\n}\n\nexport default FlintButton;\n",
+      "type": "registry:ui",
+      "target": "components/ui/flint-button.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "flint-button",
+      "version": "0.1.0",
+      "summary": "cta: Button that strikes like flint: a steel rakes the stone and throws sparks; heat builds until it catches (canvas 2D, native button, reduced motion -> plain)",
+      "slot": "cta",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "One primary action with a moment of character (start, ignite, launch, generate)",
+        "Brand pages about fire, energy or making"
+      ],
+      "avoidWhen": [
+        "Forms with several buttons in a row",
+        "Destructive actions (use hold-to-confirm)",
+        "Light pages where a dark stone button would look out of place"
+      ],
+      "alternatives": [
+        {
+          "name": "magnetic-button",
+          "when": "When the button should feel physical without fire"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "A plain stone button: no steel, no sparks, no glow, no canvas. Clicks work as usual."
+      },
+      "input": {
+        "pointer": "Click strikes; rubbing fast across the button heats it",
+        "touch": "Tap strikes",
+        "keyboard": "A native <button>: Enter and Space strike, focus ring visible"
+      }
+    },
+    "a11y": {
+      "role": "interactive",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "2.1.1",
+        "2.4.7",
+        "4.1.2",
+        "4.1.3"
+      ],
+      "notes": "A native <button> with its text label (which becomes litLabel while it burns). The optional heat status under it is aria-live=polite. The spark canvas and the steel are aria-hidden. Sparks last under 3 s per strike."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "flame-switch",
+        "hold-to-confirm"
+      ]
+    },
+    "props": [
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Required. The button's label while cold."
+      },
+      {
+        "name": "litLabel",
+        "type": "React.ReactNode",
+        "default": "Lit",
+        "effect": "The label while the stone burns."
+      },
+      {
+        "name": "statusText",
+        "type": "{ cold: string; warm: string; hot: string; burning: string } | null",
+        "default": "{ cold: \"Cold stone\", warm: \"Warm\", hot: \"Hot\", burning: \"Burning\" }",
+        "effect": "Visible heat status under the button (aria-live polite); null hides it."
+      },
+      {
+        "name": "onClick",
+        "type": "React.MouseEventHandler<HTMLButtonElement>",
+        "default": null,
+        "effect": "Your action; runs on every strike."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLButtonElement>",
+        "default": null,
+        "effect": "Receives the <button>; className, style and the rest of the props go on the button too."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/flint-button",
+      "usage": "import { FlintButton } from \"@/components/ui/flint-button\";\n\nexport function Start({ onStart }: { onStart: () => void }) {\n  return <FlintButton onClick={onStart} litLabel=\"Started\">Start the bench</FlintButton>;\n}",
+      "mistakes": [
+        "The sparks fly above the button (about 200 px): leave room and do not clip the parent with overflow: hidden.",
+        "One per view: it is a primary action, not a toolbar button.",
+        "ref, className and style apply to the <button>, not to the wrapper."
+      ],
+      "verify": [
+        "Server HTML has a native <button> with its label.",
+        "Enter strikes: the steel sweeps, sparks fly and the status warms.",
+        "After the sparks fade and the stone cools, the loop stops."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

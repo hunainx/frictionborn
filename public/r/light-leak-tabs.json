@@ -1,0 +1,194 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "light-leak-tabs",
+  "type": "registry:ui",
+  "title": "LightLeakTabs",
+  "description": "navigation: ARIA tabs over a furnace slot: the selected tab lets the firelight through and the light slides as you switch (canvas 2D, server-safe tabs)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/light-leak-tabs/light-leak-tabs.tsx",
+      "content": "// Original — Frictionborn Motion LightLeakTabs (ported from the component lab, q4 · Light Leak Tabs)\n\"use client\";\n\nimport React, { useCallback, useId, useRef, useState } from \"react\";\nimport { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { markDrawn, css, paletteRamp, ramp, relBox, stage } from \"@frictionborn/runtime/canvas\";\n\nexport interface LightLeakTab {\n  id: string;\n  label: React.ReactNode;\n  content: React.ReactNode;\n}\n\nexport interface LightLeakTabsProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {\n  tabs: LightLeakTab[];\n  /** Controlled selected tab id. */\n  value?: string;\n  /** Initial tab id when uncontrolled (default: the first tab). */\n  defaultValue?: string;\n  onValueChange?: (id: string) => void;\n  /** Accessible name of the tab list. */\n  label: string;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\nexport function LightLeakTabs({ tabs, value, defaultValue, onValueChange, label, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, ref, ...rest }: LightLeakTabsProps) {\n  const rootRef = useItemRef(ref);\n  const fxRef = useRef<HTMLDivElement>(null);\n  const listRef = useRef<HTMLDivElement>(null);\n  const [inner, setInner] = useState(defaultValue ?? tabs[0]?.id);\n  const selected = value ?? inner;\n  const selRef = useRef(selected);\n  selRef.current = selected;\n  const uid = useId().replace(/:/g, \"\");\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n\n  // the leak: the lab's q4 drawing (a dark slot; the selected tab lets the firelight through and the light slides after it)\n  const wake = useDrawLoop(\n    fxRef,\n    (fx) => {\n      const root = rootRef.current, list = listRef.current;\n      if (!root || !list) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      // the drawn light marks the selected tab, so the plain underline steps aside\n      markDrawn(root, d);\n      const pal = paletteRamp(palette, readPalette(root, palette));\n      const fire = palette === \"fire\";\n      const a = fire ? [255, 170, 80] : ramp(pal, 0.82), b = fire ? [255, 120, 40] : ramp(pal, 0.6), core = fire ? [255, 230, 170] : ramp(pal, 0.93);\n      let lx = 0, lw = 0, init = false;\n      return {\n        tick(dt) {\n          const btn = list.querySelector<HTMLElement>(`[data-tab=\"${CSS.escape(selRef.current ?? \"\")}\"]`);\n          if (!btn) return false;\n          const r = relBox(btn, fx), tx = r.x, tw = r.w;\n          if (!init) { lx = tx; lw = tw; init = true; }\n          lx += (tx - lx) * Math.min(1, dt * 9);\n          lw += (tw - lw) * Math.min(1, dt * 9);\n          const lb = relBox(list, fx), g = c.g, y = lb.y + lb.h;\n          g.fillStyle = \"#0b0a09\";\n          g.fillRect(0, 0, c.w, c.h);\n          g.save();\n          g.globalCompositeOperation = \"lighter\";\n          const sl = g.createLinearGradient(0, y - 2, 0, y + 120);\n          sl.addColorStop(0, css(a, 0.6));\n          sl.addColorStop(0.2, css(b, 0.18));\n          sl.addColorStop(1, css(b, 0));\n          g.fillStyle = sl;\n          g.beginPath();\n          g.moveTo(lx + 4, y);\n          g.lineTo(lx + lw - 4, y);\n          g.lineTo(lx + lw + 60, y + 150);\n          g.lineTo(lx - 60, y + 150);\n          g.closePath();\n          g.fill();\n          g.fillStyle = css(core, 0.9);\n          g.fillRect(lx + 6, y - 1.5, lw - 12, 3);\n          g.restore();\n          // the light slides after the selected tab, then holds (an idle tab list costs no frames)\n          return Math.abs(tx - lx) > 0.3 || Math.abs(tw - lw) > 0.3;\n        },\n        destroy: () => d.dispose(),\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}` },\n  );\n\n  const select = useCallback(\n    (id: string) => {\n      if (value === undefined) setInner(id);\n      onValueChange?.(id);\n      wake();\n    },\n    [value, onValueChange, wake],\n  );\n\n  const onKey = (e: React.KeyboardEvent, i: number) => {\n    const n = e.key === \"ArrowRight\" ? 1 : e.key === \"ArrowLeft\" ? -1 : 0;\n    const to = e.key === \"Home\" ? 0 : e.key === \"End\" ? tabs.length - 1 : n ? (i + n + tabs.length) % tabs.length : -1;\n    if (to < 0) return;\n    e.preventDefault();\n    select(tabs[to].id);\n    listRef.current?.querySelectorAll<HTMLElement>(\"[role=tab]\")[to]?.focus();\n  };\n\n  return (\n    <div ref={rootRef} data-frictionborn-item=\"light-leak-tabs\" data-tier={tier} className={`fb-light-leak-tabs ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>\n      <style nonce={nonce}>{`\n        .fb-light-leak-tabs { position: relative; isolation: isolate; padding: 18px; border-radius: 16px; background: #0b0a09; color: #cfc2b6; overflow: hidden; }\n        .fb-llt-fx { position: absolute; inset: 0; z-index: -1; pointer-events: none; }\n        .fb-llt-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-llt-list { display: flex; gap: 4px; }\n        .fb-llt-tab { flex: 1; min-height: 40px; padding: 0 12px; border-radius: 10px 10px 0 0; border: 1px solid rgba(233, 229, 223, 0.08); border-bottom: 0; background: #141210; color: #a39d97; font: inherit; font-size: 13.5px; cursor: pointer; }\n        .fb-llt-tab[aria-selected=\"true\"] { color: #fff3e4; background: #1d1714; box-shadow: inset 0 -3px 0 var(--fb-heat-2, #E8590C); }\n        .fb-light-leak-tabs[data-drawn] .fb-llt-tab[aria-selected=\"true\"] { box-shadow: none; }\n        .fb-llt-tab:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: -2px; }\n        .fb-llt-panel { min-height: 120px; border: 1px solid rgba(233, 229, 223, 0.08); border-radius: 0 0 12px 12px; padding: 18px; font-size: 14px; line-height: 1.55; }\n        .fb-llt-panel:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }\n      `}</style>\n      <div ref={fxRef} className=\"fb-llt-fx\" aria-hidden=\"true\" />\n      <div ref={listRef} role=\"tablist\" aria-label={label} className=\"fb-llt-list\">\n        {tabs.map((t, i) => (\n          <button\n            key={t.id}\n            type=\"button\"\n            role=\"tab\"\n            id={`${uid}-t-${t.id}`}\n            data-tab={t.id}\n            aria-selected={t.id === selected}\n            aria-controls={`${uid}-p`}\n            tabIndex={t.id === selected ? 0 : -1}\n            className=\"fb-llt-tab\"\n            onClick={() => select(t.id)}\n            onKeyDown={(e) => onKey(e, i)}\n          >\n            {t.label}\n          </button>\n        ))}\n      </div>\n      <div role=\"tabpanel\" id={`${uid}-p`} aria-labelledby={`${uid}-t-${selected}`} tabIndex={0} className=\"fb-llt-panel\">\n        {tabs.find((t) => t.id === selected)?.content}\n      </div>\n    </div>\n  );\n}\n\nexport default LightLeakTabs;\n",
+      "type": "registry:ui",
+      "target": "components/ui/light-leak-tabs.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "light-leak-tabs",
+      "version": "0.1.0",
+      "summary": "navigation: ARIA tabs over a furnace slot: the selected tab lets the firelight through and the light slides as you switch (canvas 2D, server-safe tabs)",
+      "slot": "navigation",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "Three to five sections of related content in one card (features, plans, steps)",
+        "A product or brand page where the tabs are a focal element"
+      ],
+      "avoidWhen": [
+        "Navigation between pages (use links)",
+        "More than about six tabs, or tabs that must wrap onto two rows"
+      ],
+      "alternatives": []
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "The tabs alone with a plain underline on the selected tab; no canvas, no sliding light."
+      },
+      "input": {
+        "pointer": "Click a tab to select it; the light slides after it",
+        "touch": "Tap a tab",
+        "keyboard": "Roving tabindex: ArrowLeft/ArrowRight (wrapping), Home and End move and select; Tab moves into the panel"
+      }
+    },
+    "a11y": {
+      "role": "interactive",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "1.3.1",
+        "2.1.1",
+        "2.4.3",
+        "2.4.7",
+        "4.1.2"
+      ],
+      "notes": "WAI-ARIA tabs: a named tablist of native buttons with role=tab, aria-selected and aria-controls, one tabpanel labelled by the selected tab and focusable. The light canvas is aria-hidden."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "flame-switch",
+        "temper-slider"
+      ]
+    },
+    "props": [
+      {
+        "name": "tabs",
+        "type": "{ id: string; label: React.ReactNode; content: React.ReactNode }[]",
+        "default": null,
+        "effect": "Required. The tabs, in order."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "default": null,
+        "effect": "Required. Accessible name of the tab list."
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "default": null,
+        "effect": "Controlled selected tab id."
+      },
+      {
+        "name": "defaultValue",
+        "type": "string",
+        "default": null,
+        "effect": "Initial tab id when uncontrolled (the first tab if omitted)."
+      },
+      {
+        "name": "onValueChange",
+        "type": "(id: string) => void",
+        "default": null,
+        "effect": "Called with the newly selected tab id."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root element."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/light-leak-tabs",
+      "usage": "import { LightLeakTabs } from \"@/components/ui/light-leak-tabs\";\n\nconst tabs = [\n  { id: \"heat\", label: \"Heat\", content: <p>How hot it runs.</p> },\n  { id: \"light\", label: \"Light\", content: <p>What it shows.</p> },\n];\n\nexport function Features() {\n  return <LightLeakTabs label=\"Features\" tabs={tabs} />;\n}",
+      "mistakes": [
+        "Keep tabs to a handful of short labels: they share one row.",
+        "Give every tab a stable, unique id; the selection is tracked by id.",
+        "label is required: it names the tab list for screen readers."
+      ],
+      "verify": [
+        "Server HTML has a tablist with one selected tab and its panel.",
+        "ArrowRight, ArrowLeft, Home and End move the selection and focus.",
+        "The light slides to the new tab and then the loop stops."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

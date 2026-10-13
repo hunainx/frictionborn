@@ -13,8 +13,9 @@ This document establishes the uniform API standards across all 12 Frictionborn r
 | **Pixel Velocity** | `pixelsPerSecond` | `number` (px/s) | Physical pixel drift rate (used by `Marquee`, default 40). Never named `speed`. |
 | **Strength / Intensity** | `strength` | `number` (0.0 – 1.0) | Unitless fraction indicating effect magnitude (`DistortionImage`). It is passed to the shader as given and is not clamped. |
 | **Physical Distance** | `pullDistance` | `number` (px) | Physical displacement in pixels (`MagneticButton pullDistance={18}`). Never named `strength`. |
-| **Universal Pause** | `paused` | `boolean` (optional) | Present on all 12 items. What it stops depends on the item: see the table below. It is the item's own switch; only a host calls the runtime's `pauseAll()`. |
-| **CSP Nonce** | `nonce` | `string` (optional) | On every item that renders a `<style>` element (TextReveal, ScrollReveal, Marquee, StickyScrollStory) and on both compositions, which forward it. See `docs/CSP.md`. |
+| **Universal Pause** | `paused` | `boolean` (optional) | Present on all 24 items. What it stops depends on the item: see the table below. It is the item's own switch; only a host calls the runtime's `pauseAll()`. |
+| **CSP Nonce** | `nonce` | `string` (optional) | On every item that renders a `<style>` element (TextReveal, ScrollReveal, Marquee, StickyScrollStory, the twelve canvas items) and on both compositions, which forward it. See `docs/CSP.md`. |
+| **Palette** | `palette` | `"fire" \| "ice" \| "neon" \| "mono" \| "custom"` (optional) | On every item that draws its own colour (DESIGN.md A8). The twelve canvas items default to `fire`; NoiseField, MeshGradient, ParticleField and AmbientHero keep the host's tokens when it is left out. |
 
 ### What `paused` does, per item
 
@@ -30,6 +31,7 @@ This document establishes the uniform API standards across all 12 Frictionborn r
 | `sticky-scroll-story` | Stops tracking the scrolled step; the active step stays. |
 | `ambient-hero` | Pauses the ambient background variant only (not a custom `background`, the headline or the buttons). |
 | `scroll-showcase` | Passes `paused` to its reveals, story, marquee and SmoothScroll, so it inherits their behaviour above. |
+| the twelve canvas items (round 4) | The effect asks for no frames; the last frame stays. The control (switch, tabs, slider, rating, button, toast timer) keeps working. `lantern-sky` also has a built-in Pause / Play button. |
 
 A spec (`bench/specs/paused.spec.ts`) counts `requestAnimationFrame` callbacks in a real browser: 0 while paused, more than 5 after un-pausing, 0 again after pausing again (marquee: every animation `paused`).
 
@@ -49,6 +51,7 @@ Every component forwards `ref` to a DOM element. Nine of them use the React 19 `
 | `noise-field`, `mesh-gradient`, `particle-field` | the root `<div>` that holds the poster and the canvas |
 | `distortion-image` | the wrapper `<div>` around the `<img>`, not the `<img>` |
 | `ambient-hero` | the root `<header>` |
+| the twelve canvas items | the root `<div>` that carries `data-frictionborn-item`, except `flint-button`, whose root (and `ref`) is the `<button>` itself |
 
 ### Rest props
 Every component extends the matching `React.HTMLAttributes<…>` and spreads `...rest` on its root element, after its own attributes: an attribute you pass wins, including `data-frictionborn-item` (do not override it) and, on TextReveal, `id`.

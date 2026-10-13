@@ -47,10 +47,18 @@ describe("compositions: no demo copy, no colours, no shared ids inside the compo
           .map((f) => path.join(dir, d.name, f))
       );
     expect(files.length).toBeGreaterThan(10);
+    // round 4 (DECISIONS 54): the twelve canvas items are ports of the component lab; the materials they draw (stone, steel, paper,
+    // matches, sky) are the lab's own art and keep their colours. What must not be hard-coded there is the effect colour: it goes
+    // through the palette contract (DESIGN.md A8), checked below. Every other item keeps the strict rule.
+    const kindOf = (f: string) => JSON.parse(fs.readFileSync(path.join(path.dirname(f), "meta.declared.json"), "utf8")).item.kind as string;
     for (const f of files) {
       const src = fs.readFileSync(f, "utf8");
-      expect(/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/.test(src), `${path.basename(f)} hard-codes a colour`).toBe(false);
       expect(/--(signal|ink|line|surface|warning)\b/.test(src), `${path.basename(f)} uses a docs-only or non-shadcn token`).toBe(false);
+      if (kindOf(f) === "canvas") {
+        expect(/paletteVars\(/.test(src) && /readPalette\(|--fb-heat-/.test(src), `${path.basename(f)} routes its effect colours through the palette`).toBe(true);
+        continue;
+      }
+      expect(/#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/.test(src), `${path.basename(f)} hard-codes a colour`).toBe(false);
     }
   });
 

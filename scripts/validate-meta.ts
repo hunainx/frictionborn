@@ -29,9 +29,13 @@ const VALID_SLOTS = [
   "strip",
   "page-provider",
   "composition",
+  // round 4 (DECISIONS 54): the twelve components ported from the lab
+  "control",
+  "navigation",
+  "feedback",
 ];
 
-const VALID_KINDS = ["webgl", "dom", "scroll-provider", "composition"];
+const VALID_KINDS = ["webgl", "dom", "canvas", "scroll-provider", "composition"];
 const VALID_SERVER_OUTPUTS = ["poster", "final-state", "static-layout", "nothing"];
 const VALID_LAZY = ["no", "in-view", "idle"];
 const VALID_LOOPS = ["none", "on-interaction", "while-visible"];

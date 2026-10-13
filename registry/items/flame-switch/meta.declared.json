@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "flame-switch",
+    "version": "0.1.0",
+    "summary": "control: On/off switch with a live pilot flame on its knob (canvas 2D, server-safe switch, reduced motion -> switch only, touch -> same switch)",
+    "slot": "control",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "A setting that turns something on or off and deserves a moment of character (a feature flag, a 'live' mode, a heater, a stream)",
+      "Brand or product pages built around fire, heat or energy",
+      "A single prominent toggle in a hero, a settings card or a demo"
+    ],
+    "avoidWhen": [
+      "Long settings lists with many toggles in a row (use the host's plain switch)",
+      "Dense tables or toolbars",
+      "Light pages where a dark switch body would look out of place"
+    ],
+    "alternatives": [
+      {
+        "name": "eclipse-switch",
+        "when": "When the toggle switches between light and dark themes"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": ["next-app-router", "vite-react"],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The switch only (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Flame on a canvas at DPR ≤ 1.5 with half the flame particles",
+      "3": "Flame on a canvas at DPR ≤ 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "The switch alone: no canvas, no flame, the knob moves without a transition. The state and the status text work as usual."
+    },
+    "input": {
+      "pointer": "Click toggles; moving the pointer past a lit flame leans it like a breath",
+      "touch": "Tap toggles; no hover effect",
+      "keyboard": "A native button with role=switch: Space and Enter toggle, focus ring visible"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": ["1.4.11", "2.1.1", "2.4.7", "4.1.2"],
+    "notes": "A native <button role=\"switch\"> with aria-checked and the required `label` as its accessible name. The flame canvas is aria-hidden; the visible status text under the switch follows the state."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": ["eclipse-switch", "ember-badge"]
+  },
+  "props": [
+    { "name": "label", "type": "string", "default": null, "effect": "Required. The switch's accessible name." },
+    { "name": "checked", "type": "boolean", "default": null, "effect": "Controlled state. Leave undefined for an uncontrolled switch." },
+    { "name": "defaultChecked", "type": "boolean", "default": false, "effect": "Initial state when uncontrolled." },
+    { "name": "onCheckedChange", "type": "(checked: boolean) => void", "default": null, "effect": "Called with the new state on every press." },
+    { "name": "statusText", "type": "{ on: string; off: string } | null", "default": "{ on: \"Pilot on\", off: \"Pilot off\" }", "effect": "Visible status under the switch; null hides it." },
+    { "name": "disabled", "type": "boolean", "default": false, "effect": "Disables the switch." },
+    { "name": "palette", "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"", "default": "fire", "effect": "Flame colours (DESIGN.md A8). custom reads --fb-heat-0..4 from the page." },
+    { "name": "paused", "type": "boolean", "default": false, "effect": "Universal pause prop: the flame stops drawing; the switch still works." },
+    { "name": "maxTier", "type": "number", "default": 3, "effect": "Hard ceiling on the capability tier (0 = switch only)." },
+    { "name": "nonce", "type": "string", "default": null, "effect": "CSP nonce for the component's <style> element." },
+    { "name": "className", "type": "string", "default": "", "effect": "Extra classes on the root (fb-flame-switch is kept)." },
+    { "name": "style", "type": "React.CSSProperties", "default": null, "effect": "Inline styles on the root, merged after the palette variables." },
+    { "name": "ref", "type": "React.Ref<HTMLDivElement>", "default": null, "effect": "Receives the root <div>." }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/flame-switch",
+    "usage": "import { useState } from \"react\";\nimport { FlameSwitch } from \"@/components/ui/flame-switch\";\n\nexport function LiveMode() {\n  const [live, setLive] = useState(false);\n  return <FlameSwitch label=\"Live mode\" checked={live} onCheckedChange={setLive} statusText={{ on: \"Live\", off: \"Off\" }} />;\n}",
+    "mistakes": [
+      "label is required: it is the switch's only accessible name. Do not rely on nearby text.",
+      "The flame draws above the switch (about 140 px): leave room above it and do not clip the parent with overflow: hidden.",
+      "Use it for one or two important toggles, not for every row of a settings list."
+    ],
+    "verify": [
+      "Server HTML has a <button role=\"switch\"> with aria-checked and the label.",
+      "Space toggles the switch when it has focus and the status text follows.",
+      "With reduced motion there is no canvas and no frame runs; the switch still toggles."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

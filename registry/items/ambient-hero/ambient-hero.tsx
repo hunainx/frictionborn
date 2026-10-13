@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useCapability, usePaused, resumeAll } from "@frictionborn/runtime";
+import { useCapability, usePaused, resumeAll, type PaletteName } from "@frictionborn/runtime";
 import { NoiseField } from "@/components/ui/noise-field";
 import { MeshGradient } from "@/components/ui/mesh-gradient";
 import { ParticleField } from "@/components/ui/particle-field";
@@ -26,6 +26,8 @@ export interface AmbientHeroProps extends React.HTMLAttributes<HTMLElement> {
   primaryCta: AmbientHeroCta;
   /** Ambient background generator variant (exactly 1 WebGL context). */
   variant?: AmbientHeroVariant;
+  /** Colours of the background variant from a palette (DESIGN.md A8): `fire` | `ice` | `neon` | `mono` | `custom`. Leave it out to keep the host's tokens. */
+  palette?: PaletteName;
   /** Custom background slot overriding variant if provided. */
   background?: React.ReactNode;
   /** Eyebrow label above the primary headline. */
@@ -49,6 +51,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
       secondaryCta,
       eyebrow,
       variant = "mesh",
+      palette,
       background,
       showPauseButton = true,
       paused: propPaused = false,
@@ -135,6 +138,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
             speed={0.4}
             scale={1.8}
             paused={paused}
+            palette={palette}
             style={{ width: "100%", height: "100%" }}
           />
         );
@@ -145,6 +149,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
             count={2500}
             speed={0.4}
             paused={paused}
+            palette={palette}
             style={{ width: "100%", height: "100%" }}
           />
         );
@@ -154,6 +159,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
         <MeshGradient
           speed={0.85}
           paused={paused}
+          palette={palette}
           style={{ width: "100%", height: "100%" }}
         />
       );

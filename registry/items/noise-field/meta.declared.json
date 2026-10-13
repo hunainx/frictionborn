@@ -170,6 +170,12 @@
       "type": "React.ReactNode",
       "default": null,
       "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": null,
+      "effect": "Colours from a palette (DESIGN.md A8): fire, ice, neon, mono, or custom (reads --fb-heat-0..4). Overrides colors; leave it out to keep the host's tokens."
     }
   ],
   "agent": {

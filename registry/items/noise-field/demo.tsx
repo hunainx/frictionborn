@@ -3,25 +3,14 @@
 
 import React, { useState, useEffect } from "react";
 import { NoiseField } from "./noise-field";
+import { PALETTE_NAMES, type PaletteName } from "@frictionborn/runtime";
 import { usePaused, useReducedMotion } from "@frictionborn/runtime";
 
-const PALETTES = [
-  {
-    name: "Ember Glow",
-    colors: ["var(--background)", "var(--primary)", "var(--accent)"] as [string, string, string],
-  },
-  {
-    name: "Night Forge",
-    colors: ["#0B0F19", "#6366F1", "#EC4899"] as [string, string, string],
-  },
-  {
-    name: "Open Air",
-    colors: ["#06110D", "#10B981", "#06B6D4"] as [string, string, string],
-  },
-];
+// round 4: "Your theme" (no `palette`: the host's own tokens), then the palettes of DESIGN.md A8; the demo opens on Fire
+const PALETTES: Array<{ name: string; palette?: PaletteName }> = [{ name: "Your theme" }, ...PALETTE_NAMES.map((palette) => ({ name: palette.charAt(0).toUpperCase() + palette.slice(1), palette }))];
 
 export default function NoiseFieldDemo() {
-  const [selectedPalette, setSelectedPalette] = useState(0);
+  const [selectedPalette, setSelectedPalette] = useState(1);
   const [isLight, setIsLight] = useState(false);
   const isPaused = usePaused();
   const systemReduced = useReducedMotion();
@@ -202,7 +191,7 @@ export default function NoiseFieldDemo() {
         }}
       >
         <NoiseField
-          colors={PALETTES[selectedPalette].colors}
+          palette={PALETTES[selectedPalette].palette}
           paused={isPaused}
           reducedMotion={effectiveReduced}
           scrim={true}

@@ -32,9 +32,10 @@ test.describe("Accessibility spec", () => {
     expect(seriousViolations).toHaveLength(0);
     expect(criticalViolations).toHaveLength(0);
 
-    // Text stays in DOM
+    // Text stays in DOM (round 4: a closed toast has no text by design; its live region is there, empty until it opens)
     const textContent = await page.locator(`[data-frictionborn-item='${item}']`).first().innerText();
-    expect(textContent.length).toBeGreaterThan(0);
+    if (item === "fuse-toast") await expect(page.locator(`[data-frictionborn-item='${item}'] [role=status]`)).toHaveCount(1);
+    else expect(textContent.length).toBeGreaterThan(0);
   });
 
   // Reduced motion renders different DOM (Marquee's hand-scrollable row, static posters): the default-mode scan above

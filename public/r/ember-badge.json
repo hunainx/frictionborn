@@ -1,0 +1,185 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ember-badge",
+  "type": "registry:ui",
+  "title": "EmberBadge",
+  "description": "feedback: Unread-count badge that is a live ember: flares on new items, cools to ash at zero (canvas 2D, server-safe, reduced motion -> static badge)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/ember-badge/ember-badge.tsx",
+      "content": "// Original — Frictionborn Motion EmberBadge (ported from the component lab, e2 · Ember Notification Badge)\n\"use client\";\n\nimport React, { useEffect, useRef } from \"react\";\nimport { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { Sparks, heat, paletteRamp, rand, relBox, stage } from \"@frictionborn/runtime/canvas\";\n\nexport interface EmberBadgeProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {\n  /** The unread count. A rise makes the ember flare; 0 lets it cool to ash and hides the number. */\n  count: number;\n  /** Counts above this show as `max+`. */\n  max?: number;\n  /** What the count counts, for screen readers (\"unread messages\" → \"3 unread messages\"). */\n  label?: string;\n  /** The element the badge sits on (an icon button, an avatar). */\n  children: React.ReactNode;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\n/** seconds the ember flickers after a change before it holds steady */\nconst BREATHE = 3;\n\nexport function EmberBadge({ count, max = 99, label = \"unread\", children, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, ref, ...rest }: EmberBadgeProps) {\n  const rootRef = useItemRef(ref);\n  const fxRef = useRef<HTMLDivElement>(null);\n  const numRef = useRef<HTMLSpanElement>(null);\n  const countRef = useRef(count);\n  const flareRef = useRef<(() => void) | null>(null);\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n  const shown = count > max ? `${max}+` : String(count);\n\n  // the ember: the lab's e2 drawing (heat, flicker, rising sparks); the number's colours are written straight to the element\n  const wake = useDrawLoop(\n    fxRef,\n    (fx, wakeUp) => {\n      const root = rootRef.current, num = numRef.current;\n      if (!root || !num) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      const pal = paletteRamp(palette, readPalette(root, palette));\n      const sp = new Sparks(tier >= 3 ? 300 : 150, palette === \"fire\" ? null : pal);\n      const level = (n: number) => (n ? Math.min(1, 0.6 + n * 0.06) : 0);\n      // mounted at rest: steady at the count's heat (it flickers after a change, not on arrival)\n      let flare = 0, h0 = level(countRef.current), last = countRef.current, since = BREATHE + 1;\n      const pos = () => { const b = relBox(num, fx); return [b.x + b.w / 2, b.y + b.h / 2]; };\n      flareRef.current = () => {\n        flare = 1;\n        h0 = 1;\n        const [x, y] = pos();\n        sp.burst(x, y, 26, 80, 300);\n        num.style.transform = \"scale(1.3)\";\n        window.setTimeout(() => (num.style.transform = \"\"), 160);\n        wakeUp();\n      };\n      return {\n        tick(dt, t) {\n          const n = countRef.current;\n          if (n !== last) { last = n; since = 0; }\n          since += dt;\n          flare = Math.max(0, flare - dt * 1.5);\n          h0 += (level(n) - h0) * Math.min(1, dt * (n ? 3 : 0.8));\n          // the lab's flicker, for a few seconds after each change; then the ember holds steady (an idle badge costs no frames)\n          const fade = Math.max(0, 1 - Math.max(0, since - BREATHE) / 0.6);\n          const fl = 1 - fade * 0.12 * (1 - Math.sin(t * 7) * Math.sin(t * 2.3));\n          const h = Math.min(1, h0 * fl + flare * 0.4);\n          num.style.opacity = h0 < 0.05 && !n ? \"0\" : \"1\";\n          num.style.background = h > 0.08 ? `radial-gradient(circle at 40% 35%, ${heat(pal, 0.75 + h * 0.25)}, ${heat(pal, 0.35 + h * 0.35)})` : \"#4a4440\";\n          num.style.boxShadow = `0 0 ${8 + h * 26}px ${heat(pal, 0.5, h * 0.9)}`;\n          num.style.color = h > 0.3 ? \"#2a0f04\" : \"#cfc6bd\";\n          const [x, y] = pos();\n          if (h > 0.3 && fade > 0 && Math.random() < dt * 6 * h) sp.add(x, y - 10, rand(-20, 20), -rand(40, 110), rand(0.5, 1), 1, -30, 0.6);\n          sp.step(dt);\n          c.g.clearRect(0, 0, c.w, c.h);\n          sp.draw(c.g);\n          return fade > 0 || sp.n > 0 || flare > 0 || Math.abs(level(n) - h0) > 0.004;\n        },\n        destroy() {\n          flareRef.current = null;\n          num.style.cssText = \"\";\n          d.dispose();\n        },\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}` },\n  );\n\n  // a rise in the count flares the ember; any change wakes the loop\n  useEffect(() => {\n    if (count > countRef.current) flareRef.current?.();\n    countRef.current = count;\n    wake();\n  }, [count, wake]);\n\n  return (\n    <div ref={rootRef} data-frictionborn-item=\"ember-badge\" data-tier={tier} className={`fb-ember-badge ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>\n      <style nonce={nonce}>{`\n        /* the effect paints up to 200 px around the control without widening the page (no sideways scroll on phones) */\n        .fb-ember-badge { overflow: clip; overflow-clip-margin: 200px; }\n        .fb-ember-badge { position: relative; display: inline-grid; place-items: center; }\n        .fb-eb-fx { position: absolute; left: 50%; top: 50%; width: 220px; height: 220px; transform: translate(-30%, -70%); pointer-events: none; }\n        .fb-eb-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-eb-num { position: absolute; top: -10px; right: -12px; min-width: 30px; height: 30px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center;\n          font: 700 14px ui-monospace, \"Geist Mono\", monospace; color: #2a0f04; pointer-events: none;\n          background: radial-gradient(circle at 40% 35%, var(--fb-heat-3, #FFB15C), var(--fb-heat-2, #E8590C)); box-shadow: 0 0 18px color-mix(in srgb, var(--fb-heat-2, #E8590C) 70%, transparent); }\n        [data-motion=\"ok\"] .fb-eb-num { transition: transform 0.2s; }\n        .fb-eb-num[data-zero=\"true\"] { visibility: hidden; }\n        .fb-eb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }\n      `}</style>\n      {children}\n      <div ref={fxRef} className=\"fb-eb-fx\" aria-hidden=\"true\" />\n      <span ref={numRef} className=\"fb-eb-num\" aria-hidden=\"true\" data-zero={count === 0}>\n        {count ? shown : \"\"}\n      </span>\n      <span className=\"fb-eb-sr\" role=\"status\">\n        {`${shown} ${label}`}\n      </span>\n    </div>\n  );\n}\n\nexport default EmberBadge;\n",
+      "type": "registry:ui",
+      "target": "components/ui/ember-badge.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "ember-badge",
+      "version": "0.1.0",
+      "summary": "feedback: Unread-count badge that is a live ember: flares on new items, cools to ash at zero (canvas 2D, server-safe, reduced motion -> static badge)",
+      "slot": "feedback",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "An unread or pending count on an icon button, avatar or tab",
+        "A notification bell in a header where new items deserve a moment of attention"
+      ],
+      "avoidWhen": [
+        "Many badges in one list (one ember per screen is enough)",
+        "Counts that change several times a second (it would flare constantly)"
+      ],
+      "alternatives": []
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "A static ember-coloured badge with the number; no flare, no sparks, no canvas."
+      },
+      "input": {
+        "pointer": "None of its own: the wrapped element keeps its own handlers",
+        "touch": "Same",
+        "keyboard": "None of its own: the wrapped button or link stays focusable"
+      }
+    },
+    "a11y": {
+      "role": "interactive",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "1.3.1",
+        "4.1.3"
+      ],
+      "notes": "The visible number is aria-hidden; a visually hidden role=status reads \"<count> <label>\" when the count changes. The wrapped element keeps its own name and role."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "flame-switch",
+        "fuse-toast"
+      ]
+    },
+    "props": [
+      {
+        "name": "count",
+        "type": "number",
+        "default": null,
+        "effect": "Required. The unread count; a rise flares the ember, 0 cools it to ash and hides the number."
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Required. The element the badge sits on (an icon button, an avatar)."
+      },
+      {
+        "name": "max",
+        "type": "number",
+        "default": 99,
+        "effect": "Counts above this show as max+."
+      },
+      {
+        "name": "label",
+        "type": "string",
+        "default": "unread",
+        "effect": "What the count counts, read after the number by screen readers."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root element."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/ember-badge",
+      "usage": "import { EmberBadge } from \"@/components/ui/ember-badge\";\n\nexport function Inbox({ unread }: { unread: number }) {\n  return (\n    <EmberBadge count={unread} label=\"unread messages\">\n      <button type=\"button\" aria-label=\"Inbox\">\n        <BellIcon />\n      </button>\n    </EmberBadge>\n  );\n}",
+      "mistakes": [
+        "Put the accessible name on the wrapped button (aria-label=\"Inbox\"); the badge only adds the count.",
+        "The sparks rise above the badge: do not clip the parent with overflow: hidden.",
+        "Pass the real count (a number), not a string; the badge formats max+ itself."
+      ],
+      "verify": [
+        "Server HTML shows the number on a static ember badge.",
+        "Raising count flares the ember and a status message reads the new count.",
+        "At count 0 the number disappears and the loop stops."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

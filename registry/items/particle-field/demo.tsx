@@ -108,6 +108,7 @@ export default function ParticleFieldDemo() {
       {/* Hero Visual Area */}
       <div style={{ position: "relative", flex: 1, minHeight: "560px" }}>
         <ParticleField
+          palette="fire"
           count={pointCount}
           speed={driftVelocity}
           paused={globalPaused}

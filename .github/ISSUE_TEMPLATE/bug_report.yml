@@ -25,6 +25,18 @@ body:
         - smooth-scroll
         - sticky-scroll-story
         - text-reveal
+        - ash-text
+        - eclipse-switch
+        - ember-badge
+        - firework-rating
+        - flame-switch
+        - flint-button
+        - fuse-toast
+        - hold-to-confirm
+        - lantern-sky
+        - light-leak-tabs
+        - match-progress
+        - temper-slider
         - "@frictionborn/runtime"
         - Documentation site
         - Registry or install (shadcn add)

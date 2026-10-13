@@ -16,6 +16,18 @@ import MeshGradientDemo from "../../../../../registry/items/mesh-gradient/demo";
 import DistortionImageDemo from "../../../../../registry/items/distortion-image/demo";
 import AmbientHeroDemo from "../../../../../registry/items/ambient-hero/demo";
 import ScrollShowcaseDemo from "../../../../../registry/items/scroll-showcase/demo";
+import LanternSkyDemo from "../../../../../registry/items/lantern-sky/demo";
+import AshTextDemo from "../../../../../registry/items/ash-text/demo";
+import FireworkRatingDemo from "../../../../../registry/items/firework-rating/demo";
+import EclipseSwitchDemo from "../../../../../registry/items/eclipse-switch/demo";
+import HoldToConfirmDemo from "../../../../../registry/items/hold-to-confirm/demo";
+import FlintButtonDemo from "../../../../../registry/items/flint-button/demo";
+import FuseToastDemo from "../../../../../registry/items/fuse-toast/demo";
+import MatchProgressDemo from "../../../../../registry/items/match-progress/demo";
+import TemperSliderDemo from "../../../../../registry/items/temper-slider/demo";
+import LightLeakTabsDemo from "../../../../../registry/items/light-leak-tabs/demo";
+import EmberBadgeDemo from "../../../../../registry/items/ember-badge/demo";
+import FlameSwitchDemo from "../../../../../registry/items/flame-switch/demo";
 
 export default function ItemBenchPage({
   params,
@@ -135,6 +147,42 @@ export default function ItemBenchPage({
     }
     if (name === "scroll-showcase") {
       return <ScrollShowcaseDemo />;
+    }
+    if (name === "lantern-sky") {
+      return <LanternSkyDemo />;
+    }
+    if (name === "ash-text") {
+      return <AshTextDemo />;
+    }
+    if (name === "firework-rating") {
+      return <FireworkRatingDemo />;
+    }
+    if (name === "eclipse-switch") {
+      return <EclipseSwitchDemo />;
+    }
+    if (name === "hold-to-confirm") {
+      return <HoldToConfirmDemo />;
+    }
+    if (name === "flint-button") {
+      return <FlintButtonDemo />;
+    }
+    if (name === "fuse-toast") {
+      return <FuseToastDemo />;
+    }
+    if (name === "match-progress") {
+      return <MatchProgressDemo />;
+    }
+    if (name === "temper-slider") {
+      return <TemperSliderDemo />;
+    }
+    if (name === "light-leak-tabs") {
+      return <LightLeakTabsDemo />;
+    }
+    if (name === "ember-badge") {
+      return <EmberBadgeDemo />;
+    }
+    if (name === "flame-switch") {
+      return <FlameSwitchDemo />;
     }
     return (
       <div style={{ padding: "2rem", color: "var(--muted)" }}>

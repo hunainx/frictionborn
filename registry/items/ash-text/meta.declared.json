@@ -1,0 +1,172 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "ash-text",
+    "version": "0.1.0",
+    "summary": "headline: One line of real text drawn as grains of ash; a click or its button blows it away with glowing edges and it gathers back (canvas 2D, server-safe text)",
+    "slot": "headline",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "One short word or line that deserves a moment (a hero word, a 404, a closing line)",
+      "Brand pages about fire, time or impermanence"
+    ],
+    "avoidWhen": [
+      "Body copy, long or wrapping text (it is one line)",
+      "Text that must stay crisp at all times (labels, navigation)"
+    ],
+    "alternatives": [
+      {
+        "name": "text-reveal",
+        "when": "When the text should arrive once, word by word"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "The real text, as it is in the server HTML: no grains, no canvas, no button."
+    },
+    "input": {
+      "pointer": "Click the word to blow it away from that point; hovering nudges the grains",
+      "touch": "Tap the word",
+      "keyboard": "A native button under the word (\"Blow … away\") does the same"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.3.1",
+      "1.4.3",
+      "2.1.1",
+      "2.2.2"
+    ],
+    "notes": "The text stays in the DOM as a real heading or paragraph (`as`), transparent only while the grains are drawn in its own colour. The effect is one gust of about 4 s, started by the visitor. The canvas is aria-hidden."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flint-button",
+      "lantern-sky"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "string",
+      "default": null,
+      "effect": "Required. The text, one line."
+    },
+    {
+      "name": "as",
+      "type": "\"h1\" | \"h2\" | \"h3\" | \"p\" | \"span\"",
+      "default": "h2",
+      "effect": "The element the text is rendered as."
+    },
+    {
+      "name": "interactive",
+      "type": "boolean",
+      "default": true,
+      "effect": "Offer the click and the button; false keeps it as a still texture."
+    },
+    {
+      "name": "actionLabel",
+      "type": "string",
+      "default": null,
+      "effect": "Name of the button (default: Blow \"<text>\" away)."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/ash-text",
+    "usage": "import { AshText } from \"@/components/ui/ash-text\";\n\nexport function Closing() {\n  return (\n    <AshText as=\"h2\" style={{ fontSize: 96, fontWeight: 900 }}>\n      Ephemeral\n    </AshText>\n  );\n}",
+    "mistakes": [
+      "Pass plain text (a string), one line: it is drawn grain by grain.",
+      "Set the font on AshText itself (style or className); the text element inherits it.",
+      "The grains fly up to 200 px around the word: do not clip the parent with overflow: hidden."
+    ],
+    "verify": [
+      "Server HTML has the text as a real heading.",
+      "The button blows the word away and it gathers back within about 4 s.",
+      "Once gathered, nothing runs."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

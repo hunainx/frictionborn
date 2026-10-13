@@ -1,0 +1,210 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "hold-to-confirm",
+  "type": "registry:ui",
+  "title": "HoldToConfirm",
+  "description": "control: Press-and-hold button for destructive actions: it fills, then crumbles to ash left to right; Undo rebuilds it (canvas 2D, native button)",
+  "dependencies": [
+    "@frictionborn/runtime"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/items/hold-to-confirm/hold-to-confirm.tsx",
+      "content": "// Original — Frictionborn Motion HoldToConfirm (ported from the component lab, c2 · Hold-to-Delete Ash Button)\n\"use client\";\n\nimport React, { useCallback, useEffect, useRef, useState } from \"react\";\nimport { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from \"@frictionborn/runtime\";\nimport { heat, noise, paletteRamp, rand, relBox, stage } from \"@frictionborn/runtime/canvas\";\n\nexport interface HoldToConfirmProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {\n  /** The button's label (\"Hold to delete ember.fig\"). */\n  children: React.ReactNode;\n  /** How long the press must be held, in ms. */\n  holdMs?: number;\n  /** The hold completed: do the action. */\n  onConfirm?: () => void;\n  /** Shown (and announced) once confirmed. */\n  confirmedText?: React.ReactNode;\n  /** Label of the button that takes it back. Pass `null` for no undo. */\n  undoLabel?: string | null;\n  onUndo?: () => void;\n  disabled?: boolean;\n  ref?: React.Ref<HTMLDivElement>;\n}\n\ninterface Grain { hx: number; hy: number; x: number; y: number; vx: number; vy: number; t: number; on: number }\n\nexport function HoldToConfirm({ children, holdMs = 1000, onConfirm, confirmedText = \"Done.\", undoLabel = \"Undo\", onUndo, disabled = false, palette = \"fire\", paused = false, maxTier = 3, nonce, className = \"\", style, ref, ...rest }: HoldToConfirmProps) {\n  const rootRef = useItemRef(ref);\n  const fxRef = useRef<HTMLDivElement>(null);\n  const btnRef = useRef<HTMLButtonElement>(null);\n  const undoRef = useRef<HTMLButtonElement>(null);\n  const [holding, setHolding] = useState(false);\n  const [done, setDone] = useState(false);\n  const fxApi = useRef<{ crumble: () => void; rebuild: () => void } | null>(null);\n  const timer = useRef(0);\n  const { hydrated, reduced, tier } = useItemEnv(maxTier);\n  const cb = useRef({ onConfirm, onUndo });\n  cb.current = { onConfirm, onUndo };\n\n  // the ash: the lab's c2 drawing (the button breaks into grains that glow, cool and fall left to right; undo gathers them back)\n  const wake = useDrawLoop(\n    fxRef,\n    (fx, wakeUp) => {\n      const root = rootRef.current, btn = btnRef.current;\n      if (!root || !btn) return null;\n      const s = stage(fx, tier);\n      if (!s) return null;\n      const { d, c } = s;\n      const pal = paletteRamp(palette, readPalette(root, palette));\n      const back = palette === \"fire\" ? [194, 65, 12] : pal[2][1];\n      let P: Grain[] = [], state: \"idle\" | \"ash\" | \"back\" = \"idle\", st = 0;\n      const step = tier >= 3 ? 2.5 : 3.5;\n      fxApi.current = {\n        crumble() {\n          const r = relBox(btn, fx);\n          P = [];\n          for (let y = 0; y < r.h; y += step) for (let x = 0; x < r.w; x += step) P.push({ hx: r.x + x, hy: r.y + y, x: r.x + x, y: r.y + y, vx: 0, vy: 0, t: (x / r.w) * 0.7 + Math.random() * 0.15, on: 0 });\n          state = \"ash\";\n          st = 0;\n          wakeUp();\n        },\n        rebuild() {\n          if (!P.length) return;\n          state = \"back\";\n          st = 0;\n          wakeUp();\n        },\n      };\n      return {\n        tick(dt, t) {\n          const g = c.g;\n          g.clearRect(0, 0, c.w, c.h);\n          if (state === \"idle\") return false;\n          st += dt;\n          for (const q of P) {\n            if (state === \"ash\") {\n              if (st > q.t) {\n                if (!q.on) { q.on = 1; q.vx = rand(10, 80); q.vy = rand(-40, 10); }\n                q.vy += 90 * dt;\n                q.vx += (noise(q.x * 0.03, t) - 0.4) * 120 * dt;\n                q.x += q.vx * dt;\n                q.y += q.vy * dt;\n              }\n            } else {\n              q.x += (q.hx - q.x) * Math.min(1, dt * 6);\n              q.y += (q.hy - q.y) * Math.min(1, dt * 6);\n            }\n            const age = state === \"ash\" ? st - q.t : 0;\n            if (state === \"ash\" && age > 0 && age < 0.35) g.fillStyle = heat(pal, 0.9 - age * 1.6);\n            else if (state === \"ash\" && age > 0) g.fillStyle = `rgba(120,112,106,${Math.max(0, 1 - (age - 0.35) / 2)})`;\n            else g.fillStyle = state === \"back\" ? `rgba(${back[0]},${back[1]},${back[2]},${0.5 + 0.5 * Math.min(1, st * 2)})` : \"#3a1712\";\n            g.fillRect(q.x, q.y, 2.4, 2.4);\n          }\n          if (state === \"back\" && st > 0.7) {\n            state = \"idle\";\n            P = [];\n            g.clearRect(0, 0, c.w, c.h);\n            return false;\n          }\n          // the grains have fallen and faded about 3 s after the hold\n          if (state === \"ash\" && st > 3.2) {\n            g.clearRect(0, 0, c.w, c.h);\n            return false;\n          }\n          return true;\n        },\n        destroy() {\n          fxApi.current = null;\n          d.dispose();\n        },\n      };\n    },\n    { enabled: hydrated && tier > 0 && !reduced, paused, key: `${tier}:${palette}` },\n  );\n\n  const confirm = useCallback(() => {\n    setHolding(false);\n    setDone(true);\n    fxApi.current?.crumble();\n    cb.current.onConfirm?.();\n  }, []);\n\n  const start = useCallback(() => {\n    if (disabled || done) return;\n    setHolding(true);\n    window.clearTimeout(timer.current);\n    timer.current = window.setTimeout(confirm, holdMs);\n  }, [disabled, done, holdMs, confirm]);\n  const stop = useCallback(() => {\n    window.clearTimeout(timer.current);\n    setHolding(false);\n  }, []);\n  useEffect(() => () => window.clearTimeout(timer.current), []);\n\n  // once confirmed, focus moves to Undo (the button it replaced is gone); after undo it comes back to the button\n  const wasDone = useRef(false);\n  useEffect(() => {\n    if (done) undoRef.current?.focus({ preventScroll: true });\n    else if (wasDone.current) btnRef.current?.focus({ preventScroll: true });\n    wasDone.current = done;\n  }, [done]);\n\n  const undo = () => {\n    setDone(false);\n    fxApi.current?.rebuild();\n    wake();\n    cb.current.onUndo?.();\n  };\n\n  return (\n    <div ref={rootRef} data-frictionborn-item=\"hold-to-confirm\" data-tier={tier} className={`fb-hold-to-confirm ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>\n      <style nonce={nonce}>{`\n        /* the effect paints up to 200 px around the control without widening the page (no sideways scroll on phones) */\n        .fb-hold-to-confirm { overflow: clip; overflow-clip-margin: 200px; }\n        .fb-hold-to-confirm { position: relative; display: inline-grid; justify-items: center; gap: 12px; }\n        .fb-htc-fx { position: absolute; left: 50%; top: 50%; width: calc(100% + 240px); height: 260px; transform: translate(-50%, -40%); pointer-events: none; z-index: 2; }\n        .fb-htc-fx > canvas { position: absolute; inset: 0; display: block; }\n        .fb-htc-btn { position: relative; min-height: 52px; padding: 0 26px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--fb-heat-2, #E8590C) 45%, transparent); background: #2a1210; color: #ffd9cf;\n          font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; }\n        .fb-htc-btn:disabled { cursor: not-allowed; opacity: 0.55; }\n        .fb-htc-btn:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 3px; }\n        .fb-htc-btn > span { position: relative; }\n        .fb-htc-btn::before { content: \"\"; position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: linear-gradient(90deg, var(--fb-heat-1, #7A1D10), var(--fb-heat-2, #C2410C)); transition: transform 0.25s ease-out; }\n        .fb-htc-btn[data-holding=\"true\"]::before { transform: scaleX(1); transition: transform var(--fb-htc-ms) linear; }\n        .fb-htc-btn[hidden] { display: none; }\n        .fb-htc-done { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--foreground, #cfc4b9); }\n        .fb-htc-undo { min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(233, 229, 223, 0.18); background: #1d1a18; color: #E9E5DF; font: inherit; font-size: 13px; cursor: pointer; }\n        .fb-htc-undo:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }\n      `}</style>\n      <div ref={fxRef} className=\"fb-htc-fx\" aria-hidden=\"true\" />\n      <button\n        ref={btnRef}\n        type=\"button\"\n        className=\"fb-htc-btn\"\n        hidden={done}\n        disabled={disabled}\n        data-holding={holding}\n        style={{ [\"--fb-htc-ms\" as string]: `${holdMs}ms` }}\n        onPointerDown={start}\n        onPointerUp={stop}\n        onPointerLeave={stop}\n        onPointerCancel={stop}\n        onKeyDown={(e) => {\n          if ((e.key === \"Enter\" || e.key === \" \") && !e.repeat) {\n            e.preventDefault();\n            start();\n          }\n        }}\n        onKeyUp={(e) => {\n          if (e.key === \"Enter\" || e.key === \" \") stop();\n        }}\n        onBlur={stop}\n      >\n        <span>{children}</span>\n      </button>\n      <div role=\"status\" className=\"fb-htc-done\">\n        {done && (\n          <>\n            <span>{confirmedText}</span>\n            {undoLabel && (\n              <button ref={undoRef} type=\"button\" className=\"fb-htc-undo\" onClick={undo}>\n                {undoLabel}\n              </button>\n            )}\n          </>\n        )}\n      </div>\n    </div>\n  );\n}\n\nexport default HoldToConfirm;\n",
+      "type": "registry:ui",
+      "target": "components/ui/hold-to-confirm.tsx"
+    }
+  ],
+  "meta": {
+    "schemaVersion": "0.1",
+    "item": {
+      "name": "hold-to-confirm",
+      "version": "0.1.0",
+      "summary": "control: Press-and-hold button for destructive actions: it fills, then crumbles to ash left to right; Undo rebuilds it (canvas 2D, native button)",
+      "slot": "control",
+      "kind": "canvas"
+    },
+    "intent": {
+      "useWhen": [
+        "A destructive or costly action that deserves a deliberate press (delete, discard, revoke)",
+        "Replacing a confirmation dialog with something faster and harder to trigger by accident"
+      ],
+      "avoidWhen": [
+        "Everyday actions (a hold slows people down)",
+        "Actions that cannot be undone, unless you pass undoLabel={null} and say so in the label"
+      ],
+      "alternatives": [
+        {
+          "name": "fuse-toast",
+          "when": "When the action should happen at once and offer undo afterwards"
+        }
+      ]
+    },
+    "runtime": {
+      "serverOutput": "final-state",
+      "clientOnly": false,
+      "lazyLoaded": "in-view",
+      "requires": {
+        "react": ">=19",
+        "frameworks": [
+          "next-app-router",
+          "vite-react"
+        ],
+        "tailwind": "none"
+      }
+    },
+    "dependencies": {
+      "npm": [],
+      "registry": []
+    },
+    "behavior": {
+      "loop": "on-interaction",
+      "webglContexts": 0,
+      "tiers": {
+        "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+        "1": "Same as tier 2",
+        "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+        "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+      },
+      "reducedMotion": {
+        "mode": "static",
+        "description": "The hold works the same with a filling bar; the button simply disappears when confirmed (no crumble, no canvas)."
+      },
+      "input": {
+        "pointer": "Press and hold for holdMs; releasing early cancels",
+        "touch": "Press and hold (touch-action: none on the button)",
+        "keyboard": "Hold Enter or Space; releasing early cancels; focus moves to Undo once confirmed and back after undo"
+      }
+    },
+    "a11y": {
+      "role": "interactive",
+      "hiddenFromAT": false,
+      "textStaysInDom": true,
+      "pauseControl": "via-runtime",
+      "wcag": [
+        "2.1.1",
+        "2.4.3",
+        "2.5.2",
+        "4.1.3"
+      ],
+      "notes": "A native <button>; the label should say it needs a hold. Confirmation is announced in a role=status region, which also holds the Undo button (focus moves there). Releasing before holdMs cancels (WCAG 2.5.2). The ash canvas is aria-hidden."
+    },
+    "composition": {
+      "maxPerPage": 6,
+      "singleton": false,
+      "conflictsWith": [],
+      "pairsWith": [
+        "fuse-toast",
+        "flint-button"
+      ]
+    },
+    "props": [
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "default": null,
+        "effect": "Required. The label, which should say that it needs a hold."
+      },
+      {
+        "name": "holdMs",
+        "type": "number",
+        "default": 1000,
+        "effect": "How long the press must be held, in ms."
+      },
+      {
+        "name": "onConfirm",
+        "type": "() => void",
+        "default": null,
+        "effect": "The hold completed: do the action."
+      },
+      {
+        "name": "confirmedText",
+        "type": "React.ReactNode",
+        "default": "Done.",
+        "effect": "Shown and announced once confirmed."
+      },
+      {
+        "name": "undoLabel",
+        "type": "string | null",
+        "default": "Undo",
+        "effect": "Label of the undo button; null for no undo."
+      },
+      {
+        "name": "onUndo",
+        "type": "() => void",
+        "default": null,
+        "effect": "Undo was pressed."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "default": false,
+        "effect": "Disables the button."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": "fire",
+        "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+      },
+      {
+        "name": "paused",
+        "type": "boolean",
+        "default": false,
+        "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+      },
+      {
+        "name": "maxTier",
+        "type": "number",
+        "default": 3,
+        "effect": "Hard ceiling on the capability tier."
+      },
+      {
+        "name": "nonce",
+        "type": "string",
+        "default": null,
+        "effect": "CSP nonce for the component's <style> element."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "default": "",
+        "effect": "Extra classes on the root."
+      },
+      {
+        "name": "style",
+        "type": "React.CSSProperties",
+        "default": null,
+        "effect": "Inline styles on the root, merged after the palette variables."
+      },
+      {
+        "name": "ref",
+        "type": "React.Ref<HTMLDivElement>",
+        "default": null,
+        "effect": "Receives the root element."
+      }
+    ],
+    "agent": {
+      "install": "npx shadcn@4.21.1 add @frictionborn/hold-to-confirm",
+      "usage": "import { HoldToConfirm } from \"@/components/ui/hold-to-confirm\";\n\nexport function DeleteDraft({ onDelete, onRestore }: { onDelete: () => void; onRestore: () => void }) {\n  return (\n    <HoldToConfirm onConfirm={onDelete} onUndo={onRestore} confirmedText=\"Draft deleted.\">\n      Hold to delete draft\n    </HoldToConfirm>\n  );\n}",
+      "mistakes": [
+        "Say \"Hold to …\" in the label: nothing else tells people a click is not enough.",
+        "If the action cannot be undone, pass undoLabel={null} rather than an Undo that does nothing.",
+        "The ash falls below and beside the button: do not clip the parent with overflow: hidden."
+      ],
+      "verify": [
+        "Server HTML has a native <button> with the label and an empty status region.",
+        "Holding Enter for holdMs confirms; releasing early does not.",
+        "Undo restores the button and moves focus back to it."
+      ]
+    },
+    "license": {
+      "code": "MIT",
+      "derivedFrom": [],
+      "notices": [],
+      "assets": []
+    }
+  }
+}

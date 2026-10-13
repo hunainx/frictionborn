@@ -10,3 +10,6 @@ export { pauseAll, resumeAll, usePaused, getIsPaused } from "./pause.js";
 export { MotionReadyScript, initMotionReady, MOTION_READY_SCRIPT_HASH, type MotionReadyScriptProps } from "./motion-ready.js";
 export { tokens, type MotionTokens } from "./tokens.js";
 export { resolveCssColor } from "./color.js";
+export { PALETTES, PALETTE_NAMES, HEAT_VARS, paletteVars, readPalette, type PaletteName, type PaletteColors } from "./palette.js";
+export { useDrawLoop, type DrawInstance, type DrawFactory, type DrawLoopOptions } from "./draw-loop.js";
+export { useItemEnv, useItemRef, type CanvasItemProps } from "./item-env.js";

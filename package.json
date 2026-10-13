@@ -72,6 +72,12 @@
       "path": "packages/runtime/dist/gl/surface.mjs",
       "limit": "3 KB",
       "gzip": true
+    },
+    {
+      "name": "@frictionborn/runtime/canvas",
+      "path": "packages/runtime/dist/canvas/index.mjs",
+      "limit": "3.5 KB",
+      "gzip": true
     }
   ]
 }

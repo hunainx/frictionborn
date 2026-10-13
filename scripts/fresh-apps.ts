@@ -149,6 +149,19 @@ function generatePage(items: string[], framework: Framework): string {
   if (has("distortion-image")) imports.push('import { DistortionImage } from "@/components/ui/distortion-image";');
   if (has("ambient-hero")) imports.push('import { AmbientHero } from "@/components/ui/ambient-hero";');
   if (has("scroll-showcase")) imports.push('import { ScrollShowcase } from "@/components/ui/scroll-showcase";');
+  // round 4: the twelve canvas items
+  if (has("ash-text")) imports.push('import { AshText } from "@/components/ui/ash-text";');
+  if (has("eclipse-switch")) imports.push('import { EclipseSwitch } from "@/components/ui/eclipse-switch";');
+  if (has("ember-badge")) imports.push('import { EmberBadge } from "@/components/ui/ember-badge";');
+  if (has("firework-rating")) imports.push('import { FireworkRating } from "@/components/ui/firework-rating";');
+  if (has("flame-switch")) imports.push('import { FlameSwitch } from "@/components/ui/flame-switch";');
+  if (has("flint-button")) imports.push('import { FlintButton } from "@/components/ui/flint-button";');
+  if (has("fuse-toast")) imports.push('import { FuseToast } from "@/components/ui/fuse-toast";');
+  if (has("hold-to-confirm")) imports.push('import { HoldToConfirm } from "@/components/ui/hold-to-confirm";');
+  if (has("lantern-sky")) imports.push('import { LanternSky } from "@/components/ui/lantern-sky";');
+  if (has("light-leak-tabs")) imports.push('import { LightLeakTabs } from "@/components/ui/light-leak-tabs";');
+  if (has("match-progress")) imports.push('import { MatchProgress } from "@/components/ui/match-progress";');
+  if (has("temper-slider")) imports.push('import { TemperSlider } from "@/components/ui/temper-slider";');
 
   const gl = (id: string, el: string) => `
         <div data-testid="gl-item-${id}" style={{ width: "100%", height: "260px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
@@ -218,6 +231,18 @@ export default function FreshAppView() {${nextImageSetup}
         ${has("particle-field") ? gl("particle-field", "<ParticleField style={{ width: '100%', height: '100%' }} />") : ""}
         ${has("mesh-gradient") ? gl("mesh-gradient", "<MeshGradient style={{ width: '100%', height: '100%' }} />") : ""}
         ${distortionCases}
+        ${has("ash-text") ? `<div data-testid="item-ash-text" style={{ padding: "2rem 0" }}><AshText as="h2">Ephemeral</AshText></div>` : ""}
+        ${has("eclipse-switch") ? `<div data-testid="item-eclipse-switch" style={{ padding: "2rem 0" }}><EclipseSwitch /></div>` : ""}
+        ${has("ember-badge") ? `<div data-testid="item-ember-badge" style={{ padding: "2rem 0" }}><EmberBadge count={3}><button type="button">Inbox</button></EmberBadge></div>` : ""}
+        ${has("firework-rating") ? `<div data-testid="item-firework-rating" style={{ padding: "2rem 0" }}><FireworkRating /></div>` : ""}
+        ${has("flame-switch") ? `<div data-testid="item-flame-switch" style={{ padding: "2rem 0" }}><FlameSwitch label="Pilot flame" /></div>` : ""}
+        ${has("flint-button") ? `<div data-testid="item-flint-button" style={{ padding: "2rem 0" }}><FlintButton>Strike</FlintButton></div>` : ""}
+        ${has("fuse-toast") ? `<div data-testid="item-fuse-toast" style={{ padding: "2rem 0" }}><FuseToast open message="Saved." /></div>` : ""}
+        ${has("hold-to-confirm") ? `<div data-testid="item-hold-to-confirm" style={{ padding: "2rem 0" }}><HoldToConfirm>Hold to delete</HoldToConfirm></div>` : ""}
+        ${has("lantern-sky") ? `<div data-testid="item-lantern-sky" style={{ padding: "2rem 0" }}><LanternSky><p>Let it rise.</p></LanternSky></div>` : ""}
+        ${has("light-leak-tabs") ? `<div data-testid="item-light-leak-tabs" style={{ padding: "2rem 0" }}><LightLeakTabs label="Tabs" tabs={[{ id: "a", label: "One", content: <p>One</p> }, { id: "b", label: "Two", content: <p>Two</p> }]} /></div>` : ""}
+        ${has("match-progress") ? `<div data-testid="item-match-progress" style={{ padding: "2rem 0" }}><MatchProgress value={40} label="Progress" /></div>` : ""}
+        ${has("temper-slider") ? `<div data-testid="item-temper-slider" style={{ padding: "2rem 0" }}><TemperSlider /></div>` : ""}
         ${has("scroll-reveal") ? `<div data-testid="item-scroll-reveal"><ScrollReveal><div style={{ padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}>This card slides in as it scrolls into view.</div></ScrollReveal></div>` : ""}
         ${
           has("sticky-scroll-story")

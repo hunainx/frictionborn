@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "hold-to-confirm",
+    "version": "0.1.0",
+    "summary": "control: Press-and-hold button for destructive actions: it fills, then crumbles to ash left to right; Undo rebuilds it (canvas 2D, native button)",
+    "slot": "control",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "A destructive or costly action that deserves a deliberate press (delete, discard, revoke)",
+      "Replacing a confirmation dialog with something faster and harder to trigger by accident"
+    ],
+    "avoidWhen": [
+      "Everyday actions (a hold slows people down)",
+      "Actions that cannot be undone, unless you pass undoLabel={null} and say so in the label"
+    ],
+    "alternatives": [
+      {
+        "name": "fuse-toast",
+        "when": "When the action should happen at once and offer undo afterwards"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "The hold works the same with a filling bar; the button simply disappears when confirmed (no crumble, no canvas)."
+    },
+    "input": {
+      "pointer": "Press and hold for holdMs; releasing early cancels",
+      "touch": "Press and hold (touch-action: none on the button)",
+      "keyboard": "Hold Enter or Space; releasing early cancels; focus moves to Undo once confirmed and back after undo"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "2.1.1",
+      "2.4.3",
+      "2.5.2",
+      "4.1.3"
+    ],
+    "notes": "A native <button>; the label should say it needs a hold. Confirmation is announced in a role=status region, which also holds the Undo button (focus moves there). Releasing before holdMs cancels (WCAG 2.5.2). The ash canvas is aria-hidden."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "fuse-toast",
+      "flint-button"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Required. The label, which should say that it needs a hold."
+    },
+    {
+      "name": "holdMs",
+      "type": "number",
+      "default": 1000,
+      "effect": "How long the press must be held, in ms."
+    },
+    {
+      "name": "onConfirm",
+      "type": "() => void",
+      "default": null,
+      "effect": "The hold completed: do the action."
+    },
+    {
+      "name": "confirmedText",
+      "type": "React.ReactNode",
+      "default": "Done.",
+      "effect": "Shown and announced once confirmed."
+    },
+    {
+      "name": "undoLabel",
+      "type": "string | null",
+      "default": "Undo",
+      "effect": "Label of the undo button; null for no undo."
+    },
+    {
+      "name": "onUndo",
+      "type": "() => void",
+      "default": null,
+      "effect": "Undo was pressed."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "default": false,
+      "effect": "Disables the button."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/hold-to-confirm",
+    "usage": "import { HoldToConfirm } from \"@/components/ui/hold-to-confirm\";\n\nexport function DeleteDraft({ onDelete, onRestore }: { onDelete: () => void; onRestore: () => void }) {\n  return (\n    <HoldToConfirm onConfirm={onDelete} onUndo={onRestore} confirmedText=\"Draft deleted.\">\n      Hold to delete draft\n    </HoldToConfirm>\n  );\n}",
+    "mistakes": [
+      "Say \"Hold to …\" in the label: nothing else tells people a click is not enough.",
+      "If the action cannot be undone, pass undoLabel={null} rather than an Undo that does nothing.",
+      "The ash falls below and beside the button: do not clip the parent with overflow: hidden."
+    ],
+    "verify": [
+      "Server HTML has a native <button> with the label and an empty status region.",
+      "Holding Enter for holdMs confirms; releasing early does not.",
+      "Undo restores the button and moves focus back to it."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  }
+}

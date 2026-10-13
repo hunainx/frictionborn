@@ -49,6 +49,7 @@ export default function AmbientHeroDemo() {
 
       <AmbientHero
         variant={variant}
+        palette="fire"
         eyebrow="Frictionborn Motion"
         headline="Calm motion, struck from a single spark."
         body="Open-source motion components for React and Next.js. Installed with the shadcn CLI, measured in real browsers, and calm when motion is reduced."

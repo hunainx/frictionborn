@@ -23,4 +23,11 @@ export default defineConfig([
     dts: true,
     outDir: "dist/gl",
   },
+  {
+    // round 4: the lab's 2D drawing kit, shared by the canvas items (no React, no "use client")
+    entry: ["src/canvas/index.ts"],
+    format: ["esm"],
+    dts: true,
+    outDir: "dist/canvas",
+  },
 ]);
