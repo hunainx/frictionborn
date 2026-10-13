@@ -140,7 +140,7 @@ export default function ParticleFieldDemo() {
             >
               Sparks in the night air
             </div>
-            <h1
+            <h2
               style={{
                 fontSize: "clamp(2rem, 4.5vw, 3.25rem)",
                 fontWeight: 600,
@@ -151,7 +151,7 @@ export default function ParticleFieldDemo() {
               }}
             >
               Sparks Rising From Heat
-            </h1>
+            </h2>
 
             <p
               style={{

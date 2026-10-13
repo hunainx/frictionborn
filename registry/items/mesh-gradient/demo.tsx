@@ -113,7 +113,7 @@ export default function MeshGradientDemo() {
           />
           Frictionborn Motion &bull; Mesh Gradient
         </div>
-        <h1
+        <h2
           style={{
             margin: "0 0 0.5rem 0",
             fontSize: "clamp(1.5rem, 3.2vw, 2.25rem)",
@@ -122,7 +122,7 @@ export default function MeshGradientDemo() {
           }}
         >
           Slow Colour, Steady Text
-        </h1>
+        </h2>
         <p
           style={{
             margin: 0,

@@ -60,9 +60,9 @@ export default function MarqueeDemo() {
           >
             Frictionborn Motion · Components
           </span>
-          <h1 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
+          <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
             Motion components you own as code
-          </h1>
+          </h2>
         </div>
 
         <button

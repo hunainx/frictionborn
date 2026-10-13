@@ -143,9 +143,9 @@ export default function ScrollShowcaseDemo() {
   return (
     <div style={{ width: "100%", background: "#0d0f12", position: "relative" }}>
       {/* ScrollShowcase starts at an h2 (the host page owns the h1): give the demo page its own */}
-      <h1 style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>
+      <h2 style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap" }}>
         Scroll showcase demo
-      </h1>
+      </h2>
 
       {/* Demo Controls with lighter chrome */}
       <div

@@ -196,9 +196,9 @@ export default function StickyScrollStoryDemo() {
           >
             From Friction to Ash
           </span>
-          <h1 style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>
+          <h2 style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>
             Crafting a Motion Component From Friction
-          </h1>
+          </h2>
         </div>
 
         <StickyScrollStory

@@ -144,7 +144,7 @@ export default function DistortionImageDemo() {
     >
       {/* Gallery Header */}
       <header className="gallery-curation-head">
-        <h1
+        <h2
           style={{
             fontSize: "2.25rem",
             fontWeight: 700,
@@ -153,7 +153,7 @@ export default function DistortionImageDemo() {
           }}
         >
           Heat haze over six paintings
-        </h1>
+        </h2>
         <p
           style={{
             margin: 0,

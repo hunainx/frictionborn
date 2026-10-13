@@ -49,7 +49,7 @@ export default function MagneticButtonDemo() {
           </span>
         </div>
 
-        <h1
+        <h2
           style={{
             fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)",
             fontWeight: 600,
@@ -59,7 +59,7 @@ export default function MagneticButtonDemo() {
           }}
         >
           Magnetic Pull on Primary Actions
-        </h1>
+        </h2>
         <p
           style={{
             margin: "0 auto",

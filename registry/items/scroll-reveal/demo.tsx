@@ -73,7 +73,7 @@ export default function ScrollRevealDemo() {
           >
             Frictionborn Motion · How It Works
           </span>
-          <h1
+          <h2
             style={{
               fontSize: "1.75rem",
               fontWeight: 600,
@@ -82,7 +82,7 @@ export default function ScrollRevealDemo() {
             }}
           >
             What Every Component Gets
-          </h1>
+          </h2>
         </div>
 
         <fieldset

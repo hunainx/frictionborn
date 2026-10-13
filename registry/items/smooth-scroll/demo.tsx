@@ -121,7 +121,7 @@ export default function SmoothScrollDemo() {
             >
               Field notes · Brand story
             </span>
-            <h1
+            <h2
               style={{
                 fontSize: "clamp(2rem, 4.5vw, 3rem)",
                 fontWeight: 700,
@@ -131,7 +131,7 @@ export default function SmoothScrollDemo() {
               }}
             >
               How friction becomes a working fire
-            </h1>
+            </h2>
             <p
               style={{
                 fontSize: "1.1rem",

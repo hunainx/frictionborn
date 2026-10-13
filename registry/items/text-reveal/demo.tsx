@@ -122,7 +122,7 @@ export default function TextRevealDemo() {
 
       <article style={{ minHeight: "180px", display: "flex", alignItems: "center" }}>
         <TextReveal
-          as="h1"
+          as="h2"
           by={granularity}
           replayKey={`${headlineIdx}-${cycleKey}`}
           style={{
