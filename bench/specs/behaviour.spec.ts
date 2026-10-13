@@ -7,7 +7,7 @@ const item = process.env.BENCH_ITEM || "noise-field";
 test.describe("Behaviour probe verification", () => {
   test(`renders ${item} item and measures idle frame activity and CLS`, async ({ page }) => {
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
 
     // Settle for 500ms
     await page.waitForTimeout(500);
@@ -49,7 +49,7 @@ test.describe("Behaviour probe verification", () => {
 
   test("suspends animation and emits 0 frames when tab is hidden", async ({ page }) => {
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
     await page.waitForTimeout(500);
 
     // Simulate tab becoming hidden

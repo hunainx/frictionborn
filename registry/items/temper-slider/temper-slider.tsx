@@ -145,7 +145,12 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
         .fb-ts-fx { position: absolute; inset: 0; pointer-events: none; }
         .fb-ts-fx > canvas { position: absolute; inset: 0; display: block; }
         .fb-ts-range { position: absolute; left: 24px; right: 24px; top: 56px; width: calc(100% - 48px); height: 44px; margin: 0; cursor: pointer; accent-color: var(--fb-heat-2, #E8590C); }
-        .fb-temper-slider[data-drawn] .fb-ts-range { opacity: 0; }
+        /* once the steel is drawn, the native range stays (focus, keys, pointer, screen readers) but paints nothing over it */
+        .fb-temper-slider[data-drawn] .fb-ts-range { -webkit-appearance: none; appearance: none; background: transparent; }
+        .fb-temper-slider[data-drawn] .fb-ts-range::-webkit-slider-runnable-track { background: transparent; border: 0; }
+        .fb-temper-slider[data-drawn] .fb-ts-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 44px; background: transparent; border: 0; }
+        .fb-temper-slider[data-drawn] .fb-ts-range::-moz-range-track { background: transparent; border: 0; }
+        .fb-temper-slider[data-drawn] .fb-ts-range::-moz-range-thumb { width: 28px; height: 44px; background: transparent; border: 0; }
         .fb-ts-range:disabled { cursor: not-allowed; }
         .fb-ts-range:focus-visible { outline: none; }
         .fb-temper-slider:not([data-drawn]) .fb-ts-range:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }

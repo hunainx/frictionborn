@@ -40,22 +40,20 @@ export const css = (c: ArrayLike<number>, a = 1): string => `rgba(${c[0] | 0},${
 /** a colour from a ramp as a CSS string (the lab's `bb(t, a)` when the ramp is BB) */
 export const heat = (stops: Ramp, t: number, a = 1): string => css(ramp(stops, t), a);
 
-// ---------- value noise (one permutation per page, like the lab) ----------
-let P: Uint8Array | null = null;
-function perm(): Uint8Array {
-  if (P) return P;
+// ---------- value noise (one permutation per page, built when the kit loads, like the lab's core) ----------
+const P: Uint8Array = (() => {
   const p = [...Array(256).keys()];
   for (let i = 255; i > 0; i--) {
     const j = (Math.random() * (i + 1)) | 0;
     [p[i], p[j]] = [p[j], p[i]];
   }
-  P = new Uint8Array(512);
-  for (let i = 0; i < 512; i++) P[i] = p[i & 255];
-  return P;
-}
+  const out = new Uint8Array(512);
+  for (let i = 0; i < 512; i++) out[i] = p[i & 255];
+  return out;
+})();
 const fade = (t: number) => t * t * (3 - 2 * t);
 export function noise(x: number, y: number): number {
-  const p = perm();
+  const p = P;
   const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, X = xi & 255, Y = yi & 255;
   const h = (i: number, j: number) => p[p[X + i] + Y + j] / 255;
   const u = fade(xf), v = fade(yf);

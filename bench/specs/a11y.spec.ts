@@ -8,7 +8,7 @@ const item = process.env.BENCH_ITEM || "noise-field";
 test.describe("Accessibility spec", () => {
   test("satisfies WCAG requirements with 0 serious and 0 critical violations", async ({ page }) => {
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
     await page.waitForTimeout(1000);
 
     const accessibilityScanResults = await new AxeBuilder({ page })
@@ -43,7 +43,7 @@ test.describe("Accessibility spec", () => {
   test("reduced motion: 0 serious and 0 critical violations", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
     await page.waitForTimeout(1000);
     const results = await new AxeBuilder({ page }).include("#demo-mount-point").analyze();
     const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");

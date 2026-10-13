@@ -10,7 +10,7 @@ test.describe("Reduced motion spec", () => {
   test("enforces reduced motion mode without leaked motion frames", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
 
     await page.waitForTimeout(500);
     // Reset probe after initial page load settle

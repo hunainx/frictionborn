@@ -54,13 +54,13 @@ export function FlintButton({ children, litLabel = "Lit", statusText = STATUS, p
             const u = strike / 0.26;
             if (u <= 1) {
               const x = b.w * (0.08 + 0.84 * u);
-              steel.style.opacity = "1";
+              steel.style.visibility = "visible";
               steel.style.transform = `translateX(${x - 23}px) rotate(-14deg)`;
               sp.burst(b.x + x, b.y + 2, 9, 250, 820, { dir: -Math.PI / 2 + 0.55, spread: 0.75, l0: 0.25, l1: 0.7 });
               heat = Math.min(1.5, heat + dt * 3.6);
             } else {
               strike = -1;
-              steel.style.opacity = "0";
+              steel.style.visibility = "hidden";
             }
           }
           if (heat > 1 && !lit) {
@@ -116,7 +116,7 @@ export function FlintButton({ children, litLabel = "Lit", statusText = STATUS, p
         .fb-fl-btn::before { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: 0.35; pointer-events: none;
           background: repeating-radial-gradient(circle at 70% 60%, transparent 0 3px, rgba(255,255,255,.04) 3px 4px), repeating-linear-gradient(115deg, transparent 0 9px, rgba(0,0,0,.18) 9px 10px); }
         .fb-fl-text { position: relative; z-index: 1; text-shadow: 0 0 calc(var(--fb-fb-h) * 18px) color-mix(in srgb, var(--fb-heat-3, #FFB15C) calc(var(--fb-fb-h) * 100%), transparent); }
-        .fb-fl-steel { position: absolute; left: 0; top: -12px; width: 46px; height: 12px; border-radius: 3px; background: linear-gradient(#e9edf0, #8d959c 50%, #555c62); transform-origin: left center; opacity: 0; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.6); }
+        .fb-fl-steel { position: absolute; left: 0; top: -12px; width: 46px; height: 12px; border-radius: 3px; background: linear-gradient(#e9edf0, #8d959c 50%, #555c62); transform-origin: left center; visibility: hidden; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,.6); }
         .fb-fl-status { font: 11px ui-monospace, "Geist Mono", monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-foreground, GrayText); }
       `}</style>
       <span ref={fxRef} className="fb-fl-fx" aria-hidden="true" />

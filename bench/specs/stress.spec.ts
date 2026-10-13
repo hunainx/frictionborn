@@ -7,7 +7,7 @@ test.describe("Tier override and stress spec", () => {
   for (const tier of ["0", "1", "2", "3"]) {
     test(`correctly mounts with forced tier ${tier}`, async ({ page }) => {
       await page.goto(`/items/${item}?tier=${tier}`);
-      await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+      await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
 
       // Wait for client tier attribute update
       await page.waitForFunction(

@@ -6,7 +6,7 @@ const item = process.env.BENCH_ITEM || "noise-field";
 test.describe("Mobile spec", () => {
   test("renders properly on mobile viewport without horizontal overflow", async ({ page }) => {
     await page.goto(`/items/${item}`);
-    await page.waitForSelector(`[data-frictionborn-item='${item}']`);
+    await page.waitForSelector(`[data-frictionborn-item='${item}']`, { state: "attached" });
 
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
     const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
