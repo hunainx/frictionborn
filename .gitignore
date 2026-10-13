@@ -32,3 +32,7 @@ the-private-website-repo/public/_local-assets/
 
 # website videos never go into git (decision 43): record them into this folder and attach them to the PR
 docs/videos/
+
+# Frictionborn Studio: real screenshots and founder photos stay out of git until the site moves to its private repository
+the-private-website-repo/public/work/
+the-private-website-repo/the-private-photo-dir/

@@ -94,6 +94,8 @@ const TARGET_DIRS = [
   path.join(ROOT, "apps", "docs", "app"),
   path.join(ROOT, "apps", "docs", "components"),
   path.join(ROOT, "apps", "docs", "lib"),
+  // round 4: the studio's content (services, work, reviews, founders)
+  path.join(ROOT, "apps", "docs", "content"),
 ];
 
 interface Violation {
