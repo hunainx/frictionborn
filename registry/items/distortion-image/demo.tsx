@@ -29,16 +29,16 @@ const ARTWORKS: Artwork[] = [
     date: "1889",
     medium: "Archival plate",
     src: "/assets/distortion/art-1.webp",
-    alt: "Field study in golden wheat with towering green cypresses under a swirling sky",
+    alt: "A painted wheat field in gold, with tall dark green cypresses under a swirling sky",
   },
   {
     id: "art-4",
     title: "Ocean Wave Crest Study",
-    category: "Hydrodynamic study",
+    category: "Wave and mountain",
     date: "ca. 1830–32",
     medium: "Archival woodblock plate",
     src: "/assets/distortion/art-4.webp",
-    alt: "Archival study of a large cresting wave framing a distant snow peak",
+    alt: "A huge curling wave over long rowing boats, with a small snowy peak behind",
   },
   {
     id: "art-2",
@@ -47,7 +47,7 @@ const ARTWORKS: Artwork[] = [
     date: "1890",
     medium: "Archival plate",
     src: "/assets/distortion/art-2.webp",
-    alt: "Botanical arrangement of blue and purple irises against a pale background",
+    alt: "Blue irises with green leaves in a white jug on a green table, pale wall behind",
   },
   {
     id: "art-5",
@@ -56,7 +56,7 @@ const ARTWORKS: Artwork[] = [
     date: "1887",
     medium: "Archival plate",
     src: "/assets/distortion/art-5.webp",
-    alt: "Arrangement of sunflowers resting on a warm wooden plane",
+    alt: "Two dried sunflower heads lying on a swirling blue background",
   },
   {
     id: "art-3",
@@ -65,16 +65,16 @@ const ARTWORKS: Artwork[] = [
     date: "1889",
     medium: "Archival plate",
     src: "/assets/distortion/art-3.webp",
-    alt: "Study of two dark cypresses against turbulent nocturnal sky and crescent moon",
+    alt: "Two tall cypresses in swirling green strokes, a pale crescent moon and blue hills",
   },
   {
     id: "art-6",
     title: "Pastoral Shoreline Study",
-    category: "Landscape specimen",
+    category: "Figures in landscape",
     date: "1891",
     medium: "Archival plate",
     src: "/assets/distortion/art-6.webp",
-    alt: "Pastoral landscape study with figures near a coastal cliff edge",
+    alt: "Three figures and a water jug in a rocky cove, the sea beyond",
   },
 ];
 
@@ -130,7 +130,7 @@ export default function DistortionImageDemo() {
 
   return (
     <div
-      className="kona-gallery-root"
+      className="fb-gallery-root"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr",
@@ -152,7 +152,7 @@ export default function DistortionImageDemo() {
             margin: "0 0 0.5rem 0",
           }}
         >
-          Six paintings that ripple
+          Heat haze over six paintings
         </h1>
         <p
           style={{
@@ -163,7 +163,7 @@ export default function DistortionImageDemo() {
             maxWidth: "640px",
           }}
         >
-          Move your mouse over a painting and the picture ripples around the pointer. You can also press Tab to reach
+          Move your mouse over a painting and it ripples like air above a flame. You can also press Tab to reach
           a painting. On touch screens, or when your device asks for less motion, the pictures stay still.
         </p>
       </header>
@@ -332,7 +332,7 @@ export default function DistortionImageDemo() {
                 border: `1px solid ${isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.12)"}`,
               }}
             >
-              Archival plate 01
+              Wheat and cypresses
             </div>
           </DistortionImage>
         </div>
@@ -353,7 +353,7 @@ export default function DistortionImageDemo() {
 
       {/* Gallery Grid */}
       <section
-        aria-label="Gallery Collection"
+        aria-label="Frictionborn gallery"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",

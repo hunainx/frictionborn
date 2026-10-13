@@ -1,5 +1,5 @@
 // Original — Frictionborn Motion copy tone and compliance checker
-// Enforces the Frictionborn voice guide (DESIGN.md A7): one fictional brand, plain human copy,
+// Enforces the Frictionborn voice guide (DESIGN.md A7): demos speak about Frictionborn, plain human copy,
 // no fake metrics, no sci-fi jargon, no real company/studio/person endorsements.
 //
 // Matching runs over the whole file (not line by line), so a phrase that wraps onto the next line is still caught.
@@ -21,8 +21,8 @@ export const BANNED_PATTERNS: BannedPattern[] = [
   // 1. Wrong brands / previous fictional brands
   {
     name: "wrong-brand",
-    pattern: /\b(Aetheric|Chronos)\b/i,
-    reason: "Use only the one fictional brand defined in DESIGN.md A7",
+    pattern: /\b(Aetheric|Chronos|Kona Acoustics)\b/i,
+    reason: "Demos speak about Frictionborn itself (DESIGN.md A7); earlier fictional brands are retired",
   },
   // 2. Sci-fi jargon and fake lab terminology
   {

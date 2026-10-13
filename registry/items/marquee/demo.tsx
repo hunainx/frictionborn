@@ -12,13 +12,13 @@ interface InstrumentEntry {
 }
 
 const INSTRUMENTS: InstrumentEntry[] = [
-  { model: "KA-100", name: "Near-field studio monitor", material: "Milled billet aluminum", category: "Reference" },
-  { model: "KA-200", name: "Three-way active field monitor", material: "Solid birch baffle", category: "Mastering" },
-  { model: "KA-300", name: "Sealed acoustic subwoofer", material: "Internal brace matrix", category: "Sub-bass" },
-  { model: "KA-400", name: "Analog monitor controller", material: "Stepped gold-contact attenuator", category: "Console" },
-  { model: "KA-500", name: "Open-back planar headphone", material: "Machined magnesium frame", category: "Listening" },
-  { model: "KA-600", name: "Beryllium ribbon transducer", material: "Neodymium motor assembly", category: "Driver" },
-  { model: "KA-700", name: "Diffraction horn waveguide", material: "Solid walnut throat", category: "Acoustics" },
+  { model: "noise-field", name: "Drifting noise background", material: "WebGL with CSS poster", category: "Backdrop" },
+  { model: "mesh-gradient", name: "Slow-moving colour gradient", material: "WebGL and CSS poster", category: "Backdrop" },
+  { model: "particle-field", name: "Field of drifting sparks", material: "WebGL with a CSS poster", category: "Backdrop" },
+  { model: "distortion-image", name: "Image that bends on hover", material: "Hover effect on any still image", category: "Imagery" },
+  { model: "text-reveal", name: "Headline revealed by word", material: "Word, character or line", category: "Headlines" },
+  { model: "scroll-reveal", name: "Content that rises on scroll", material: "Fade, fade-up or scale-up", category: "Scroll" },
+  { model: "magnetic-button", name: "Button that leans to pointer", material: "Pull distance in px", category: "Controls" },
 ];
 
 export default function MarqueeDemo() {
@@ -27,7 +27,7 @@ export default function MarqueeDemo() {
 
   return (
     <section
-      aria-label="Kona Acoustics Reference Instrument Catalog"
+      aria-label="Frictionborn Motion Component Catalog Ticker"
       style={{
         padding: "3rem 1rem",
         color: "var(--foreground, #E9EBF0)",
@@ -58,10 +58,10 @@ export default function MarqueeDemo() {
               marginBottom: "0.25rem",
             }}
           >
-            Kona Acoustics · Reference Catalog
+            Frictionborn Motion · Components
           </span>
           <h1 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>
-            Hand-assembled studio instruments
+            Motion components you own as code
           </h1>
         </div>
 

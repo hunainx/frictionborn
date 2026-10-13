@@ -7,7 +7,7 @@ import { usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 const PALETTES = [
   {
-    name: "Warm Studio",
+    name: "Blue Flame",
     colors: ["#0B0E14", "#38BDF8", "#818CF8", "#C084FC"] as [string, string, string, string],
   },
   {
@@ -111,7 +111,7 @@ export default function MeshGradientDemo() {
                 : "var(--primary, #38BDF8)",
             }}
           />
-          Kona Acoustics &bull; Acoustic Surface Field
+          Frictionborn Motion &bull; Mesh Gradient
         </div>
         <h1
           style={{
@@ -121,7 +121,7 @@ export default function MeshGradientDemo() {
             letterSpacing: "-0.02em",
           }}
         >
-          Acoustic Diffusion Field
+          Slow Colour, Steady Text
         </h1>
         <p
           style={{
@@ -132,7 +132,7 @@ export default function MeshGradientDemo() {
             maxWidth: "680px",
           }}
         >
-          Organic sound wave diffusion modeled for control room surfaces and critical listening environments.
+          A slow WebGL gradient for hero sections. When motion is reduced, a still CSS poster takes its place.
         </p>
       </header>
 
@@ -190,7 +190,7 @@ export default function MeshGradientDemo() {
                   marginBottom: "0.35rem",
                 }}
               >
-                Kona KA-100 &bull; Acoustic Baffle
+                mesh-gradient &bull; Hero Backdrop
               </div>
               <div
                 style={{
@@ -201,7 +201,7 @@ export default function MeshGradientDemo() {
                   marginBottom: "0.35rem",
                 }}
               >
-                Even Energy Distribution
+                Readable Over Moving Colour
               </div>
               <p
                 style={{
@@ -211,7 +211,7 @@ export default function MeshGradientDemo() {
                   color: isLight ? "#475569" : "var(--muted, #94A3B8)",
                 }}
               >
-                Curved soundboard geometry diffuses early reflections for natural stereo imaging.
+                The scrim sits between the colour and your copy, so the words stay easy to read.
               </p>
             </div>
           </div>

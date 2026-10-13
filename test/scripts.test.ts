@@ -512,7 +512,7 @@ describe("step 11: agent layer guarantees", () => {
   ];
 
   it("enforces line budgets on agent entry points", () => {
-    const skillPath = path.join(root, "agents", "skill", "frictionborn", "SKILL.md");
+    const skillPath = path.join(root, "skills", "frictionborn", "SKILL.md");
     expect(fs.existsSync(skillPath)).toBe(true);
     const skillLines = fs.readFileSync(skillPath, "utf8").trim().split("\n").length;
     expect(skillLines).toBeLessThan(150);
@@ -529,14 +529,14 @@ describe("step 11: agent layer guarantees", () => {
   });
 
   it("verifies all 12 items have matching spec sheets and catalog entries", () => {
-    const catalogPath = path.join(root, "agents", "skill", "frictionborn", "references", "catalog.md");
+    const catalogPath = path.join(root, "skills", "frictionborn", "references", "catalog.md");
     expect(fs.existsSync(catalogPath)).toBe(true);
     const catalogContent = fs.readFileSync(catalogPath, "utf8");
 
     for (const name of ITEMS) {
       expect(catalogContent).toContain(`[${name}](items/${name}.md)`);
 
-      const specPath = path.join(root, "agents", "skill", "frictionborn", "references", "items", `${name}.md`);
+      const specPath = path.join(root, "skills", "frictionborn", "references", "items", `${name}.md`);
       expect(fs.existsSync(specPath)).toBe(true);
       const specContent = fs.readFileSync(specPath, "utf8");
 

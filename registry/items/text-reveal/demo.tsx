@@ -4,10 +4,10 @@
 import React, { useState } from "react";
 import { TextReveal } from "./text-reveal";
 
-const ACOUSTIC_HEADLINES = [
-  "Acoustic precision sculpted in solid billet aluminum for uncoloured listening environments.",
-  "Near-field studio monitors engineered to reveal the subtle micro-dynamics of recorded sound.",
-  "Hand-tuned crossover networks preserve linear phase alignment across every octave band.",
+const HEADLINES = [
+  "Motion components for React and Next.js, measured in real browsers before they ship.",
+  "Friction makes heat, heat makes a spark, and the spark becomes a steady working fire.",
+  "Every component respects reduced motion and tells AI coding agents when to use it.",
 ];
 
 export default function TextRevealDemo() {
@@ -16,7 +16,7 @@ export default function TextRevealDemo() {
   const [cycleKey, setCycleKey] = useState(0);
 
   const nextHeadline = () => {
-    setHeadlineIdx((prev) => (prev + 1) % ACOUSTIC_HEADLINES.length);
+    setHeadlineIdx((prev) => (prev + 1) % HEADLINES.length);
     setCycleKey((prev) => prev + 1);
   };
 
@@ -27,7 +27,7 @@ export default function TextRevealDemo() {
 
   return (
     <section
-      aria-label="Kona Acoustics Text Reveal"
+      aria-label="Frictionborn Text Reveal"
       style={{
         padding: "2.5rem 1.5rem",
         maxWidth: 900,
@@ -67,7 +67,7 @@ export default function TextRevealDemo() {
               color: "var(--muted-foreground, #9AA1AF)",
             }}
           >
-            Kona Acoustics · Listening Room 04
+            Frictionborn Motion · The Workshop
           </span>
         </div>
 
@@ -134,7 +134,7 @@ export default function TextRevealDemo() {
             margin: 0,
           }}
         >
-          {ACOUSTIC_HEADLINES[headlineIdx]}
+          {HEADLINES[headlineIdx]}
         </TextReveal>
       </article>
 
@@ -152,9 +152,9 @@ export default function TextRevealDemo() {
         }}
         className="mono"
       >
-        <span>Series KA</span>
-        <span>Hand-assembled</span>
-        <span>Listening Room 04</span>
+        <span>shadcn CLI</span>
+        <span>Bench-measured</span>
+        <span>Frictionborn Studio</span>
       </footer>
     </section>
   );

@@ -223,7 +223,7 @@ const firstSentence = (t: unknown): string => {
   return x.length > 110 ? x.slice(0, 107).trimEnd() + "..." : x;
 };
 
-/** The decision table of agents/skill/frictionborn/SKILL.md, built from each item's meta so it cannot drift from the metadata. */
+/** The decision table of skills/frictionborn/SKILL.md, built from each item's meta so it cannot drift from the metadata. */
 export function generateSkillDecisionTable(items: any[]): string {
   const rows = [...items].sort((a, b) => String(a.item.slot).localeCompare(String(b.item.slot)) || String(a.item.name).localeCompare(String(b.item.name)));
   let md = `| Slot | Item | Use it for | Avoid when | Per page | Do not combine with |
@@ -310,7 +310,7 @@ function readSourceFacts(itemDir: string): SourceFacts {
 export function buildCatalog(): boolean {
   const projectRoot = process.cwd();
   const itemsDir = path.join(projectRoot, "registry", "items");
-  const agentRefDir = path.join(projectRoot, "agents", "skill", "frictionborn", "references");
+  const agentRefDir = path.join(projectRoot, "skills", "frictionborn", "references");
   const itemsRefDir = path.join(agentRefDir, "items");
 
   fs.mkdirSync(itemsRefDir, { recursive: true });
@@ -358,7 +358,7 @@ export function buildCatalog(): boolean {
   console.log(`✔ Generated catalog: ${path.relative(projectRoot, catalogFile)}`);
 
   // Decision table of the skill: generated from the metadata (the rest of SKILL.md is hand-written)
-  const skillFile = path.join(projectRoot, "agents", "skill", "frictionborn", "SKILL.md");
+  const skillFile = path.join(projectRoot, "skills", "frictionborn", "SKILL.md");
   if (fs.existsSync(skillFile)) {
     const before = fs.readFileSync(skillFile, "utf8").split("\r\n").join("\n");
     const after = applySkillDecisionTable(before, generateSkillDecisionTable(loadedItems));

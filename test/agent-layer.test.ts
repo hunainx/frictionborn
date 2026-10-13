@@ -14,7 +14,7 @@ const metas = fs
   .filter((m) => !m.fixture);
 
 describe("agent layer", () => {
-  const skill = read("agents", "skill", "frictionborn", "SKILL.md");
+  const skill = read("skills", "frictionborn", "SKILL.md");
   const snippet = read("agents", "AGENTS.snippet.md");
 
   it("the SKILL.md decision table is exactly what the generator builds from meta.json", () => {
@@ -37,9 +37,9 @@ describe("agent layer", () => {
 
   it("every install command (skill, snippet, catalog, llms.txt, spec sheets, item metadata) uses the one pinned CLI", () => {
     const files = [
-      ["agents", "skill", "frictionborn", "SKILL.md"],
+      ["skills", "frictionborn", "SKILL.md"],
       ["agents", "AGENTS.snippet.md"],
-      ["agents", "skill", "frictionborn", "references", "catalog.md"],
+      ["skills", "frictionborn", "references", "catalog.md"],
       ["llms.txt"],
     ];
     for (const f of files) {
@@ -48,7 +48,7 @@ describe("agent layer", () => {
       expect(text, f.join("/")).not.toMatch(/shadcn@latest/);
     }
     for (const m of metas) {
-      const sheet = read("agents", "skill", "frictionborn", "references", "items", `${m.item.name}.md`);
+      const sheet = read("skills", "frictionborn", "references", "items", `${m.item.name}.md`);
       expect(sheet, m.item.name).not.toMatch(/shadcn@latest/);
       expect(m.agent.install, m.item.name).toContain(SHADCN_CLI);
     }

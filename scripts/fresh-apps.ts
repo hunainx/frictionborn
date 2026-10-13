@@ -198,9 +198,9 @@ export default function FreshAppView() {${nextImageSetup}
         has("ambient-hero")
           ? `<div data-testid="composition-ambient-hero" style={{ marginBottom: "2.5rem" }}>
               <AmbientHero
-                headline="Acoustic precision, sculpted in aluminum."
-                body="Near-field studio monitors engineered for uncoloured listening environments."
-                primaryCta={{ label: "Explore engineering", href: "#engineering" }}
+                headline="Calm motion, struck from a single spark."
+                body="Open-source motion components for React and Next.js, measured in real browsers."
+                primaryCta={{ label: "Browse components", href: "#components" }}
               />
             </div>`
           : ""
@@ -231,22 +231,22 @@ export default function FreshAppView() {${nextImageSetup}
           has("scroll-showcase")
             ? `<div data-testid="composition-scroll-showcase">
                 <ScrollShowcase
-                  headline="Engineered for transparent acoustic reproduction"
-                  description="Every component is milled, calibrated, and validated to laboratory standards."
+                  headline="Three habits behind every component"
+                  description="Code you can read, a bench that checks it, and a calm reduced-motion state."
                   steps={[
                     {
-                      id: "enclosure",
-                      title: "Monolithic Enclosure",
-                      description: "6061-T6 aluminum chassis CNC-machined from solid billet.",
-                      badge: "Structure",
-                      media: { content: <div style={{ padding: "2rem" }}>Chassis</div> },
+                      id: "source",
+                      title: "Installed as source",
+                      description: "Each component lands in your project as code you own.",
+                      badge: "Source",
+                      media: { content: <div style={{ padding: "2rem" }}>Source</div> },
                     },
                     {
-                      id: "driver",
-                      title: "Beryllium Transducer",
-                      description: "Ultra-low distortion dome with laser-interferometer precision.",
-                      badge: "Acoustics",
-                      media: { content: <div style={{ padding: "2rem" }}>Transducer</div> },
+                      id: "bench",
+                      title: "Measured on a bench",
+                      description: "Every component runs in real browsers before it ships.",
+                      badge: "Bench",
+                      media: { content: <div style={{ padding: "2rem" }}>Bench</div> },
                     },
                   ]}
                 />

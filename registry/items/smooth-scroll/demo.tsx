@@ -64,7 +64,7 @@ export default function SmoothScrollDemo() {
               textTransform: "uppercase",
             }}
           >
-            Kona Acoustics · Field Monograph
+            Frictionborn Studio · Field Notes
           </span>
         </div>
 
@@ -119,7 +119,7 @@ export default function SmoothScrollDemo() {
                 marginBottom: "0.5rem",
               }}
             >
-              Field notes · Series KA
+              Field notes · Brand story
             </span>
             <h1
               style={{
@@ -130,7 +130,7 @@ export default function SmoothScrollDemo() {
                 margin: "0 0 1rem 0",
               }}
             >
-              How a monitor enclosure is made quiet
+              How friction becomes a working fire
             </h1>
             <p
               style={{
@@ -140,7 +140,7 @@ export default function SmoothScrollDemo() {
                 margin: 0,
               }}
             >
-              How we shape the cabinet, damp the baffle and keep the desk out of the sound,
+              How friction makes heat, heat makes a spark, and the spark becomes a fire,
               written for people who like to read the whole story.
             </p>
 
@@ -155,10 +155,10 @@ export default function SmoothScrollDemo() {
               }}
             >
               {[
-                { label: "1. Enclosure Geometry", href: "#sec-baseline" },
-                { label: "2. Baffle Damping", href: "#sec-resonator" },
-                { label: "3. Isolation Mounting", href: "#sec-seismic" },
-                { label: "4. Test Log", href: "#sec-buffer" },
+                { label: "1. Friction and Heat", href: "#sec-baseline" },
+                { label: "2. The First Spark", href: "#sec-resonator" },
+                { label: "3. Feeding the Fire", href: "#sec-seismic" },
+                { label: "4. Bench Log", href: "#sec-buffer" },
               ].map((link) => (
                 <a
                   key={link.href}
@@ -179,7 +179,7 @@ export default function SmoothScrollDemo() {
             </nav>
           </section>
 
-          {/* Section 1: Acoustic Enclosure Geometry */}
+          {/* Section 1: Friction and the First Heat */}
           <section id="sec-baseline" style={{ scrollMarginTop: "80px" }}>
             <h2
               style={{
@@ -190,16 +190,16 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              1. Acoustic Enclosure Geometry
+              1. Friction and the First Heat
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              The cabinet architecture features compound-radiused edges machined from solid 6061 aluminum billet.
-              By eliminating parallel internal surfaces and external hard corners, edge diffraction is suppressed
-              across the listening axis.
+              Good motion starts with friction: the small resistance that tells a hand something is really there.
+              We look for places where a page can push back gently, such as a button that leans to the pointer
+              or a headline that settles.
             </p>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)" }}>
-              Internal standing waves are absorbed through constrained-layer viscoelastic damping materials,
-              yielding an acoustically inert enclosure that presents sound without coloration.
+              That resistance makes heat. Heat is attention, and we spend it with care, one effect at a time,
+              so the content stays the brightest thing on the page and the motion stays behind it.
             </p>
           </section>
 
@@ -214,11 +214,11 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              2. Baffle Damping and Transient Response
+              2. The Spark and the Moment It Settles
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1.25rem" }}>
-              A constrained layer of damping material is bonded behind the baffle, so the panel
-              stops ringing soon after the driver stops.
+              A spark is brief. Each effect arrives, does its work and settles quickly, so the
+              page is calm again before you look away.
             </p>
 
             {/* SVG Frequency Stability Curve */}
@@ -238,9 +238,9 @@ export default function SmoothScrollDemo() {
                   marginBottom: "0.75rem",
                 }}
               >
-                Figure 2.1 · A baffle that stops ringing (illustration)
+                Figure 2.1 · A spark that flares, then settles (illustration)
               </div>
-              <svg viewBox="0 0 600 160" width="100%" height="160" aria-label="Illustration of a vibration that fades away over time">
+              <svg viewBox="0 0 600 160" width="100%" height="160" aria-label="Illustration of a spark that flares and settles over time">
                 <line x1="40" y1="20" x2="40" y2="130" stroke="var(--border, #262B33)" strokeWidth="1" />
                 <line x1="40" y1="130" x2="580" y2="130" stroke="var(--border, #262B33)" strokeWidth="1" />
                 <path
@@ -277,11 +277,11 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              3. Isolation Mounting
+              3. Feeding the Fire
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              Each monitor rests on a decoupling pad that keeps desk vibration out of the cabinet
-              and cabinet vibration out of the desk.
+              A fire needs tending. Every component is measured on a test bench in real browsers
+              and each one respects reduced motion.
             </p>
             <button
               type="button"
@@ -297,7 +297,7 @@ export default function SmoothScrollDemo() {
                 minHeight: "40px",
               }}
             >
-              Read the listening note
+              Read the workshop note
             </button>
           </section>
 
@@ -312,17 +312,17 @@ export default function SmoothScrollDemo() {
                 paddingBottom: "0.5rem",
               }}
             >
-              4. Listening Log
+              4. The Bench Log
             </h2>
             <p style={{ lineHeight: 1.7, color: "var(--muted-foreground, #9AA1AF)", marginBottom: "1rem" }}>
-              A running list of listening notes. This nested container keeps its own native scroll,
+              A running list of bench notes. This nested container keeps its own native scroll,
               unaffected by the page-level SmoothScroll provider.
             </p>
 
             <div
               data-lenis-prevent="true"
               tabIndex={0}
-              aria-label="Listening log"
+              aria-label="The bench log"
               style={{
                 height: "220px",
                 overflowY: "auto",
@@ -341,7 +341,7 @@ export default function SmoothScrollDemo() {
                   <span style={{ color: "var(--primary, #FB923C)", marginRight: "1rem" }}>
                     [Step {(i + 1).toString().padStart(2, "0")}]
                   </span>
-                  <span>Listening position {i + 1} · note recorded</span>
+                  <span>Bench observation {i + 1} · note recorded</span>
                 </div>
               ))}
             </div>
@@ -380,10 +380,10 @@ export default function SmoothScrollDemo() {
             }}
           >
             <h2 id="cert-dialog-title" style={{ fontSize: "1.25rem", margin: "0 0 1rem 0" }}>
-              Listening note
+              Workshop note
             </h2>
             <p style={{ fontSize: "0.9rem", color: "var(--muted-foreground, #9AA1AF)", lineHeight: 1.6 }}>
-              Each Series KA monitor is listened to in the same room before it leaves the workshop.
+              Each Frictionborn component is run on the same test bench before it leaves the workshop.
               This text is sample copy for the demo.
             </p>
             <button

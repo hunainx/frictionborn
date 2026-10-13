@@ -9,7 +9,7 @@ export default function MagneticButtonDemo() {
 
   return (
     <section
-      aria-label="Kona Acoustics Monitor Alignment Deck"
+      aria-label="Frictionborn Magnetic Button Controls"
       style={{
         padding: "3.5rem 1.5rem",
         textAlign: "center",
@@ -45,7 +45,7 @@ export default function MagneticButtonDemo() {
               color: "var(--muted-foreground, #9AA1AF)",
             }}
           >
-            Kona Acoustics · Nearfield Monitoring Controls
+            Frictionborn Motion · Pointer Response Controls
           </span>
         </div>
 
@@ -58,7 +58,7 @@ export default function MagneticButtonDemo() {
             color: "var(--foreground, #E9EBF0)",
           }}
         >
-          Nearfield Monitor Axis Alignment
+          Magnetic Pull on Primary Actions
         </h1>
         <p
           style={{
@@ -69,7 +69,7 @@ export default function MagneticButtonDemo() {
             color: "var(--muted-foreground, #9AA1AF)",
           }}
         >
-          Fine-tune desk listening position and tactile response for active control monitors.
+          Set how far each button leans toward the pointer. With reduced motion, it stays put.
         </p>
       </header>
 
@@ -155,7 +155,7 @@ export default function MagneticButtonDemo() {
             zIndex: 2,
           }}
         >
-          Seat position: centred
+          Pointer target: centre
         </span>
       </div>
 
@@ -187,7 +187,7 @@ export default function MagneticButtonDemo() {
               justifyContent: "center",
             }}
           >
-            Save position
+            Feel the pull
           </button>
         </MagneticButton>
 
@@ -209,7 +209,7 @@ export default function MagneticButtonDemo() {
               justifyContent: "center",
             }}
           >
-            Reset position
+            A softer pull
           </button>
         </MagneticButton>
       </div>

@@ -7,11 +7,11 @@ import { usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 const PALETTES = [
   {
-    name: "Warm Studio",
+    name: "Ember Glow",
     colors: ["var(--background)", "var(--primary)", "var(--accent)"] as [string, string, string],
   },
   {
-    name: "Night Room",
+    name: "Night Forge",
     colors: ["#0B0F19", "#6366F1", "#EC4899"] as [string, string, string],
   },
   {
@@ -233,7 +233,7 @@ export default function NoiseFieldDemo() {
                 marginBottom: "0.5rem",
               }}
             >
-              Precision Acoustic Engineering
+              Motion for React and Next.js
             </span>
             <h1
               style={{
@@ -245,7 +245,7 @@ export default function NoiseFieldDemo() {
                 marginBottom: "1rem",
               }}
             >
-              Kona Acoustics
+              Frictionborn
             </h1>
 
             <p
@@ -258,8 +258,8 @@ export default function NoiseFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              Near-field acoustic reference monitors and calibrated transducers
-              engineered for uncoloured studio listening environments.
+              Open-source motion components you install with the shadcn CLI,
+              delivered as source code that you own and can change.
             </p>
 
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
@@ -280,7 +280,7 @@ export default function NoiseFieldDemo() {
                   minHeight: "44px",
                 }}
               >
-                Browse Instruments
+                Browse Components
               </a>
               <a
                 href="#specifications"
@@ -299,7 +299,7 @@ export default function NoiseFieldDemo() {
                   minHeight: "44px",
                 }}
               >
-                View Specifications
+                View the Test Bench
               </a>
             </div>
           </div>

@@ -13,25 +13,25 @@ interface InstrumentCard {
 
 const INSTRUMENTS: InstrumentCard[] = [
   {
-    serial: "KA-840",
-    subsystem: "Milled Billet Monitor Enclosure",
+    serial: "Source",
+    subsystem: "Source Code You Own and Change",
     summary:
-      "Solid aeronautical aluminum unibody enclosure dampens cabinet resonance and eliminates baffle diffraction across near-field listening axes.",
-    specs: "Material: 6061-T6 Aluminum · Finish: Hard-anodized · Volume: 14 Liters",
+      "Each component installs with the shadcn CLI as plain source files, so you can read every line and shape it to fit your own product.",
+    specs: "Install: shadcn CLI · Stack: React and Next.js · Code: Yours to change",
   },
   {
-    serial: "KA-120",
-    subsystem: "Beryllium Dome High-Frequency Transducer",
+    serial: "Tested",
+    subsystem: "Measured in Real Browsers on a Test Bench",
     summary:
-      "Pure vapor-deposited beryllium dome paired with an underhung neodymium motor assembly delivers linear phase response through high frequencies.",
-    specs: "Diaphragm: Pure Beryllium · Magnet: Neodymium N52 · Dispersion: 110° Conical",
+      "Every component runs on a test bench in real browsers, with reduced motion on and off, so the docs show what it really does on a page.",
+    specs: "Bench: Real browsers · Scope: Every component · Reduced motion: Respected",
   },
   {
-    serial: "KA-400",
-    subsystem: "Stepped Constant-Impedance Attenuator",
+    serial: "Agents",
+    subsystem: "Easy for AI Coding Agents to Pick Well",
     summary:
-      "Precision rotary switch featuring matched thin-film resistors for transparent, click-free level control without active buffer distortion.",
-    specs: "Steps: 24 Positions · Tracking: Matched Resistors · Topology: Passive Balanced",
+      "A skill file tells AI coding agents which component fits the job, so the motion they add is the motion the page actually needs.",
+    specs: "Guide: Skill file · Reader: AI coding agents · Purpose: Choosing the component",
   },
 ];
 
@@ -71,7 +71,7 @@ export default function ScrollRevealDemo() {
               marginBottom: "0.35rem",
             }}
           >
-            Kona Acoustics · Reference Catalog
+            Frictionborn Motion · How It Works
           </span>
           <h1
             style={{
@@ -81,7 +81,7 @@ export default function ScrollRevealDemo() {
               margin: 0,
             }}
           >
-            Reference Studio Hardware
+            What Every Component Gets
           </h1>
         </div>
 
@@ -169,7 +169,7 @@ export default function ScrollRevealDemo() {
                     color: "var(--muted-foreground, #9AA1AF)",
                   }}
                 >
-                  Unit {idx + 1} of {INSTRUMENTS.length}
+                  Part {idx + 1} of {INSTRUMENTS.length}
                 </span>
               </div>
 

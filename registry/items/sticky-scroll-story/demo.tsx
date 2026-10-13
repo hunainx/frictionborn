@@ -45,18 +45,18 @@ function DiagramCard({
   );
 }
 
-const KONA_STEPS: StoryStep[] = [
+const STORY_STEPS: StoryStep[] = [
   {
     id: "step-billet",
-    badge: "Phase 01 · Cabinet Architecture",
-    title: "Milled Billet Unibody",
+    badge: "Phase 01 · Friction and Heat",
+    title: "Friction Makes Heat",
     description:
-      "Each enclosure begins as a solid block of aircraft-grade 6061-T6 aluminum, carved on a 5-axis mill to eliminate cabinet resonance and seam vibration.",
+      "Every component starts with a small friction: a hero that feels flat, a list that lands all at once. We work at it until it starts to give off heat.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · 5-Axis Unibody Enclosure">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Enclosure diagram">
+        <DiagramCard caption="Sketch · Two Surfaces Rubbing Together">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Friction diagram">
             <rect x="20" y="20" width="220" height="120" rx="8" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <line x1="5" y1="80" x2="255" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="2" strokeDasharray="3 3" />
             <rect x="35" y="55" width="8" height="50" rx="2" fill="var(--muted-foreground, #9AA1AF)" />
@@ -72,7 +72,7 @@ const KONA_STEPS: StoryStep[] = [
               />
             ))}
             <text x="75" y="115" fill="var(--foreground, #E9EBF0)" fontSize="10" fontFamily="monospace">
-              Machined Baffle Geometry
+              Heat Builds Along the Line
             </text>
           </svg>
         </DiagramCard>
@@ -81,15 +81,15 @@ const KONA_STEPS: StoryStep[] = [
   },
   {
     id: "step-driver",
-    badge: "Phase 02 · Transducer Assembly",
-    title: "Beryllium Ribbon Transducer",
+    badge: "Phase 02 · The Spark Catches",
+    title: "Heat Catches the First Spark",
     description:
-      "High-frequency drivers are formed with vapor-deposited beryllium for exceptional stiffness-to-weight ratio, ensuring pistonic motion across the passband.",
+      "The spark is a working prototype. It runs in real browsers on the test bench, with reduced motion both on and off, before it is allowed to grow.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · Neodymium Motor Assembly">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Transducer diagram">
+        <DiagramCard caption="Sketch · A Spark on the Test Bench">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Test bench diagram">
             <rect x="25" y="25" width="210" height="110" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1" />
             <rect x="40" y="40" width="180" height="80" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1" strokeDasharray="4 2" />
             <rect x="65" y="60" width="130" height="40" rx="3" fill="rgba(251, 146, 60, 0.15)" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
@@ -97,7 +97,7 @@ const KONA_STEPS: StoryStep[] = [
             <circle cx="65" cy="80" r="3" fill="var(--primary, #FB923C)" />
             <circle cx="195" cy="80" r="3" fill="var(--primary, #FB923C)" />
             <text x="80" y="84" fill="var(--foreground, #E9EBF0)" fontSize="10" fontFamily="monospace">
-              Underhung Motor Alignment
+              First Spark, Under Test
             </text>
           </svg>
         </DiagramCard>
@@ -106,31 +106,31 @@ const KONA_STEPS: StoryStep[] = [
   },
   {
     id: "step-crossover",
-    badge: "Phase 03 · Signal Integration",
-    title: "Hand-Tuned Passive Crossover",
+    badge: "Phase 03 · Fire, Then Ash",
+    title: "The Fire Settles Into Ash",
     description:
-      "Point-to-point wired filters utilize custom air-core inductors and metallized film capacitors, individually calibrated for linear phase response.",
+      "Once it ships, the motion is quiet and steady. A skill file tells AI coding agents which component to pick, so each one lands where it belongs.",
     media: {
       type: "custom",
       content: (
-        <DiagramCard caption="Schematic · Direct-Coupled Crossover Filter">
-          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Crossover circuit diagram">
+        <DiagramCard caption="Sketch · How a Flame Settles Into Calm Ash">
+          <svg viewBox="0 0 260 160" width="100%" height="160" aria-label="Flame to ash flow diagram">
             <rect x="25" y="55" width="55" height="50" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <text x="32" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              Air-Core
+              Kindling
             </text>
             <line x1="80" y1="80" x2="115" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <rect x="115" y="65" width="40" height="30" rx="3" fill="rgba(251, 146, 60, 0.2)" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <text x="123" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              Filter
+              Embers
             </text>
             <line x1="155" y1="80" x2="190" y2="80" stroke="var(--primary, #FB923C)" strokeWidth="1.5" />
             <rect x="190" y="55" width="50" height="50" rx="4" fill="none" stroke="var(--border, #262B33)" strokeWidth="1.5" />
             <text x="198" y="83" fill="var(--foreground, #E9EBF0)" fontSize="9" fontFamily="monospace">
-              Output
+              Cooled
             </text>
             <text x="65" y="130" fill="var(--muted-foreground, #9AA1AF)" fontSize="10" fontFamily="monospace">
-              Phase Linear · Hand-Tuned
+              Cooled · Calm on the Page
             </text>
           </svg>
         </DiagramCard>
@@ -144,7 +144,7 @@ export default function StickyScrollStoryDemo() {
 
   return (
     <section
-      aria-label="Kona Acoustics Monitor Engineering Story"
+      aria-label="Frictionborn Motion Component Craft Story"
       style={{
         padding: "1rem",
         color: "var(--foreground, #E9EBF0)",
@@ -173,7 +173,7 @@ export default function StickyScrollStoryDemo() {
             }}
           />
           <span className="mono" style={{ fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Kona Acoustics · KA-Series Engineering
+            Frictionborn Motion · How We Build It
           </span>
         </div>
         <div className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)" }}>
@@ -194,15 +194,15 @@ export default function StickyScrollStoryDemo() {
               marginBottom: "0.35rem",
             }}
           >
-            Engineering Narrative
+            From Friction to Ash
           </span>
           <h1 style={{ fontSize: "clamp(1.75rem, 3.5vw, 2.5rem)", fontWeight: 700, margin: 0, letterSpacing: "-0.02em" }}>
-            Crafting the Reference Near-Field Monitor
+            Crafting a Motion Component From Friction
           </h1>
         </div>
 
         <StickyScrollStory
-          steps={KONA_STEPS}
+          steps={STORY_STEPS}
           mediaPosition="right"
           onStepChange={(id) => setActiveStepId(id)}
         />

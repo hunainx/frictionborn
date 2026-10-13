@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Thanks for the report. Please do not use this form for a security problem; use the private advisory link on the issue chooser page instead.
-        Check the item's spec sheet first (`agents/skill/frictionborn/references/items/<name>.md`) in case the behaviour is documented.
+        Check the item's spec sheet first (`skills/frictionborn/references/items/<name>.md`) in case the behaviour is documented.
   - type: dropdown
     id: item
     attributes:

@@ -53,12 +53,12 @@ function StepMediaCard({ subsystem, name, children }: StepMediaCardProps) {
 const DEMO_STEPS: StoryStep[] = [
   {
     id: "enclosure",
-    title: "Monolithic Enclosure",
+    title: "Source You Can Read",
     description:
-      "Milled from a single block of 6061-T6 aluminum. The internal chambers have no parallel surfaces, so the cabinet walls add very little sound of their own.",
+      "Each component arrives through the shadcn CLI as source code in your project. Nothing is hidden inside a package, so you can read it and change it.",
     media: {
       content: (
-        <StepMediaCard subsystem="Subsystem 01" name="CNC Aluminum Unibody">
+        <StepMediaCard subsystem="Craft step 01" name="Installed as Source">
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <rect x="20" y="16" width="80" height="88" rx="8" stroke="#fb923c" strokeWidth="2.5" />
             <circle cx="60" cy="46" r="18" stroke="#e9ebf0" strokeWidth="2" strokeDasharray="3 3" />
@@ -67,17 +67,17 @@ const DEMO_STEPS: StoryStep[] = [
           </svg>
         </StepMediaCard>
       ),
-      alt: "Schematic view of the CNC-milled aluminum unibody enclosure",
+      alt: "Abstract sketch of a framed block with two rings inside it",
     },
   },
   {
     id: "transducer",
-    title: "Vapor-Deposited Beryllium",
+    title: "Measured on a Test Bench",
     description:
-      "A pure beryllium dome driven by a neodymium motor and a copper shorting ring. The dome stays stiff across the audible range, so it moves as one piece.",
+      "Every component runs on a test bench in real browsers. What the docs say about it comes from those runs, so you are never asked to take it on trust.",
     media: {
       content: (
-        <StepMediaCard subsystem="Subsystem 02" name="Beryllium High-Frequency Driver">
+        <StepMediaCard subsystem="Craft step 02" name="Tested in Real Browsers First">
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <circle cx="60" cy="60" r="44" stroke="#fb923c" strokeWidth="2" />
             <circle cx="60" cy="60" r="30" stroke="#e9ebf0" strokeWidth="2.5" />
@@ -86,17 +86,17 @@ const DEMO_STEPS: StoryStep[] = [
           </svg>
         </StepMediaCard>
       ),
-      alt: "Sectional diagram of the vapor-deposited beryllium high frequency driver",
+      alt: "Abstract sketch of three rings around a centre, cut by a dashed line",
     },
   },
   {
     id: "crossover",
-    title: "Point-to-Point Topology",
+    title: "Ready for Reduced Motion",
     description:
-      "Fourth-order acoustic Linkwitz-Riley crossover hand-wired point-to-point with solid OFC copper buss wire. Custom foil inductors and silver-metallized polypropylene capacitors eliminate phase smearing.",
+      "Every component respects the reduced motion setting, and each WebGL background comes with a CSS poster. A skill file tells AI coding agents which component fits each job on the page.",
     media: {
       content: (
-        <StepMediaCard subsystem="Subsystem 03" name="Direct-Coupled Passive Filter">
+        <StepMediaCard subsystem="Craft step 03" name="Still When Asked to Be Still">
           <svg width="120" height="120" viewBox="0 0 120 120" fill="none" aria-hidden="true">
             <path d="M20 60h24l12-24 16 48 12-32 8 16 8-8h20" stroke="#fb923c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             <circle cx="44" cy="60" r="3" fill="#e9ebf0" />
@@ -105,35 +105,35 @@ const DEMO_STEPS: StoryStep[] = [
           </svg>
         </StepMediaCard>
       ),
-      alt: "Circuit topology schematic of the direct-coupled passive crossover filter",
+      alt: "Abstract sketch of a jagged line that rises, falls and then levels out",
     },
   },
 ];
 
 const DEMO_STUDIOS = [
-  "Studio A · Near-Field Control Room",
-  "Studio B · Mastering Suite",
-  "Room C · Anechoic Chamber",
-  "Room D · Diffuse Field Lab",
-  "Suite E · Mix Verification",
-  "Suite F · Reference Listening",
+  "noise-field · WebGL hero background",
+  "mesh-gradient · Colour drift",
+  "particle-field · Ember dust",
+  "distortion-image · Ripples",
+  "text-reveal · Word by word",
+  "magnetic-button · Gentle pull",
 ];
 
 const DEMO_SPECS: ScrollShowcaseSpec[] = [
   {
-    metric: "Full Range",
-    label: "Frequency Coverage",
-    detail: "Linear dispersion tuned for near-field listening environments and control room acoustics.",
+    metric: "In Browsers",
+    label: "Bench Measurement",
+    detail: "Each component runs on a test bench in real browsers, and the docs report what it measured.",
   },
   {
-    metric: "Low Distortion",
-    label: "Harmonic Purity",
-    detail: "Underhung motor topology minimizes voice coil flux modulation across the audio band.",
+    metric: "Reduced Motion",
+    label: "Setting Respected",
+    detail: "When a visitor asks for less motion, every component respects it and the page stays calm.",
   },
   {
-    metric: "Phase Aligned",
-    label: "Transducer Integration",
-    detail: "Acoustic center alignment preserves transient wave-front integrity without temporal blurring.",
+    metric: "For AI Agents",
+    label: "Skill File Included",
+    detail: "A skill file tells AI coding agents which component to pick, so they use each one correctly.",
   },
 ];
 
@@ -180,16 +180,16 @@ export default function ScrollShowcaseDemo() {
       </div>
 
       <ScrollShowcase
-        headline="Three parts, built to work as one."
-        description="A near-field monitor should add nothing of its own: a quiet cabinet, a clean start and stop, and a crossover that behaves off-axis too."
+        headline="Three habits behind every component."
+        description="A motion component should add nothing it does not need: code you can read, a bench that checks it, and a calm reduced-motion state."
         eyebrow="How it is made"
         steps={DEMO_STEPS}
         specs={DEMO_SPECS}
-        specsHeading="What we listen for"
-        specsEyebrow="Listening notes"
+        specsHeading="What we check for"
+        specsEyebrow="Workshop notes"
         showMarquee={showMarquee}
         marqueeItems={DEMO_STUDIOS}
-        marqueeLabel="Rooms these monitors are designed for"
+        marqueeLabel="Components in Frictionborn Motion"
         smoothScroll={false}
       />
     </div>

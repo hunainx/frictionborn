@@ -49,11 +49,11 @@ export default function AmbientHeroDemo() {
 
       <AmbientHero
         variant={variant}
-        eyebrow="Studio Series · Gen 3"
-        headline="Acoustic precision, sculpted in aluminum."
-        body="Near-field studio monitors engineered for uncoloured listening environments. Solid billet enclosure, balanced beryllium drivers, and pure passive filtration."
-        primaryCta={{ label: "Explore engineering", href: "#engineering" }}
-        secondaryCta={{ label: "Technical specifications", href: "#specifications" }}
+        eyebrow="Frictionborn Motion"
+        headline="Calm motion, struck from a single spark."
+        body="Open-source motion components for React and Next.js. Installed with the shadcn CLI, measured in real browsers, and calm when motion is reduced."
+        primaryCta={{ label: "Browse components", href: "#engineering" }}
+        secondaryCta={{ label: "Read how it is tested", href: "#specifications" }}
         showPauseButton={true}
       />
     </div>

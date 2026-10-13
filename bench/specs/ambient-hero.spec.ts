@@ -95,9 +95,9 @@ test.describe("AmbientHero composition spec", () => {
     const active = () => page.evaluate(() => { const e = document.activeElement as HTMLElement; return `${e.tagName.toLowerCase()}:${(e.getAttribute("aria-label") || e.textContent || "").trim()}`; });
     expect(await active()).toMatch(/^button:Pause ambient background motion/);
     await page.keyboard.press("Tab");
-    expect(await active()).toBe("a:Explore engineering");
+    expect(await active()).toBe("a:Browse components");
     await page.keyboard.press("Tab");
-    expect(await active()).toBe("a:Technical specifications");
+    expect(await active()).toBe("a:Read how it is tested");
   });
 
   test("reduced motion renders static poster with 0 WebGL canvases", async ({ page }) => {

@@ -9,8 +9,8 @@ export default function HeroSmoothPage() {
   return (
     <SmoothScroll>
       <AmbientHero
-        headline="Acoustic geometry shaped for quiet rooms."
-        body="Kona creates modular acoustic barriers for production studios and quiet spaces."
+        headline="Calm motion, shaped for quiet, fast pages."
+        body="Frictionborn makes motion components for React that stay calm with reduced motion."
         primaryCta={{ label: "Explore Systems", href: "#systems" }}
       />
       <div style={{ height: 3000, padding: "2rem" }}>

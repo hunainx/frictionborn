@@ -182,8 +182,7 @@ export function buildRegistry(): void {
     // Copy spec sheet markdown if exists to public/r/<item>.md
     const specSheetPath = path.join(
       root,
-      "agents",
-      "skill",
+      "skills",
       "frictionborn",
       "references",
       "items",

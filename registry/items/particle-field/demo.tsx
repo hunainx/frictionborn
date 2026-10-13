@@ -29,9 +29,9 @@ export default function ParticleFieldDemo() {
         flexDirection: "column",
       }}
     >
-      {/* Acoustic Configuration Deck */}
+      {/* Particle Configuration Deck */}
       <nav
-        aria-label="Acoustic particle configuration"
+        aria-label="Particle field configuration"
         style={{
           display: "flex",
           flexWrap: "wrap",
@@ -57,7 +57,7 @@ export default function ParticleFieldDemo() {
             }}
           />
           <span className="mono" style={{ fontSize: "11px", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Kona Acoustics · ParticleField
+            Frictionborn · ParticleField
           </span>
         </div>
 
@@ -138,7 +138,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "0.75rem",
               }}
             >
-              Air in the listening room
+              Sparks in the night air
             </div>
             <h1
               style={{
@@ -150,7 +150,7 @@ export default function ParticleFieldDemo() {
                 marginBottom: "1rem",
               }}
             >
-              Sound in Physical Space
+              Sparks Rising From Heat
             </h1>
 
             <p
@@ -163,18 +163,18 @@ export default function ParticleFieldDemo() {
                 marginBottom: "2rem",
               }}
             >
-              Particles drifting through a room like dust in studio light, shaped around the geometry of a control room
-              and acoustic baffle placement.
+              Particles drifting upward like sparks above a fire, slow enough to sit quietly behind a headline
+              without pulling the eye away.
             </p>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginTop: "1.5rem" }}>
               <div style={{ padding: "0.875rem 1rem", borderRadius: "6px", background: "var(--card, #15181D)", border: "1px solid var(--border, #262B33)", textAlign: "left" }}>
-                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Emitter Array</span>
-                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>Beryllium Dome</span>
+                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Reduced Motion</span>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>Static Poster</span>
               </div>
               <div style={{ padding: "0.875rem 1rem", borderRadius: "6px", background: "var(--card, #15181D)", border: "1px solid var(--border, #262B33)", textAlign: "left" }}>
-                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Dispersion Geometry</span>
-                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>Elliptical Waveguide</span>
+                <span className="mono" style={{ fontSize: "11px", color: "var(--muted-foreground, #9AA1AF)", display: "block", textTransform: "uppercase" }}>Installed Through</span>
+                <span style={{ fontSize: "14px", fontWeight: 600, color: "var(--foreground, #E9EBF0)" }}>shadcn CLI as Source</span>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@
 
 export const REPO_SLUG: string = process.env.REPO_SLUG || "hunainx/frictionborn";
 export const REPO_URL: string = `https://github.com/${REPO_SLUG}`;
-export const SKILL_INSTALL_COMMAND: string = `npx skills add ${REPO_SLUG} --skill frictionborn --full-depth`;
+export const SKILL_INSTALL_COMMAND: string = `npx skills add ${REPO_SLUG}`;
 
 export const SITE_URL: string = (
   process.env.SITE_URL ||
