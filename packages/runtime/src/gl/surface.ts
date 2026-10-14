@@ -90,6 +90,8 @@ export function createSurface(
 
   if (!gl) {
     const err = new Error("WebGL2 is not supported on this device/browser");
+    // round 4 (Part 6): tell the core runtime (a separate bundle) that WebGL2 cannot be made here, so every item drops to its poster
+    window.dispatchEvent(new Event("fb-webgl2-unavailable"));
     onError?.(err);
     throw err;
   }

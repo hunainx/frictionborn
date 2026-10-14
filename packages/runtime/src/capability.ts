@@ -36,28 +36,22 @@ export function _resetCapabilityCacheForTesting(): void {
   lastCheckKey = "";
 }
 
+/*
+ * round 4 (Part 6): WebGL2 is read from the API, not proven by creating a throwaway context. That probe was one synchronous GPU call
+ * (about 80 ms on the review PC) during hydration on every page with a component, also pages whose components never use WebGL. Every
+ * WebGL item makes its own context anyway and shows its poster when that fails (AGENTS rule 2); the first failure now marks WebGL2 as
+ * unavailable for the page (`createSurface` sends `fb-webgl2-unavailable`; `markWebGL2Unavailable`), so every item recomputes its tier.
+ */
 function checkWebGL2(): boolean {
   if (cachedWebGL2 !== null) return cachedWebGL2;
-  try {
-    if (typeof window === "undefined" || !window.WebGL2RenderingContext) {
-      cachedWebGL2 = false;
-      return false;
-    }
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl2", { powerPreference: "low-power" });
-    if (!gl) {
-      cachedWebGL2 = false;
-      return false;
-    }
-    // Immediately dispose detection context so it doesn't hold GPU resources or count as active
-    const ext = gl.getExtension("WEBGL_lose_context");
-    ext?.loseContext();
-    cachedWebGL2 = true;
-    return true;
-  } catch {
-    cachedWebGL2 = false;
-    return false;
-  }
+  return typeof window !== "undefined" && typeof window.WebGL2RenderingContext === "function";
+}
+
+/** A WebGL2 context could not be made on this device (blocklisted GPU, lost driver): items drop to tier 0 and show their posters. */
+export function markWebGL2Unavailable(): void {
+  if (cachedWebGL2 === false) return;
+  cachedWebGL2 = false;
+  notify();
 }
 
 function evaluateCapability(): Capability {
@@ -177,6 +171,8 @@ function ensureListeners() {
   eventsAttached = true;
 
   window.addEventListener("resize", notify);
+  // round 4 (Part 6): createSurface (the `gl` entry, a separate bundle) reports a WebGL2 context that could not be made
+  window.addEventListener("fb-webgl2-unavailable", markWebGL2Unavailable);
   const mqMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)");
   mqMotion?.addEventListener?.("change", notify);
   const mqPointer = window.matchMedia?.("(pointer: fine)");

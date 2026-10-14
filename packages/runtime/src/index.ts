@@ -1,6 +1,6 @@
 // Original — Frictionborn Motion Runtime Main Entry
 export { useReducedMotion } from "./reduced-motion.js";
-export { useCapability, type Tier, type PointerType, type Capability } from "./capability.js";
+export { useCapability, markWebGL2Unavailable, type Tier, type PointerType, type Capability } from "./capability.js";
 export { useHydrated } from "./hydrated.js";
 export { useInView, type InViewOptions } from "./in-view.js";
 export { useFrame, subscribeFrame, type FrameCallback, type FrameState, type FrameOptions } from "./frame.js";

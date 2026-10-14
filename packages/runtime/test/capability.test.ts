@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { useCapability, _resetCapabilityCacheForTesting } from "../src/capability.js";
 
 describe("useCapability", () => {
@@ -113,27 +113,50 @@ describe("useCapability", () => {
     expect(result.current.reasons).toContain("low-end-hardware");
   });
 
-  it("caches WebGL2 detection and does not recreate context on multiple evaluations", () => {
+  // round 4 (Part 6): no throwaway context any more; the first context that cannot be made is reported by createSurface
+  it("reads WebGL2 from the API and makes no WebGL context of its own", () => {
     let contextCreationCount = 0;
-    (window as any).WebGL2RenderingContext = function () {};
+    (window as unknown as { WebGL2RenderingContext?: unknown }).WebGL2RenderingContext = function () {};
     HTMLCanvasElement.prototype.getContext = ((type: string) => {
-      if (type === "webgl2") {
-        contextCreationCount++;
-        return {
-          getExtension: () => ({ loseContext: () => {} }),
-        };
-      }
+      if (/webgl/.test(type)) contextCreationCount++;
       return null;
-    }) as any;
+    }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
 
     const { result: r1 } = renderHook(() => useCapability());
     expect(r1.current.webgl2).toBe(true);
-    expect(contextCreationCount).toBe(1);
-
-    // Subsequent call without resetting cache must NOT recreate context
     const { result: r2 } = renderHook(() => useCapability());
     expect(r2.current.webgl2).toBe(true);
-    expect(contextCreationCount).toBe(1);
+    expect(contextCreationCount).toBe(0);
+  });
+
+  it("a WebGL2 context that could not be made drops every item to tier 0", () => {
+    window.matchMedia = (query: string) => ({
+      matches: query.includes("pointer: coarse"),
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => true,
+    }) as unknown as MediaQueryList;
+    Object.defineProperty(navigator, "deviceMemory", { value: 8, configurable: true });
+    Object.defineProperty(navigator, "hardwareConcurrency", { value: 8, configurable: true });
+    (window as unknown as { WebGL2RenderingContext?: unknown }).WebGL2RenderingContext = function () {};
+
+    const { result } = renderHook(() => useCapability());
+    expect(result.current.tier).toBe(2);
+    act(() => { window.dispatchEvent(new Event("fb-webgl2-unavailable")); });
+    expect(result.current.webgl2).toBe(false);
+    expect(result.current.tier).toBe(0);
+    expect(result.current.reasons).toContain("no-webgl2");
+  });
+
+  it("no WebGL2 API means no WebGL2", () => {
+    delete (window as unknown as { WebGL2RenderingContext?: unknown }).WebGL2RenderingContext;
+    const { result } = renderHook(() => useCapability());
+    expect(result.current.webgl2).toBe(false);
+    expect(result.current.tier).toBe(0);
   });
 });
 
