@@ -163,7 +163,7 @@
     ],
     "agent": {
       "install": "npx shadcn@4.21.1 add @frictionborn/ember-badge",
-      "usage": "import { EmberBadge } from \"@/components/ui/ember-badge\";\n\nexport function Inbox({ unread }: { unread: number }) {\n  return (\n    <EmberBadge count={unread} label=\"unread messages\">\n      <button type=\"button\" aria-label=\"Inbox\">\n        <BellIcon />\n      </button>\n    </EmberBadge>\n  );\n}",
+      "usage": "import { EmberBadge } from \"@/components/ui/ember-badge\";\n\nexport function Inbox({ unread }: { unread: number }) {\n  return (\n    <EmberBadge count={unread} label=\"unread messages\">\n      <button type=\"button\" aria-label=\"Inbox\">\n        <span aria-hidden=\"true\">🔔</span>\n      </button>\n    </EmberBadge>\n  );\n}",
       "mistakes": [
         "Put the accessible name on the wrapped button (aria-label=\"Inbox\"); the badge only adds the count.",
         "The sparks rise above the badge: do not clip the parent with overflow: hidden.",
@@ -180,6 +180,67 @@
       "derivedFrom": [],
       "notices": [],
       "assets": []
+    },
+    "measured": {
+      "commit": "605ef63",
+      "date": "2026-10-13",
+      "sizeKB": {
+        "initial": 2.65,
+        "deferred": 0.02,
+        "method": "gzip-9"
+      },
+      "cls": 0,
+      "framesWhenIdle": {
+        "offscreen": 0,
+        "hiddenTab": 0,
+        "reducedMotion": 0
+      },
+      "axe": {
+        "serious": 0,
+        "critical": 0
+      },
+      "devices": [
+        {
+          "env": "Chromium Desktop (SwiftShader)",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-13",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "Chromium Mobile (Pixel 7 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-13",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "Firefox Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-13",
+          "notes": "14 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Desktop",
+          "via": "playwright",
+          "tier": 3,
+          "result": "pass",
+          "date": "2026-10-13",
+          "notes": "15 passed, 0 failed"
+        },
+        {
+          "env": "WebKit Mobile (iPhone 14 emulation)",
+          "via": "playwright",
+          "tier": 2,
+          "result": "pass",
+          "date": "2026-10-13",
+          "notes": "15 passed, 0 failed"
+        }
+      ]
     }
   }
 }

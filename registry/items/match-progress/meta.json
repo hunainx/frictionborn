@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "match-progress",
+    "version": "0.1.0",
+    "summary": "feedback: Progress bar drawn as a row of matches, each catching from the last as the job advances (canvas 2D, server-safe bar, reduced motion -> still)",
+    "slot": "feedback",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "A job with real progress the visitor waits for (an upload, a build, an import)",
+      "A hero or onboarding step where progress is the moment"
+    ],
+    "avoidWhen": [
+      "Indeterminate waits with no real percentage",
+      "Many progress bars in a table"
+    ],
+    "alternatives": []
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "One still frame on the canvas (reduced motion, Save-Data, no WebGL2), redrawn only when the value changes",
+      "1": "Same as tier 2",
+      "2": "Animated at DPR <= 1.5 with half the particles",
+      "3": "Animated at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "still-frame",
+      "description": "The reached matches stand lit with a steady glow; no flame, no sparks, no burning down. One frame per change."
+    },
+    "input": {
+      "pointer": "None (it shows progress)",
+      "touch": "None",
+      "keyboard": "None (not focusable)"
+    }
+  },
+  "a11y": {
+    "role": "content",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "not-needed",
+    "wcag": [
+      "1.1.1",
+      "1.3.1",
+      "4.1.2"
+    ],
+    "notes": "role=progressbar with aria-valuenow/min/max and a required accessible name; the visible percentage is its text. The canvas is aria-hidden; before it mounts a plain bar shows the same value. Each burn lasts 7 s and stops."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "fuse-toast",
+      "flame-switch"
+    ]
+  },
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": null,
+      "effect": "Required. Progress 0-100; each match catches as the value passes its share."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": null,
+      "effect": "Required. Accessible name of the progress bar."
+    },
+    {
+      "name": "matches",
+      "type": "number",
+      "default": 12,
+      "effect": "Number of matches in the row."
+    },
+    {
+      "name": "showValue",
+      "type": "boolean",
+      "default": true,
+      "effect": "Show the percentage under the row."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/match-progress",
+    "usage": "import { MatchProgress } from \"@/components/ui/match-progress\";\n\nexport function Upload({ percent }: { percent: number }) {\n  return <MatchProgress value={percent} label=\"Uploading your files\" />;\n}",
+    "mistakes": [
+      "Pass real progress (0-100). For an unknown wait, use the host's spinner instead.",
+      "label is required: it names the progress bar.",
+      "Leave about 150 px of height for the standing matches."
+    ],
+    "verify": [
+      "Server HTML has a progressbar with aria-valuenow and a plain bar.",
+      "Raising value lights matches in order with a burst.",
+      "Burning stops within 7 s and the loop goes quiet."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "605ef63",
+    "date": "2026-10-13",
+    "sizeKB": {
+      "initial": 2.91,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}

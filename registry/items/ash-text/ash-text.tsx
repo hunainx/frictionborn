@@ -70,9 +70,28 @@ export function AshText({ children, as: Tag = "h2", interactive = true, actionLa
       let P: Grain[] = [], gone = -1, ox = 0, box = relBox(el, fx);
       const step = tier >= 3 ? 3 : 4;
       const build = () => { box = relBox(el, fx); P = grainsOf(el, children, c.w, c.h, box, step); };
-      c.onResize(() => { build(); wakeUp(); });
-      build();
-      markDrawn(root, d);
+      /*
+       * A web font that is still loading would sample as its fallback face, so the word is sampled once its own face is there (the lab
+       * also waits for its fonts); until then the DOM text shows as it is.
+       */
+      let alive = true, ready = false;
+      c.onResize(() => { if (ready) { build(); wakeUp(); } });
+      const go = () => {
+        if (!alive || ready) return;
+        ready = true;
+        build();
+        markDrawn(root, d);
+        wakeUp();
+      };
+      const cs = getComputedStyle(el), face = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      let loading = false;
+      try {
+        loading = !!document.fonts && !document.fonts.check(face, children);
+      } catch {
+        /* an invalid font string: sample with what there is */
+      }
+      if (loading) document.fonts.load(face, children).then(go, go);
+      else go();
       blowRef.current = (x) => {
         if (gone >= 0) return;
         gone = 0;
@@ -122,6 +141,7 @@ export function AshText({ children, as: Tag = "h2", interactive = true, actionLa
           return moving;
         },
         destroy() {
+          alive = false;
           blowRef.current = null;
           d.dispose();
         },

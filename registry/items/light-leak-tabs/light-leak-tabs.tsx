@@ -107,7 +107,7 @@ export function LightLeakTabs({ tabs, value, defaultValue, onValueChange, label,
   return (
     <div ref={rootRef} data-frictionborn-item="light-leak-tabs" data-tier={tier} className={`fb-light-leak-tabs ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>
       <style nonce={nonce}>{`
-        .fb-light-leak-tabs { position: relative; isolation: isolate; padding: 18px; border-radius: 16px; background: #0b0a09; color: #cfc2b6; overflow: hidden; }
+        .fb-light-leak-tabs { position: relative; isolation: isolate; display: flex; flex-direction: column; padding: 18px; border-radius: 16px; background: #0b0a09; color: #cfc2b6; overflow: hidden; }
         .fb-llt-fx { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
         .fb-llt-fx > canvas { position: absolute; inset: 0; display: block; }
         .fb-llt-list { display: flex; gap: 4px; }
@@ -115,7 +115,7 @@ export function LightLeakTabs({ tabs, value, defaultValue, onValueChange, label,
         .fb-llt-tab[aria-selected="true"] { color: #fff3e4; background: #1d1714; box-shadow: inset 0 -3px 0 var(--fb-heat-2, #E8590C); }
         .fb-light-leak-tabs[data-drawn] .fb-llt-tab[aria-selected="true"] { box-shadow: none; }
         .fb-llt-tab:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: -2px; }
-        .fb-llt-panel { min-height: 120px; border: 1px solid rgba(233, 229, 223, 0.08); border-radius: 0 0 12px 12px; padding: 18px; font-size: 14px; line-height: 1.55; }
+        .fb-llt-panel { flex: 1 1 auto; min-height: 120px; border: 1px solid rgba(233, 229, 223, 0.08); border-radius: 0 0 12px 12px; padding: 18px; font-size: 14px; line-height: 1.55; }
         .fb-llt-panel:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }
       `}</style>
       <div ref={fxRef} className="fb-llt-fx" aria-hidden="true" />

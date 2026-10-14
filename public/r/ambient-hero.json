@@ -199,6 +199,12 @@
         "type": "React.Ref<HTMLElement>",
         "default": null,
         "effect": "Receives the root <header> element."
+      },
+      {
+        "name": "palette",
+        "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+        "default": null,
+        "effect": "Colours of the background variant from a palette (DESIGN.md A8): fire, ice, neon, mono, or custom. Leave it out to keep the host's tokens."
       }
     ],
     "agent": {
@@ -228,10 +234,10 @@
       "assets": []
     },
     "measured": {
-      "commit": "556ebc7",
-      "date": "2026-10-05",
+      "commit": "605ef63",
+      "date": "2026-10-13",
       "sizeKB": {
-        "initial": 3.53,
+        "initial": 3.67,
         "deferred": 0.02,
         "method": "gzip-9"
       },
@@ -251,7 +257,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-05",
+          "date": "2026-10-13",
           "notes": "19 passed, 0 failed"
         },
         {
@@ -259,7 +265,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-05",
+          "date": "2026-10-13",
           "notes": "18 passed, 0 failed"
         },
         {
@@ -267,7 +273,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-05",
+          "date": "2026-10-13",
           "notes": "19 passed, 0 failed"
         },
         {
@@ -275,7 +281,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-05",
+          "date": "2026-10-13",
           "notes": "18 passed, 0 failed"
         },
         {
@@ -283,7 +289,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-05",
+          "date": "2026-10-13",
           "notes": "17 passed, 0 failed"
         }
       ]

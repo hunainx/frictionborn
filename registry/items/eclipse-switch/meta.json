@@ -1,0 +1,239 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "eclipse-switch",
+    "version": "0.1.0",
+    "summary": "control: Light/dark theme switch: the moon slides across the sun until only the corona remains (canvas 2D, server-safe switch, reduced motion -> still)",
+    "slot": "control",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "The light/dark theme toggle of a site or app, as a feature in a settings card or a hero",
+      "A day/night or on/off choice with a sky metaphor"
+    ],
+    "avoidWhen": [
+      "A compact header toggle (it is a 250 px panel)",
+      "Pages that already show a lot of motion near it"
+    ],
+    "alternatives": [
+      {
+        "name": "flame-switch",
+        "when": "When the toggle is not about light and dark"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "One still frame on the canvas (reduced motion, Save-Data, no WebGL2), redrawn only when the value changes",
+      "1": "Same as tier 2",
+      "2": "Animated at DPR <= 1.5 with half the particles",
+      "3": "Animated at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "still-frame",
+      "description": "The sky jumps straight to day or totality: one frame per change, no sliding moon."
+    },
+    "input": {
+      "pointer": "Click the switch",
+      "touch": "Tap the switch",
+      "keyboard": "A native <button role=switch>: Space and Enter toggle"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.4.3",
+      "2.1.1",
+      "4.1.2",
+      "4.1.3"
+    ],
+    "notes": "A native <button role=\"switch\"> with aria-checked; its visible label is its name. The status (Day / Totality) is aria-live=polite. Before the canvas mounts a CSS sun shows the state. The sky canvas is aria-hidden."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flame-switch",
+      "light-leak-tabs"
+    ]
+  },
+  "props": [
+    {
+      "name": "checked",
+      "type": "boolean",
+      "default": null,
+      "effect": "Controlled state: true is the eclipse (dark)."
+    },
+    {
+      "name": "defaultChecked",
+      "type": "boolean",
+      "default": false,
+      "effect": "Initial state when uncontrolled."
+    },
+    {
+      "name": "onCheckedChange",
+      "type": "(checked: boolean) => void",
+      "default": null,
+      "effect": "Called with the new state."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Eclipse mode",
+      "effect": "Visible label and accessible name of the switch."
+    },
+    {
+      "name": "statusText",
+      "type": "{ on: string; off: string } | null",
+      "default": "{ on: \"Totality\", off: \"Day\" }",
+      "effect": "Visible, announced status; null hides it."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/eclipse-switch",
+    "usage": "import { EclipseSwitch } from \"@/components/ui/eclipse-switch\";\n\nexport function ThemeCard({ dark, setDark }: { dark: boolean; setDark: (v: boolean) => void }) {\n  return <EclipseSwitch checked={dark} onCheckedChange={setDark} label=\"Dark mode\" statusText={{ on: \"Dark\", off: \"Light\" }} />;\n}",
+    "mistakes": [
+      "It switches its own sky only: apply your theme in onCheckedChange.",
+      "Give it a full card (at least 250 px tall); it is not a header icon.",
+      "Keep the label short; it sits on the sky."
+    ],
+    "verify": [
+      "Server HTML has a switch with aria-checked and a CSS sun.",
+      "Space toggles; the status reads Totality or Day.",
+      "The moon slides in about 4 s, then nothing runs."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "605ef63",
+    "date": "2026-10-13",
+    "sizeKB": {
+      "initial": 3.2,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}

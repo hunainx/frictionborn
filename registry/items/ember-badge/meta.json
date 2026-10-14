@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "ember-badge",
+    "version": "0.1.0",
+    "summary": "feedback: Unread-count badge that is a live ember: flares on new items, cools to ash at zero (canvas 2D, server-safe, reduced motion -> static badge)",
+    "slot": "feedback",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "An unread or pending count on an icon button, avatar or tab",
+      "A notification bell in a header where new items deserve a moment of attention"
+    ],
+    "avoidWhen": [
+      "Many badges in one list (one ember per screen is enough)",
+      "Counts that change several times a second (it would flare constantly)"
+    ],
+    "alternatives": []
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "A static ember-coloured badge with the number; no flare, no sparks, no canvas."
+    },
+    "input": {
+      "pointer": "None of its own: the wrapped element keeps its own handlers",
+      "touch": "Same",
+      "keyboard": "None of its own: the wrapped button or link stays focusable"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.3.1",
+      "4.1.3"
+    ],
+    "notes": "The visible number is aria-hidden; a visually hidden role=status reads \"<count> <label>\" when the count changes. The wrapped element keeps its own name and role."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flame-switch",
+      "fuse-toast"
+    ]
+  },
+  "props": [
+    {
+      "name": "count",
+      "type": "number",
+      "default": null,
+      "effect": "Required. The unread count; a rise flares the ember, 0 cools it to ash and hides the number."
+    },
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Required. The element the badge sits on (an icon button, an avatar)."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "default": 99,
+      "effect": "Counts above this show as max+."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "unread",
+      "effect": "What the count counts, read after the number by screen readers."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/ember-badge",
+    "usage": "import { EmberBadge } from \"@/components/ui/ember-badge\";\n\nexport function Inbox({ unread }: { unread: number }) {\n  return (\n    <EmberBadge count={unread} label=\"unread messages\">\n      <button type=\"button\" aria-label=\"Inbox\">\n        <span aria-hidden=\"true\">🔔</span>\n      </button>\n    </EmberBadge>\n  );\n}",
+    "mistakes": [
+      "Put the accessible name on the wrapped button (aria-label=\"Inbox\"); the badge only adds the count.",
+      "The sparks rise above the badge: do not clip the parent with overflow: hidden.",
+      "Pass the real count (a number), not a string; the badge formats max+ itself."
+    ],
+    "verify": [
+      "Server HTML shows the number on a static ember badge.",
+      "Raising count flares the ember and a status message reads the new count.",
+      "At count 0 the number disappears and the loop stops."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "605ef63",
+    "date": "2026-10-13",
+    "sizeKB": {
+      "initial": 2.65,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}

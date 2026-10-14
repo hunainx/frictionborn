@@ -139,7 +139,7 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
   return (
     <div ref={rootRef} data-frictionborn-item="temper-slider" data-tier={tier} className={`fb-temper-slider ${className}`} style={{ ...paletteVars(palette), ...style }} {...rest}>
       <style nonce={nonce}>{`
-        .fb-temper-slider { position: relative; padding: 24px 24px 22px; border-radius: 16px; background: #0c0b0a; color: #E9E5DF; }
+        .fb-temper-slider { position: relative; display: flex; flex-direction: column; padding: 24px 24px 22px; border-radius: 16px; background: #0c0b0a; color: #E9E5DF; }
         .fb-ts-kick { font: 500 11px ui-monospace, "Geist Mono", monospace; letter-spacing: 0.12em; color: #8a8580; }
         .fb-ts-stage { position: relative; height: 140px; margin: 0 -24px; }
         .fb-ts-fx { position: absolute; inset: 0; pointer-events: none; }
@@ -154,7 +154,7 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
         .fb-ts-range:disabled { cursor: not-allowed; }
         .fb-ts-range:focus-visible { outline: none; }
         .fb-temper-slider:not([data-drawn]) .fb-ts-range:focus-visible { outline: 2px solid var(--ring, var(--fb-heat-2, #E8590C)); outline-offset: 2px; }
-        .fb-ts-out { display: flex; justify-content: space-between; align-items: baseline; }
+        .fb-ts-out { display: flex; justify-content: space-between; align-items: baseline; margin-top: auto; }
         .fb-ts-out b { font-weight: 600; font-size: 20px; }
         .fb-ts-out span { font: 13px ui-monospace, "Geist Mono", monospace; }
       `}</style>

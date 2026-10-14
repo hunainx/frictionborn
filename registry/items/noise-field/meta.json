@@ -170,6 +170,12 @@
       "type": "React.ReactNode",
       "default": null,
       "effect": "Optional. No default. Content layered above the poster, canvas and scrim."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": null,
+      "effect": "Colours from a palette (DESIGN.md A8): fire, ice, neon, mono, or custom (reads --fb-heat-0..4). Overrides colors; leave it out to keep the host's tokens."
     }
   ],
   "agent": {
@@ -205,14 +211,14 @@
     "assets": []
   },
   "measured": {
-    "commit": "da21af4",
-    "date": "2026-10-05",
+    "commit": "605ef63",
+    "date": "2026-10-13",
     "sizeKB": {
-      "initial": 2.54,
+      "initial": 2.76,
       "deferred": 3.47,
       "method": "gzip-9"
     },
-    "cls": 0.0028,
+    "cls": 0.0017,
     "framesWhenIdle": {
       "offscreen": 0,
       "hiddenTab": 0,
@@ -228,7 +234,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-05",
+        "date": "2026-10-13",
         "notes": "18 passed, 0 failed"
       },
       {
@@ -236,7 +242,7 @@
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-05",
+        "date": "2026-10-13",
         "notes": "18 passed, 0 failed"
       },
       {
@@ -244,7 +250,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-05",
+        "date": "2026-10-13",
         "notes": "16 passed, 0 failed"
       },
       {
@@ -252,7 +258,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-05",
+        "date": "2026-10-13",
         "notes": "16 passed, 0 failed"
       },
       {
@@ -260,7 +266,7 @@
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-05",
+        "date": "2026-10-13",
         "notes": "16 passed, 0 failed"
       }
     ]

@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "firework-rating",
+    "version": "0.1.0",
+    "summary": "control: Five-star rating as a real radio group; hover previews, and each chosen star bursts as a firework (canvas 2D, server-safe, reduced motion -> plain)",
+    "slot": "control",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "Asking for a rating at a moment worth celebrating (after a purchase, a finished task, a demo)",
+      "One rating per view"
+    ],
+    "avoidWhen": [
+      "Lists of read-only ratings (show plain stars)",
+      "Forms with many ratings in a row"
+    ],
+    "alternatives": []
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "The stars light up without bursts; no canvas."
+    },
+    "input": {
+      "pointer": "Hover previews, click rates",
+      "touch": "Tap rates",
+      "keyboard": "A radio group with roving focus: arrows move and rate (Right/Up up, Left/Down down)"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.3.1",
+      "1.4.11",
+      "2.1.1",
+      "4.1.2",
+      "4.1.3"
+    ],
+    "notes": "role=radiogroup with a name and five native buttons with role=radio, aria-checked and names (\"3 stars\"); one tab stop. The word for the rating is aria-live=polite. Unlit stars keep 3:1 against the dark ground. The firework canvas is aria-hidden."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flint-button",
+      "fuse-toast"
+    ]
+  },
+  "props": [
+    {
+      "name": "value",
+      "type": "number",
+      "default": null,
+      "effect": "Controlled rating, 0 (not rated) to 5."
+    },
+    {
+      "name": "defaultValue",
+      "type": "number",
+      "default": 0,
+      "effect": "Initial rating when uncontrolled."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(value: number) => void",
+      "default": null,
+      "effect": "Called with the new rating."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": "Rating",
+      "effect": "Accessible name of the radio group."
+    },
+    {
+      "name": "words",
+      "type": "[string, string, string, string, string, string] | null",
+      "default": "[\"Not rated\", \"Poor\", \"Fair\", \"Good\", \"Great\", \"Spectacular\"]",
+      "effect": "Words for 0-5 stars, shown and announced; null hides them."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/firework-rating",
+    "usage": "import { useState } from \"react\";\nimport { FireworkRating } from \"@/components/ui/firework-rating\";\n\nexport function Feedback() {\n  const [stars, setStars] = useState(0);\n  return <FireworkRating label=\"Rate this guide\" value={stars} onValueChange={setStars} />;\n}",
+    "mistakes": [
+      "The bursts spread about 200 px around the stars: leave room and do not clip the parent.",
+      "It sits on a dark ground by design; on a light page put it on a dark card.",
+      "Give the group a specific label (what is being rated)."
+    ],
+    "verify": [
+      "Server HTML has a radiogroup with five radios and one tab stop.",
+      "ArrowRight rates and moves focus; the word is announced.",
+      "The bursts fade and the loop stops within about two seconds."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "605ef63",
+    "date": "2026-10-13",
+    "sizeKB": {
+      "initial": 3.61,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}

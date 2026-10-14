@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "flint-button",
+    "version": "0.1.0",
+    "summary": "cta: Button that strikes like flint: a steel rakes the stone and throws sparks; heat builds until it catches (canvas 2D, native button, reduced motion -> plain)",
+    "slot": "cta",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "One primary action with a moment of character (start, ignite, launch, generate)",
+      "Brand pages about fire, energy or making"
+    ],
+    "avoidWhen": [
+      "Forms with several buttons in a row",
+      "Destructive actions (use hold-to-confirm)",
+      "Light pages where a dark stone button would look out of place"
+    ],
+    "alternatives": [
+      {
+        "name": "magnetic-button",
+        "when": "When the button should feel physical without fire"
+      }
+    ]
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "A plain stone button: no steel, no sparks, no glow, no canvas. Clicks work as usual."
+    },
+    "input": {
+      "pointer": "Click strikes; rubbing fast across the button heats it",
+      "touch": "Tap strikes",
+      "keyboard": "A native <button>: Enter and Space strike, focus ring visible"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "2.1.1",
+      "2.4.7",
+      "4.1.2",
+      "4.1.3"
+    ],
+    "notes": "A native <button> with its text label (which becomes litLabel while it burns). The optional heat status under it is aria-live=polite. The spark canvas and the steel are aria-hidden. Sparks last under 3 s per strike."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flame-switch",
+      "hold-to-confirm"
+    ]
+  },
+  "props": [
+    {
+      "name": "children",
+      "type": "React.ReactNode",
+      "default": null,
+      "effect": "Required. The button's label while cold."
+    },
+    {
+      "name": "litLabel",
+      "type": "React.ReactNode",
+      "default": "Lit",
+      "effect": "The label while the stone burns."
+    },
+    {
+      "name": "statusText",
+      "type": "{ cold: string; warm: string; hot: string; burning: string } | null",
+      "default": "{ cold: \"Cold stone\", warm: \"Warm\", hot: \"Hot\", burning: \"Burning\" }",
+      "effect": "Visible heat status under the button (aria-live polite); null hides it."
+    },
+    {
+      "name": "onClick",
+      "type": "React.MouseEventHandler<HTMLButtonElement>",
+      "default": null,
+      "effect": "Your action; runs on every strike."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLButtonElement>",
+      "default": null,
+      "effect": "Receives the <button>; className, style and the rest of the props go on the button too."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/flint-button",
+    "usage": "import { FlintButton } from \"@/components/ui/flint-button\";\n\nexport function Start({ onStart }: { onStart: () => void }) {\n  return <FlintButton onClick={onStart} litLabel=\"Started\">Start the bench</FlintButton>;\n}",
+    "mistakes": [
+      "The sparks fly above the button (about 200 px): leave room and do not clip the parent with overflow: hidden.",
+      "One per view: it is a primary action, not a toolbar button.",
+      "ref, className and style apply to the <button>, not to the wrapper."
+    ],
+    "verify": [
+      "Server HTML has a native <button> with its label.",
+      "Enter strikes: the steel sweeps, sparks fly and the status warms.",
+      "After the sparks fade and the stone cools, the loop stops."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "0b55965",
+    "date": "2026-10-14",
+    "sizeKB": {
+      "initial": 3.15,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-14",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-14",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-14",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-14",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-14",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}

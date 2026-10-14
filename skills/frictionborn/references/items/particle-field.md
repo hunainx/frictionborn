@@ -28,7 +28,7 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `poster` (accessible fallback in static HTML; measured CLS 0.0003)
+- **Server Output**: `poster` (accessible fallback in static HTML; measured CLS 0.0002)
 - **Client Only**: `true`
 - **Lazy Loaded**: `in-view`
 - **Client Reveal Gate**: None. This item does not read `data-motion`.
@@ -83,6 +83,7 @@
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root div, merged after the built-in layout and background (consumer wins). |
 | `ref` | `React.Ref<HTMLDivElement>` | `—` | Receives the root <div> that holds the poster and the canvas. |
 | `children` | `React.ReactNode` | `—` | Optional. No default. Content layered above the poster, canvas and scrim. |
+| `palette` | `"fire" \| "ice" \| "neon" \| "mono" \| "custom"` | `—` | Colours from a palette (DESIGN.md A8): fire, ice, neon, mono, or custom (reads --fb-heat-0..4). Overrides color; leave it out to keep the host's tokens. |
 
 ## Dependencies
 
@@ -124,9 +125,9 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `da21af4` (2026-10-05)
-- **Size**: 2.32 KiB initial / 3.5 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
-- **Cumulative Layout Shift (CLS)**: `0.0003`
+- **Bench Commit**: `605ef63` (2026-10-13)
+- **Size**: 2.54 KiB initial / 3.5 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Cumulative Layout Shift (CLS)**: `0.0002`
 - **Frames When Idle**:
   - Off-screen: 0 frames
   - Hidden tab: 0 frames
@@ -136,11 +137,11 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-05 | 17 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-05 | 17 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-05 | 15 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-05 | 15 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-05 | 15 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-13 | 17 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-13 | 17 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-13 | 15 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-13 | 15 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-13 | 15 passed, 0 failed |
 
 ## License & Provenance
 

@@ -84,6 +84,7 @@
 | `className` | `string` | `—` | Optional. No default. Additional CSS class names on the root header element. Any other HTML attribute (id, data-*, aria-*, event handlers) is spread on the root element; handlers the item uses itself are composed, not replaced. |
 | `style` | `React.CSSProperties` | `—` | Optional. No default. Inline styles on the root header element, merged last (consumer wins). |
 | `ref` | `React.Ref<HTMLElement>` | `—` | Receives the root <header> element. |
+| `palette` | `"fire" \| "ice" \| "neon" \| "mono" \| "custom"` | `—` | Colours of the background variant from a palette (DESIGN.md A8): fire, ice, neon, mono, or custom. Leave it out to keep the host's tokens. |
 
 ## Dependencies
 
@@ -132,8 +133,8 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `556ebc7` (2026-10-05)
-- **Size**: 3.53 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `605ef63` (2026-10-13)
+- **Size**: 3.67 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -144,11 +145,11 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-05 | 19 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-05 | 18 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-05 | 19 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-05 | 18 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-05 | 17 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-13 | 19 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-13 | 18 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-13 | 19 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-13 | 18 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-13 | 17 passed, 0 failed |
 
 ## License & Provenance
 

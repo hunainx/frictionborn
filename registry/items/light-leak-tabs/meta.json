@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "0.1",
+  "item": {
+    "name": "light-leak-tabs",
+    "version": "0.1.0",
+    "summary": "navigation: ARIA tabs over a furnace slot: the selected tab lets the firelight through and the light slides as you switch (canvas 2D, server-safe tabs)",
+    "slot": "navigation",
+    "kind": "canvas"
+  },
+  "intent": {
+    "useWhen": [
+      "Three to five sections of related content in one card (features, plans, steps)",
+      "A product or brand page where the tabs are a focal element"
+    ],
+    "avoidWhen": [
+      "Navigation between pages (use links)",
+      "More than about six tabs, or tabs that must wrap onto two rows"
+    ],
+    "alternatives": []
+  },
+  "runtime": {
+    "serverOutput": "final-state",
+    "clientOnly": false,
+    "lazyLoaded": "in-view",
+    "requires": {
+      "react": ">=19",
+      "frameworks": [
+        "next-app-router",
+        "vite-react"
+      ],
+      "tailwind": "none"
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "registry": []
+  },
+  "behavior": {
+    "loop": "on-interaction",
+    "webglContexts": 0,
+    "tiers": {
+      "0": "The control alone (server render, reduced motion, Save-Data, no WebGL2): no canvas",
+      "1": "Same as tier 2",
+      "2": "Effect on a canvas at DPR <= 1.5 with half the particles",
+      "3": "Effect on a canvas at DPR <= 2 with the full particle count"
+    },
+    "reducedMotion": {
+      "mode": "static",
+      "description": "The tabs alone with a plain underline on the selected tab; no canvas, no sliding light."
+    },
+    "input": {
+      "pointer": "Click a tab to select it; the light slides after it",
+      "touch": "Tap a tab",
+      "keyboard": "Roving tabindex: ArrowLeft/ArrowRight (wrapping), Home and End move and select; Tab moves into the panel"
+    }
+  },
+  "a11y": {
+    "role": "interactive",
+    "hiddenFromAT": false,
+    "textStaysInDom": true,
+    "pauseControl": "via-runtime",
+    "wcag": [
+      "1.3.1",
+      "2.1.1",
+      "2.4.3",
+      "2.4.7",
+      "4.1.2"
+    ],
+    "notes": "WAI-ARIA tabs: a named tablist of native buttons with role=tab, aria-selected and aria-controls, one tabpanel labelled by the selected tab and focusable. The light canvas is aria-hidden."
+  },
+  "composition": {
+    "maxPerPage": 6,
+    "singleton": false,
+    "conflictsWith": [],
+    "pairsWith": [
+      "flame-switch",
+      "temper-slider"
+    ]
+  },
+  "props": [
+    {
+      "name": "tabs",
+      "type": "{ id: string; label: React.ReactNode; content: React.ReactNode }[]",
+      "default": null,
+      "effect": "Required. The tabs, in order."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "default": null,
+      "effect": "Required. Accessible name of the tab list."
+    },
+    {
+      "name": "value",
+      "type": "string",
+      "default": null,
+      "effect": "Controlled selected tab id."
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "default": null,
+      "effect": "Initial tab id when uncontrolled (the first tab if omitted)."
+    },
+    {
+      "name": "onValueChange",
+      "type": "(id: string) => void",
+      "default": null,
+      "effect": "Called with the newly selected tab id."
+    },
+    {
+      "name": "palette",
+      "type": "\"fire\" | \"ice\" | \"neon\" | \"mono\" | \"custom\"",
+      "default": "fire",
+      "effect": "Colours of the effect (DESIGN.md A8). custom reads --fb-heat-0..4 from the page."
+    },
+    {
+      "name": "paused",
+      "type": "boolean",
+      "default": false,
+      "effect": "Universal pause prop: the effect stops drawing; the control keeps working."
+    },
+    {
+      "name": "maxTier",
+      "type": "number",
+      "default": 3,
+      "effect": "Hard ceiling on the capability tier."
+    },
+    {
+      "name": "nonce",
+      "type": "string",
+      "default": null,
+      "effect": "CSP nonce for the component's <style> element."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "default": "",
+      "effect": "Extra classes on the root."
+    },
+    {
+      "name": "style",
+      "type": "React.CSSProperties",
+      "default": null,
+      "effect": "Inline styles on the root, merged after the palette variables."
+    },
+    {
+      "name": "ref",
+      "type": "React.Ref<HTMLDivElement>",
+      "default": null,
+      "effect": "Receives the root element."
+    }
+  ],
+  "agent": {
+    "install": "npx shadcn@4.21.1 add @frictionborn/light-leak-tabs",
+    "usage": "import { LightLeakTabs } from \"@/components/ui/light-leak-tabs\";\n\nconst tabs = [\n  { id: \"heat\", label: \"Heat\", content: <p>How hot it runs.</p> },\n  { id: \"light\", label: \"Light\", content: <p>What it shows.</p> },\n];\n\nexport function Features() {\n  return <LightLeakTabs label=\"Features\" tabs={tabs} />;\n}",
+    "mistakes": [
+      "Keep tabs to a handful of short labels: they share one row.",
+      "Give every tab a stable, unique id; the selection is tracked by id.",
+      "label is required: it names the tab list for screen readers."
+    ],
+    "verify": [
+      "Server HTML has a tablist with one selected tab and its panel.",
+      "ArrowRight, ArrowLeft, Home and End move the selection and focus.",
+      "The light slides to the new tab and then the loop stops."
+    ]
+  },
+  "license": {
+    "code": "MIT",
+    "derivedFrom": [],
+    "notices": [],
+    "assets": []
+  },
+  "measured": {
+    "commit": "605ef63",
+    "date": "2026-10-13",
+    "sizeKB": {
+      "initial": 2.59,
+      "deferred": 0.02,
+      "method": "gzip-9"
+    },
+    "cls": 0,
+    "framesWhenIdle": {
+      "offscreen": 0,
+      "hiddenTab": 0,
+      "reducedMotion": 0
+    },
+    "axe": {
+      "serious": 0,
+      "critical": 0
+    },
+    "devices": [
+      {
+        "env": "Chromium Desktop (SwiftShader)",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Chromium Mobile (Pixel 7 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "Firefox Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "14 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Desktop",
+        "via": "playwright",
+        "tier": 3,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      },
+      {
+        "env": "WebKit Mobile (iPhone 14 emulation)",
+        "via": "playwright",
+        "tier": 2,
+        "result": "pass",
+        "date": "2026-10-13",
+        "notes": "15 passed, 0 failed"
+      }
+    ]
+  }
+}
