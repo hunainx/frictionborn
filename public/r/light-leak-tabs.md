@@ -117,8 +117,8 @@ export function Features() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `1c40cb9` (2026-10-14)
-- **Size**: 2.59 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `022e1e6` (2026-10-14)
+- **Size**: 2.61 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames

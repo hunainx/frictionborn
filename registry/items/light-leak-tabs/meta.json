@@ -172,10 +172,10 @@
     "assets": []
   },
   "measured": {
-    "commit": "1c40cb9",
+    "commit": "022e1e6",
     "date": "2026-10-14",
     "sizeKB": {
-      "initial": 2.59,
+      "initial": 2.61,
       "deferred": 0.02,
       "method": "gzip-9"
     },
