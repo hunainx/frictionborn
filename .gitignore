@@ -32,6 +32,8 @@ the-private-website-repo/public/_local-assets/
 
 # website videos never go into git (decision 43): record them into this folder and attach them to the PR
 docs/videos/
+# round 4 (Part 7): award and launch media, made by scripts/launch-media.ts (never committed)
+docs/launch/media/
 
 # Frictionborn Studio: real screenshots and founder photos stay out of git until the site moves to its private repository
 the-private-website-repo/public/work/
