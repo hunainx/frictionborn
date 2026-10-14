@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { BB, Fire, Sparks, heat, paletteRamp, rand, stage } from "@frictionborn/runtime/canvas";
 
 export interface MatchProgressProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {
@@ -57,8 +57,7 @@ export function MatchProgress({ value, label, matches = 12, showValue = true, pa
   const rootRef = useItemRef(ref);
   const fxRef = useRef<HTMLDivElement>(null);
   const v = Math.max(0, Math.min(100, Math.round(value)));
-  const vRef = useRef(v);
-  vRef.current = v;
+  const vRef = useLatest(v);
   const { hydrated, tier, still } = useItemEnv(maxTier);
 
   // the row: the lab's f4 drawing. Animated: a match catches with a burst and burns down over 7 s. Still (reduced motion, tier 0):

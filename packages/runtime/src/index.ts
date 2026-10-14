@@ -13,3 +13,4 @@ export { resolveCssColor } from "./color.js";
 export { PALETTES, PALETTE_NAMES, HEAT_VARS, paletteVars, readPalette, type PaletteName, type PaletteColors } from "./palette.js";
 export { useDrawLoop, type DrawInstance, type DrawFactory, type DrawLoopOptions } from "./draw-loop.js";
 export { useItemEnv, useItemRef, type CanvasItemProps } from "./item-env.js";
+export { useLatest } from "./latest.js";

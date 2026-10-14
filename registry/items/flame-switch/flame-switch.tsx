@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { Fire, Smoke, css, paletteRamp, ramp, rand, relBox, trackPointer, stage } from "@frictionborn/runtime/canvas";
 
 export interface FlameSwitchProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">, CanvasItemProps {
@@ -43,8 +43,7 @@ export function FlameSwitch({
   const btnRef = useRef<HTMLButtonElement>(null);
   const [inner, setInner] = useState(defaultChecked);
   const on = checked ?? inner;
-  const onRef = useRef(on);
-  onRef.current = on;
+  const onRef = useLatest(on);
   const puff = useRef<(() => void) | null>(null);
 
   const { hydrated, reduced, tier } = useItemEnv(maxTier);

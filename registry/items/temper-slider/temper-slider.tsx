@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { markDrawn, css, stage } from "@frictionborn/runtime/canvas";
 
 export interface TemperSliderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue">, CanvasItemProps {
@@ -26,7 +26,7 @@ const T: Array<[number, [number, number, number], string]> = [
   [330, [120, 150, 170], "Grey blue"], [360, [128, 132, 136], "Grey"],
 ];
 /** the oxide colour and its name at v °C */
-export function temperAt(v: number): [number[], string] {
+function temperAt(v: number): [number[], string] {
   for (let i = 1; i < T.length; i++)
     if (v <= T[i][0]) {
       const a = T[i - 1], b = T[i], f = (v - a[0]) / (b[0] - a[0]);
@@ -48,8 +48,7 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
   const fxRef = useRef<HTMLDivElement>(null);
   const [inner, setInner] = useState(defaultValue);
   const v = Math.min(MAX, Math.max(MIN, value ?? inner));
-  const vRef = useRef(v);
-  vRef.current = v;
+  const vRef = useLatest(v);
   const focusRef = useRef(false);
   const { hydrated, tier } = useItemEnv(maxTier);
   const [col, name] = temperAt(v);
@@ -131,7 +130,7 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
     },
     [value, onValueChange, wake],
   );
-  const onFocus = (f: boolean) => () => {
+  const setFocus = (f: boolean) => {
     focusRef.current = f;
     wake();
   };
@@ -172,8 +171,8 @@ export function TemperSlider({ value, defaultValue = 250, onValueChange, label =
           aria-label={label}
           aria-valuetext={`${v} degrees, ${name}`}
           onChange={onInput}
-          onFocus={onFocus(true)}
-          onBlur={onFocus(false)}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
         />
       </div>
       <div className="fb-ts-out" aria-hidden="true">

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { heat, noise, paletteRamp, rand, relBox, stage } from "@frictionborn/runtime/canvas";
 
 export interface HoldToConfirmProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {
@@ -33,8 +33,7 @@ export function HoldToConfirm({ children, holdMs = 1000, onConfirm, confirmedTex
   const fxApi = useRef<{ crumble: () => void; rebuild: () => void } | null>(null);
   const timer = useRef(0);
   const { hydrated, reduced, tier } = useItemEnv(maxTier);
-  const cb = useRef({ onConfirm, onUndo });
-  cb.current = { onConfirm, onUndo };
+  const cb = useLatest({ onConfirm, onUndo });
 
   // the ash: the lab's c2 drawing (the button breaks into grains that glow, cool and fall left to right; undo gathers them back)
   const wake = useDrawLoop(

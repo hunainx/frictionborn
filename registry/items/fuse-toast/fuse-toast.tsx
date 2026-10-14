@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { Sparks, paletteRamp, relBox, stage } from "@frictionborn/runtime/canvas";
 
 export interface FuseToastProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {
@@ -56,8 +56,13 @@ export function FuseToast({ open, message, actionLabel = "Undo", onAction, onExp
   /** the action was taken: the fuse stops and nothing commits */
   const acted = useRef(false);
   const { hydrated, reduced, tier } = useItemEnv(maxTier);
-  const cb = useRef({ onExpire, onClose });
-  cb.current = { onExpire, onClose };
+  const cb = useLatest({ onExpire, onClose });
+  // a fresh fuse each time the toast opens (state reset when the prop changes, during render: React's documented pattern)
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setExpired(false);
+  }
 
   // the fuse: the lab's v3 drawing along the toast's bottom edge
   const wake = useDrawLoop(
@@ -117,7 +122,6 @@ export function FuseToast({ open, message, actionLabel = "Undo", onAction, onExp
     if (!open) return;
     burnt.current = 0;
     acted.current = false;
-    setExpired(false);
     let last = performance.now(), closeT = 0;
     const id = window.setInterval(() => {
       const now = performance.now();
@@ -136,10 +140,14 @@ export function FuseToast({ open, message, actionLabel = "Undo", onAction, onExp
       window.clearInterval(id);
       window.clearTimeout(closeT);
     };
-  }, [open, duration, paused, wake]);
+  }, [open, duration, paused, wake, cb]);
 
-  const holdOn = (v: boolean) => () => {
-    hold.current = v;
+  const holdStart = () => {
+    hold.current = true;
+    wake();
+  };
+  const holdEnd = () => {
+    hold.current = false;
     wake();
   };
 
@@ -161,7 +169,7 @@ export function FuseToast({ open, message, actionLabel = "Undo", onAction, onExp
       `}</style>
       <div ref={fxRef} className="fb-ft-fx" aria-hidden="true" />
       <div role="status" aria-live="polite">
-        <div ref={cardRef} className="fb-ft-card" hidden={!open} onPointerEnter={holdOn(true)} onPointerLeave={holdOn(false)} onFocus={holdOn(true)} onBlur={holdOn(false)}>
+        <div ref={cardRef} className="fb-ft-card" hidden={!open} onPointerEnter={holdStart} onPointerLeave={holdEnd} onFocus={holdStart} onBlur={holdEnd}>
           <span>{expired && expiredMessage ? expiredMessage : message}</span>
           {!expired && (
             <button

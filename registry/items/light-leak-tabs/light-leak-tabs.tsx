@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useId, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { markDrawn, css, paletteRamp, ramp, relBox, stage } from "@frictionborn/runtime/canvas";
 
 export interface LightLeakTab {
@@ -29,8 +29,7 @@ export function LightLeakTabs({ tabs, value, defaultValue, onValueChange, label,
   const listRef = useRef<HTMLDivElement>(null);
   const [inner, setInner] = useState(defaultValue ?? tabs[0]?.id);
   const selected = value ?? inner;
-  const selRef = useRef(selected);
-  selRef.current = selected;
+  const selRef = useLatest(selected);
   const uid = useId().replace(/:/g, "");
   const { hydrated, reduced, tier } = useItemEnv(maxTier);
 

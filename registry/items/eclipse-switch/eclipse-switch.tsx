@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, useItemEnv, useItemRef, useLatest, type CanvasItemProps } from "@frictionborn/runtime";
 import { TAU, fbm, noise, offscreen, paletteRamp, ramp, type Ramp, stage } from "@frictionborn/runtime/canvas";
 
 export interface EclipseSwitchProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">, CanvasItemProps {
@@ -47,8 +47,7 @@ export function EclipseSwitch({ checked, defaultChecked = false, onCheckedChange
   const fxRef = useRef<HTMLDivElement>(null);
   const [inner, setInner] = useState(defaultChecked);
   const on = checked ?? inner;
-  const onRef = useRef(on);
-  onRef.current = on;
+  const onRef = useLatest(on);
   const { hydrated, tier, still } = useItemEnv(maxTier);
 
   // the sky: the lab's t2 drawing. The sun is the content, so every tier draws it; still (reduced motion, tier 0) jumps to the end state

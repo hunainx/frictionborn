@@ -482,6 +482,13 @@ const MODES: Mode[] = [
 ];
 
 const GENERATIVE = ["gl-item-noise-field", "gl-item-particle-field", "gl-item-mesh-gradient"];
+/** round 4: the 2D-canvas items, and those whose reduced-motion mode is `still-frame`, read from their declared metadata */
+const DECLARED = fs.readdirSync(path.join(import.meta.dirname, "..", "registry", "items")).flatMap((n) => {
+  const f = path.join(import.meta.dirname, "..", "registry", "items", n, "meta.declared.json");
+  return fs.existsSync(f) ? [{ n, m: JSON.parse(fs.readFileSync(f, "utf8")) as { item?: { kind?: string }; behavior?: { reducedMotion?: { mode?: string } } } }] : [];
+});
+const CANVAS_ITEMS = DECLARED.filter((d) => d.m.item?.kind === "canvas").map((d) => d.n);
+const STILL_FRAME_ITEMS = DECLARED.filter((d) => d.m.item?.kind === "canvas" && d.m.behavior?.reducedMotion?.mode === "still-frame").map((d) => d.n);
 
 /** What the page looked like when something timed out: enough to tell "WebGL unavailable" from "gated off" from "broken". */
 async function describeItem(page: Page, testId: string): Promise<string> {
@@ -612,9 +619,14 @@ async function checkPage(
       }
     }
     await page.waitForTimeout(1200);
-    const canvases = await page.locator("canvas").count();
-    console.log(`    ${NO_GL ? "no-GL mode (tier 1 posters)" : "reduced motion"}: ${canvases} canvases (expected 0)`);
-    if (canvases !== 0) problems.push(`${label} ${canvases} canvases in ${NO_GL ? "no-GL mode" : "reduced motion"}`);
+    // round 4: a 2D-canvas item may keep a canvas here by its own contract: in reduced motion one that declares a `still-frame` mode
+    // (drawn once per change; the bench's reduced-motion spec proves it then draws no frames), and with no WebGL any 2D-canvas item
+    // (it never needed WebGL). Every other canvas fails, as before.
+    const allowed = NO_GL ? CANVAS_ITEMS : STILL_FRAME_ITEMS;
+    const found = await page.evaluate((ok) => [...document.querySelectorAll("canvas")].map((c) => c.closest("[data-frictionborn-item]")?.getAttribute("data-frictionborn-item") ?? "(none)").map((n) => ({ n, ok: ok.includes(n) })), allowed);
+    const stray = found.filter((f) => !f.ok);
+    console.log(`    ${NO_GL ? "no-GL mode (tier 1 posters)" : "reduced motion"}: ${stray.length} canvases (expected 0)${found.length > stray.length ? `; ${found.length - stray.length} allowed in ${[...new Set(found.filter((f) => f.ok).map((f) => f.n))].join(", ")}` : ""}`);
+    if (stray.length !== 0) problems.push(`${label} ${stray.length} canvases in ${NO_GL ? "no-GL mode" : "reduced motion"} (${[...new Set(stray.map((f) => f.n))].join(", ")})`);
   } else {
     // 1. generative WebGL items: real pixels, not just "a canvas exists"
     for (const id of GENERATIVE) {
