@@ -26,6 +26,7 @@ scratch/
 *.tsbuildinfo
 
 _reference/
+_logo-kit/
 
 the-private-website-repo/public/_local-assets/
 
