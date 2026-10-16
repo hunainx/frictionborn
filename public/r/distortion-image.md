@@ -136,7 +136,7 @@ export default function GalleryCard() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `a6fabaf` (2026-10-14)
+- **Bench Commit**: `f845539` (2026-10-16)
 - **Size**: 4.62 KiB initial / 4.34 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
@@ -148,11 +148,11 @@ export default function GalleryCard() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-14 | 28 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-14 | 26 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-14 | 26 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-14 | 24 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-14 | 24 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-16 | 28 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-16 | 26 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-16 | 26 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-16 | 24 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-16 | 24 passed, 0 failed |
 
 ## License & Provenance
 

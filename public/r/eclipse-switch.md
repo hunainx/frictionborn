@@ -115,7 +115,7 @@ export function ThemeCard({ dark, setDark }: { dark: boolean; setDark: (v: boole
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `022e1e6` (2026-10-14)
+- **Bench Commit**: `f845539` (2026-10-16)
 - **Size**: 3.19 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
@@ -127,11 +127,11 @@ export function ThemeCard({ dark, setDark }: { dark: boolean; setDark: (v: boole
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-14 | 15 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-14 | 15 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-14 | 14 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-14 | 15 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-14 | 15 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-16 | 15 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-16 | 15 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-16 | 14 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-16 | 15 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-16 | 15 passed, 0 failed |
 
 ## License & Provenance
 

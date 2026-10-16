@@ -246,8 +246,8 @@
       "assets": []
     },
     "measured": {
-      "commit": "605ef63",
-      "date": "2026-10-13",
+      "commit": "f845539",
+      "date": "2026-10-16",
       "sizeKB": {
         "initial": 3.01,
         "deferred": 3.52,
@@ -269,7 +269,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-13",
+          "date": "2026-10-16",
           "notes": "17 passed, 0 failed"
         },
         {
@@ -277,7 +277,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-13",
+          "date": "2026-10-16",
           "notes": "17 passed, 0 failed"
         },
         {
@@ -285,7 +285,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-13",
+          "date": "2026-10-16",
           "notes": "15 passed, 0 failed"
         },
         {
@@ -293,7 +293,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-13",
+          "date": "2026-10-16",
           "notes": "15 passed, 0 failed"
         },
         {
@@ -301,7 +301,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-13",
+          "date": "2026-10-16",
           "notes": "15 passed, 0 failed"
         }
       ]
