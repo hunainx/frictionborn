@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useFrame } from "./frame.js";
 import { useInView } from "./in-view.js";
+import { useLatest } from "./latest.js";
 
 /** what a mounted drawing returns: `tick` answers whether it needs another frame; `destroy` removes everything it added */
 export interface DrawInstance {
@@ -30,8 +31,7 @@ export interface DrawLoopOptions {
  */
 export function useDrawLoop(ref: RefObject<HTMLElement | null>, create: DrawFactory, { enabled, paused = false, key = 0, rootMargin = "120px" }: DrawLoopOptions): () => void {
   const inst = useRef<DrawInstance | null>(null);
-  const factory = useRef(create);
-  factory.current = create;
+  const factory = useLatest(create);
   const [running, setRunning] = useState(true);
   const runningRef = useRef(true);
   const inView = useInView(ref, { rootMargin });
@@ -53,7 +53,7 @@ export function useDrawLoop(ref: RefObject<HTMLElement | null>, create: DrawFact
       made?.destroy?.();
       if (inst.current === made) inst.current = null;
     };
-  }, [enabled, key, ref, wake]);
+  }, [enabled, key, ref, wake, factory]);
 
   useFrame(
     ({ dt, time }) => {

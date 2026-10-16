@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
 
 export default [
@@ -21,6 +22,7 @@ export default [
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  reactHooks.configs.flat.recommended,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
@@ -92,6 +94,14 @@ export default [
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-empty": "off"
+    }
+  },
+  {
+    // eslint-plugin-react-hooks@7.1.1 (DECISIONS 62): distortion-image.tsx deduplicates its dev-only strength range warning via
+    // warnedStrengthRef during render, and is locked to its committed release bench SHA by scripts/merge-evidence.ts.
+    files: ["registry/items/distortion-image/distortion-image.tsx"],
+    rules: {
+      "react-hooks/refs": "warn"
     }
   }
 ];

@@ -1,28 +1,31 @@
 // Original — Frictionborn Motion
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { NoiseField } from "./noise-field";
 import { PALETTE_NAMES, type PaletteName } from "@frictionborn/runtime";
-import { usePaused, useReducedMotion } from "@frictionborn/runtime";
+import { useHydrated, usePaused, useReducedMotion } from "@frictionborn/runtime";
 
 // round 4: "Your theme" (no `palette`: the host's own tokens), then the palettes of DESIGN.md A8; the demo opens on Fire
 const PALETTES: Array<{ name: string; palette?: PaletteName }> = [{ name: "Your theme" }, ...PALETTE_NAMES.map((palette) => ({ name: palette.charAt(0).toUpperCase() + palette.slice(1), palette }))];
 
 export default function NoiseFieldDemo() {
+  const hydrated = useHydrated();
   const [selectedPalette, setSelectedPalette] = useState(1);
   const [isLight, setIsLight] = useState(false);
+  const [syncedLight, setSyncedLight] = useState(false);
   const isPaused = usePaused();
   const systemReduced = useReducedMotion();
   const [manualReduced, setManualReduced] = useState(false);
 
   const effectiveReduced = systemReduced || manualReduced;
 
-  useEffect(() => {
+  if (hydrated && !syncedLight) {
+    setSyncedLight(true);
     if (typeof document !== "undefined") {
       setIsLight(document.documentElement.classList.contains("light"));
     }
-  }, []);
+  }
 
   const toggleTheme = () => {
     if (typeof document === "undefined") return;

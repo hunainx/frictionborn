@@ -1,5 +1,6 @@
 // Original — Frictionborn Motion useFrame (single shared rAF loop)
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { useLatest } from "./latest.js";
 import { getIsPaused, subscribePaused } from "./pause.js";
 
 export interface FrameState {
@@ -116,8 +117,7 @@ export function useFrame(
   options: FrameOptions = {}
 ): void {
   const { active = true } = options;
-  const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+  const callbackRef = useLatest(callback);
 
   useEffect(() => {
     if (!active) {
@@ -129,5 +129,5 @@ export function useFrame(
     };
 
     return subscribeFrame(handler);
-  }, [active]);
+  }, [active, callbackRef]);
 }

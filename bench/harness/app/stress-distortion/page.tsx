@@ -46,7 +46,8 @@ export default function StressDistortionPage({
 
   const [mounted, setMounted] = useState(true);
   const [cycleCount, setCycleCount] = useState(0);
-  const [targetCycles, setTargetCycles] = useState(50);
+  const parsedCycles = parseInt(resolvedQuery.cycles || "", 10);
+  const targetCycles = !isNaN(parsedCycles) && parsedCycles > 0 ? parsedCycles : 50;
 
   useEffect(() => {
     if (tier !== undefined) {
@@ -56,13 +57,6 @@ export default function StressDistortionPage({
       };
     }
   }, [tier]);
-
-  useEffect(() => {
-    const c = parseInt(resolvedQuery.cycles || "", 10);
-    if (!isNaN(c) && c > 0) {
-      setTargetCycles(c);
-    }
-  }, [resolvedQuery.cycles]);
 
   // Leak cycling: N mount/unmount cycles ending unmounted. Every mounted cycle really acquires leases (it focuses
   // the first images and waits for their canvases) so contexts and textures are created, then unmounts while they are live.
