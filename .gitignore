@@ -39,3 +39,7 @@ docs/launch/media/
 # Frictionborn Studio: real screenshots and founder photos stay out of git until the site moves to its private repository
 the-private-website-repo/public/work/
 the-private-website-repo/the-private-photo-dir/
+
+# round 4 (Part 8): the final reviewer's screenshots and full reports
+docs/audit/v4/final/media/
+docs/audit/v4/final/tools/node_modules/
