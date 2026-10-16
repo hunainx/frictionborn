@@ -2,6 +2,7 @@
   "name": "frictionborn",
   "private": true,
   "type": "module",
+  "author": "Frictionborn",
   "license": "MIT",
   "repository": {
     "type": "git",
