@@ -165,6 +165,8 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
       );
     };
 
+    const headlineTag = typeof document !== "undefined" && document.querySelector(".dp-article h1") ? "h2" : "h1";
+
     return (
       <header
         ref={ref}
@@ -293,7 +295,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
           )}
 
           <TextReveal
-            as="h1"
+            as={headlineTag}
             by="word"
             nonce={nonce}
             style={{
