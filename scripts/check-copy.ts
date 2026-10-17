@@ -91,6 +91,12 @@ export const BANNED_PATTERNS: BannedPattern[] = [
     pattern: /(?:Founder 1|REDACTED_FOUNDER|REDACTED_FOUNDER|Founder 2|Ahmed|\b(founder-1|redacted_founder|redacted_founder|founder-2|ahmed)\b)/,
     reason: "Owner decision (2026-10-17): the site shows no founders or team members — no names, no photos, no roles",
   },
+  // 8. Internal prototype notes, slot instructions, and placeholder captions
+  {
+    name: "internal-slot-or-preview",
+    pattern: /(?:\bSlot:|\bPlaceholder\b|Concept preview|we discussed|goes here|first-fire-photo\.jpg|first-fire-man\.glb)/,
+    reason: "No internal prototype notes, slot filenames, or placeholder captions may appear in visitor-facing code",
+  },
 ];
 
 const ROOT = process.cwd();
