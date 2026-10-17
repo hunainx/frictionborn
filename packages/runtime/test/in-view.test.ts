@@ -9,13 +9,15 @@ describe("useInView", () => {
 
   beforeEach(() => {
     observedElements = [];
-    (window as any).IntersectionObserver = vi.fn().mockImplementation((callback: any) => ({
-      observe: vi.fn((elem: Element) => {
-        observedElements.push(elem);
-      }),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
+    (window as any).IntersectionObserver = vi.fn().mockImplementation(function () {
+      return {
+        observe: vi.fn((elem: Element) => {
+          observedElements.push(elem);
+        }),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      };
+    });
   });
 
   it("observes the target element", () => {
