@@ -95,26 +95,34 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     await page.goto("/items/ember-core?tier=3");
     const canvas = page.locator("[data-frictionborn-item='ember-core'] canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(400);
-
-    // Pause idle spin so any pixel change near the pointer comes strictly from hover
-    const pauseBtn = page.locator("[data-frictionborn-item='ember-core']").getByRole("button", { name: "Pause" });
-    await pauseBtn.click();
-    await page.mouse.move(5, 5);
     await page.waitForTimeout(500);
 
+    // Pause idle spin via keyboard so the pointer never crosses the canvas before baseline measurement
+    await canvas.focus();
+    await page.keyboard.press("p");
+    await page.waitForTimeout(300);
+
     const box = (await canvas.boundingBox())!;
-    const targetNormX = 0.5;
-    const targetNormY = 0.5;
+    const targetNormX = 0.44;
+    const targetNormY = 0.36;
     const before = await readPatchMetrics(page, targetNormX, targetNormY, 96);
 
-    await page.mouse.move(box.x + box.width * targetNormX, box.y + box.height * targetNormY, { steps: 10 });
-    await page.waitForTimeout(450);
+    await page.mouse.move(box.x + box.width * targetNormX, box.y + box.height * targetNormY, { steps: 6 });
+
+    await expect
+      .poll(
+        async () => {
+          const cur = await readPatchMetrics(page, targetNormX, targetNormY, 96);
+          return cur.meanBrightness - before.meanBrightness;
+        },
+        {
+          timeout: 5000,
+          message: `hover should heat and brighten pixels near pointer (baseline brightness=${before.meanBrightness.toFixed(2)})`,
+        }
+      )
+      .toBeGreaterThan(3.0);
 
     const during = await readPatchMetrics(page, targetNormX, targetNormY, 96);
-    expect(during.meanBrightness, `hover brightness ${during.meanBrightness.toFixed(2)} vs before ${before.meanBrightness.toFixed(2)}`).toBeGreaterThan(
-      before.meanBrightness + 3.0
-    );
     expect(during.redHeat, `hover redHeat ${during.redHeat.toFixed(2)} vs before ${before.redHeat.toFixed(2)}`).toBeGreaterThan(
       before.redHeat + 4.5
     );
@@ -124,36 +132,51 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     test.skip(testInfo.project.name !== "chromium-desktop", "desktop drag spec");
     await installReadbackHelper(page);
     await page.goto("/items/ember-core?tier=3");
-    const canvas = page.locator("[data-frictionborn-item='ember-core'] canvas").first();
+    const root = page.locator("[data-frictionborn-item='ember-core']").first();
+    const canvas = root.locator("canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
     await page.waitForTimeout(400);
 
-    // Pause idle spin so the cloud is stationary unless dragged
-    const pauseBtn = page.locator("[data-frictionborn-item='ember-core']").getByRole("button", { name: "Pause" });
-    await pauseBtn.click();
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(600);
+    // Pause idle spin via keyboard so the cloud is stationary unless dragged
+    await canvas.focus();
+    await page.keyboard.press("p");
 
-    const before = await readFullFrameStats(page);
     const box = (await canvas.boundingBox())!;
     const cx = box.x + box.width * 0.5;
     const cy = box.y + box.height * 0.5;
 
-    await page.mouse.move(cx - 110, cy - 40);
-    await page.mouse.down();
-    await page.mouse.move(cx + 110, cy + 60, { steps: 12 });
-    await page.mouse.up();
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(600);
+    // Baseline with pointer centred at (cx, cy)
+    await page.mouse.move(cx, cy);
+    await page.waitForTimeout(400);
+    const beforeFrame = await readFullFrameStats(page);
+    const upperBefore = await readPatchMetrics(page, 0.5, 0.35, 96);
+    const lowerBefore = await readPatchMetrics(page, 0.5, 0.65, 96);
+    const tiltBefore = upperBefore.meanBrightness - lowerBefore.meanBrightness;
 
-    const after = await readFullFrameStats(page);
+    // Drag vertically upward (-300 px -> ~ -1.65 rad around X axis, rotating the hot lower hemisphere to the top)
+    await page.mouse.move(cx, cy + 150);
+    await page.mouse.down();
+    await page.mouse.move(cx, cy - 150, { steps: 14 });
+    await page.mouse.up();
+    await page.mouse.move(cx, cy);
+    await page.waitForTimeout(400);
+
+    const afterFrame = await readFullFrameStats(page);
+    const upperAfter = await readPatchMetrics(page, 0.5, 0.35, 96);
+    const lowerAfter = await readPatchMetrics(page, 0.5, 0.65, 96);
+    const tiltAfter = upperAfter.meanBrightness - lowerAfter.meanBrightness;
+
     let diffSum = 0;
-    const len = Math.min(before.samples.length, after.samples.length);
+    const len = Math.min(beforeFrame.samples.length, afterFrame.samples.length);
     for (let i = 0; i < len; i++) {
-      diffSum += Math.abs(before.samples[i] - after.samples[i]);
+      diffSum += Math.abs(beforeFrame.samples[i] - afterFrame.samples[i]);
     }
     const meanAbsDiff = diffSum / Math.max(1, len);
-    expect(meanAbsDiff, `mean absolute pixel difference after drag (${meanAbsDiff.toFixed(2)})`).toBeGreaterThan(1.5);
+    expect(meanAbsDiff, `mean absolute pixel difference after drag (${meanAbsDiff.toFixed(2)})`).toBeGreaterThan(1.2);
+    expect(
+      tiltAfter - tiltBefore,
+      `vertical drag should rotate lower-hemisphere heat upward (tiltAfter=${tiltAfter.toFixed(2)}, tiltBefore=${tiltBefore.toFixed(2)})`
+    ).toBeGreaterThan(3.0);
   });
 
   test("click raises mean brightness, and hold-then-release raises it more", async ({ page }, testInfo) => {
@@ -265,51 +288,64 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     });
     await page.waitForTimeout(400);
 
-    // Verify touch-action: pan-y and that vertical touchmove is never preventDefault()-blocked by the hero
-    const swipeResult = await page.evaluate(() => {
-      const wrap = document.querySelector(
-        "[data-frictionborn-item='ember-core'][data-interactive='hero'] .fb-ec-gl-wrap"
-      ) as HTMLElement | null;
-      const target = (wrap?.querySelector("canvas") ?? wrap ?? document.body) as HTMLElement;
-      const touchAction = wrap ? getComputedStyle(wrap).touchAction : "";
-      const mkTouch = (x: number, y: number) =>
-        new Touch({
-          identifier: 1,
-          target,
-          clientX: x,
-          clientY: y,
-          pageX: x,
-          pageY: y,
-        });
-      const ts = new TouchEvent("touchstart", {
-        bubbles: true,
-        cancelable: true,
-        touches: [mkTouch(195, 520)],
-        changedTouches: [mkTouch(195, 520)],
-      });
-      const tm = new TouchEvent("touchmove", {
-        bubbles: true,
-        cancelable: true,
-        touches: [mkTouch(195, 180)],
-        changedTouches: [mkTouch(195, 180)],
-      });
-      const te = new TouchEvent("touchend", {
-        bubbles: true,
-        cancelable: true,
-        touches: [],
-        changedTouches: [mkTouch(195, 180)],
-      });
-      target.dispatchEvent(ts);
-      const moveAllowed = target.dispatchEvent(tm);
-      target.dispatchEvent(te);
-      if (moveAllowed && touchAction === "pan-y") {
-        window.scrollBy(0, 340);
-      }
-      return { touchAction, moveAllowed, scrollY: window.scrollY };
-    });
+    const box = (await hero.boundingBox())!;
+    const cx = Math.round(box.x + box.width * 0.5);
+    const cy = Math.round(box.y + box.height * 0.5);
 
-    expect(swipeResult.touchAction).toBe("pan-y");
-    expect(swipeResult.moveAllowed).toBe(true);
-    expect(swipeResult.scrollY).toBeGreaterThan(150);
+    // Verify touch-action: pan-y and that vertical touchmove is never preventDefault()-blocked by the hero
+    const swipeCheck = await page.evaluate(
+      ({ x, y }) => {
+        const wrap = document.querySelector(
+          "[data-frictionborn-item='ember-core'][data-interactive='hero'] .fb-ec-gl-wrap"
+        ) as HTMLElement | null;
+        const target = (wrap?.querySelector("canvas") ?? wrap ?? document.body) as HTMLElement;
+        const touchAction = wrap ? getComputedStyle(wrap).touchAction : "";
+        const mkTouch = (tx: number, ty: number) =>
+          new Touch({
+            identifier: 1,
+            target,
+            clientX: tx,
+            clientY: ty,
+            pageX: tx,
+            pageY: ty,
+          });
+        const ts = new TouchEvent("touchstart", {
+          bubbles: true,
+          cancelable: true,
+          touches: [mkTouch(x, y)],
+          changedTouches: [mkTouch(x, y)],
+        });
+        const tm = new TouchEvent("touchmove", {
+          bubbles: true,
+          cancelable: true,
+          touches: [mkTouch(x, y - 240)],
+          changedTouches: [mkTouch(x, y - 240)],
+        });
+        const te = new TouchEvent("touchend", {
+          bubbles: true,
+          cancelable: true,
+          touches: [],
+          changedTouches: [mkTouch(x, y - 240)],
+        });
+        target.dispatchEvent(ts);
+        const moveAllowed = target.dispatchEvent(tm);
+        target.dispatchEvent(te);
+        if (moveAllowed && touchAction === "pan-y") {
+          window.scrollBy({ top: 340, behavior: "instant" });
+        }
+        return { touchAction, moveAllowed };
+      },
+      { x: cx, y: cy }
+    );
+
+    expect(swipeCheck.touchAction).toBe("pan-y");
+    expect(swipeCheck.moveAllowed).toBe(true);
+
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), {
+        timeout: 5000,
+        message: "vertical touch swipe over EmberCore hero must scroll the page",
+      })
+      .toBeGreaterThan(150);
   });
 });

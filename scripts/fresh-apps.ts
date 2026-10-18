@@ -327,6 +327,7 @@ const READBACK_INIT_SCRIPT = `
   const readNow = (gl) => {
     const canvas = gl.canvas;
     if (window.__fbCapture !== canvas) return;
+    if (gl.getParameter(gl.FRAMEBUFFER_BINDING) !== null) return;
     window.__fbCapture = null;
     const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
     const buf = new Uint8Array(w * h * 4);
@@ -1114,8 +1115,26 @@ createRoot(document.getElementById("root")!).render(
     await waitForServer(`http://127.0.0.1:${VITE_DEV_PORT}`);
 
     // ---- Browser checks
-    console.log("\n==> Playwright: real Chromium (SwiftShader WebGL2)");
-    browser = await chromium.launch({ args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+    const useSwiftShader = process.env.FRESH_SWIFTSHADER === "1" || (process.platform === "linux" && process.env.CI === "true");
+    console.log(`\n==> Playwright: real Chromium (${useSwiftShader ? "SwiftShader WebGL2" : "Hardware WebGL2"})`);
+    browser = await chromium.launch(
+      useSwiftShader
+        ? { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] }
+        : {
+            channel: "chrome",
+            headless: false,
+            args: [
+              "--window-position=-2400,-2400",
+              "--ignore-gpu-blocklist",
+              "--enable-gpu-rasterization",
+              "--no-first-run",
+              "--disable-backgrounding-occluded-windows",
+              "--disable-renderer-backgrounding",
+              "--disable-background-timer-throttling",
+              "--disable-features=CalculateNativeWinOcclusion",
+            ],
+          }
+    );
 
     if (!NO_GL) {
       console.log("--> negative controls: the pixel gate must reject every kind of blank canvas");
