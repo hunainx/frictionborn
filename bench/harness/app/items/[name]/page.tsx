@@ -27,6 +27,8 @@ import MatchProgressDemo from "../../../../../registry/items/match-progress/demo
 import TemperSliderDemo from "../../../../../registry/items/temper-slider/demo";
 import LightLeakTabsDemo from "../../../../../registry/items/light-leak-tabs/demo";
 import EmberBadgeDemo from "../../../../../registry/items/ember-badge/demo";
+import EmberCoreDemo from "../../../../../registry/items/ember-core/demo";
+import { EmberCore } from "../../../../../registry/items/ember-core/ember-core";
 import FlameSwitchDemo from "../../../../../registry/items/flame-switch/demo";
 
 export default function ItemBenchPage({
@@ -34,7 +36,7 @@ export default function ItemBenchPage({
   searchParams,
 }: {
   params: Promise<{ name: string }>;
-  searchParams: Promise<{ tier?: string; offscreen?: string; leak?: string; cycles?: string }>;
+  searchParams: Promise<{ tier?: string; offscreen?: string; leak?: string; cycles?: string; hero?: string }>;
 }) {
   const resolvedParams = use(params);
   const resolvedQuery = use(searchParams);
@@ -42,6 +44,7 @@ export default function ItemBenchPage({
   const tier = resolvedQuery.tier;
   const isOffscreen = resolvedQuery.offscreen === "1";
   const isLeakTest = resolvedQuery.leak === "1";
+  const isHeroMode = resolvedQuery.hero === "1";
 
   const [mounted, setMounted] = useState(true);
   const [cycleCount, setCycleCount] = useState(0);
@@ -84,7 +87,7 @@ export default function ItemBenchPage({
 
         // If mounted, wait for canvas to appear if this is a WebGL item, up to a reasonable deadline,
         // ensuring contexts are actually created on all browser engines (including WebKit) before unmounting.
-        const isGl = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero"].includes(name);
+        const isGl = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero", "ember-core"].includes(name);
         if (isGl) {
           const deadline = performance.now() + 1000;
           while (active && performance.now() < deadline && !document.querySelector("#demo-mount-point canvas")) {
@@ -181,6 +184,15 @@ export default function ItemBenchPage({
     if (name === "ember-badge") {
       return <EmberBadgeDemo />;
     }
+    if (name === "ember-core") {
+      return isHeroMode ? (
+        <EmberCore interactive="hero" style={{ minHeight: 520 }}>
+          <h1 style={{ margin: 0, fontSize: "2rem" }}>We build what others call impossible.</h1>
+        </EmberCore>
+      ) : (
+        <EmberCoreDemo />
+      );
+    }
     if (name === "flame-switch") {
       return <FlameSwitchDemo />;
     }
@@ -202,7 +214,7 @@ export default function ItemBenchPage({
       style={{
         maxWidth: 1000,
         margin: "0 auto",
-        minHeight: isOffscreen ? "3500px" : "auto",
+        minHeight: isOffscreen ? "3500px" : isHeroMode ? "2400px" : "auto",
         position: "relative",
       }}
     >

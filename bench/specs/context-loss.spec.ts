@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 const item = process.env.BENCH_ITEM || "noise-field";
 
 test.describe("WebGL context loss and lease budget", () => {
-  test.skip(!["noise-field", "particle-field", "mesh-gradient"].includes(item), "WebGL item only");
+  test.skip(!["noise-field", "particle-field", "mesh-gradient", "ember-core"].includes(item), "WebGL item only");
   test.skip(({ browserName }) => browserName !== "chromium", "WEBGL_lose_context needs a WebGL2 browser (Chromium + SwiftShader)");
 
   test("context loss falls back to the poster; restore resumes the canvas", async ({ page }) => {

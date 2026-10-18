@@ -153,6 +153,7 @@ function generatePage(items: string[], framework: Framework): string {
   if (has("ash-text")) imports.push('import { AshText } from "@/components/ui/ash-text";');
   if (has("eclipse-switch")) imports.push('import { EclipseSwitch } from "@/components/ui/eclipse-switch";');
   if (has("ember-badge")) imports.push('import { EmberBadge } from "@/components/ui/ember-badge";');
+  if (has("ember-core")) imports.push('import { EmberCore } from "@/components/ui/ember-core";');
   if (has("firework-rating")) imports.push('import { FireworkRating } from "@/components/ui/firework-rating";');
   if (has("flame-switch")) imports.push('import { FlameSwitch } from "@/components/ui/flame-switch";');
   if (has("flint-button")) imports.push('import { FlintButton } from "@/components/ui/flint-button";');
@@ -243,6 +244,7 @@ export default function FreshAppView() {${nextImageSetup}
         ${has("light-leak-tabs") ? `<div data-testid="item-light-leak-tabs" style={{ padding: "2rem 0" }}><LightLeakTabs label="Tabs" tabs={[{ id: "a", label: "One", content: <p>One</p> }, { id: "b", label: "Two", content: <p>Two</p> }]} /></div>` : ""}
         ${has("match-progress") ? `<div data-testid="item-match-progress" style={{ padding: "2rem 0" }}><MatchProgress value={40} label="Progress" /></div>` : ""}
         ${has("temper-slider") ? `<div data-testid="item-temper-slider" style={{ padding: "2rem 0" }}><TemperSlider /></div>` : ""}
+        ${has("ember-core") ? gl("ember-core", "<EmberCore style={{ width: '100%', height: '100%' }} />") : ""}
         ${has("scroll-reveal") ? `<div data-testid="item-scroll-reveal"><ScrollReveal><div style={{ padding: "1.5rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--card)", color: "var(--card-foreground)" }}>This card slides in as it scrolls into view.</div></ScrollReveal></div>` : ""}
         ${
           has("sticky-scroll-story")
@@ -481,14 +483,14 @@ const MODES: Mode[] = [
   { id: "reduced", mobile: false, dark: false, reduced: true },
 ];
 
-const GENERATIVE = ["gl-item-noise-field", "gl-item-particle-field", "gl-item-mesh-gradient"];
+const GENERATIVE = ["gl-item-noise-field", "gl-item-particle-field", "gl-item-mesh-gradient", "gl-item-ember-core"];
 /** round 4: the 2D-canvas items, and those whose reduced-motion mode is `still-frame`, read from their declared metadata */
 const DECLARED = fs.readdirSync(path.join(import.meta.dirname, "..", "registry", "items")).flatMap((n) => {
   const f = path.join(import.meta.dirname, "..", "registry", "items", n, "meta.declared.json");
   return fs.existsSync(f) ? [{ n, m: JSON.parse(fs.readFileSync(f, "utf8")) as { item?: { kind?: string }; behavior?: { reducedMotion?: { mode?: string } } } }] : [];
 });
 const CANVAS_ITEMS = DECLARED.filter((d) => d.m.item?.kind === "canvas").map((d) => d.n);
-const STILL_FRAME_ITEMS = DECLARED.filter((d) => d.m.item?.kind === "canvas" && d.m.behavior?.reducedMotion?.mode === "still-frame").map((d) => d.n);
+const STILL_FRAME_ITEMS = DECLARED.filter((d) => (d.m.item?.kind === "canvas" || d.m.item?.kind === "webgl") && d.m.behavior?.reducedMotion?.mode === "still-frame").map((d) => d.n);
 
 /** What the page looked like when something timed out: enough to tell "WebGL unavailable" from "gated off" from "broken". */
 async function describeItem(page: Page, testId: string): Promise<string> {

@@ -5,7 +5,7 @@ description: Choose, install and use Frictionborn Motion items, verified React c
 
 # Frictionborn Motion
 
-24 source-copied React items with measured budgets, installed through the shadcn CLI into `components/ui`. Before you use an item, read its spec sheet: `references/items/<name>.md` (props with units, gotchas, measured evidence). `references/catalog.md` lists all items.
+25 source-copied React items with measured budgets, installed through the shadcn CLI into `components/ui`. Before you use an item, read its spec sheet: `references/items/<name>.md` (props with units, gotchas, measured evidence). `references/catalog.md` lists all items.
 
 ## 1. Use it, or don't
 
@@ -19,6 +19,7 @@ description: Choose, install and use Frictionborn Motion items, verified React c
 <!-- BEGIN GENERATED: decision-table (pnpm meta, from registry/items/*/meta.json; do not edit by hand) -->
 | Slot | Item | Use it for | Avoid when | Per page | Do not combine with |
 |---|---|---|---|---|---|
+| `background` | [`ember-core`](references/items/ember-core.md) | Flagship hero backgrounds needing a 3D interactive ember and ash sphere that never traps page scroll | Dense data tables or long-form reading sections where a 3D focal point distracts from copy | max 1 | `noise-field`, `mesh-gradient`, `particle-field`, `ambient-hero` |
 | `background` | [`lantern-sky`](references/items/lantern-sky.md) | A calm closing section, a sign-up or thank-you screen | Behind long text (it moves for as long as it is on screen) | max 1 | — |
 | `background` | [`mesh-gradient`](references/items/mesh-gradient.md) | Hero sections requiring rich, fluid multi-color ambient backgrounds | Dense text sections where text contrast over the gradient has not been verified | max 1 | `noise-field`, `particle-field` |
 | `background` | [`noise-field`](references/items/noise-field.md) | Hero sections requiring a calm, generative ambient backdrop | Dense reading passages or documentation tables where text contrast over the canvas has not been verified | max 1 | `mesh-gradient`, `particle-field` |
@@ -47,7 +48,7 @@ description: Choose, install and use Frictionborn Motion items, verified React c
 
 How common requests map to items:
 
-- **Animated hero or background**: `ambient-hero` for the whole hero (pass `headline`, `body`, `primaryCta`; there is no default copy). Or one of `mesh-gradient`, `noise-field`, `particle-field` as the background of a hero you write yourself. At most one WebGL item above the fold.
+- **Animated hero or background**: `ambient-hero` for the whole hero (pass `headline`, `body`, `primaryCta`; there is no default copy). Or one of `ember-core`, `mesh-gradient`, `noise-field`, `particle-field` as the background of a hero you write yourself. At most one WebGL item above the fold.
 - **Images that react on hover**: `distortion-image` per image (own raster images such as webp, jpg or png; a cross-origin image needs CORS headers). It uses a WebGL context only while hovered or focused, and the runtime caps how many exist at once.
 - **Content that reveals on scroll**: `scroll-reveal` around each block below the fold (never around the hero: it is the LCP). Use `as="li"` and similar for list items.
 - **A story told in steps**: `sticky-scroll-story` (one media per step). Choose `scroll-showcase` only when you also want the metrics grid and the marquee strip around it.

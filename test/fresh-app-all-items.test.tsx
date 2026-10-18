@@ -14,6 +14,7 @@ import { Marquee } from "../registry/items/marquee/marquee";
 import { SmoothScroll } from "../registry/items/smooth-scroll/smooth-scroll";
 import { StickyScrollStory } from "../registry/items/sticky-scroll-story/sticky-scroll-story";
 import { DistortionImage } from "../registry/items/distortion-image/distortion-image";
+import { EmberCore } from "../registry/items/ember-core/ember-core";
 
 function applyShadcnTheme(theme: "light" | "dark") {
   const root = document.documentElement;
@@ -48,7 +49,7 @@ function applyShadcnTheme(theme: "light" | "dark") {
   }
 }
 
-describe("Fresh-app check of all 9 items with default props (light and dark)", () => {
+describe("Fresh-app check of all items with default props (light and dark)", () => {
   beforeEach(() => {
     if (typeof global.ResizeObserver === "undefined") {
       global.ResizeObserver = class {
@@ -100,6 +101,15 @@ describe("Fresh-app check of all 9 items with default props (light and dark)", (
           await new Promise((r) => setTimeout(r, 50));
         });
         expect(container.querySelector("[data-frictionborn-item='mesh-gradient']")).not.toBeNull();
+        unmount();
+      });
+
+      it("mounts EmberCore with default props without errors", async () => {
+        const { container, unmount } = render(<EmberCore />);
+        await act(async () => {
+          await new Promise((r) => setTimeout(r, 50));
+        });
+        expect(container.querySelector("[data-frictionborn-item='ember-core']")).not.toBeNull();
         unmount();
       });
 

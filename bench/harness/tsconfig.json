@@ -42,7 +42,8 @@
       "@/components/ui/smooth-scroll": ["../../registry/items/smooth-scroll/smooth-scroll.tsx"],
       "@/components/ui/distortion-image": ["../../registry/items/distortion-image/distortion-image.tsx"],
       "@/components/ui/ambient-hero": ["../../registry/items/ambient-hero/ambient-hero.tsx"],
-      "@/components/ui/scroll-showcase": ["../../registry/items/scroll-showcase/scroll-showcase.tsx"]
+      "@/components/ui/scroll-showcase": ["../../registry/items/scroll-showcase/scroll-showcase.tsx"],
+      "@/components/ui/ember-core": ["../../registry/items/ember-core/ember-core.tsx"]
     },
     "plugins": [
       {

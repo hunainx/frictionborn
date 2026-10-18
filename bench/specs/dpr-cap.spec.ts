@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 const item = process.env.BENCH_ITEM || "noise-field";
 
 test.describe("WebGL pixel-ratio caps", () => {
-  test.skip(!["noise-field", "particle-field", "mesh-gradient"].includes(item), "WebGL item only");
+  test.skip(!["noise-field", "particle-field", "mesh-gradient", "ember-core"].includes(item), "WebGL item only");
 
   for (const [tier, cap] of [
     [2, 1.5],

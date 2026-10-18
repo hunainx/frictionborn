@@ -512,6 +512,7 @@ describe("step 11: agent layer guarantees", () => {
     "ash-text",
     "eclipse-switch",
     "ember-badge",
+    "ember-core",
     "firework-rating",
     "flame-switch",
     "flint-button",
@@ -540,7 +541,7 @@ describe("step 11: agent layer guarantees", () => {
     expect(llmsLines).toBeLessThan(200);
   });
 
-  it("verifies all 24 items have matching spec sheets and catalog entries", () => {
+  it("verifies all 25 items have matching spec sheets and catalog entries", () => {
     const catalogPath = path.join(root, "skills", "frictionborn", "references", "catalog.md");
     expect(fs.existsSync(catalogPath)).toBe(true);
     const catalogContent = fs.readFileSync(catalogPath, "utf8");

@@ -92,6 +92,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
       specs.push("bench/specs/ambient-hero.spec.ts");
     } else if (itemName === "scroll-showcase") {
       specs.push("bench/specs/scroll-showcase.spec.ts");
+    } else if (itemName === "ember-core") {
+      specs.push("bench/specs/ember-core.spec.ts");
     }
     // round 4: the canvas items ported from the lab (keyboard path, pixels read back, quiet when idle)
     if (CANVAS_ITEMS.includes(itemName)) specs.push("bench/specs/canvas-items.spec.ts");

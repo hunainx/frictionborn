@@ -27,6 +27,7 @@ import { MatchProgress } from "../../../../registry/items/match-progress/match-p
 import { TemperSlider } from "../../../../registry/items/temper-slider/temper-slider";
 import { LightLeakTabs } from "../../../../registry/items/light-leak-tabs/light-leak-tabs";
 import { EmberBadge } from "../../../../registry/items/ember-badge/ember-badge";
+import { EmberCore } from "../../../../registry/items/ember-core/ember-core";
 import { FlameSwitch } from "../../../../registry/items/flame-switch/flame-switch";
 
 const STEPS = [
@@ -74,6 +75,8 @@ function renderItem(item: string, paused: boolean) {
       return <ParticleField paused={paused} style={FILL} />;
     case "mesh-gradient":
       return <MeshGradient paused={paused} style={FILL} />;
+    case "ember-core":
+      return <EmberCore paused={paused} style={FILL} />;
     case "distortion-image":
       return (
         <DistortionImage paused={paused} src="/assets/distortion/art-1.webp" alt="A painting" width={600} height={400} data-testid="subject" />

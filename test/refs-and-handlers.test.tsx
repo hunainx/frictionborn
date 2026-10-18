@@ -16,6 +16,7 @@ import { MeshGradient } from "../registry/items/mesh-gradient/mesh-gradient";
 import { DistortionImage } from "../registry/items/distortion-image/distortion-image";
 import { AmbientHero } from "../registry/items/ambient-hero/ambient-hero";
 import { ScrollShowcase } from "../registry/items/scroll-showcase/scroll-showcase";
+import { EmberCore } from "../registry/items/ember-core/ember-core";
 
 afterEach(() => {
   cleanup();
@@ -34,6 +35,7 @@ const cases: Record<string, [string, (ref: React.Ref<any>) => React.ReactElement
   "noise-field": ["div", (ref) => <NoiseField ref={ref} data-x="1" />],
   "particle-field": ["div", (ref) => <ParticleField ref={ref} data-x="1" />],
   "mesh-gradient": ["div", (ref) => <MeshGradient ref={ref} data-x="1" />],
+  "ember-core": ["div", (ref) => <EmberCore ref={ref} data-x="1" />],
   "distortion-image": ["div", (ref) => <DistortionImage ref={ref} src="/a.webp" alt="a" width={10} height={10} data-x="1" />],
   "ambient-hero": ["header", (ref) => <AmbientHero ref={ref} headline="h" body="b" primaryCta={{ label: "go" }} data-x="1" />],
   "scroll-showcase": ["div", (ref) => <ScrollShowcase ref={ref} headline="h" description="d" steps={steps} data-x="1" />],
