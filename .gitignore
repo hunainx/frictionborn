@@ -27,6 +27,7 @@ scratch/
 
 _reference/
 _logo-kit/
+the-private-photo-dir/
 
 the-private-website-repo/public/_local-assets/
 
@@ -36,8 +37,11 @@ docs/videos/
 # round 4 (Part 7): award and launch media, made by scripts/launch-media.ts (never committed)
 docs/launch/media/
 
-# Frictionborn Studio: real screenshots stay out of git until the site moves to its private repository
+# Frictionborn Studio: real screenshots and founder photos stay out of git until the site moves to its private repository
 the-private-website-repo/public/work/
+the-private-website-repo/the-private-photo-dir/
+the-private-website-repo/the-private-photo-dir/*.webp
+the-private-website-repo/the-private-photo-dir/*.jpg
 
 # round 4 (Part 8): the final reviewer's screenshots and full reports
 docs/audit/v4/final/media/

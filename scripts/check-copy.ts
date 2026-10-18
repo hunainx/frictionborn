@@ -85,11 +85,11 @@ export const BANNED_PATTERNS: BannedPattern[] = [
     pattern: /(?:\b(Vincent van Gogh|van Gogh|Hokusai|Katsushika Hokusai|Pierre Puvis de Chavannes|Puvis de Chavannes|The Metropolitan Museum of Art|Metropolitan Museum of Art)\b|\bThe Met\b)/i,
     reason: "Use original generated images or CC0 images with plain captions in DESIGN.md voice; no real artist or museum names",
   },
-  // 7. Personal founder names (owner decision 2026-10-17: the site shows no founders or team members)
+  // 7. Removed founder name (owner decision 2026-10-19: REDACTED_FOUNDER is removed from the website completely)
   {
-    name: "founder-names",
-    pattern: /(?:Founder 1|REDACTED_FOUNDER|REDACTED_FOUNDER|Founder 2|Ahmed|\b(founder-1|redacted_founder|redacted_founder|founder-2|ahmed)\b)/,
-    reason: "Owner decision (2026-10-17): the site shows no founders or team members — no names, no photos, no roles",
+    name: "removed-founder-name",
+    pattern: /(?:REDACTED_FOUNDER|REDACTED_FOUNDER|\b(redacted_founder|redacted_founder)\b)/i,
+    reason: "Owner decision (2026-10-19): REDACTED_FOUNDER is removed from the website completely — no name, photo or role anywhere",
   },
   // 8. Internal prototype notes, slot instructions, and placeholder captions
   {
@@ -106,7 +106,7 @@ const TARGET_DIRS = [
   path.join(ROOT, "apps", "docs", "app"),
   path.join(ROOT, "apps", "docs", "components"),
   path.join(ROOT, "apps", "docs", "lib"),
-  // round 4: the studio's content (services, work, reviews)
+  // round 4: the studio's content (services, work, reviews, founders)
   path.join(ROOT, "apps", "docs", "content"),
 ];
 

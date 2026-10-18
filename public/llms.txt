@@ -1,7 +1,8 @@
 # Frictionborn Motion
 
-> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16. Every item has a spec sheet generated from its code and a recorded test run.
+> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16, made by Frictionborn Studio (co-founders: Founder 1, Founder 2). Every item has a spec sheet generated from its code and a recorded test run.
 
+Studio: https://frictionborn.com/studio
 Docs: https://frictionborn.com/docs
 Registry: https://frictionborn.com/r
 GitHub: https://github.com/hunainx/frictionborn

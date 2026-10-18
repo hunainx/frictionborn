@@ -275,7 +275,8 @@ export function generateCatalog(items: any[]): string {
 
 export function generateLlmsTxt(items: any[]): string {
   let txt = `# Frictionborn Motion\n\n`;
-  txt += `> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16. Every item has a spec sheet generated from its code and a recorded test run.\n\n`;
+  txt += `> Frictionborn Motion is a motion and WebGL component registry for React 19 and Next.js 16, made by Frictionborn Studio (co-founders: Founder 1, Founder 2). Every item has a spec sheet generated from its code and a recorded test run.\n\n`;
+  txt += `Studio: ${SITE_URL}/studio\n`;
   txt += `Docs: ${SITE_URL}/docs\n`;
   txt += `Registry: ${REGISTRY_BASE_URL}/r\n`;
   txt += `GitHub: ${REPO_URL}\n`;
