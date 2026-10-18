@@ -28,7 +28,7 @@
 
 ## Runtime & Server Boundaries
 
-- **Server Output**: `poster` (accessible fallback in static HTML; CLS is measured by the bench)
+- **Server Output**: `poster` (accessible fallback in static HTML; measured CLS 0)
 - **Client Only**: `true`
 - **Lazy Loaded**: `in-view`
 - **Client Reveal Gate**: None. This item does not read `data-motion`.
@@ -125,6 +125,26 @@ export default function Hero() {
 - Confirm the CSS poster renders in server HTML before hydration with zero layout shift (CLS <= 0.01).
 - Confirm that in interactive="hero" mode, mouse wheel and vertical touch swipes scroll the page normally.
 - Confirm that under prefers-reduced-motion, one still frame is drawn with 0 ongoing animation frames.
+
+## Measured Bench Evidence
+
+- **Bench Commit**: `71709ed` (2026-10-18)
+- **Size**: 7.4 KiB initial / 13.17 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Cumulative Layout Shift (CLS)**: `0`
+- **Frames When Idle**:
+  - Off-screen: 0 frames
+  - Hidden tab: 0 frames
+  - Reduced motion: 0 frames
+- **axe-core Violations**: Serious: 0, Critical: 0
+
+### Verified Devices
+| Environment | Via | Tier | Result | Date | Notes |
+|---|---|---|---|---|---|
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-18 | 22 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-18 | 18 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-18 | 15 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-18 | 15 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-18 | 15 passed, 0 failed |
 
 ## License & Provenance
 
