@@ -1,9 +1,9 @@
 {
-  "commit": "71709ed",
-  "date": "2026-10-18",
+  "commit": "d6c9000",
+  "date": "2026-10-19",
   "sizeKB": {
-    "initial": 7.4,
-    "deferred": 13.17,
+    "initial": 8.02,
+    "deferred": 13.68,
     "method": "gzip-9"
   },
   "cls": 0,
@@ -22,15 +22,15 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-18",
-      "notes": "22 passed, 0 failed"
+      "date": "2026-10-19",
+      "notes": "23 passed, 0 failed, 1 flaky (passed on retry)"
     },
     {
       "env": "Chromium Mobile (Pixel 7 emulation)",
       "via": "playwright",
       "tier": 2,
       "result": "pass",
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "notes": "18 passed, 0 failed"
     },
     {
@@ -38,7 +38,7 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "notes": "15 passed, 0 failed"
     },
     {
@@ -46,7 +46,7 @@
       "via": "playwright",
       "tier": 3,
       "result": "pass",
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "notes": "15 passed, 0 failed"
     },
     {
@@ -54,7 +54,7 @@
       "via": "playwright",
       "tier": 2,
       "result": "pass",
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "notes": "15 passed, 0 failed"
     }
   ]
