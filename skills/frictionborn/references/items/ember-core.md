@@ -128,7 +128,7 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `d6c9000` (2026-10-19)
+- **Bench Commit**: `7ff62c1` (2026-10-19)
 - **Size**: 8.02 KiB initial / 13.68 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
@@ -140,7 +140,7 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-19 | 23 passed, 0 failed, 1 flaky (passed on retry) |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-19 | 24 passed, 0 failed |
 | Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-19 | 18 passed, 0 failed |
 | Firefox Desktop | playwright | 3 | pass | 2026-10-19 | 15 passed, 0 failed |
 | WebKit Desktop | playwright | 3 | pass | 2026-10-19 | 15 passed, 0 failed |

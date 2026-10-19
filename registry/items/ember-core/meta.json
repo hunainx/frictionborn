@@ -228,7 +228,7 @@
     "assets": []
   },
   "measured": {
-    "commit": "d6c9000",
+    "commit": "7ff62c1",
     "date": "2026-10-19",
     "sizeKB": {
       "initial": 8.02,
@@ -252,7 +252,7 @@
         "tier": 3,
         "result": "pass",
         "date": "2026-10-19",
-        "notes": "23 passed, 0 failed, 1 flaky (passed on retry)"
+        "notes": "24 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
