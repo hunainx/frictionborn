@@ -437,6 +437,69 @@ describe("audit M3: evidence must be passing and current", () => {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
   });
+
+  it("checkReleaseSnapshots fails when release JSON commit is not an ancestor of HEAD or when item source files changed after commit", async () => {
+    const { checkReleaseSnapshots } = await import("../scripts/check-provenance.ts");
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-rel-lint-"));
+    const git = (...args: string[]) =>
+      execFileSync("git", ["-c", "user.email=a@b.c", "-c", "user.name=t", ...args], {
+        cwd: tmp,
+        encoding: "utf8",
+      }).trim();
+    try {
+      const itemDir = path.join(tmp, "registry", "items", "ember-core");
+      const benchDir = path.join(tmp, "bench", "results", "ember-core");
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(benchDir, { recursive: true });
+
+      fs.writeFileSync(path.join(itemDir, "ember-core.tsx"), "// Original\nexport const v = 1;\n");
+      fs.writeFileSync(path.join(itemDir, "demo.tsx"), "// Original\nexport const d = 1;\n");
+      fs.writeFileSync(path.join(itemDir, "meta.json"), "{}\n");
+
+      git("init", "-q");
+      git("add", "-A");
+      git("commit", "-q", "-m", "initial item commit");
+      const baseSha = git("rev-parse", "--short=7", "HEAD");
+
+      const releaseFile = path.join(benchDir, "release-0.1.0.json");
+      fs.writeFileSync(releaseFile, JSON.stringify({ commit: baseSha }, null, 2));
+      git("add", "-A");
+      git("commit", "-q", "-m", "record release snapshot");
+
+      // 1. Clean ancestor with no source changes -> passes
+      expect(checkReleaseSnapshots(tmp)).toEqual([]);
+
+      // 2. Non-source changes (meta.json, demo.tsx) -> still passes
+      fs.writeFileSync(path.join(itemDir, "meta.json"), '{"updated":true}\n');
+      fs.writeFileSync(path.join(itemDir, "demo.tsx"), "// Original\nexport const d = 2;\n");
+      git("commit", "-aqm", "update meta and demo only");
+      expect(checkReleaseSnapshots(tmp)).toEqual([]);
+
+      // 3. Divergent branch commit (exists in git, but NOT an ancestor of HEAD) -> fails
+      git("checkout", "-q", "-b", "side-branch", baseSha);
+      fs.writeFileSync(path.join(tmp, "unrelated.txt"), "side\n");
+      git("add", "-A");
+      git("commit", "-q", "-m", "side commit");
+      const sideSha = git("rev-parse", "--short=7", "HEAD");
+      git("checkout", "-q", "-");
+
+      fs.writeFileSync(releaseFile, JSON.stringify({ commit: sideSha }, null, 2));
+      const nonAncestorViolations = checkReleaseSnapshots(tmp);
+      expect(nonAncestorViolations).toHaveLength(1);
+      expect(nonAncestorViolations[0].reason).toContain("is not an ancestor of HEAD");
+
+      // 4. Restore valid ancestor commit, then modify item source file -> fails
+      fs.writeFileSync(releaseFile, JSON.stringify({ commit: baseSha }, null, 2));
+      fs.writeFileSync(path.join(itemDir, "ember-core.tsx"), "// Original\nexport const v = 2;\n");
+      git("commit", "-aqm", "modify item source after bench commit");
+      const sourceChangedViolations = checkReleaseSnapshots(tmp);
+      expect(sourceChangedViolations).toHaveLength(1);
+      expect(sourceChangedViolations[0].reason).toContain("Item source file(s) changed after release snapshot commit");
+      expect(sourceChangedViolations[0].reason).toContain("registry/items/ember-core/ember-core.tsx");
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("audit M3: registry build guards", () => {
