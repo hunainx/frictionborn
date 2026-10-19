@@ -8,6 +8,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -198,20 +199,155 @@ export function checkCopy(rev?: string): Violation[] {
   return violations;
 }
 
+export const BANNED_AGENCY_HASHES: ReadonlySet<string> = new Set([
+  "457558efe5e0c689171d6cfc65949908b4cd3366f52833bff19bfe2a03f35b33",
+  "497c2149a54fe6eb26f09a471a3029aea268d202f937acb5fa8262a1706f2040",
+]);
+
+export interface BannedHashMatch {
+  source: string;
+  kind: "token" | "pair";
+  hash: string;
+}
+
+export interface BannedHashScanResult {
+  tokensScanned: number;
+  pairsScanned: number;
+  matches: BannedHashMatch[];
+}
+
+const sha256Cache = new Map<string, string>();
+function sha256Hex(value: string): string {
+  let cached = sha256Cache.get(value);
+  if (!cached) {
+    cached = crypto.createHash("sha256").update(value).digest("hex");
+    sha256Cache.set(value, cached);
+  }
+  return cached;
+}
+
+/**
+ * Lowercases all input text, splits on non-alphanumeric characters, and SHA-256 hashes
+ * every token and every pair of adjacent tokens joined with no space.
+ * Never logs or stores plaintext tokens in matches.
+ */
+export function scanTextsForBannedHashes(
+  entries: ReadonlyArray<{ source: string; text: string }>,
+  bannedHashes: ReadonlySet<string> = BANNED_AGENCY_HASHES,
+): BannedHashScanResult {
+  let tokensScanned = 0;
+  let pairsScanned = 0;
+  const matches: BannedHashMatch[] = [];
+
+  for (const { source, text } of entries) {
+    const tokens = text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    tokensScanned += tokens.length;
+    for (let i = 0; i < tokens.length; i++) {
+      const tokenHash = sha256Hex(tokens[i]);
+      if (bannedHashes.has(tokenHash)) {
+        matches.push({ source, kind: "token", hash: tokenHash });
+      }
+      if (i + 1 < tokens.length) {
+        pairsScanned++;
+        const pairHash = sha256Hex(tokens[i] + tokens[i + 1]);
+        if (bannedHashes.has(pairHash)) {
+          matches.push({ source, kind: "pair", hash: pairHash });
+        }
+      }
+    }
+  }
+
+  return { tokensScanned, pairsScanned, matches };
+}
+
+/**
+ * Collects all built text across HTML, JS, JSON-LD, llms.txt, public/r, skills/, docs pages,
+ * and share-image alt text, plus any live-fetched route HTML entries passed in.
+ */
+export function collectBuiltTextEntries(
+  rootDir: string = ROOT,
+  extraEntries: ReadonlyArray<{ source: string; text: string }> = [],
+): Array<{ source: string; text: string }> {
+  const entries: Array<{ source: string; text: string }> = [...extraEntries];
+  const seenFiles = new Set<string>();
+
+  const addFile = (fullPath: string) => {
+    const resolved = path.resolve(fullPath);
+    if (seenFiles.has(resolved) || !fs.existsSync(resolved)) return;
+    seenFiles.add(resolved);
+    const rel = path.relative(rootDir, resolved).split(path.sep).join("/");
+    entries.push({ source: rel, text: fs.readFileSync(resolved, "utf8") });
+  };
+
+  const walkDir = (dir: string, extRe: RegExp, skipNft = false) => {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === ".next" || entry.name === "cache" || entry.name === "diagnostics") {
+        continue;
+      }
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walkDir(full, extRe, skipNft);
+      } else if (entry.isFile()) {
+        if (skipNft && entry.name.endsWith(".nft.json")) continue;
+        if (extRe.test(entry.name)) addFile(full);
+      }
+    }
+  };
+
+  // Built Next.js server & static HTML, JS, JSON, RSC
+  walkDir(path.join(rootDir, "apps", "docs", ".next", "server"), /\.(html|js|mjs|json|txt|rsc)$/i, true);
+  walkDir(path.join(rootDir, "apps", "docs", ".next", "static"), /\.(html|js|mjs|json|txt)$/i, true);
+
+  // llms.txt files
+  for (const rel of ["llms.txt", "public/llms.txt", "public/r/llms.txt", "the-private-website-repo/public/llms.txt", "the-private-website-repo/public/r/llms.txt"]) {
+    addFile(path.join(rootDir, rel));
+  }
+
+  // public/r registry outputs (.json, .md)
+  walkDir(path.join(rootDir, "public", "r"), /\.(json|md|txt)$/i);
+  walkDir(path.join(rootDir, "apps", "docs", "public", "r"), /\.(json|md|txt)$/i);
+
+  // skills/
+  walkDir(path.join(rootDir, "skills"), /\.(md|json|txt|ts|tsx)$/i);
+
+  // docs pages, JSON-LD, and share-image alt text
+  walkDir(path.join(rootDir, "apps", "docs", "app"), /\.(tsx|ts|md|mdx|json|txt)$/i);
+  walkDir(path.join(rootDir, "apps", "docs", "components"), /\.(tsx|ts|md|mdx)$/i);
+  walkDir(path.join(rootDir, "apps", "docs", "content"), /\.(tsx|ts|md|json)$/i);
+  walkDir(path.join(rootDir, "apps", "docs", "lib", "docs"), /\.(tsx|ts|md|json)$/i);
+  walkDir(path.join(rootDir, "apps", "docs", "lib", "site"), /\.(tsx|ts|md|json)$/i);
+
+  return entries;
+}
+
 // CLI execution
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const revArgIdx = process.argv.indexOf("--rev");
   const rev = revArgIdx !== -1 ? process.argv[revArgIdx + 1] : undefined;
   const violations = checkCopy(rev);
-  if (violations.length > 0) {
-    console.error(`\n❌ Found ${violations.length} copy violation(s) violating DESIGN.md A7 voice guide${rev ? ` at ${rev}` : ""}:\n`);
-    for (const v of violations) {
-      console.error(`  ${v.file}:${v.line} [${v.patternName}] Found "${v.matchedText}" — ${v.reason}`);
+  const hashScan = rev ? { tokensScanned: 0, pairsScanned: 0, matches: [] } : scanTextsForBannedHashes(collectBuiltTextEntries(ROOT));
+  if (violations.length > 0 || hashScan.matches.length > 0) {
+    if (violations.length > 0) {
+      console.error(`\n❌ Found ${violations.length} copy violation(s) violating DESIGN.md A7 voice guide${rev ? ` at ${rev}` : ""}:\n`);
+      for (const v of violations) {
+        console.error(`  ${v.file}:${v.line} [${v.patternName}] Found "${v.matchedText}" — ${v.reason}`);
+      }
+    }
+    if (hashScan.matches.length > 0) {
+      console.error(`\n❌ Found ${hashScan.matches.length} banned agency hash match(es):\n`);
+      for (const m of hashScan.matches) {
+        console.error(`  ${m.source} [${m.kind}] hash=${m.hash}`);
+      }
     }
     console.error(`\nPlease rewrite copy to match the Frictionborn voice guide in DESIGN.md.\n`);
     process.exit(1);
   } else {
-    console.log(`✔ Copy check passed: All demos, compositions and docs pages adhere to the Frictionborn voice guide${rev ? ` at ${rev}` : ""}.`);
+    console.log(
+      `✔ Copy check passed: All demos, compositions and docs pages adhere to the Frictionborn voice guide${rev ? ` at ${rev}` : ""}${
+        !rev ? ` (${hashScan.tokensScanned} tokens scanned, 0 banned hash matches)` : ""
+      }.`,
+    );
   }
 }
