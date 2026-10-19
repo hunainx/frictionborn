@@ -247,33 +247,50 @@ export function EmberCore({
   const effectiveTier = hydrated && !calmMode ? Math.max(0, baseCapTier - stepDowns) : 0;
 
   const [resolvedColors, setResolvedColors] = useState<EmberCorePaletteRGB>(PRESET_RGB.fire);
+  const [isLightTheme, setIsLightTheme] = useState(false);
 
   const refreshPaletteColors = useCallback(() => {
     const el = hostRef.current;
+    const rootEl = typeof document !== "undefined" ? document.documentElement : null;
+    const dataTheme = rootEl?.getAttribute("data-theme") || rootEl?.getAttribute("data-mode") || "";
+    let nextLight = false;
+    if (dataTheme === "light" || rootEl?.classList.contains("light")) {
+      nextLight = true;
+    } else if (dataTheme === "dark" || rootEl?.classList.contains("dark")) {
+      nextLight = false;
+    } else if (rootEl && typeof getComputedStyle === "function") {
+      const csBg =
+        getComputedStyle(el?.parentElement ?? rootEl).backgroundColor ||
+        getComputedStyle(rootEl).backgroundColor ||
+        "";
+      const m = /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/.exec(csBg);
+      if (m && (m[4] === undefined || Number(m[4]) > 0)) {
+        const lum = (0.2126 * Number(m[1]) + 0.7152 * Number(m[2]) + 0.0722 * Number(m[3])) / 255;
+        nextLight = lum > 0.5;
+      } else {
+        const bg =
+          resolveCssColor(el?.parentElement ?? rootEl, "var(--background, Canvas)") ??
+          resolveCssColor(rootEl, "Canvas");
+        if (bg) {
+          const lum = 0.2126 * bg[0] + 0.7152 * bg[1] + 0.0722 * bg[2];
+          nextLight = lum > 0.5;
+        }
+      }
+    }
+    setIsLightTheme((prev) => (prev === nextLight ? prev : nextLight));
+
     const fallback = PRESET_RGB[curPalette === "custom" ? "fire" : curPalette] ?? PRESET_RGB.fire;
-    const specs =
-      curPalette === "custom"
-        ? {
-            ash: `var(--fb-heat-0, ${rgbToCss(fallback.ash)})`,
-            gA: `var(--fb-heat-1, ${rgbToCss(fallback.gA)})`,
-            ember: `var(--fb-heat-2, ${rgbToCss(fallback.ember)})`,
-            gB: `var(--fb-heat-3, ${rgbToCss(fallback.gB)})`,
-            hot: `var(--fb-heat-4, ${rgbToCss(fallback.hot)})`,
-          }
-        : {
-            ash: rgbToCss(fallback.ash),
-            ember: rgbToCss(fallback.ember),
-            hot: rgbToCss(fallback.hot),
-            gA: rgbToCss(fallback.gA),
-            gB: rgbToCss(fallback.gB),
-          };
+    if (curPalette !== "custom") {
+      setResolvedColors((prev) => (samePalette(prev, fallback) ? prev : fallback));
+      return;
+    }
 
     const next: EmberCorePaletteRGB = {
-      ash: resolveCssColor(el, specs.ash) ?? fallback.ash,
-      ember: resolveCssColor(el, specs.ember) ?? fallback.ember,
-      hot: resolveCssColor(el, specs.hot) ?? fallback.hot,
-      gA: resolveCssColor(el, specs.gA) ?? fallback.gA,
-      gB: resolveCssColor(el, specs.gB) ?? fallback.gB,
+      ash: resolveCssColor(el, `var(--fb-heat-0, ${rgbToCss(fallback.ash)})`) ?? fallback.ash,
+      ember: resolveCssColor(el, `var(--fb-heat-2, ${rgbToCss(fallback.ember)})`) ?? fallback.ember,
+      hot: resolveCssColor(el, `var(--fb-heat-4, ${rgbToCss(fallback.hot)})`) ?? fallback.hot,
+      gA: resolveCssColor(el, `var(--fb-heat-1, ${rgbToCss(fallback.gA)})`) ?? fallback.gA,
+      gB: resolveCssColor(el, `var(--fb-heat-3, ${rgbToCss(fallback.gB)})`) ?? fallback.gB,
     };
 
     setResolvedColors((prev) => (samePalette(prev, next) ? prev : next));
@@ -393,9 +410,11 @@ export function EmberCore({
   const ashCss = rgbToCss(resolvedColors.ash);
   const gACss = rgbToCss(resolvedColors.gA);
   const posterGradient = [
-    `radial-gradient(38% 36% at ${offsetX < 0 ? "62%" : "50%"} 54%, color-mix(in srgb, ${hotCss} 42%, transparent) 0%, color-mix(in srgb, ${emberCss} 28%, transparent) 38%, transparent 74%)`,
-    `radial-gradient(54% 50% at ${offsetX < 0 ? "60%" : "50%"} 48%, color-mix(in srgb, ${gACss} 34%, transparent) 0%, color-mix(in srgb, ${ashCss} 14%, transparent) 54%, transparent 82%)`,
-    "radial-gradient(90% 80% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 38%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, black 100%)",
+    `radial-gradient(38% 36% at var(--ec-px1, 50%) 54%, color-mix(in srgb, ${hotCss} 46%, transparent) 0%, color-mix(in srgb, ${emberCss} 32%, transparent) 38%, transparent 74%)`,
+    `radial-gradient(54% 50% at var(--ec-px2, 50%) 48%, color-mix(in srgb, ${gACss} 38%, transparent) 0%, color-mix(in srgb, ${ashCss} 22%, transparent) 54%, transparent 82%)`,
+    isLightTheme
+      ? "radial-gradient(86% 78% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 28%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, color-mix(in srgb, var(--fb-heat-0, black) 10%, black) 100%)"
+      : "radial-gradient(90% 80% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 38%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, black 100%)",
   ].join(", ");
 
   const controlsPanelId = `fb-ec-controls-${uid}`;
@@ -406,17 +425,22 @@ export function EmberCore({
       data-frictionborn-item="ember-core"
       data-tier={ isReduced ? 0 : effectiveTier }
       data-interactive={interactive}
+      data-theme-mode={isLightTheme ? "light" : "dark"}
       className={`fb-ember-core ${className}`}
       style={{
         ...paletteVars(curPalette),
+        "--ec-px1": offsetX < 0 ? "62%" : "50%",
+        "--ec-px2": offsetX < 0 ? "60%" : "50%",
         position: "relative",
         width: "100%",
         minHeight: interactive === "full" ? "540px" : "360px",
         overflow: "hidden",
-        backgroundColor: "color-mix(in srgb, var(--fb-heat-0, black) 18%, black)",
+        backgroundColor: isLightTheme
+          ? "color-mix(in srgb, var(--fb-heat-0, black) 24%, black)"
+          : "color-mix(in srgb, var(--fb-heat-0, black) 18%, black)",
         color: "color-mix(in srgb, var(--fb-heat-4, white) 92%, silver)",
         ...style,
-      }}
+      } as React.CSSProperties}
       {...rest}
     >
       <style nonce={nonce}>{`
@@ -426,10 +450,24 @@ export function EmberCore({
           --ec-ember: var(--fb-heat-2, orange);
           --ec-glass: color-mix(in srgb, var(--fb-heat-0, black) 82%, transparent);
           --ec-line: color-mix(in srgb, var(--fb-heat-4, white) 16%, transparent);
+          --text: var(--ec-ink);
+          --text-2: var(--ec-muted);
+          --foreground: var(--ec-ink);
+          --muted-foreground: var(--ec-muted);
           isolation: isolate;
           user-select: none;
           -webkit-user-select: none;
           font-family: var(--font-geist), ui-sans-serif, system-ui, -apple-system, sans-serif;
+        }
+        @media (max-width: 767px) {
+          .fb-ember-core {
+            --ec-px1: 50% !important;
+            --ec-px2: 50% !important;
+          }
+        }
+        .fb-ember-core[data-theme-mode="light"] {
+          --ec-glass: color-mix(in srgb, var(--fb-heat-0, black) 88%, black);
+          --ec-line: color-mix(in srgb, var(--fb-heat-4, white) 24%, transparent);
         }
         .fb-ec-poster {
           position: absolute;
@@ -461,6 +499,9 @@ export function EmberCore({
           z-index: 1;
           pointer-events: none;
           background: radial-gradient(ellipse at center, transparent 44%, color-mix(in srgb, black 52%, transparent) 82%, color-mix(in srgb, black 86%, transparent) 100%);
+        }
+        .fb-ember-core[data-theme-mode="light"]:not([data-interactive="hero"]) .fb-ec-vignette {
+          background: radial-gradient(ellipse at center, transparent 46%, color-mix(in srgb, black 48%, transparent) 82%, color-mix(in srgb, black 82%, transparent) 100%);
         }
         .fb-ec-stage {
           position: relative;
@@ -584,14 +625,14 @@ export function EmberCore({
           border-radius: 14px;
           padding: 12px 15px;
         }
-        .fb-ec-kicker {
+        .fb-ember-core .fb-ec-kicker {
           font-size: 11px;
           letter-spacing: 0.14em;
           text-transform: uppercase;
           color: var(--ec-muted);
           margin: 0 0 5px;
         }
-        .fb-ec-sub {
+        .fb-ember-core .fb-ec-sub {
           font-size: 13px;
           line-height: 1.45;
           color: var(--ec-ink);
@@ -723,6 +764,7 @@ export function EmberCore({
             reducedMotion={isReduced}
             tier={effectiveTier}
             offsetX={offsetX}
+            lightTheme={isLightTheme}
             suspended={ctxLost}
             strikeTrigger={strikeTrigger}
             resetTrigger={resetTrigger}

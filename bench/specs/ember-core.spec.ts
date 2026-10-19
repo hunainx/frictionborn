@@ -7,7 +7,29 @@ const STUDIO_URL = process.env.STUDIO_URL || "";
 async function installReadbackHelper(page: Page) {
   await page.addInitScript(() => {
     const orig = HTMLCanvasElement.prototype.getContext;
-    (window as unknown as { __ecGls: WebGL2RenderingContext[] }).__ecGls = [];
+    const w = window as unknown as {
+      __ecGls: WebGL2RenderingContext[];
+      __ecDrawCalls: number;
+      __ecScreenPassDraws: number;
+    };
+    w.__ecGls = [];
+    w.__ecDrawCalls = 0;
+    w.__ecScreenPassDraws = 0;
+
+    for (const method of ["drawArrays", "drawElements", "drawArraysInstanced", "drawElementsInstanced"] as const) {
+      const origDraw = WebGL2RenderingContext.prototype[method] as (...a: unknown[]) => unknown;
+      (WebGL2RenderingContext.prototype as unknown as Record<string, unknown>)[method] = function (
+        this: WebGL2RenderingContext,
+        ...args: unknown[]
+      ) {
+        w.__ecDrawCalls++;
+        if (this.getParameter(this.FRAMEBUFFER_BINDING) === null) {
+          w.__ecScreenPassDraws++;
+        }
+        return origDraw.apply(this, args);
+      };
+    }
+
     HTMLCanvasElement.prototype.getContext = function (
       this: HTMLCanvasElement,
       type: string,
@@ -18,7 +40,7 @@ async function installReadbackHelper(page: Page) {
       }
       const ctx = (orig as unknown as (t: string, a?: unknown) => unknown).call(this, type, attrs);
       if (type === "webgl2" && ctx) {
-        (window as unknown as { __ecGls: WebGL2RenderingContext[] }).__ecGls.push(ctx as WebGL2RenderingContext);
+        w.__ecGls.push(ctx as WebGL2RenderingContext);
       }
       return ctx as RenderingContext | null;
     } as typeof HTMLCanvasElement.prototype.getContext;
@@ -43,17 +65,23 @@ async function readPatchMetrics(page: Page, normX = 0.5, normY = 0.5, patchSize 
       gl.readPixels(x0, y0, pw, ph, gl.RGBA, gl.UNSIGNED_BYTE, px);
       let sumLum = 0;
       let sumHeat = 0;
+      const lums: number[] = [];
       const n = pw * ph;
       for (let i = 0; i < px.length; i += 4) {
         const r = px[i];
         const g = px[i + 1];
         const b = px[i + 2];
-        sumLum += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        sumLum += lum;
         sumHeat += r * 0.7 + g * 0.3;
+        lums.push(lum);
       }
+      lums.sort((a, b) => a - b);
+      const p90Lum = lums[Math.min(lums.length - 1, Math.floor(lums.length * 0.9))] ?? 0;
       return {
         meanBrightness: sumLum / n,
         redHeat: sumHeat / n,
+        p90Lum,
       };
     },
     { nx: normX, ny: normY, sz: patchSize }
@@ -71,16 +99,19 @@ async function readFullFrameStats(page: Page) {
     const px = new Uint8Array(w * h * 4);
     gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, px);
     let sumLum = 0;
+    let covered = 0;
     const samples: number[] = [];
     const stride = Math.max(4, Math.floor(px.length / (64 * 64 * 4)) * 4);
     for (let i = 0; i < px.length; i += 4) {
       sumLum += 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+      if (px[i + 3] > 0) covered++;
     }
     for (let i = 0; i < px.length; i += stride) {
       samples.push(px[i], px[i + 1], px[i + 2]);
     }
     return {
       meanBrightness: sumLum / (w * h),
+      coverage: covered / (w * h),
       samples,
     };
   });
@@ -347,5 +378,135 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
         message: "vertical touch swipe over EmberCore hero must scroll the page",
       })
       .toBeGreaterThan(150);
+  });
+
+  test("pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "desktop draw-call & pauseAll spec");
+    await installReadbackHelper(page);
+    await page.goto("/items/ember-core?tier=3");
+    const canvas = page.locator("[data-frictionborn-item='ember-core'] canvas").first();
+    await expect(canvas).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(400);
+
+    // 1. Measure active draw calls per frame over 700 ms (with bloom enabled: 1 screen composite draw per frame)
+    await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
+      w.__ecDrawCalls = 0;
+      w.__ecScreenPassDraws = 0;
+    });
+    await page.waitForTimeout(700);
+    const activeStats = await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
+      const frames = Math.max(1, w.__ecScreenPassDraws);
+      return {
+        totalDraws: w.__ecDrawCalls,
+        frames: w.__ecScreenPassDraws,
+        drawsPerFrame: w.__ecDrawCalls / frames,
+      };
+    });
+
+    expect(activeStats.frames, "active EmberCore must render frames before pauseAll()").toBeGreaterThan(5);
+    expect(
+      activeStats.drawsPerFrame,
+      `EmberCore draw calls per frame (${activeStats.drawsPerFrame.toFixed(2)}) must be <= 20 (expected 8 idle, 9 with pointer torch)`
+    ).toBeLessThanOrEqual(20);
+    expect(activeStats.drawsPerFrame).toBeGreaterThanOrEqual(6);
+
+    // 2. Call pauseAll() from @frictionborn/runtime and measure 0 draw calls over a full 2,000 ms window
+    await page.evaluate(() => {
+      const w = window as unknown as {
+        __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
+        __ecDrawCalls: number;
+        __ecScreenPassDraws: number;
+      };
+      if (!w.__fbRuntime?.pauseAll) throw new Error("__fbRuntime.pauseAll not available on harness window");
+      w.__fbRuntime.pauseAll();
+      w.__ecDrawCalls = 0;
+      w.__ecScreenPassDraws = 0;
+    });
+    await page.waitForTimeout(2000);
+    const pausedDraws = await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number };
+      return w.__ecDrawCalls;
+    });
+    expect(pausedDraws, "EmberCore must issue 0 WebGL draw calls over 2 s while pauseAll() is active").toBe(0);
+
+    // 3. Resume via resumeAll() and verify draw calls resume
+    await page.evaluate(() => {
+      const w = window as unknown as {
+        __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
+        __ecDrawCalls: number;
+      };
+      w.__fbRuntime?.resumeAll();
+      w.__ecDrawCalls = 0;
+    });
+    await page.waitForTimeout(400);
+    const resumedDraws = await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number };
+      return w.__ecDrawCalls;
+    });
+    expect(resumedDraws, "EmberCore must resume drawing after resumeAll()").toBeGreaterThan(16);
+  });
+
+  test("filament contrast passes in dark and light themes and fails on low contrast", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "desktop dark/light filament contrast spec");
+    await installReadbackHelper(page);
+    await page.goto("/items/ember-core?tier=3");
+    const root = page.locator("[data-frictionborn-item='ember-core']").first();
+    const canvas = root.locator("canvas").first();
+    await expect(canvas).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(400);
+
+    // Pause idle spin for deterministic patch comparison
+    await canvas.focus();
+    await page.keyboard.press("p");
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(300);
+
+    // 1. Dark theme contrast check
+    await page.evaluate(() => document.documentElement.setAttribute("data-theme", "dark"));
+    await page.waitForTimeout(250);
+    await expect(root).toHaveAttribute("data-theme-mode", "dark");
+
+    const darkFrame = await readFullFrameStats(page);
+    const darkBg = await readPatchMetrics(page, 0.08, 0.12, 64);
+    const darkAsh = await readPatchMetrics(page, 0.5, 0.30, 96);
+    const darkCore = await readPatchMetrics(page, 0.5, 0.56, 96);
+    const darkAshDelta = darkAsh.p90Lum - darkBg.meanBrightness;
+    const darkAshRatio = (darkAsh.p90Lum + 12.75) / (darkBg.meanBrightness + 12.75);
+
+    expect(
+      darkAshDelta,
+      `dark-theme ash filament p90 luminance (${darkAsh.p90Lum.toFixed(1)}) vs background (${darkBg.meanBrightness.toFixed(1)}) must exceed 28`
+    ).toBeGreaterThan(28);
+    expect(darkAshRatio, `dark-theme ash filament contrast ratio (${darkAshRatio.toFixed(2)})`).toBeGreaterThan(2.0);
+    expect(darkCore.meanBrightness).toBeGreaterThan(darkBg.meanBrightness + 40);
+
+    // 2. Light theme contrast check
+    await page.evaluate(() => document.documentElement.setAttribute("data-theme", "light"));
+    await page.waitForTimeout(250);
+    await expect(root).toHaveAttribute("data-theme-mode", "light");
+
+    const lightFrame = await readFullFrameStats(page);
+    const lightBg = await readPatchMetrics(page, 0.22, 0.22, 64);
+    const lightAsh = await readPatchMetrics(page, 0.5, 0.30, 96);
+    const lightCore = await readPatchMetrics(page, 0.5, 0.56, 96);
+    const lightAshDelta = lightAsh.p90Lum - lightBg.meanBrightness;
+    const lightAshRatio = (lightAsh.p90Lum + 12.75) / (lightBg.meanBrightness + 12.75);
+
+    expect(
+      lightAshDelta,
+      `light-theme ash filament p90 luminance (${lightAsh.p90Lum.toFixed(1)}) vs plate (${lightBg.meanBrightness.toFixed(1)}) must exceed 28`
+    ).toBeGreaterThan(28);
+    expect(lightAshRatio, `light-theme ash filament contrast ratio (${lightAshRatio.toFixed(2)})`).toBeGreaterThan(2.0);
+    expect(lightCore.meanBrightness).toBeGreaterThan(lightBg.meanBrightness + 40);
+
+    // Light theme renders the radial dark hearth plate + boosted ash filaments in WebGL, so coverage & brightness differ from dark theme
+    expect(
+      Math.abs(lightFrame.coverage - darkFrame.coverage),
+      `light-theme coverage (${lightFrame.coverage.toFixed(3)}) must differ from dark-theme coverage (${darkFrame.coverage.toFixed(3)})`
+    ).toBeGreaterThan(0.05);
   });
 });

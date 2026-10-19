@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import { useCapability } from "@frictionborn/runtime";
+import { pauseAll, resumeAll, useCapability } from "@frictionborn/runtime";
 import DummyDemo from "../../../../../registry/items/dummy/demo";
 import NoiseFieldDemo from "../../../../../registry/items/noise-field/demo";
 import TextRevealDemo from "../../../../../registry/items/text-reveal/demo";
@@ -48,6 +48,18 @@ export default function ItemBenchPage({
 
   const [mounted, setMounted] = useState(true);
   const [cycleCount, setCycleCount] = useState(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as unknown as { __fbRuntime?: { pauseAll: typeof pauseAll; resumeAll: typeof resumeAll } }).__fbRuntime = {
+        pauseAll,
+        resumeAll,
+      };
+    }
+    return () => {
+      resumeAll();
+    };
+  }, []);
 
   // Set data-fb-tier on root element ONLY when explicitly passed in query
   useEffect(() => {

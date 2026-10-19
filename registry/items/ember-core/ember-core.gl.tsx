@@ -40,6 +40,7 @@ export interface EmberCoreGLProps {
   reducedMotion: boolean;
   tier: number;
   offsetX?: number;
+  lightTheme?: boolean;
   suspended?: boolean;
   strikeTrigger?: number;
   resetTrigger?: number;
@@ -207,6 +208,7 @@ export default function EmberCoreGL({
   reducedMotion,
   tier,
   offsetX = 0,
+  lightTheme = false,
   suspended = false,
   strikeTrigger = 0,
   resetTrigger = 0,
@@ -239,6 +241,7 @@ export default function EmberCoreGL({
     reducedMotion,
     isTier2,
     offsetX,
+    lightTheme,
     ariaLabel,
     onToast,
     onTogglePause,
@@ -261,6 +264,7 @@ export default function EmberCoreGL({
       reducedMotion,
       isTier2,
       offsetX,
+      lightTheme,
       ariaLabel,
       onToast,
       onTogglePause,
@@ -407,7 +411,7 @@ export default function EmberCoreGL({
   // Redraw when visual props change while paused or in reduced motion
   useEffect(() => {
     drawNowRef.current();
-  }, [colors, heat, swirl, spin, density, bloomActive, offsetX]);
+  }, [colors, heat, swirl, spin, density, bloomActive, offsetX, lightTheme]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -581,7 +585,7 @@ export default function EmberCoreGL({
 
       const commonNames = [
         "uModelMatrix", "uViewMatrix", "uProjMatrix", "uCameraPos",
-        "uTime", "uFlare", "uSize", "uPR", "uHeat", "uCharge", "uBurst",
+        "uTime", "uFlare", "uSize", "uPR", "uHeat", "uCharge", "uBurst", "uLightTheme",
         "uAsh", "uEmber", "uHot", "uGA", "uGB",
         "uPointer", "uPointerOn", "uSwirl", "uWaveT", "uWaveO",
       ];
@@ -590,7 +594,7 @@ export default function EmberCoreGL({
       tLoc = getLocs(gl, tProg, commonNames);
       threshLoc = getLocs(gl, threshProg, ["uTex", "uThreshold"]);
       blurLoc = getLocs(gl, blurProg, ["uTex", "uDir", "uRadius"]);
-      compLoc = getLocs(gl, compProg, ["uSceneTex", "uBloomTex", "uStrength"]);
+      compLoc = getLocs(gl, compProg, ["uSceneTex", "uBloomTex", "uStrength", "uLightTheme", "uPlateCenter", "uAspect"]);
 
       // Filaments VAO
       fVao = gl.createVertexArray();
@@ -673,11 +677,14 @@ export default function EmberCoreGL({
       gl.viewport(0, 0, w, h);
       gl.disable(gl.DEPTH_TEST);
       gl.depthMask(false);
-      gl.clearColor(0, 0, 0, 0);
+      if (!useBloom && p.lightTheme) {
+        gl.clearColor(0.06, 0.05, 0.045, 0.92);
+      } else {
+        gl.clearColor(0, 0, 0, 0);
+      }
       gl.clear(gl.COLOR_BUFFER_BIT);
 
       gl.enable(gl.BLEND);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
       const setCommonUniforms = (loc: LocMap) => {
         if (loc.uModelMatrix) gl.uniformMatrix4fv(loc.uModelMatrix, false, modelMat);
@@ -686,11 +693,12 @@ export default function EmberCoreGL({
         if (loc.uCameraPos) gl.uniform3f(loc.uCameraPos, s.camX, s.camY, s.camZ);
         if (loc.uTime) gl.uniform1f(loc.uTime, s.clock);
         if (loc.uFlare) gl.uniform1f(loc.uFlare, s.uFlare);
-        if (loc.uSize) gl.uniform1f(loc.uSize, p.isTier2 ? 3.2 : 2.6);
+        if (loc.uSize) gl.uniform1f(loc.uSize, p.isTier2 ? 3.5 : 3.0);
         if (loc.uPR) gl.uniform1f(loc.uPR, s.dpr);
         if (loc.uHeat) gl.uniform1f(loc.uHeat, p.heat);
         if (loc.uCharge) gl.uniform1f(loc.uCharge, s.charge);
         if (loc.uBurst) gl.uniform1f(loc.uBurst, s.uBurst);
+        if (loc.uLightTheme) gl.uniform1f(loc.uLightTheme, p.lightTheme ? 1.0 : 0.0);
         if (loc.uSwirl) gl.uniform1f(loc.uSwirl, p.swirl);
         if (loc.uPointer) gl.uniform3f(loc.uPointer, s.uPointer[0], s.uPointer[1], s.uPointer[2]);
         if (loc.uPointerOn) gl.uniform1f(loc.uPointerOn, s.uPointerOn);
@@ -703,20 +711,22 @@ export default function EmberCoreGL({
         if (loc.uGB) gl.uniform3f(loc.uGB, p.colors.gB[0], p.colors.gB[1], p.colors.gB[2]);
       };
 
-      // 1. Filaments
+      // 1. Filaments (premultiplied normal blending so ash strands build crisp volume without alpha squaring)
+      gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(fProg);
       setCommonUniforms(fLoc);
       gl.bindVertexArray(fVao);
       const drawCount = Math.floor(geo.strands * clamp(p.density, 0.2, 1)) * geo.steps;
       gl.drawArrays(gl.POINTS, 0, drawCount);
 
-      // 2. Inner glow
+      // 2. Inner glow (additive)
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(gProg);
       setCommonUniforms(gLoc);
       gl.bindVertexArray(gVao);
       gl.drawArrays(gl.POINTS, 0, geo.glowCount);
 
-      // 3. Pointer torch
+      // 3. Pointer torch (additive)
       if (s.uPointerOn > 0.005) {
         gl.useProgram(tProg);
         setCommonUniforms(tLoc);
@@ -771,6 +781,9 @@ export default function EmberCoreGL({
         gl.bindTexture(gl.TEXTURE_2D, pingTex);
         if (compLoc.uBloomTex) gl.uniform1i(compLoc.uBloomTex, 1);
         if (compLoc.uStrength) gl.uniform1f(compLoc.uStrength, 0.75);
+        if (compLoc.uLightTheme) gl.uniform1f(compLoc.uLightTheme, p.lightTheme ? 1.0 : 0.0);
+        if (compLoc.uPlateCenter) gl.uniform2f(compLoc.uPlateCenter, s.camX < -0.1 ? 0.58 : 0.5, 0.5);
+        if (compLoc.uAspect) gl.uniform1f(compLoc.uAspect, s.aspect);
         surface.draw();
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, null);

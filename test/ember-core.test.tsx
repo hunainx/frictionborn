@@ -5,9 +5,14 @@ import React, { createRef } from "react";
 import fs from "node:fs";
 import path from "node:path";
 import { render, fireEvent, cleanup } from "@testing-library/react";
+import { pauseAll, resumeAll } from "@frictionborn/runtime";
 import { EmberCore } from "../registry/items/ember-core/ember-core";
+import EmberCoreGL from "../registry/items/ember-core/ember-core.gl";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  resumeAll();
+  cleanup();
+});
 
 describe("EmberCore (#25)", () => {
   it("renders hero mode by default with CSS poster, Strike button, hint copy, ref forwarding, and CSP nonce", () => {
@@ -91,4 +96,131 @@ describe("EmberCore (#25)", () => {
     expect(glsl).toMatch(/Stefan Gustavson/i);
     expect(glsl).toMatch(/MIT/);
   });
+
+  it("uses @frictionborn/runtime useFrame with no direct requestAnimationFrame, <= 20 draw calls/frame, and 0 draw calls over 2 s after pauseAll()", async () => {
+    const dir = path.resolve(__dirname, "../registry/items/ember-core");
+    for (const file of ["ember-core.tsx", "ember-core.gl.tsx", "ember-core.glsl.ts"]) {
+      const src = fs.readFileSync(path.join(dir, file), "utf8");
+      expect(src).not.toMatch(/requestAnimationFrame/);
+      expect(src).not.toMatch(/@react-three\/fiber/);
+    }
+
+    let drawCalls = 0;
+    let renderedFrames = 0;
+    let boundToScreen = true;
+    const origGetContext = HTMLCanvasElement.prototype.getContext;
+    const mockGl = new Proxy(
+      {
+        FRAMEBUFFER_COMPLETE: 0x8cd5,
+        COMPILE_STATUS: 0x8b81,
+        LINK_STATUS: 0x8b82,
+        drawingBufferWidth: 640,
+        drawingBufferHeight: 360,
+        isContextLost: () => false,
+      },
+      {
+        get(target, prop) {
+          if (prop in target) return target[prop as keyof typeof target];
+          if (
+            prop === "createShader" ||
+            prop === "createProgram" ||
+            prop === "createVertexArray" ||
+            prop === "createBuffer" ||
+            prop === "createTexture" ||
+            prop === "createFramebuffer" ||
+            prop === "getUniformLocation"
+          ) {
+            return () => ({});
+          }
+          if (prop === "getExtension") return () => ({ loseContext: () => {} });
+          if (prop === "getShaderParameter" || prop === "getProgramParameter") return () => true;
+          if (prop === "getAttribLocation") return () => 0;
+          if (prop === "checkFramebufferStatus") return () => 0x8cd5;
+          if (prop === "bindFramebuffer") {
+            return (_target: number, fb: unknown) => {
+              boundToScreen = fb === null;
+            };
+          }
+          if (prop === "drawArrays") {
+            return () => {
+              drawCalls++;
+              if (boundToScreen) renderedFrames++;
+            };
+          }
+          if (prop === "drawArraysInstanced") {
+            return () => {
+              drawCalls++;
+            };
+          }
+          return () => {};
+        },
+      }
+    );
+
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, contextId: string) {
+      if (contextId === "webgl2") return mockGl as unknown as RenderingContext;
+      return null;
+    } as typeof HTMLCanvasElement.prototype.getContext;
+
+    try {
+      drawCalls = 0;
+      renderedFrames = 0;
+      render(
+        <EmberCoreGL
+          colors={{
+            ash: [0.35, 0.36, 0.42],
+            ember: [0.95, 0.32, 0.07],
+            hot: [1.0, 0.96, 0.85],
+            gA: [1.0, 0.68, 0.16],
+            gB: [0.92, 0.25, 0.04],
+          }}
+          interactive="hero"
+          heat={1}
+          swirl={1}
+          spin={1}
+          density={1}
+          bloom={true}
+          sound={false}
+          paused={false}
+          reducedMotion={false}
+          suspended={false}
+          tier={3}
+          offsetX={0}
+          lightTheme={false}
+          strikeTrigger={0}
+          resetTrigger={0}
+          onToast={() => {}}
+          onTogglePause={() => {}}
+          onContextLost={() => {}}
+          onContextRestored={() => {}}
+          onDowngrade={() => {}}
+        />
+      );
+
+      // Let shared runtime loop tick for ~120ms and verify draw calls per frame <= 20 (exactly 8 idle with bloom)
+      drawCalls = 0;
+      renderedFrames = 0;
+      await new Promise((r) => setTimeout(r, 120));
+      const activeCalls = drawCalls;
+      const activeFrames = Math.max(1, renderedFrames);
+      const callsPerFrame = activeCalls / activeFrames;
+      expect(activeCalls).toBeGreaterThan(0);
+      expect(callsPerFrame).toBeLessThanOrEqual(20);
+      expect(Math.round(callsPerFrame)).toBe(8);
+
+      // Pause shared runtime loop and assert 0 draw calls over 2,000 ms
+      pauseAll();
+      drawCalls = 0;
+      await new Promise((r) => setTimeout(r, 2000));
+      expect(drawCalls).toBe(0);
+
+      // Resume and confirm loop ticks again
+      resumeAll();
+      await new Promise((r) => setTimeout(r, 80));
+      expect(drawCalls).toBeGreaterThan(0);
+    } finally {
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+    }
+  });
 });
+

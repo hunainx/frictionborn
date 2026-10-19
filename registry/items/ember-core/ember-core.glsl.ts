@@ -58,7 +58,7 @@ layout(location = 1) in float aSeed;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjMatrix;
-uniform float uTime, uFlare, uSize, uPR, uHeat, uCharge, uBurst;
+uniform float uTime, uFlare, uSize, uPR, uHeat, uCharge, uBurst, uLightTheme;
 uniform vec3 uAsh, uEmber, uHot;
 
 out vec3 vColor;
@@ -91,14 +91,17 @@ void main(){
   float heat = smoothstep(0.66, 1.08, n + (1.0 - r) * 0.6 - p.y * 0.28) * uHeat;
   heat += extra + uFlare * 0.85 * smoothstep(1.25, 0.2, r) + uCharge * 1.1 * smoothstep(1.1, 0.3, r) + uBurst * 0.9;
 
-  vec3 c = mix(uAsh, uEmber, clamp(heat, 0.0, 1.0));
+  vec3 ashTone = mix(uAsh, vec3(0.92, 0.88, 0.84), uLightTheme * 0.44);
+  vec3 c = mix(ashTone, uEmber, clamp(heat, 0.0, 1.0));
   c = mix(c, uHot, clamp(heat - 1.0, 0.0, 1.0));
+  c *= 1.0 + clamp(heat, 0.0, 1.5) * 0.32;
   vColor = c;
-  vAlpha = (mix(0.26, 0.6, clamp(heat, 0.0, 1.0)) + uBurst * 0.15) * (0.6 + 0.4 * aSeed);
+  float baseAlpha = mix(0.46, 0.64, uLightTheme);
+  vAlpha = clamp((mix(baseAlpha, 0.86, clamp(heat, 0.0, 1.0)) + uBurst * 0.16) * (0.65 + 0.35 * aSeed), 0.0, 1.0);
 
   vec4 mv = uViewMatrix * vec4(w, 1.0);
   gl_Position = uProjMatrix * mv;
-  gl_PointSize = uSize * uPR * (0.5 + aSeed * 0.8) * (3.0 / max(0.1, -mv.z));
+  gl_PointSize = uSize * uPR * (0.55 + aSeed * 0.82) * (3.0 / max(0.1, -mv.z));
 }
 `;
 
@@ -247,6 +250,9 @@ precision highp float;
 uniform sampler2D uSceneTex;
 uniform sampler2D uBloomTex;
 uniform float uStrength;
+uniform float uLightTheme;
+uniform vec2 uPlateCenter;
+uniform float uAspect;
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -256,6 +262,14 @@ void main(){
   vec3 rgb = scene.rgb + bloom.rgb;
   float bloomA = max(bloom.r, max(bloom.g, bloom.b));
   float a = clamp(scene.a + bloomA, 0.0, 1.0);
+  if (uLightTheme > 0.5) {
+    vec2 d = (vUv - uPlateCenter) * vec2(uAspect, 1.0);
+    float dist = length(d);
+    float plateA = smoothstep(0.96, 0.26, dist) * 0.94;
+    vec3 plateRgb = mix(vec3(0.028, 0.024, 0.022), vec3(0.048, 0.042, 0.038), smoothstep(0.0, 0.88, dist));
+    rgb = rgb + plateRgb * plateA * (1.0 - clamp(a * 0.88, 0.0, 1.0));
+    a = clamp(a + plateA * (1.0 - a), 0.0, 1.0);
+  }
   fragColor = vec4(rgb, a);
 }
 `;
