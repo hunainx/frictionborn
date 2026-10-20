@@ -4,13 +4,27 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { measureItemSize } from "./size/measure.ts";
+import { hashRawResultsText, PROJECT_LABELS, recomputeFromRawResults } from "../scripts/merge-evidence.ts";
 
 /** round 4 (DECISIONS 54): the 2D-canvas items, which also run bench/specs/canvas-items.spec.ts */
-const CANVAS_ITEMS = ["flame-switch", "ember-badge", "light-leak-tabs", "temper-slider", "match-progress", "fuse-toast", "flint-button", "hold-to-confirm", "eclipse-switch", "firework-rating", "ash-text", "lantern-sky"];
+const CANVAS_ITEMS = [
+  "flame-switch",
+  "ember-badge",
+  "light-leak-tabs",
+  "temper-slider",
+  "match-progress",
+  "fuse-toast",
+  "flint-button",
+  "hold-to-confirm",
+  "eclipse-switch",
+  "firework-rating",
+  "ash-text",
+  "lantern-sky",
+];
 
-function getGitCommit(): string {
+function getGitCommit(projectRoot = process.cwd()): string {
   try {
-    return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
+    return execSync("git rev-parse --short HEAD", { cwd: projectRoot, encoding: "utf8" }).trim();
   } catch {
     return "dev-local";
   }
@@ -20,24 +34,51 @@ function getToday(): string {
   return new Date().toISOString().split("T")[0];
 }
 
-const FORCED_TIER = 3;
+export function isWorkingTreeClean(
+  projectRoot = process.cwd(),
+  options: { ignoreBenchResults?: boolean } = {}
+): boolean {
+  try {
+    const out = execSync("git status --porcelain", { cwd: projectRoot, encoding: "utf8" });
+    const lines = out
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (!options.ignoreBenchResults) {
+      return lines.length === 0;
+    }
+    const nonBench = lines.filter((line) => {
+      const filePart = line.slice(3).trim().replace(/^"|"$/g, "").replace(/\\/g, "/");
+      return !filePart.startsWith("bench/results/");
+    });
+    return nonBench.length === 0;
+  } catch {
+    return false;
+  }
+}
 
-const PROJECT_LABELS: Record<string, string> = {
-  "chromium-desktop": "Chromium Desktop (SwiftShader)",
-  "chromium-mobile": "Chromium Mobile (Pixel 7 emulation)",
-  "firefox-desktop": "Firefox Desktop",
-  "webkit-desktop": "WebKit Desktop",
-  "webkit-mobile": "WebKit Mobile (iPhone 14 emulation)",
-};
-
-export function runBench(itemName = "dummy", options: { isRelease?: boolean; project?: string } = {}): boolean {
+export function runBench(
+  itemName = "dummy",
+  options: { isRelease?: boolean; project?: string; projectRoot?: string; ignoreBenchResultsInCleanCheck?: boolean } = {}
+): boolean {
   const isRelease = options.isRelease ?? process.argv.includes("--release");
   const project = options.project;
+  const projectRoot = options.projectRoot ?? process.cwd();
   if (project && isRelease) {
     console.error("--project runs one browser only; a release snapshot needs all of them. Run --release without --project.");
     return false;
   }
-  const projectRoot = process.cwd();
+
+  const treeClean = isWorkingTreeClean(projectRoot, {
+    ignoreBenchResults: options.ignoreBenchResultsInCleanCheck,
+  });
+  if (isRelease && !treeClean) {
+    console.error(
+      `✖ Refusing to run bench:release for [${itemName}] on a dirty working tree (git status --porcelain is not empty). Commit or stash changes first.`
+    );
+    return false;
+  }
+
   console.log(`\n🚀 Starting Frictionborn Motion Bench for [${itemName}]...\n`);
 
   // 1. Measure size
@@ -104,17 +145,19 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
       cwd: projectRoot,
       env: { ...process.env, CI: "1", BENCH_ITEM: itemName },
     });
-  } catch (err) {
+  } catch {
     console.error("Playwright run exited with test failures or errors");
     playwrightSucceeded = false;
   }
 
   // Per-project results come from the Playwright report only (never hard-coded).
   const projectResults = new Map<string, { passed: number; failed: number; flaky: number }>();
+  const rawSpecs: Array<{ file: string; title: string; projectName: string; status: string }> = [];
   if (fs.existsSync(reportPath)) {
     try {
       const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-      const visit = (suite: any) => {
+      const visit = (suite: any, parentFile = "") => {
+        const suiteFile = suite.file || parentFile;
         for (const spec of suite.specs || []) {
           for (const test of spec.tests || []) {
             const entry = projectResults.get(test.projectName) ?? { passed: 0, failed: 0, flaky: 0 };
@@ -122,9 +165,15 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
             else if (test.status === "flaky") entry.flaky++; // failed, then passed on the CI retry: recorded, not hidden
             else if (test.status !== "skipped") entry.failed++;
             projectResults.set(test.projectName, entry);
+            rawSpecs.push({
+              file: String(spec.file || suiteFile || "").replace(/\\/g, "/"),
+              title: String(spec.title || ""),
+              projectName: String(test.projectName || ""),
+              status: String(test.status || ""),
+            });
           }
         }
-        for (const child of suite.suites || []) visit(child);
+        for (const child of suite.suites || []) visit(child, suiteFile);
       };
       for (const suite of report.suites || []) visit(suite);
     } catch (err: any) {
@@ -140,96 +189,76 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
     return false;
   }
 
-  // Aggregate real measurements from spec runs (Finding 2)
-  let measuredCls = 0;
-  let offscreenFrames: number | null = null;
-  let hiddenTabFrames: number | null = null;
-  let reducedMotionFrames: number | null = null;
-  let axeSerious: number | null = null;
-  let axeCritical: number | null = null;
-
+  // Collect raw probe files from spec runs
+  const rawProbes: Array<{ file: string; data: any }> = [];
   if (fs.existsSync(rawDir)) {
-    const rawFiles = fs.readdirSync(rawDir).filter((f) => f.endsWith(".json"));
+    const rawFiles = fs
+      .readdirSync(rawDir)
+      .filter((f) => f.endsWith(".json"))
+      .sort();
     for (const rf of rawFiles) {
       try {
         const rawContent = JSON.parse(fs.readFileSync(path.join(rawDir, rf), "utf8"));
-        if (typeof rawContent.cls === "number") {
-          measuredCls = Math.max(measuredCls, rawContent.cls);
-        }
-        if (rawContent.framesWhenIdle) {
-          if (typeof rawContent.framesWhenIdle.offscreen === "number") {
-            offscreenFrames = Math.max(offscreenFrames ?? 0, rawContent.framesWhenIdle.offscreen);
-          }
-          if (typeof rawContent.framesWhenIdle.hiddenTab === "number") {
-            hiddenTabFrames = Math.max(hiddenTabFrames ?? 0, rawContent.framesWhenIdle.hiddenTab);
-          }
-          if (typeof rawContent.framesWhenIdle.reducedMotion === "number") {
-            reducedMotionFrames = Math.max(reducedMotionFrames ?? 0, rawContent.framesWhenIdle.reducedMotion);
-          }
-        }
-        if (rawContent.axe) {
-          if (typeof rawContent.axe.serious === "number") {
-            axeSerious = Math.max(axeSerious ?? 0, rawContent.axe.serious);
-          }
-          if (typeof rawContent.axe.critical === "number") {
-            axeCritical = Math.max(axeCritical ?? 0, rawContent.axe.critical);
-          }
-        }
+        rawProbes.push({ file: rf, data: rawContent });
       } catch (err: any) {
         console.warn(`Could not read measurement file ${rf}: ${err.message}`);
       }
     }
-    // Clean up raw measurement dir
+    // Clean up temporary raw measurement dir
     fs.rmSync(rawDir, { recursive: true, force: true });
   }
 
-  // Fail closed if any required measurement was not collected from the test suite
-  if (
-    offscreenFrames === null ||
-    hiddenTabFrames === null ||
-    reducedMotionFrames === null ||
-    axeSerious === null ||
-    axeCritical === null
-  ) {
+  const commit = getGitCommit(projectRoot);
+  const date = getToday();
+
+  const rawPayload = {
+    item: itemName,
+    commit,
+    date,
+    playwright: {
+      projects: Object.fromEntries(projectResults.entries()),
+      specs: rawSpecs,
+    },
+    probes: rawProbes,
+  };
+
+  const recomputed = recomputeFromRawResults(rawPayload, date);
+  if (!recomputed) {
     console.error(`✖ Incomplete measurements for [${itemName}]. Missing real metrics from specs.`);
     return false;
   }
 
-  const commit = getGitCommit();
-  const date = getToday();
+  // Write raw-<commit>.json and compute its SHA-256 resultsHash
+  if (isRelease) {
+    for (const existingFile of fs.readdirSync(resultsDir)) {
+      if (/^raw-.*\.json$/.test(existingFile) && existingFile !== `raw-${commit}.json`) {
+        fs.unlinkSync(path.join(resultsDir, existingFile));
+      }
+    }
+  }
+  const rawCommitFile = path.join(resultsDir, `raw-${commit}.json`);
+  const rawJsonText = JSON.stringify(rawPayload, null, 2) + "\n";
+  fs.writeFileSync(rawCommitFile, rawJsonText, "utf8");
+  const resultsHash = hashRawResultsText(rawJsonText);
 
   const declaredPath = path.join(itemDir, "meta.declared.json");
   const declared = fs.existsSync(declaredPath) ? JSON.parse(fs.readFileSync(declaredPath, "utf8")) : null;
   const version = declared?.item?.version || "0.1.0";
 
-  const devices = Array.from(projectResults.entries()).map(([project, r]) => ({
-    env: PROJECT_LABELS[project] ?? project,
-    via: "playwright" as const,
-    tier: project.includes("mobile") ? 2 : 3,
-    result: (r.failed === 0 ? "pass" : "fail") as "pass" | "fail",
-    date,
-    notes: `${r.passed} passed, ${r.failed} failed${r.flaky ? `, ${r.flaky} flaky (passed on retry)` : ""}`,
-  }));
-
   const benchJson = {
     commit,
+    ...(treeClean ? { treeClean: true as const } : {}),
+    resultsHash,
     date,
     sizeKB: {
       initial: size.initialGzipKB,
       deferred: size.deferredGzipKB,
       method: size.method,
     },
-    cls: measuredCls,
-    framesWhenIdle: {
-      offscreen: offscreenFrames,
-      hiddenTab: hiddenTabFrames,
-      reducedMotion: reducedMotionFrames,
-    },
-    axe: {
-      serious: axeSerious,
-      critical: axeCritical,
-    },
-    devices,
+    cls: recomputed.cls,
+    framesWhenIdle: recomputed.framesWhenIdle,
+    axe: recomputed.axe,
+    devices: recomputed.devices,
   };
 
   const rawOutDir = path.join(resultsDir, "raw");
@@ -249,7 +278,8 @@ export function runBench(itemName = "dummy", options: { isRelease?: boolean; pro
   fs.writeFileSync(rawLatestOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
   fs.writeFileSync(rawCommitOut, JSON.stringify(benchJson, null, 2) + "\n", "utf8");
 
-  console.log(`\n✔ Wrote bench output: ${path.relative(projectRoot, benchOut)}`);
+  console.log(`\n✔ Wrote raw Playwright results: ${path.relative(projectRoot, rawCommitFile)} (SHA-256: ${resultsHash.slice(0, 12)}…)`);
+  console.log(`✔ Wrote bench output: ${path.relative(projectRoot, benchOut)}`);
   console.log(`✔ Wrote latest output: ${path.relative(projectRoot, latestOut)}`);
   console.log(`✔ Wrote commit output: ${path.relative(projectRoot, commitOut)}`);
 
@@ -295,6 +325,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.error("--shard expects i/n, for example --shard 1/2");
     process.exit(1);
   }
+  if (isRelease && !isWorkingTreeClean(process.cwd())) {
+    console.error(
+      "✖ Refusing to run bench:release on a dirty working tree (git status --porcelain is not empty). Commit or stash changes first."
+    );
+    process.exit(1);
+  }
   const itemIdx = args.indexOf("--item");
   let items: string[];
   if (itemIdx !== -1 && args[itemIdx + 1]) {
@@ -314,14 +350,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   let ok = true;
   for (const item of items) {
-    ok = runBench(item, { isRelease, project }) && ok;
+    ok =
+      runBench(item, {
+        isRelease,
+        project,
+        ignoreBenchResultsInCleanCheck: items.length > 1,
+      }) && ok;
   }
 
-  // Run item-agnostic specs (combined-page, stress-gl) once per browser project, never once per item:
-  // - If running a single item via --item: skip agnostic specs.
-  // - If running sharded CI: run on shard 1 of EVERY project. stress-gl's S8-8 variant only discriminates on a coarse
-  //   pointer (chromium-mobile), so running it on chromium-desktop alone left the mobile contract untested in CI.
-  // - If running all items locally: run once at the end (Playwright covers all projects in that one call).
   const isShard1 = !shard || shard[1] === "1";
   if (itemIdx === -1 && isShard1) {
     ok = runAgnosticSpecs({ project }) && ok;
@@ -329,4 +365,3 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 
   process.exit(ok ? 0 : 1);
 }
-

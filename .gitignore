@@ -8,6 +8,7 @@ test-results/
 bench/results/**
 !bench/results/**/
 !bench/results/**/release-*.json
+!bench/results/*/raw-*.json
 .env*
 !.env.example
 *.log

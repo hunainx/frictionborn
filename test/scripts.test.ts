@@ -1,8 +1,9 @@
 // Original — Frictionborn Motion script and schema tests
 import { describe, it, expect } from "vitest";
 import { validateDeclaredMetadata } from "../scripts/validate-meta.ts";
-import { validateMeasuredAgainstDeclared, codeChangedSinceBench } from "../scripts/merge-evidence.ts";
+import { validateMeasuredAgainstDeclared, codeChangedSinceBench, hashRawResultsText } from "../scripts/merge-evidence.ts";
 import { buildRegistry, isSafeRegistryTarget, validateItemDependencies } from "../scripts/build-registry.ts";
+import { measureItemSize } from "../bench/size/measure.ts";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -212,9 +213,6 @@ describe("scripts/merge-evidence", () => {
 describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
   it("passes check mode when meta.json matches committed release snapshot exactly", async () => {
     const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
-    const { default: fs } = await import("node:fs");
-    const { default: path } = await import("node:path");
-    const { default: os } = await import("node:os");
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
     try {
@@ -224,14 +222,50 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
       fs.mkdirSync(itemDir, { recursive: true });
       fs.mkdirSync(itemBenchDir, { recursive: true });
 
+      const rawTxt =
+        JSON.stringify(
+          {
+            item: "test-item",
+            commit: "a1b2c3d",
+            date: "2026-10-01",
+            playwright: {
+              specs: [{ file: "bench/specs/a11y.spec.ts", title: "ok", projectName: "chromium-desktop", status: "expected" }],
+            },
+            probes: [
+              {
+                file: "p.json",
+                data: {
+                  cls: 0,
+                  framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+                  axe: { serious: 0, critical: 0 },
+                },
+              },
+            ],
+          },
+          null,
+          2
+        ) + "\n";
+      fs.writeFileSync(path.join(itemBenchDir, "raw-a1b2c3d.json"), rawTxt);
+
       const measured = {
         commit: "a1b2c3d",
+        treeClean: true,
+        resultsHash: hashRawResultsText(rawTxt),
         date: "2026-10-01",
         sizeKB: { initial: 1.5, deferred: 0, method: "gzip-9" },
         cls: 0,
         framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
         axe: { serious: 0, critical: 0 },
-        devices: [{ env: "Chromium", via: "playwright", tier: 3, result: "pass", date: "2026-10-01" }],
+        devices: [
+          {
+            env: "Chromium Desktop (SwiftShader)",
+            via: "playwright",
+            tier: 3,
+            result: "pass",
+            date: "2026-10-01",
+            notes: "1 passed, 0 failed",
+          },
+        ],
       };
 
       fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
@@ -254,9 +288,6 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
 
   it("fails check mode when a single number in meta.json is modified (Finding 11 guard)", async () => {
     const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
-    const { default: fs } = await import("node:fs");
-    const { default: path } = await import("node:path");
-    const { default: os } = await import("node:os");
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
     try {
@@ -302,9 +333,6 @@ describe("scripts/merge-evidence release snapshot binding (Finding 11)", () => {
 
   it("fails check mode when meta.json has measured data but no release snapshot exists", async () => {
     const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
-    const { default: fs } = await import("node:fs");
-    const { default: path } = await import("node:path");
-    const { default: os } = await import("node:os");
 
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-test-evidence-"));
     try {
@@ -412,7 +440,7 @@ describe("audit M3: evidence must be passing and current", () => {
   it("reports code changed since the bench commit and ignores metadata, demos and tests (own temp repo: CI clones are shallow)", () => {
     const cwd = process.cwd();
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-stale-"));
-    const git = (...args: string[]) => execFileSync("git", ["-c", "user.email=a@b.c", "-c", "user.name=t", ...args], { cwd: tmp, encoding: "utf8" }).trim();
+    const git = (...args: string[]) => execFileSync("git", ["-c", "core.autocrlf=false", "-c", "user.email=a@b.c", "-c", "user.name=t", ...args], { cwd: tmp, encoding: "utf8" }).trim();
     try {
       const dir = path.join(tmp, "registry", "items", "thing");
       fs.mkdirSync(dir, { recursive: true });
@@ -442,7 +470,7 @@ describe("audit M3: evidence must be passing and current", () => {
     const { checkReleaseSnapshots } = await import("../scripts/check-provenance.ts");
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-rel-lint-"));
     const git = (...args: string[]) =>
-      execFileSync("git", ["-c", "user.email=a@b.c", "-c", "user.name=t", ...args], {
+      execFileSync("git", ["-c", "core.autocrlf=false", "-c", "user.email=a@b.c", "-c", "user.name=t", ...args], {
         cwd: tmp,
         encoding: "utf8",
       }).trim();
@@ -461,10 +489,58 @@ describe("audit M3: evidence must be passing and current", () => {
       git("commit", "-q", "-m", "initial item commit");
       const baseSha = git("rev-parse", "--short=7", "HEAD");
 
+      const makeSnap = (sha: string) => {
+        const sz = measureItemSize(itemDir);
+        const rawTxt =
+          JSON.stringify(
+            {
+              item: "ember-core",
+              commit: sha,
+              date: "2026-10-01",
+              playwright: {
+                specs: [{ file: "bench/specs/a11y.spec.ts", title: "ok", projectName: "chromium-desktop", status: "expected" }],
+              },
+              probes: [
+                {
+                  file: "p.json",
+                  data: {
+                    cls: 0,
+                    framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+                    axe: { serious: 0, critical: 0 },
+                  },
+                },
+              ],
+            },
+            null,
+            2
+          ) + "\n";
+        fs.mkdirSync(benchDir, { recursive: true });
+        fs.writeFileSync(path.join(benchDir, `raw-${sha}.json`), rawTxt);
+        return {
+          commit: sha,
+          treeClean: true,
+          resultsHash: hashRawResultsText(rawTxt),
+          date: "2026-10-01",
+          sizeKB: { initial: sz.initialGzipKB, deferred: sz.deferredGzipKB, method: sz.method },
+          cls: 0,
+          framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+          axe: { serious: 0, critical: 0 },
+          devices: [
+            {
+              env: "Chromium Desktop (SwiftShader)",
+              via: "playwright",
+              tier: 3,
+              result: "pass",
+              date: "2026-10-01",
+              notes: "1 passed, 0 failed",
+            },
+          ],
+        };
+      };
+
       const releaseFile = path.join(benchDir, "release-0.1.0.json");
-      fs.writeFileSync(releaseFile, JSON.stringify({ commit: baseSha }, null, 2));
-      git("add", "-A");
-      git("commit", "-q", "-m", "record release snapshot");
+      const baseSnap = makeSnap(baseSha);
+      fs.writeFileSync(releaseFile, JSON.stringify(baseSnap, null, 2));
 
       // 1. Clean ancestor with no source changes -> passes
       expect(checkReleaseSnapshots(tmp)).toEqual([]);
@@ -483,19 +559,126 @@ describe("audit M3: evidence must be passing and current", () => {
       const sideSha = git("rev-parse", "--short=7", "HEAD");
       git("checkout", "-q", "-");
 
-      fs.writeFileSync(releaseFile, JSON.stringify({ commit: sideSha }, null, 2));
+      fs.writeFileSync(releaseFile, JSON.stringify(makeSnap(sideSha), null, 2));
       const nonAncestorViolations = checkReleaseSnapshots(tmp);
       expect(nonAncestorViolations).toHaveLength(1);
       expect(nonAncestorViolations[0].reason).toContain("is not an ancestor of HEAD");
 
       // 4. Restore valid ancestor commit, then modify item source file -> fails
-      fs.writeFileSync(releaseFile, JSON.stringify({ commit: baseSha }, null, 2));
+      fs.writeFileSync(releaseFile, JSON.stringify(baseSnap, null, 2));
       fs.writeFileSync(path.join(itemDir, "ember-core.tsx"), "// Original\nexport const v = 2;\n");
       git("commit", "-aqm", "modify item source after bench commit");
       const sourceChangedViolations = checkReleaseSnapshots(tmp);
-      expect(sourceChangedViolations).toHaveLength(1);
-      expect(sourceChangedViolations[0].reason).toContain("Item source file(s) changed after release snapshot commit");
-      expect(sourceChangedViolations[0].reason).toContain("registry/items/ember-core/ember-core.tsx");
+      expect(sourceChangedViolations.some((v) => v.reason.includes("Item source file(s) changed after release snapshot commit"))).toBe(true);
+      expect(sourceChangedViolations.some((v) => v.reason.includes("registry/items/ember-core/ember-core.tsx"))).toBe(true);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects missing treeClean, shared runtime changes, sizeKB mismatch, and raw-<commit>.json / resultsHash tampering (Audit A6)", async () => {
+    const { checkReleaseSnapshots } = await import("../scripts/check-provenance.ts");
+    const { verifyItemEvidence } = await import("../scripts/merge-evidence.ts");
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-a6-guard-"));
+    const git = (...args: string[]) =>
+      execFileSync("git", ["-c", "core.autocrlf=false", "-c", "user.email=a@b.c", "-c", "user.name=t", ...args], {
+        cwd: tmp,
+        encoding: "utf8",
+      }).trim();
+    try {
+      const itemDir = path.join(tmp, "registry", "items", "test-item");
+      const runtimeDir = path.join(tmp, "packages", "runtime", "src");
+      const benchRoot = path.join(tmp, "bench", "results");
+      const itemBenchDir = path.join(benchRoot, "test-item");
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(runtimeDir, { recursive: true });
+      fs.mkdirSync(itemBenchDir, { recursive: true });
+
+      fs.writeFileSync(path.join(itemDir, "test-item.tsx"), "// Original\nexport const v = 1;\n");
+      fs.writeFileSync(path.join(itemDir, "meta.declared.json"), JSON.stringify(VALID_DECLARED_SAMPLE, null, 2));
+      fs.writeFileSync(path.join(runtimeDir, "frame.ts"), "// Original\nexport const r = 1;\n");
+
+      git("init", "-q");
+      git("add", "-A");
+      git("commit", "-q", "-m", "initial commit");
+      const baseSha = git("rev-parse", "--short=7", "HEAD");
+
+      const liveSize = measureItemSize(itemDir);
+      const rawPayload = {
+        item: "test-item",
+        commit: baseSha,
+        date: "2026-10-01",
+        playwright: {
+          specs: [{ file: "bench/specs/a11y.spec.ts", title: "passes", projectName: "chromium-desktop", status: "expected" }],
+        },
+        probes: [
+          {
+            file: "probe-1.json",
+            data: {
+              cls: 0,
+              framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+              axe: { serious: 0, critical: 0 },
+            },
+          },
+        ],
+      };
+      const rawText = JSON.stringify(rawPayload, null, 2) + "\n";
+      const resultsHash = hashRawResultsText(rawText);
+      fs.writeFileSync(path.join(itemBenchDir, `raw-${baseSha}.json`), rawText);
+
+      const validMeasured = {
+        commit: baseSha,
+        date: "2026-10-01",
+        treeClean: true,
+        resultsHash,
+        sizeKB: { initial: liveSize.initialGzipKB, deferred: liveSize.deferredGzipKB, method: liveSize.method },
+        cls: 0,
+        framesWhenIdle: { offscreen: 0, hiddenTab: 0, reducedMotion: 0 },
+        axe: { serious: 0, critical: 0 },
+        devices: [
+          {
+            env: "Chromium Desktop (SwiftShader)",
+            via: "playwright",
+            tier: 3,
+            result: "pass",
+            date: "2026-10-01",
+            notes: "1 passed, 0 failed",
+          },
+        ],
+      };
+
+      const releaseFile = path.join(itemBenchDir, "release-0.1.0.json");
+      const writeState = (m: any) => {
+        fs.writeFileSync(releaseFile, JSON.stringify(m, null, 2));
+        fs.writeFileSync(path.join(itemDir, "meta.json"), JSON.stringify({ ...VALID_DECLARED_SAMPLE, measured: m }, null, 2));
+      };
+
+      // 2a. Missing treeClean: true -> must fail both checkReleaseSnapshots and verifyItemEvidence
+      const noTreeClean = { ...validMeasured };
+      delete (noTreeClean as any).treeClean;
+      writeState(noTreeClean);
+      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("treeClean"))).toBe(true);
+      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
+
+      // 2c-1. Tampered sizeKB -> must fail both checkReleaseSnapshots and verifyItemEvidence
+      writeState({ ...validMeasured, sizeKB: { ...validMeasured.sizeKB, initial: 99.99 } });
+      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("sizeKB"))).toBe(true);
+      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
+
+      // 2c-2. Tampered measured number (cls: 0.009) not matching raw-<commit>.json -> must fail verifyItemEvidence and checkReleaseSnapshots
+      writeState({ ...validMeasured, cls: 0.009 });
+      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("raw-"))).toBe(true);
+      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
+
+      // 2b. Restore valid state, then modify packages/runtime/src/frame.ts -> must fail both checkReleaseSnapshots and codeChangedSinceBench
+      writeState(validMeasured);
+      expect(checkReleaseSnapshots(tmp)).toEqual([]);
+      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(true);
+
+      fs.writeFileSync(path.join(runtimeDir, "frame.ts"), "// Original\nexport const r = 2;\n");
+      git("commit", "-aqm", "change shared runtime after bench");
+      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("packages/runtime/src/frame.ts"))).toBe(true);
+      expect(codeChangedSinceBench("test-item", baseSha, tmp)).toContain("packages/runtime/src/frame.ts");
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }

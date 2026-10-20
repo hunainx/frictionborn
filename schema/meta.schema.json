@@ -136,6 +136,8 @@
       "required": ["commit", "date", "sizeKB", "cls", "framesWhenIdle", "axe"],
       "properties": {
         "commit": { "type": "string" },
+        "treeClean": { "const": true },
+        "resultsHash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
         "date": { "type": "string", "format": "date" },
         "sizeKB": { "type": "object", "required": ["initial", "deferred", "method"], "properties": { "initial": { "type": "number" }, "deferred": { "type": "number" }, "method": { "type": "string" } } },
         "cls": { "type": "number" },
