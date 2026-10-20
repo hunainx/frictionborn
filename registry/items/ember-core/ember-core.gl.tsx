@@ -1,7 +1,7 @@
 // Original — Frictionborn Motion "Ember Core" WebGL2 engine (ash filaments, inner glow, pointer torch, bloom, gestures, and synthesized sound)
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createSurface, type Surface } from "@frictionborn/runtime/gl";
 import { useFrame, useFrameGuard } from "@frictionborn/runtime";
 import {
@@ -308,7 +308,7 @@ export default function EmberCoreGL({
   // AudioContext ref (created only after a user gesture when sound is true)
   const audioRef = useRef<AudioContext | null>(null);
 
-  const ensureAudio = () => {
+  const ensureAudio = useCallback(() => {
     if (!propsRef.current.sound) return null;
     if (!audioRef.current) {
       const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -324,9 +324,9 @@ export default function EmberCoreGL({
       audioRef.current.resume().catch(() => {});
     }
     return audioRef.current;
-  };
+  }, []);
 
-  const noiseBurst = (dur: number, freq: number, gain: number) => {
+  const noiseBurst = useCallback((dur: number, freq: number, gain: number) => {
     const actx = ensureAudio();
     if (!actx) return;
     try {
@@ -349,9 +349,9 @@ export default function EmberCoreGL({
     } catch {
       // Ignore audio errors
     }
-  };
+  }, [ensureAudio]);
 
-  const thump = (amp: number) => {
+  const thump = useCallback((amp: number) => {
     const actx = ensureAudio();
     if (!actx) return;
     try {
@@ -369,7 +369,7 @@ export default function EmberCoreGL({
     } catch {
       // Ignore audio errors
     }
-  };
+  }, [ensureAudio]);
 
   const drawNowRef = useRef<() => void>(() => {});
   const stepSimRef = useRef<(dt: number) => void>(() => {});
@@ -1243,7 +1243,7 @@ export default function EmberCoreGL({
       }
       canvas.remove();
     };
-  }, [isTier2, maxDpr, interactive]);
+  }, [isTier2, maxDpr, interactive, noiseBurst, thump]);
 
   const loopActive = !suspended && !reducedMotion && (!paused || isBusy);
 
