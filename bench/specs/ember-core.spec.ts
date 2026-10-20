@@ -323,54 +323,24 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     const cx = Math.round(box.x + box.width * 0.5);
     const cy = Math.round(box.y + box.height * 0.5);
 
-    // Verify touch-action: pan-y and that vertical touchmove is never preventDefault()-blocked by the hero
-    const swipeCheck = await page.evaluate(
-      ({ x, y }) => {
-        const wrap = document.querySelector(
-          "[data-frictionborn-item='ember-core'][data-interactive='hero'] .fb-ec-gl-wrap"
-        ) as HTMLElement | null;
-        const target = (wrap?.querySelector("canvas") ?? wrap ?? document.body) as HTMLElement;
-        const touchAction = wrap ? getComputedStyle(wrap).touchAction : "";
-        const mkTouch = (tx: number, ty: number) =>
-          new Touch({
-            identifier: 1,
-            target,
-            clientX: tx,
-            clientY: ty,
-            pageX: tx,
-            pageY: ty,
-          });
-        const ts = new TouchEvent("touchstart", {
-          bubbles: true,
-          cancelable: true,
-          touches: [mkTouch(x, y)],
-          changedTouches: [mkTouch(x, y)],
-        });
-        const tm = new TouchEvent("touchmove", {
-          bubbles: true,
-          cancelable: true,
-          touches: [mkTouch(x, y - 240)],
-          changedTouches: [mkTouch(x, y - 240)],
-        });
-        const te = new TouchEvent("touchend", {
-          bubbles: true,
-          cancelable: true,
-          touches: [],
-          changedTouches: [mkTouch(x, y - 240)],
-        });
-        target.dispatchEvent(ts);
-        const moveAllowed = target.dispatchEvent(tm);
-        target.dispatchEvent(te);
-        if (moveAllowed && touchAction === "pan-y") {
-          window.scrollBy({ top: 340, behavior: "instant" });
-        }
-        return { touchAction, moveAllowed };
-      },
-      { x: cx, y: cy }
-    );
+    // The swipe must land on the live WebGL canvas, not on the poster, or it proves nothing
+    await expect
+      .poll(() => page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.tagName ?? "", { x: cx, y: cy }), {
+        timeout: 10000,
+        message: "the EmberCore canvas must be under the swipe point",
+      })
+      .toBe("CANVAS");
+    await page.evaluate(() => window.scrollTo(0, 0));
 
-    expect(swipeCheck.touchAction).toBe("pan-y");
-    expect(swipeCheck.moveAllowed).toBe(true);
+    // A real touch swipe through the browser's input pipeline (CDP), so touch-action and any preventDefault() on touchmove decide
+    // whether the page scrolls. The spec never scrolls the page itself.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx, y: cy }] });
+    for (let i = 1; i <= 12; i++) {
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx, y: cy - i * 30 }] });
+      await page.waitForTimeout(16);
+    }
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 
     await expect
       .poll(() => page.evaluate(() => window.scrollY), {
