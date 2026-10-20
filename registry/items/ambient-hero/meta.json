@@ -81,7 +81,7 @@
       "2.2.2",
       "2.3.1"
     ],
-    "notes": "Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Measured on real pixels over the live canvas in a fresh Next 16 app with shadcn's default tokens (3 variants x light/dark x 1440/390 px, sample copy): every text element at least 10:1. The scrim is strong, so a bolder background needs mesh-gradient (or another background item) directly instead of this composition. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree."
+    "notes": "Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Measured on real pixels over the live canvas in a fresh Next 16 app with shadcn's default tokens (3 variants x light/dark x 1440/390 px, sample copy): every text element at least 10:1. The scrim is strong, so a bolder background needs mesh-gradient (or another background item) directly instead of this composition. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling. All text stays in the accessibility tree."
   },
   "composition": {
     "maxPerPage": 1,
@@ -209,10 +209,12 @@
     "assets": []
   },
   "measured": {
-    "commit": "f845539",
-    "date": "2026-10-16",
+    "commit": "538b855",
+    "treeClean": true,
+    "resultsHash": "10c5df6b242c47c6455dd143f8eed92a4b92655a8203582e3272011472e93d5d",
+    "date": "2026-10-20",
     "sizeKB": {
-      "initial": 3.67,
+      "initial": 3.66,
       "deferred": 0.02,
       "method": "gzip-9"
     },
@@ -232,15 +234,15 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-16",
-        "notes": "19 passed, 0 failed"
+        "date": "2026-10-20",
+        "notes": "20 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-16",
+        "date": "2026-10-20",
         "notes": "18 passed, 0 failed"
       },
       {
@@ -248,7 +250,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-16",
+        "date": "2026-10-20",
         "notes": "19 passed, 0 failed"
       },
       {
@@ -256,7 +258,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-16",
+        "date": "2026-10-20",
         "notes": "18 passed, 0 failed"
       },
       {
@@ -264,7 +266,7 @@
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-16",
+        "date": "2026-10-20",
         "notes": "17 passed, 0 failed"
       }
     ]

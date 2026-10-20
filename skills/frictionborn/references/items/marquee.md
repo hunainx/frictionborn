@@ -127,7 +127,7 @@ export default function PartnerStrip() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `f845539` (2026-10-16)
+- **Bench Commit**: `538b855` (2026-10-20)
 - **Size**: 2.46 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
@@ -139,11 +139,11 @@ export default function PartnerStrip() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-16 | 16 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-16 | 15 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-16 | 16 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-16 | 16 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-16 | 15 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-20 | 19 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-20 | 17 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-20 | 18 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-20 | 18 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-20 | 17 passed, 0 failed |
 
 ## License & Provenance
 

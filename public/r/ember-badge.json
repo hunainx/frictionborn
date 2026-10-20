@@ -182,8 +182,10 @@
       "assets": []
     },
     "measured": {
-      "commit": "f845539",
-      "date": "2026-10-16",
+      "commit": "538b855",
+      "treeClean": true,
+      "resultsHash": "d700b04fed0644932815df0e01a375b10c3a25fd513ba07f5a2b8d8109ccb423",
+      "date": "2026-10-20",
       "sizeKB": {
         "initial": 2.65,
         "deferred": 0.02,
@@ -205,15 +207,15 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-16",
-          "notes": "15 passed, 0 failed"
+          "date": "2026-10-20",
+          "notes": "16 passed, 0 failed"
         },
         {
           "env": "Chromium Mobile (Pixel 7 emulation)",
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-16",
+          "date": "2026-10-20",
           "notes": "15 passed, 0 failed"
         },
         {
@@ -221,7 +223,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-16",
+          "date": "2026-10-20",
           "notes": "14 passed, 0 failed"
         },
         {
@@ -229,7 +231,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-16",
+          "date": "2026-10-20",
           "notes": "15 passed, 0 failed"
         },
         {
@@ -237,7 +239,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-16",
+          "date": "2026-10-20",
           "notes": "15 passed, 0 failed"
         }
       ]

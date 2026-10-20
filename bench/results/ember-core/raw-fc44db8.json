@@ -1,0 +1,1043 @@
+{
+  "item": "ember-core",
+  "commit": "fc44db8",
+  "date": "2026-10-20",
+  "playwright": {
+    "projects": {
+      "chromium-desktop": {
+        "passed": 24,
+        "failed": 0,
+        "flaky": 2
+      },
+      "chromium-mobile": {
+        "passed": 17,
+        "failed": 0,
+        "flaky": 1
+      },
+      "firefox-desktop": {
+        "passed": 15,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-desktop": {
+        "passed": 15,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-mobile": {
+        "passed": 15,
+        "failed": 0,
+        "flaky": 0
+      }
+    },
+    "specs": [
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "flaky"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "flaky"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "chromium-desktop",
+        "status": "flaky"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      }
+    ]
+  },
+  "probes": [
+    {
+      "file": "measurement-1792539174006-0017ac59.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792539174422-4e9d1d7c.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539174956-dc2ec11f.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539175229-61e7c362.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539190164-90db6fad.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539198864-b3e4dcc3.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539200279-b11cb40a.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792539201588-51299880.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539202449-eddabd49.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539222746-7eb6450c.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539237984-8077f8f5.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539238183-d21c2540.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539238776-8d5aa0c0.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792539240111-eb3c5382.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539245015-e14be156.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539247949-a44b602a.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792539248205-277c8bce.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539248826-8b539546.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539250481-6a15ae3b.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539258200-f53d52cb.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539266140-bb42d471.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792539268109-7ec1d2a2.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539268595-69f7209b.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539269074-c68a2c12.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792539276450-acf90406.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    }
+  ]
+}

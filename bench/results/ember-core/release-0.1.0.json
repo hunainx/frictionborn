@@ -1,9 +1,11 @@
 {
-  "commit": "d006769",
+  "commit": "fc44db8",
+  "treeClean": true,
+  "resultsHash": "0479c41079a0f7ff6dbffed2d43b351460dbdabb1cf615a9b44515c456e7d7cf",
   "date": "2026-10-20",
   "sizeKB": {
-    "initial": 8.22,
-    "deferred": 13.7,
+    "initial": 8.19,
+    "deferred": 13.84,
     "method": "gzip-9"
   },
   "cls": 0,
@@ -23,7 +25,7 @@
       "tier": 3,
       "result": "pass",
       "date": "2026-10-20",
-      "notes": "24 passed, 0 failed"
+      "notes": "24 passed, 0 failed, 2 flaky (passed on retry)"
     },
     {
       "env": "Chromium Mobile (Pixel 7 emulation)",
@@ -31,7 +33,7 @@
       "tier": 2,
       "result": "pass",
       "date": "2026-10-20",
-      "notes": "18 passed, 0 failed"
+      "notes": "17 passed, 0 failed, 1 flaky (passed on retry)"
     },
     {
       "env": "Firefox Desktop",

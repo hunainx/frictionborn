@@ -1,0 +1,803 @@
+{
+  "item": "magnetic-button",
+  "commit": "538b855",
+  "date": "2026-10-20",
+  "playwright": {
+    "projects": {
+      "chromium-desktop": {
+        "passed": 14,
+        "failed": 0,
+        "flaky": 0
+      },
+      "chromium-mobile": {
+        "passed": 13,
+        "failed": 0,
+        "flaky": 0
+      },
+      "firefox-desktop": {
+        "passed": 13,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-desktop": {
+        "passed": 13,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-mobile": {
+        "passed": 13,
+        "failed": 0,
+        "flaky": 0
+      }
+    },
+    "specs": [
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      }
+    ]
+  },
+  "probes": [
+    {
+      "file": "measurement-1792537165829-7a6241c8.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792537166724-f4379d10.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537166733-56e06ad6.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537166994-1a5f19b8.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537168649-35a90249.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537168977-3c995681.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792537169838-7f40f3ad.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537170562-16b14373.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537171126-f2b35012.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537171818-bf57c49d.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537177701-33d3a41f.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792537177886-db959266.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537178346-5faed72d.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537178614-d1e87044.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537180399-38a1bac8.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537183048-e1cf9359.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792537183602-d3caca56.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537183886-5537cf62.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537184139-3e38b568.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537188005-88dfce73.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537190504-f29d89ce.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792537191309-bf78cb16.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537191476-c7f26c8c.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537191597-289732ce.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792537194021-5c105e07.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    }
+  ]
+}

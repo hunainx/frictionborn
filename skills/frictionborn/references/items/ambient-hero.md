@@ -58,7 +58,7 @@
 - **Text Stays in DOM**: `true`
 - **Pause Control**: `built-in`
 - **WCAG Criteria**: 2.1.1, 2.2.2, 2.3.1
-- **Notes**: Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Measured on real pixels over the live canvas in a fresh Next 16 app with shadcn's default tokens (3 variants x light/dark x 1440/390 px, sample copy): every text element at least 10:1. The scrim is strong, so a bolder background needs mesh-gradient (or another background item) directly instead of this composition. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling (a global runtime pauseAll() set elsewhere is lifted by Resume). All text stays in the accessibility tree.
+- **Notes**: Single h1 heading (rendered by TextReveal). A scrim built from the host --background token sits between the canvas and the text, so it follows the light or dark theme; it is a contrast aid, not a guarantee, and contrast over the live canvas is not computed at runtime: verify it for your content in both themes. Measured on real pixels over the live canvas in a fresh Next 16 app with shadcn's default tokens (3 variants x light/dark x 1440/390 px, sample copy): every text element at least 10:1. The scrim is strong, so a bolder background needs mesh-gradient (or another background item) directly instead of this composition. Every colour is a host token (--background, --foreground, --primary, --primary-foreground, --muted-foreground, --secondary, --border) with a system-colour fallback. The pause button stops only the hero background; it does not touch the page's other motion or SmoothScroll's scrolling. All text stays in the accessibility tree.
 
 ## Composition
 
@@ -133,8 +133,8 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `f845539` (2026-10-16)
-- **Size**: 3.67 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `538b855` (2026-10-20)
+- **Size**: 3.66 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -145,11 +145,11 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-16 | 19 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-16 | 18 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-16 | 19 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-16 | 18 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-16 | 17 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-20 | 20 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-20 | 18 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-20 | 19 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-20 | 18 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-20 | 17 passed, 0 failed |
 
 ## License & Provenance
 

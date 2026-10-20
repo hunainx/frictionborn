@@ -1,0 +1,1253 @@
+{
+  "item": "distortion-image",
+  "commit": "538b855",
+  "date": "2026-10-20",
+  "playwright": {
+    "projects": {
+      "chromium-desktop": {
+        "passed": 29,
+        "failed": 0,
+        "flaky": 0
+      },
+      "chromium-mobile": {
+        "passed": 26,
+        "failed": 0,
+        "flaky": 0
+      },
+      "firefox-desktop": {
+        "passed": 26,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-desktop": {
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0
+      },
+      "webkit-mobile": {
+        "passed": 24,
+        "failed": 0,
+        "flaky": 0
+      }
+    },
+    "specs": [
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "satisfies WCAG requirements with 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "a11y.spec.ts",
+        "title": "reduced motion: 0 serious and 0 critical violations",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "respects offscreen positioning and does not leak frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "behaviour.spec.ts",
+        "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "context loss falls back to the poster; restore resumes the canvas",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "context-loss.spec.ts",
+        "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "releases lease after 3 seconds of idle when pointer leaves element",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a pointer resting on an image releases its context after about 3 s without movement",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "changing strength or speed does not rebuild the WebGL context",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "releases lease after 3 seconds of idle when pointer leaves element",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a pointer resting on an image releases its context after about 3 s without movement",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "changing strength or speed does not rebuild the WebGL context",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "releases lease after 3 seconds of idle when pointer leaves element",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a pointer resting on an image releases its context after about 3 s without movement",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "changing strength or speed does not rebuild the WebGL context",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "releases lease after 3 seconds of idle when pointer leaves element",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a pointer resting on an image releases its context after about 3 s without movement",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "changing strength or speed does not rebuild the WebGL context",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "releases lease after 3 seconds of idle when pointer leaves element",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a pointer resting on an image releases its context after about 3 s without movement",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "changing strength or speed does not rebuild the WebGL context",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "distortion-image.spec.ts",
+        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 2 renders at <= 1.5x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "dpr-cap.spec.ts",
+        "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "leak.spec.ts",
+        "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mobile.spec.ts",
+        "title": "renders properly on mobile viewport without horizontal overflow",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "paused.spec.ts",
+        "title": "paused item requests no frames while used, and resumes when un-paused",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "reduced-motion.spec.ts",
+        "title": "enforces reduced motion mode without leaked motion frames",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ssr.spec.ts",
+        "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 0",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 1",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 2",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress.spec.ts",
+        "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "webgl-support.spec.ts",
+        "title": "records WebGL2 availability and the tier the runtime picks",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      }
+    ]
+  },
+  "probes": [
+    {
+      "file": "measurement-1792536388823-de9af1c9.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792536389732-36abd639.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536389737-5ad2be42.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536390018-fe49f7ab.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536399534-dbf60a45.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536402564-493d3537.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792536402633-ca03e3c6.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536403484-a39edd26.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536405041-902c8df5.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536406298-1238f434.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536411093-df9dc86a.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536411291-5c27cfb4.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536411746-88fa8c32.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536412087-67dbbee2.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792536427389-d46d6c8f.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536430901-f7610f9f.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792536432535-8a182f39.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536433067-10f87747.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536433222-64b9778a.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536456898-58fd235e.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536463135-9332a64e.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792536463594-19a52058.json",
+      "data": {
+        "axe": {
+          "serious": 0,
+          "critical": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536464530-14de320c.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536464895-21bc0f47.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792536477278-f39c6378.json",
+      "data": {
+        "framesWhenIdle": {
+          "reducedMotion": 0
+        }
+      }
+    }
+  ]
+}
