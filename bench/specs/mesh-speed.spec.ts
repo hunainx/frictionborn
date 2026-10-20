@@ -38,7 +38,14 @@ test.describe("MeshGradient default speed", () => {
     const samples: [number, number][] = await page.evaluate(() => (window as any).__meshTime);
     const a = samples[10];
     const b = samples[samples.length - 1];
-    const rate = (b[1] - a[1]) / ((b[0] - a[0]) / 1000);
+    // useFrame caps per-frame dt at 50 ms (ARCHITECTURE.md §3) and tier downgrade re-flushes the current clock at dt=0
+    let runtimeMs = 0;
+    for (let i = 11; i < samples.length; i++) {
+      if (samples[i][1] > samples[i - 1][1]) {
+        runtimeMs += Math.min(50, Math.max(0, samples[i][0] - samples[i - 1][0]));
+      }
+    }
+    const rate = (b[1] - a[1]) / (runtimeMs / 1000);
     expect(rate, `shader seconds per real second (${samples.length} frames)`).toBeGreaterThan(RATE * 0.85);
     expect(rate, `shader seconds per real second (${samples.length} frames)`).toBeLessThan(RATE * 1.15);
   });

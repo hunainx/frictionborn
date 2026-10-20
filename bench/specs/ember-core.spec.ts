@@ -118,6 +118,7 @@ async function readFullFrameStats(page: Page) {
 }
 
 test.describe("EmberCore pixel-reading interactions and hero page scroll safety", () => {
+  test.describe.configure({ mode: "serial" });
   test.skip(item !== "ember-core", "ember-core only");
 
   test("hover heats the pixels near the pointer", async ({ page }, testInfo) => {
@@ -166,9 +167,8 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     const root = page.locator("[data-frictionborn-item='ember-core']").first();
     const canvas = root.locator("canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(400);
 
-    // Pause idle spin via keyboard so the cloud is stationary unless dragged
+    // Pause idle spin via keyboard immediately so the cloud is stationary unless dragged
     await canvas.focus();
     await page.keyboard.press("p");
 
@@ -178,7 +178,7 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
 
     // Baseline with pointer centred at (cx, cy)
     await page.mouse.move(cx, cy);
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(150);
     const beforeFrame = await readFullFrameStats(page);
     const upperBefore = await readPatchMetrics(page, 0.5, 0.35, 96);
     const lowerBefore = await readPatchMetrics(page, 0.5, 0.65, 96);
@@ -229,24 +229,17 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     const cy = box.y + box.height * 0.5;
 
     // 1. Quick click (< 280 ms) -> strike flare
-    await page.mouse.move(cx, cy);
-    await page.mouse.down();
-    await page.waitForTimeout(40);
-    await page.mouse.up();
+    await page.mouse.click(cx, cy, { delay: 20 });
     await page.mouse.move(5, 5);
     await page.waitForTimeout(180);
     const clicked = await readFullFrameStats(page);
 
-    // Reset back to baseline and pause again
-    const controlsBtn = root.getByRole("button", { name: "Controls" });
-    if ((await controlsBtn.getAttribute("aria-expanded")) !== "true") {
-      await controlsBtn.click();
-    }
-    await root.getByRole("button", { name: "Reset" }).click();
-    await controlsBtn.click();
+    // Fresh mount for step 2 so the 2 s frame-guard window does not carry over from step 1 in software GL
+    await page.goto("/items/ember-core?tier=3");
+    await expect(canvas).toBeVisible({ timeout: 10000 });
     await root.getByRole("button", { name: "Pause" }).click();
     await page.mouse.move(5, 5);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(150);
 
     // 2. Hold (>= 280 ms) to charge, then release to burst + strike
     await page.mouse.move(cx, cy);
@@ -440,6 +433,8 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     await page.keyboard.press("ArrowRight");
     await page.keyboard.press("ArrowRight");
     await root.getByRole("button", { name: "Pause" }).click();
+    await expect(root.getByRole("button", { name: "Play" })).toBeVisible();
+    await page.waitForTimeout(60);
     await page.evaluate(() => {
       (window as unknown as { __ecDrawCalls: number }).__ecDrawCalls = 0;
     });
