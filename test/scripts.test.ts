@@ -844,4 +844,128 @@ describe("step 11: agent layer guarantees", () => {
     // No orphan spec files in bench/specs/
     expect([...unionOfWiredSpecs].sort()).toEqual(specFilesOnDisk);
   });
+
+  it("walks full keyboard tab order past 80 stops to the end of the page and fails on missing focus ring or keyboard trap (Audit A10)", async () => {
+    const { walkPageKeyboard } = await import("../scripts/verify-v4.ts");
+
+    interface MockEl {
+      tagName: string;
+      id: string;
+      className: string;
+      textContent: string;
+      style: {
+        outlineStyle: string;
+        outlineWidth: string;
+        boxShadow: string;
+        visibility: string;
+        display: string;
+        opacity: string;
+      };
+      getAttribute: (name: string) => string | null;
+      matches: (sel: string) => boolean;
+      scrollIntoView: () => void;
+      getBoundingClientRect: () => { width: number; height: number; top: number; bottom: number; left: number; right: number };
+      blur: () => void;
+    }
+
+    function createMockPage(opts: { totalStops: number; missingRingAt?: number; trapAt?: number; neverWrap?: boolean }) {
+      const bodyEl: MockEl = {
+        tagName: "BODY",
+        id: "",
+        className: "",
+        textContent: "",
+        style: { outlineStyle: "none", outlineWidth: "0px", boxShadow: "none", visibility: "visible", display: "block", opacity: "1" },
+        getAttribute: () => null,
+        matches: () => false,
+        scrollIntoView: () => {},
+        getBoundingClientRect: () => ({ width: 1440, height: 900, top: 0, bottom: 900, left: 0, right: 1440 }),
+        blur: () => {},
+      };
+
+      const elements: MockEl[] = [];
+      let activeElement: MockEl | null = bodyEl;
+
+      const makeEl = (i: number, hasRing: boolean): MockEl => ({
+        tagName: i === 0 ? "A" : "BUTTON",
+        id: i === 0 ? "" : `stop-${i}`,
+        className: i === 0 ? "skip-to-content" : "nav-btn",
+        textContent: i === 0 ? "Skip to content" : `Action ${i}`,
+        style: {
+          outlineStyle: hasRing ? "solid" : "none",
+          outlineWidth: hasRing ? "2px" : "0px",
+          boxShadow: "none",
+          visibility: "visible",
+          display: "inline-block",
+          opacity: "1",
+        },
+        getAttribute: () => null,
+        matches: () => false,
+        scrollIntoView: () => {},
+        getBoundingClientRect: () => ({ width: 100, height: 36, top: 20, bottom: 56, left: 20, right: 120 }),
+        blur: () => {
+          activeElement = bodyEl;
+        },
+      });
+
+      for (let i = 0; i < opts.totalStops; i++) {
+        elements.push(makeEl(i, opts.missingRingAt !== i));
+      }
+
+      const g = globalThis as Record<string, unknown>;
+      g.innerWidth = 1440;
+      g.innerHeight = 900;
+      g.window = {
+        innerWidth: 1440,
+        innerHeight: 900,
+        scrollTo: () => {},
+      };
+      g.document = {
+        get activeElement() {
+          return activeElement;
+        },
+        body: bodyEl,
+        documentElement: bodyEl,
+      };
+      g.getComputedStyle = (el: MockEl) => el.style;
+
+      let idx = -1;
+      return {
+        keyboard: {
+          press: async (key: string) => {
+            if (key !== "Tab") return;
+            if (idx === -1) {
+              idx = 0;
+            } else if (opts.trapAt !== undefined && idx === opts.trapAt) {
+              idx = opts.trapAt;
+            } else if (idx + 1 < elements.length) {
+              idx += 1;
+            } else if (opts.neverWrap) {
+              elements.push(makeEl(elements.length, true));
+              idx = elements.length - 1;
+            } else {
+              idx = 0;
+            }
+            activeElement = elements[idx] ?? bodyEl;
+          },
+        },
+        evaluate: async <R, A>(fn: (arg: A) => R, arg?: A): Promise<R> => fn(arg as A),
+      };
+    }
+
+    // 1. Valid 110-stop page walks all 110 stops to the end and passes
+    const validRes = await walkPageKeyboard(createMockPage({ totalStops: 110 }) as never);
+    expect(validRes.seen.length).toBe(110);
+    expect(validRes.bad).toEqual([]);
+    expect(validRes.pass).toBe(true);
+
+    // 2. Missing focus ring at stop #95 (past the old 80-stop cap) is caught
+    const noRingRes = await walkPageKeyboard(createMockPage({ totalStops: 110, missingRingAt: 95 }) as never);
+    expect(noRingRes.pass).toBe(false);
+    expect(noRingRes.bad.some((b) => b.includes("no focus ring") && b.includes("stop-95"))).toBe(true);
+
+    // 3. Keyboard trap at stop #90 is caught
+    const trapRes = await walkPageKeyboard(createMockPage({ totalStops: 110, trapAt: 90 }) as never);
+    expect(trapRes.pass).toBe(false);
+    expect(trapRes.bad.some((b) => /stuck|trap/i.test(b) && b.includes("stop-90"))).toBe(true);
+  });
 });
