@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import { pauseAll, resumeAll, useCapability } from "@frictionborn/runtime";
+import { pauseAll, resumeAll, useCapability, usePaused } from "@frictionborn/runtime";
 import DummyDemo from "../../../../../registry/items/dummy/demo";
 import NoiseFieldDemo from "../../../../../registry/items/noise-field/demo";
 import TextRevealDemo from "../../../../../registry/items/text-reveal/demo";
@@ -216,6 +216,7 @@ export default function ItemBenchPage({
   }
 
   const { tier: runtimeTier } = useCapability();
+  const hostPaused = usePaused();
   const displayTier = tier !== undefined ? `T${tier}` : `Auto (T${runtimeTier})`;
 
   return (
@@ -248,7 +249,24 @@ export default function ItemBenchPage({
             Tier: {displayTier} | Offscreen: {isOffscreen ? "Yes" : "No"} | Leak cycles: {cycleCount}/{targetCycles}
           </span>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <button
+            type="button"
+            data-testid="host-pause"
+            aria-pressed={hostPaused}
+            onClick={() => (hostPaused ? resumeAll() : pauseAll())}
+            style={{
+              padding: "0.25rem 0.5rem",
+              fontSize: "0.75rem",
+              borderRadius: 4,
+              border: "1px solid var(--line)",
+              background: "transparent",
+              color: "var(--ink)",
+              cursor: "pointer",
+            }}
+          >
+            {hostPaused ? "Resume motion" : "Pause motion"}
+          </button>
           {["0", "1", "2", "3"].map((t) => (
             <a
               key={t}

@@ -15,7 +15,6 @@ import {
   glBudget,
   paletteVars,
   resolveCssColor,
-  resumeAll,
   useCapability,
   useHydrated,
   useInView,
@@ -379,12 +378,11 @@ export function EmberCore({
 
   const handleTogglePause = useCallback(() => {
     setLocalPaused((prev) => {
-      const next = !(paused || prev || globalPaused);
-      if (!next && globalPaused) resumeAll();
+      const next = !(paused || prev);
       showToast(next ? "Paused" : "Playing");
       return next;
     });
-  }, [paused, globalPaused, showToast]);
+  }, [paused, showToast]);
 
   const handleReset = useCallback(() => {
     setOverrides({
@@ -397,10 +395,9 @@ export function EmberCore({
       palette: "fire",
     });
     setLocalPaused(false);
-    if (globalPaused) resumeAll();
     setResetTrigger((n) => n + 1);
     showToast("Reset");
-  }, [propKey, globalPaused, showToast]);
+  }, [propKey, showToast]);
 
   useImperativeHandle(ref, () => hostRef.current as HTMLDivElement);
 

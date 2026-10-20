@@ -408,6 +408,27 @@ export default function EmberCoreGL({
     }
   }, [resetTrigger]);
 
+  const prevPausedRef = useRef(paused);
+  useEffect(() => {
+    if (!prevPausedRef.current && paused) {
+      const s = simRef.current;
+      s.velX = 0;
+      s.velY = 0;
+      s.zoom = s.zoomTarget;
+      s.charging = false;
+      s.charge = 0;
+      s.pointerTarget = 0;
+      s.uPointerOn = 0;
+      s.uWaveT = 99;
+      s.flareT = -99;
+      s.burstT = -99;
+      s.uFlare = 0;
+      s.uBurst = 0;
+      setIsBusy(false);
+    }
+    prevPausedRef.current = paused;
+  }, [paused]);
+
   // Redraw when visual props change while paused or in reduced motion
   useEffect(() => {
     drawNowRef.current();
@@ -1140,7 +1161,9 @@ export default function EmberCoreGL({
           keyHold = window.setTimeout(startCharge, 280);
         }
       } else if (e.key === "p" || e.key === "P") {
+        e.preventDefault();
         propsRef.current.onTogglePause?.();
+        return;
       } else {
         return;
       }

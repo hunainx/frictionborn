@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { paletteVars, readPalette, resumeAll, useDrawLoop, usePaused, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
+import { paletteVars, readPalette, useDrawLoop, usePaused, useItemEnv, useItemRef, type CanvasItemProps } from "@frictionborn/runtime";
 import { paletteRamp, rand, ramp, trackPointer, type Ramp, stage } from "@frictionborn/runtime/canvas";
 
 export interface LanternSkyProps extends React.HTMLAttributes<HTMLDivElement>, CanvasItemProps {
@@ -144,7 +144,7 @@ export function LanternSky({ children, density = 1.1, showPauseButton = true, pa
           className="fb-ls-pause"
           onClick={() => {
             if (stopped) {
-              if (globalPaused) resumeAll();
+
               setHeld(false);
             } else setHeld(true);
           }}

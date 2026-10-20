@@ -234,6 +234,7 @@ in vec2 vUv;
 out vec4 fragColor;
 
 void main(){
+  // 5-sample hardware bilinear taps (9-tap 1D Gaussian weights at 1 texel, stretched by uRadius for a wider soft bloom)
   vec2 stepUv = uDir * (0.5 + uRadius * 1.4);
   vec4 sum = texture(uTex, vUv) * 0.227027;
   sum += texture(uTex, vUv + stepUv * 1.384615) * 0.316216;

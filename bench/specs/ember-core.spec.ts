@@ -420,6 +420,71 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     expect(resumedDraws, "EmberCore must resume drawing after resumeAll()").toBeGreaterThan(16);
   });
 
+  test("host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium-desktop", "desktop pause scope spec");
+    await installReadbackHelper(page);
+    await page.goto("/items/ember-core?tier=3");
+    const root = page.locator("[data-frictionborn-item='ember-core']").first();
+    const canvas = root.locator("canvas").first();
+    await expect(canvas).toBeVisible({ timeout: 10000 });
+    await page.waitForTimeout(400);
+
+    const hostBtn = page.getByTestId("host-pause");
+    await expect(hostBtn).toHaveText("Pause motion");
+    await expect(hostBtn).toHaveAttribute("aria-pressed", "false");
+
+    // 0. Spin via keyboard, then click EmberCore's own Pause button: residual momentum must stop immediately (0 draws)
+    await canvas.focus();
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowRight");
+    await root.getByRole("button", { name: "Pause" }).click();
+    await page.evaluate(() => {
+      (window as unknown as { __ecDrawCalls: number }).__ecDrawCalls = 0;
+    });
+    await page.waitForTimeout(600);
+    const drawsAfterItemPause = await page.evaluate(
+      () => (window as unknown as { __ecDrawCalls: number }).__ecDrawCalls
+    );
+    expect(drawsAfterItemPause, "EmberCore own Pause after keyboard spin must stop drawing immediately").toBe(0);
+    await root.getByRole("button", { name: "Play" }).click();
+    await page.waitForTimeout(150);
+
+    // 1. Click host "Pause motion"
+    await hostBtn.click();
+    await expect(hostBtn).toHaveText("Resume motion");
+    await expect(hostBtn).toHaveAttribute("aria-pressed", "true");
+
+    // 2. Click EmberCore's own Play button (which appears while globalPaused is true)
+    const itemPlayBtn = root.getByRole("button", { name: "Play" });
+    await expect(itemPlayBtn).toBeVisible();
+    await itemPlayBtn.click();
+
+    // Also open Controls and click Reset while host pause is active
+    const controlsBtn = root.getByRole("button", { name: "Controls" });
+    await controlsBtn.click();
+    await root.getByRole("button", { name: "Reset" }).click();
+
+    // 3. Measure draws over a full 2,000 ms window: page loop must stay paused (0 draws) and host button must still read "Resume motion"
+    await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
+      w.__ecDrawCalls = 0;
+      w.__ecScreenPassDraws = 0;
+    });
+    await page.waitForTimeout(2000);
+    const drawsAfterItemPlay = await page.evaluate(() => {
+      const w = window as unknown as { __ecDrawCalls: number };
+      return w.__ecDrawCalls;
+    });
+    expect(
+      drawsAfterItemPlay,
+      "clicking EmberCore Play or Reset after host pause must not restart the page loop (0 draws over 2 s)"
+    ).toBe(0);
+    await expect(hostBtn).toHaveText("Resume motion");
+    await expect(hostBtn).toHaveAttribute("aria-pressed", "true");
+  });
+
   test("filament contrast passes in dark and light themes and fails on low contrast", async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium-desktop", "desktop dark/light filament contrast spec");
     await installReadbackHelper(page);

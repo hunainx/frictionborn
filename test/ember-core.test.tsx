@@ -4,10 +4,11 @@ import { describe, it, expect, afterEach } from "vitest";
 import React, { createRef } from "react";
 import fs from "node:fs";
 import path from "node:path";
-import { render, fireEvent, cleanup } from "@testing-library/react";
-import { pauseAll, resumeAll } from "@frictionborn/runtime";
+import { render, fireEvent, cleanup, waitFor } from "@testing-library/react";
+import { pauseAll, resumeAll, usePaused } from "@frictionborn/runtime";
 import { EmberCore } from "../registry/items/ember-core/ember-core";
 import EmberCoreGL from "../registry/items/ember-core/ember-core.gl";
+import { Playground } from "../the-private-website-repo/components/docs/playground";
 
 afterEach(() => {
   resumeAll();
@@ -218,6 +219,109 @@ describe("EmberCore (#25)", () => {
       resumeAll();
       await new Promise((r) => setTimeout(r, 80));
       expect(drawCalls).toBeGreaterThan(0);
+    } finally {
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+    }
+  });
+
+  it("host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and Playground host button reflects real runtime usePaused()", async () => {
+    let drawCalls = 0;
+    const origGetContext = HTMLCanvasElement.prototype.getContext;
+    const mockGl = new Proxy(
+      {
+        FRAMEBUFFER_COMPLETE: 0x8cd5,
+        COMPILE_STATUS: 0x8b81,
+        LINK_STATUS: 0x8b82,
+        drawingBufferWidth: 640,
+        drawingBufferHeight: 360,
+        isContextLost: () => false,
+      },
+      {
+        get(target, prop) {
+          if (prop in target) return target[prop as keyof typeof target];
+          if (
+            prop === "createShader" ||
+            prop === "createProgram" ||
+            prop === "createVertexArray" ||
+            prop === "createBuffer" ||
+            prop === "createTexture" ||
+            prop === "createFramebuffer" ||
+            prop === "getUniformLocation"
+          ) {
+            return () => ({});
+          }
+          if (prop === "getExtension") return () => ({ loseContext: () => {} });
+          if (prop === "getShaderParameter" || prop === "getProgramParameter") return () => true;
+          if (prop === "getAttribLocation") return () => 0;
+          if (prop === "checkFramebufferStatus") return () => 0x8cd5;
+          if (prop === "drawArrays" || prop === "drawArraysInstanced") {
+            return () => {
+              drawCalls++;
+            };
+          }
+          return () => {};
+        },
+      }
+    );
+
+    HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, contextId: string) {
+      if (contextId === "webgl2") return mockGl as unknown as RenderingContext;
+      return null;
+    } as typeof HTMLCanvasElement.prototype.getContext;
+
+    function RuntimePausedProbe() {
+      const p = usePaused();
+      return <span data-testid="runtime-paused">{String(p)}</span>;
+    }
+
+    try {
+      const { getByTestId, container } = render(
+        <>
+          <RuntimePausedProbe />
+          <Playground name="ember-core" />
+        </>
+      );
+
+      const hostPauseBtn = container.querySelector(".pg-pause") as HTMLButtonElement;
+      expect(hostPauseBtn).not.toBeNull();
+      await waitFor(() => {
+        expect(container.querySelector('[data-frictionborn-item="ember-core"]')).not.toBeNull();
+      });
+      const itemRoot = container.querySelector('[data-frictionborn-item="ember-core"]') as HTMLElement;
+      expect(hostPauseBtn.textContent).toBe("Pause motion");
+      expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("false");
+      expect(getByTestId("runtime-paused").textContent).toBe("false");
+
+      // 1. Click host "Pause motion"
+      fireEvent.click(hostPauseBtn);
+      expect(hostPauseBtn.textContent).toBe("Resume motion");
+      expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("true");
+      expect(getByTestId("runtime-paused").textContent).toBe("true");
+
+      // 2. Click EmberCore's own Play button, and also click Reset inside EmberCore
+      const itemButtons = () => Array.from(itemRoot.querySelectorAll("button"));
+      const itemPlayBtn = itemButtons().find((b) => b.textContent === "Play")!;
+      expect(itemPlayBtn).toBeDefined();
+      fireEvent.click(itemPlayBtn);
+
+      const controlsBtn = itemButtons().find((b) => b.textContent === "Controls")!;
+      fireEvent.click(controlsBtn);
+      const resetBtn = itemButtons().find((b) => b.textContent === "Reset")!;
+      fireEvent.click(resetBtn);
+
+      // Runtime must remain paused, 0 draws over 2,000 ms, and host button must still read "Resume motion"
+      expect(getByTestId("runtime-paused").textContent).toBe("true");
+      expect(hostPauseBtn.textContent).toBe("Resume motion");
+      expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("true");
+
+      drawCalls = 0;
+      await new Promise((r) => setTimeout(r, 2000));
+      expect(drawCalls).toBe(0);
+
+      // 3. Also verify Playground host button reflects external pauseAll()/resumeAll() via usePaused()
+      fireEvent.click(hostPauseBtn); // resumes
+      expect(hostPauseBtn.textContent).toBe("Pause motion");
+      expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("false");
     } finally {
       HTMLCanvasElement.prototype.getContext = origGetContext;
     }

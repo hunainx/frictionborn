@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useCapability, usePaused, resumeAll, type PaletteName } from "@frictionborn/runtime";
+import { useCapability, usePaused, type PaletteName } from "@frictionborn/runtime";
 import { NoiseField } from "@/components/ui/noise-field";
 import { MeshGradient } from "@/components/ui/mesh-gradient";
 import { ParticleField } from "@/components/ui/particle-field";
@@ -120,7 +120,7 @@ export const AmbientHero = React.forwardRef<HTMLElement, AmbientHeroProps>(
     // which stops the shared frame loop for the whole page, including SmoothScroll's Lenis stepping.
     const togglePause = () => {
       if (paused) {
-        if (isGlobalPaused) resumeAll();
+
         setInternalPaused(false);
       } else {
         setInternalPaused(true);

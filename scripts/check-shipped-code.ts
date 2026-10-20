@@ -54,6 +54,12 @@ const BANNED_SHIPPED_PATTERNS: Array<{ name: string; pattern: RegExp; reason: st
     pattern: /\b(?:import|from)\s+['"](?:three|gsap|postprocessing|matter-js)(?:\/[^'"]*)?['"]|\brequire\s*\(\s*['"](?:three|gsap|postprocessing|matter-js)(?:\/[^'"]*)?['"]\s*\)/,
     reason: "three, gsap, postprocessing, and matter-js are website-only dependencies and must never be imported under registry/items/**",
   },
+  {
+    name: "global-pause-in-item",
+    registryOnly: true,
+    pattern: /\b(?:pauseAll|resumeAll)\b/,
+    reason: "An item's controls may change only that item's own paused state, never pauseAll() or resumeAll() (AGENTS.md lesson 15)",
+  },
 ];
 
 interface Violation {
