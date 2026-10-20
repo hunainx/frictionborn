@@ -1,5 +1,5 @@
 // Original — Frictionborn Motion useFrameGuard
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFrame } from "./frame.js";
 import { useLatest } from "./latest.js";
 
@@ -11,6 +11,7 @@ export interface FrameGuardOptions {
 export function useFrameGuard(options: FrameGuardOptions): void {
   const { onDowngrade, active = true } = options;
   const downgradedRef = useRef(false);
+  const [downgraded, setDowngraded] = useState(false);
   const samplesRef = useRef<number[]>([]);
   const windowStartRef = useRef<number>(0);
   const onDowngradeRef = useLatest(onDowngrade);
@@ -36,6 +37,7 @@ export function useFrameGuard(options: FrameGuardOptions): void {
 
           if (p75 > 25) {
             downgradedRef.current = true;
+            setDowngraded(true);
             onDowngradeRef.current?.();
           }
         }
@@ -44,7 +46,7 @@ export function useFrameGuard(options: FrameGuardOptions): void {
         samplesRef.current = [];
       }
     },
-    { active }
+    { active: active && !downgraded }
   );
 
   useEffect(() => {

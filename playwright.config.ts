@@ -7,7 +7,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: 2,
+  workers: process.env.GITHUB_ACTIONS ? 2 : 6,
   reporter: [["list"], ["json", { outputFile: "bench/results/playwright-report.json" }]],
   use: {
     baseURL: "http://localhost:3100",
@@ -62,7 +62,7 @@ export default defineConfig({
   webServer: {
     command: process.platform === "win32" ? "npx.cmd next dev bench/harness -p 3100" : "npx next dev bench/harness -p 3100",
     url: "http://localhost:3100",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 60000,
   },
 });

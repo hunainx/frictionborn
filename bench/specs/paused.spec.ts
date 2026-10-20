@@ -8,7 +8,7 @@ const item = process.env.BENCH_ITEM ?? "";
 // What "being used" means for each item, so the running control actually produces frames.
 const GL_ITEMS = ["noise-field", "particle-field", "mesh-gradient", "ambient-hero", "ember-core"];
 // Items that, when running, must produce rAF frames in this exercise. The others animate with CSS or run no loop of their own.
-const FRAME_ITEMS = [...GL_ITEMS, "smooth-scroll", "magnetic-button", "distortion-image"];
+const FRAME_ITEMS = [...GL_ITEMS, "smooth-scroll", "magnetic-button", "distortion-image", "lantern-sky"];
 
 async function exercise(page: Page) {
   const subject = page.locator("[data-testid='subject']");

@@ -818,4 +818,30 @@ describe("step 11: agent layer guarantees", () => {
       }
     }
   });
+
+  it("wires up every spec in bench/specs/ (including paused, mesh-speed, combined-page, stress-gl) into getBenchSpecsForItem (Audit A9)", async () => {
+    const { getBenchSpecsForItem, COMBINED_PAGE_ITEMS, STRESS_GL_ITEMS } = await import("../bench/run-bench.ts");
+    const specFilesOnDisk = fs
+      .readdirSync(path.join(root, "bench", "specs"))
+      .filter((f) => f.endsWith(".spec.ts"))
+      .map((f) => `bench/specs/${f}`)
+      .sort();
+
+    const unionOfWiredSpecs = new Set<string>();
+    for (const item of ITEMS) {
+      const itemSpecs = getBenchSpecsForItem(item);
+      for (const s of itemSpecs) unionOfWiredSpecs.add(s);
+      expect(itemSpecs, `${item} must run paused.spec.ts`).toContain("bench/specs/paused.spec.ts");
+    }
+    expect(getBenchSpecsForItem("dummy")).not.toContain("bench/specs/paused.spec.ts");
+    expect(getBenchSpecsForItem("mesh-gradient")).toContain("bench/specs/mesh-speed.spec.ts");
+    for (const item of COMBINED_PAGE_ITEMS) {
+      expect(getBenchSpecsForItem(item), `${item} must run combined-page.spec.ts`).toContain("bench/specs/combined-page.spec.ts");
+    }
+    for (const item of STRESS_GL_ITEMS) {
+      expect(getBenchSpecsForItem(item), `${item} must run stress-gl.spec.ts`).toContain("bench/specs/stress-gl.spec.ts");
+    }
+    // No orphan spec files in bench/specs/
+    expect([...unionOfWiredSpecs].sort()).toEqual(specFilesOnDisk);
+  });
 });
