@@ -409,13 +409,17 @@ export function EmberCore({
   const hotCss = rgbToCss(resolvedColors.hot);
   const ashCss = rgbToCss(resolvedColors.ash);
   const gACss = rgbToCss(resolvedColors.gA);
-  const posterGradient = [
-    `radial-gradient(38% 36% at var(--ec-px1, 50%) 54%, color-mix(in srgb, ${hotCss} 46%, transparent) 0%, color-mix(in srgb, ${emberCss} 32%, transparent) 38%, transparent 74%)`,
-    `radial-gradient(54% 50% at var(--ec-px2, 50%) 48%, color-mix(in srgb, ${gACss} 38%, transparent) 0%, color-mix(in srgb, ${ashCss} 22%, transparent) 54%, transparent 82%)`,
-    isLightTheme
-      ? "radial-gradient(86% 78% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 28%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, color-mix(in srgb, var(--fb-heat-0, black) 10%, black) 100%)"
-      : "radial-gradient(90% 80% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 38%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, black 100%)",
-  ].join(", ");
+  const posterGradient = isLightTheme
+    ? [
+        `radial-gradient(28% 26% at var(--ec-px1, 50%) 52%, color-mix(in srgb, ${hotCss} 38%, transparent) 0%, color-mix(in srgb, ${emberCss} 22%, transparent) 44%, transparent 72%)`,
+        `radial-gradient(38% 36% at var(--ec-px2, 50%) 48%, color-mix(in srgb, ${gACss} 28%, transparent) 0%, color-mix(in srgb, ${ashCss} 16%, transparent) 52%, transparent 76%)`,
+        "radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 96%, transparent) 0%, color-mix(in srgb, var(--fb-heat-0, black) 93%, transparent) 34%, color-mix(in srgb, var(--fb-heat-0, black) 82%, transparent) 45%, color-mix(in srgb, var(--fb-heat-0, black) 63%, transparent) 55%, color-mix(in srgb, var(--fb-heat-0, black) 41%, transparent) 64%, color-mix(in srgb, var(--fb-heat-0, black) 21%, transparent) 72%, color-mix(in srgb, var(--fb-heat-0, black) 8%, transparent) 79%, color-mix(in srgb, var(--fb-heat-0, black) 1.5%, transparent) 83%, transparent 86%)",
+      ].join(", ")
+    : [
+        `radial-gradient(38% 36% at var(--ec-px1, 50%) 54%, color-mix(in srgb, ${hotCss} 46%, transparent) 0%, color-mix(in srgb, ${emberCss} 32%, transparent) 38%, transparent 74%)`,
+        `radial-gradient(54% 50% at var(--ec-px2, 50%) 48%, color-mix(in srgb, ${gACss} 38%, transparent) 0%, color-mix(in srgb, ${ashCss} 22%, transparent) 54%, transparent 82%)`,
+        "radial-gradient(90% 80% at 50% 50%, color-mix(in srgb, var(--fb-heat-0, black) 38%, black) 0%, color-mix(in srgb, var(--fb-heat-0, black) 18%, black) 72%, black 100%)",
+      ].join(", ");
 
   const controlsPanelId = `fb-ec-controls-${uid}`;
 
@@ -429,14 +433,14 @@ export function EmberCore({
       className={`fb-ember-core ${className}`}
       style={{
         ...paletteVars(curPalette),
-        "--ec-px1": offsetX < 0 ? "62%" : "50%",
-        "--ec-px2": offsetX < 0 ? "60%" : "50%",
+        "--ec-px1": offsetX < 0 ? "58%" : "50%",
+        "--ec-px2": offsetX < 0 ? "56%" : "50%",
         position: "relative",
         width: "100%",
         minHeight: interactive === "full" ? "540px" : "360px",
         overflow: "hidden",
         backgroundColor: isLightTheme
-          ? "color-mix(in srgb, var(--fb-heat-0, black) 24%, black)"
+          ? "transparent"
           : "color-mix(in srgb, var(--fb-heat-0, black) 18%, black)",
         color: "color-mix(in srgb, var(--fb-heat-4, white) 92%, silver)",
         ...style,
@@ -466,8 +470,30 @@ export function EmberCore({
           }
         }
         .fb-ember-core[data-theme-mode="light"] {
-          --ec-glass: color-mix(in srgb, var(--fb-heat-0, black) 88%, black);
-          --ec-line: color-mix(in srgb, var(--fb-heat-4, white) 24%, transparent);
+          --ec-ink: color-mix(in srgb, var(--fb-heat-0, black) 92%, black);
+          --ec-muted: color-mix(in srgb, var(--fb-heat-0, black) 72%, gray);
+          --ec-glass: color-mix(in srgb, var(--fb-heat-4, white) 90%, transparent);
+          --ec-line: color-mix(in srgb, var(--fb-heat-0, black) 16%, transparent);
+        }
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-brand,
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-caption,
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-hints,
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-hero-hint,
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-panel,
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-toast {
+          background: var(--ec-glass);
+          border-color: var(--ec-line);
+          color: var(--ec-ink);
+        }
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-btn:hover {
+          border-color: color-mix(in srgb, var(--fb-heat-2, orange) 55%, transparent);
+          background: color-mix(in srgb, var(--fb-heat-4, white) 96%, transparent);
+        }
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-btn[aria-pressed="true"],
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-btn[aria-expanded="true"] {
+          border-color: color-mix(in srgb, var(--fb-heat-2, orange) 68%, transparent);
+          background: color-mix(in srgb, var(--fb-heat-2, orange) 14%, var(--ec-glass));
+          color: var(--ec-ink);
         }
         .fb-ec-poster {
           position: absolute;
@@ -479,6 +505,26 @@ export function EmberCore({
           position: absolute;
           inset: 0;
           z-index: 1;
+        }
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-gl-wrap {
+          -webkit-mask-image: radial-gradient(
+            50% 50% at 50% 50%,
+            black 0%,
+            black 42%,
+            color-mix(in srgb, black 82%, transparent) 54%,
+            color-mix(in srgb, black 48%, transparent) 65%,
+            color-mix(in srgb, black 16%, transparent) 75%,
+            transparent 82%
+          );
+          mask-image: radial-gradient(
+            50% 50% at 50% 50%,
+            black 0%,
+            black 42%,
+            color-mix(in srgb, black 82%, transparent) 54%,
+            color-mix(in srgb, black 48%, transparent) 65%,
+            color-mix(in srgb, black 16%, transparent) 75%,
+            transparent 82%
+          );
         }
         .fb-ember-core[data-interactive="hero"] .fb-ec-gl-wrap {
           touch-action: pan-y;
@@ -500,8 +546,8 @@ export function EmberCore({
           pointer-events: none;
           background: radial-gradient(ellipse at center, transparent 44%, color-mix(in srgb, black 52%, transparent) 82%, color-mix(in srgb, black 86%, transparent) 100%);
         }
-        .fb-ember-core[data-theme-mode="light"]:not([data-interactive="hero"]) .fb-ec-vignette {
-          background: radial-gradient(ellipse at center, transparent 46%, color-mix(in srgb, black 48%, transparent) 82%, color-mix(in srgb, black 82%, transparent) 100%);
+        .fb-ember-core[data-theme-mode="light"] .fb-ec-vignette {
+          background: none;
         }
         .fb-ec-stage {
           position: relative;
@@ -512,7 +558,7 @@ export function EmberCore({
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: clamp(16px, 2.8vw, 32px);
+          padding: clamp(28px, 3.2vw, 36px);
           box-sizing: border-box;
           pointer-events: none;
         }

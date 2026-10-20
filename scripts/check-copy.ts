@@ -217,13 +217,22 @@ export interface BannedHashScanResult {
 }
 
 const sha256Cache = new Map<string, string>();
+const safeDefaultSet = new Set<string>();
 function sha256Hex(value: string): string {
   let cached = sha256Cache.get(value);
   if (!cached) {
     cached = crypto.createHash("sha256").update(value).digest("hex");
-    sha256Cache.set(value, cached);
+    if (sha256Cache.size < 100000) sha256Cache.set(value, cached);
   }
   return cached;
+}
+function checkTokenOrPair(value: string, bannedHashes: ReadonlySet<string>): string | null {
+  const isDefault = bannedHashes === BANNED_AGENCY_HASHES;
+  if (isDefault && safeDefaultSet.has(value)) return null;
+  const h = sha256Hex(value);
+  if (bannedHashes.has(h)) return h;
+  if (isDefault && safeDefaultSet.size < 250000) safeDefaultSet.add(value);
+  return null;
 }
 
 /**
@@ -243,15 +252,15 @@ export function scanTextsForBannedHashes(
     const tokens = text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
     tokensScanned += tokens.length;
     for (let i = 0; i < tokens.length; i++) {
-      const tokenHash = sha256Hex(tokens[i]);
-      if (bannedHashes.has(tokenHash)) {
-        matches.push({ source, kind: "token", hash: tokenHash });
+      const tokenHit = checkTokenOrPair(tokens[i], bannedHashes);
+      if (tokenHit) {
+        matches.push({ source, kind: "token", hash: tokenHit });
       }
       if (i + 1 < tokens.length) {
         pairsScanned++;
-        const pairHash = sha256Hex(tokens[i] + tokens[i + 1]);
-        if (bannedHashes.has(pairHash)) {
-          matches.push({ source, kind: "pair", hash: pairHash });
+        const pairHit = checkTokenOrPair(tokens[i] + tokens[i + 1], bannedHashes);
+        if (pairHit) {
+          matches.push({ source, kind: "pair", hash: pairHit });
         }
       }
     }
@@ -282,7 +291,7 @@ export function collectBuiltTextEntries(
   const walkDir = (dir: string, extRe: RegExp, skipNft = false) => {
     if (!fs.existsSync(dir)) return;
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === "node_modules" || entry.name === ".next" || entry.name === "cache" || entry.name === "diagnostics") {
+      if (entry.name === "node_modules" || entry.name === ".next" || entry.name === "cache" || entry.name === "diagnostics" || entry.name === "route-cache") {
         continue;
       }
       const full = path.join(dir, entry.name);

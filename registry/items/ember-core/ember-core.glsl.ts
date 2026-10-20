@@ -263,12 +263,13 @@ void main(){
   float bloomA = max(bloom.r, max(bloom.g, bloom.b));
   float a = clamp(scene.a + bloomA, 0.0, 1.0);
   if (uLightTheme > 0.5) {
-    vec2 d = (vUv - uPlateCenter) * vec2(uAspect, 1.0);
+    vec2 d = (vUv - vec2(0.5)) * 2.0;
     float dist = length(d);
-    float plateA = smoothstep(0.96, 0.26, dist) * 0.94;
-    vec3 plateRgb = mix(vec3(0.028, 0.024, 0.022), vec3(0.048, 0.042, 0.038), smoothstep(0.0, 0.88, dist));
-    rgb = rgb + plateRgb * plateA * (1.0 - clamp(a * 0.88, 0.0, 1.0));
-    a = clamp(a + plateA * (1.0 - a), 0.0, 1.0);
+    float edgeMask = 1.0 - smoothstep(0.46, 0.82, dist);
+    float plateA = (1.0 - smoothstep(0.32, 0.78, dist)) * 0.94;
+    vec3 plateRgb = mix(vec3(0.045, 0.039, 0.035), vec3(0.095, 0.084, 0.076), smoothstep(0.0, 0.74, dist));
+    rgb = rgb * edgeMask + plateRgb * plateA * (1.0 - clamp(a * edgeMask * 0.88, 0.0, 1.0));
+    a = clamp(a * edgeMask + plateA * (1.0 - a * edgeMask), 0.0, 1.0);
   }
   fragColor = vec4(rgb, a);
 }
