@@ -228,11 +228,11 @@
     "assets": []
   },
   "measured": {
-    "commit": "445b4d9",
+    "commit": "d006769",
     "date": "2026-10-20",
     "sizeKB": {
       "initial": 8.22,
-      "deferred": 13.67,
+      "deferred": 13.7,
       "method": "gzip-9"
     },
     "cls": 0,
