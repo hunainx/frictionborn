@@ -25,8 +25,24 @@ export function hashRawResultsText(rawText: string): string {
   return crypto.createHash("sha256").update(rawText.replace(/\r\n/g, "\n"), "utf8").digest("hex");
 }
 
+export interface RawProbeData {
+  cls?: number;
+  framesWhenIdle?: { offscreen?: number; hiddenTab?: number; reducedMotion?: number };
+  axe?: { serious?: number; critical?: number };
+  data?: RawProbeData;
+}
+
+export interface RawResultsInput {
+  date?: string;
+  probes?: RawProbeData[];
+  playwright?: {
+    specs?: Array<{ file?: string; title?: string; projectName?: string; status?: string }>;
+    projects?: Record<string, { passed?: number; failed?: number; flaky?: number }>;
+  };
+}
+
 export function recomputeFromRawResults(
-  raw: any,
+  raw: RawResultsInput | null | undefined,
   fallbackDate?: string
 ): {
   cls: number;
@@ -93,7 +109,7 @@ export function recomputeFromRawResults(
       projectResults.set(s.projectName, entry);
     }
   } else if (raw.playwright?.projects && typeof raw.playwright.projects === "object") {
-    for (const [proj, counts] of Object.entries(raw.playwright.projects as Record<string, any>)) {
+    for (const [proj, counts] of Object.entries(raw.playwright.projects)) {
       projectResults.set(proj, {
         passed: Number(counts.passed ?? 0),
         failed: Number(counts.failed ?? 0),
@@ -282,11 +298,23 @@ export function codeChangedSinceBench(itemName: string, benchCommit: string, pro
   }
 }
 
+export interface SnapshotMeasuredInput {
+  commit?: string;
+  treeClean?: boolean;
+  resultsHash?: string;
+  date?: string;
+  sizeKB?: { initial?: number; deferred?: number; method?: string };
+  cls?: number;
+  framesWhenIdle?: { offscreen?: number; hiddenTab?: number; reducedMotion?: number };
+  axe?: { serious?: number; critical?: number };
+  devices?: unknown[];
+}
+
 export function verifySnapshotIntegrity(
   itemName: string,
   itemDir: string,
   itemBenchDir: string,
-  snapshotMeasured: any
+  snapshotMeasured: SnapshotMeasuredInput | null | undefined
 ): string[] {
   const errors: string[] = [];
 
@@ -366,11 +394,12 @@ export function verifySnapshotIntegrity(
     return errors;
   }
 
-  let rawParsed: any = null;
+  let rawParsed: RawResultsInput | null = null;
   try {
-    rawParsed = JSON.parse(rawText);
-  } catch (err: any) {
-    errors.push(`[${itemName}] Invalid JSON in raw-${commit}.json: ${err.message}`);
+    rawParsed = JSON.parse(rawText) as RawResultsInput;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    errors.push(`[${itemName}] Invalid JSON in raw-${commit}.json: ${msg}`);
     return errors;
   }
 

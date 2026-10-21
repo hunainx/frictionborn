@@ -206,7 +206,7 @@ export function runBench(
   }
 
   // Collect raw probe files from spec runs
-  const rawProbes: Array<{ file: string; data: any }> = [];
+  const rawProbes: Array<{ file: string; data: unknown }> = [];
   if (fs.existsSync(rawDir)) {
     const rawFiles = fs
       .readdirSync(rawDir)
@@ -216,8 +216,9 @@ export function runBench(
       try {
         const rawContent = JSON.parse(fs.readFileSync(path.join(rawDir, rf), "utf8"));
         rawProbes.push({ file: rf, data: rawContent });
-      } catch (err: any) {
-        console.warn(`Could not read measurement file ${rf}: ${err.message}`);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(`Could not read measurement file ${rf}: ${msg}`);
       }
     }
     // Clean up temporary raw measurement dir
