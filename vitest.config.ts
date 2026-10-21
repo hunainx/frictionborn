@@ -36,6 +36,6 @@ export default defineConfig({
     ],
   },
   test: {
-    exclude: ["**/node_modules/**", "**/dist/**", "bench/**", "scripts/parity-v2.spec.ts", "scripts/parity-v3.spec.ts", "scripts/browsers.spec.ts"], // Playwright specs: the parity gates (pnpm parity:v2, pnpm parity:v3) and the cross-browser checks (playwright.browsers.config.ts)
+    exclude: ["**/node_modules/**", "**/dist/**", "bench/**", "scripts/parity-v2.spec.ts", "scripts/parity-v3.spec.ts", "scripts/browsers.spec.ts", "scripts/spark.spec.ts", "scripts/flames.spec.ts"], // Playwright specs: the parity gates (pnpm parity:v2, pnpm parity:v3), cross-browser checks (playwright.browsers.config.ts) and Spark/flame specs
   },
 });
