@@ -129,9 +129,23 @@ function installedVersion(appDir: string, pkg: string): string {
 // The page every app renders: every public item with DEFAULT props (src/alt/size are required, nothing else is set).
 // ---------------------------------------------------------------------------------------------------------------
 
-type Framework = "next" | "vite";
+export type Framework = "next" | "vite";
 
-function generatePage(items: string[], framework: Framework): string {
+export function getDeclaredGlSlotHeight(id: string): string {
+  const srcPath = path.join(import.meta.dirname, "..", "registry", "items", id, `${id}.tsx`);
+  if (fs.existsSync(srcPath)) {
+    const src = fs.readFileSync(srcPath, "utf8");
+    const cond = src.match(/minHeight:\s*[^,\n]*\?\s*"\d+px"\s*:\s*"(\d+px)"/);
+    if (cond) return cond[1];
+    const inline = src.match(/minHeight:\s*"(\d+px)"/);
+    if (inline) return inline[1];
+    const tw = src.match(/min-h-\[(\d+px)\]/);
+    if (tw) return tw[1];
+  }
+  return "260px";
+}
+
+export function generatePage(items: string[], framework: Framework): string {
   const has = (n: string) => items.includes(n);
   const next = framework === "next";
   const imports: string[] = [];
@@ -164,10 +178,13 @@ function generatePage(items: string[], framework: Framework): string {
   if (has("match-progress")) imports.push('import { MatchProgress } from "@/components/ui/match-progress";');
   if (has("temper-slider")) imports.push('import { TemperSlider } from "@/components/ui/temper-slider";');
 
-  const gl = (id: string, el: string) => `
-        <div data-testid="gl-item-${id}" style={{ width: "100%", height: "260px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+  const gl = (id: string, el: string) => {
+    const minH = getDeclaredGlSlotHeight(id);
+    return `
+        <div data-testid="gl-item-${id}" style={{ width: "100%", height: "${minH}", minHeight: "${minH}", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
           ${el}
         </div>`;
+  };
 
   const nextImageSetup =
     next && has("distortion-image")
@@ -1195,7 +1212,10 @@ createRoot(document.getElementById("root")!).render(
   }
 }
 
-runFreshAppsCheck().catch((err) => {
-  console.error("\n❌ Fresh-apps check failed:\n", err.message ?? err);
-  process.exit(1);
-});
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(import.meta.filename);
+if (isMain) {
+  runFreshAppsCheck().catch((err) => {
+    console.error("\n❌ Fresh-apps check failed:\n", err.message ?? err);
+    process.exit(1);
+  });
+}

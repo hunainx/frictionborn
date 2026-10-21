@@ -961,4 +961,19 @@ describe("step 11: agent layer guarantees", () => {
     expect(trapRes.pass).toBe(false);
     expect(trapRes.bad.some((b) => /stuck|trap/i.test(b) && b.includes("stop-90"))).toBe(true);
   });
+
+  it("sizes the fresh-app WebGL slot from each item's declared minimum height (Audit A20)", async () => {
+    const { generatePage } = await import("../scripts/fresh-apps.ts");
+    const pageSrc = generatePage(["noise-field", "particle-field", "mesh-gradient", "ember-core"], "next");
+
+    const slotHeight = (id: string) => {
+      const m = pageSrc.match(new RegExp(`data-testid="gl-item-${id}"[^>]*height:\\s*"(\\d+)px"`));
+      return m ? Number(m[1]) : null;
+    };
+
+    expect(slotHeight("ember-core")).toBe(360);
+    expect(slotHeight("noise-field")).toBe(300);
+    expect(slotHeight("particle-field")).toBe(240);
+    expect(slotHeight("mesh-gradient")).toBe(260);
+  });
 });
