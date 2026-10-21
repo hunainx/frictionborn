@@ -14,6 +14,10 @@ export default defineConfig({
         replacement: path.resolve(__dirname, "registry/items/$1/$1.tsx"),
       },
       {
+        find: /^@\/lib\/(.*)$/,
+        replacement: path.resolve(__dirname, "the-private-website-repo/lib/$1"),
+      },
+      {
         find: /^@frictionborn\/runtime\/gl$/,
         replacement: path.resolve(__dirname, "packages/runtime/src/gl/surface.ts"),
       },
