@@ -976,4 +976,78 @@ describe("step 11: agent layer guarantees", () => {
     expect(slotHeight("particle-field")).toBe(240);
     expect(slotHeight("mesh-gradient")).toBe(260);
   });
+
+  it("allows sharp/libvips (LGPL-3.0) only under node_modules/@img/sharp-* and node_modules/sharp, records DECISIONS.md entry, and fails if registry, runtime, or public/r depends on it (Audit A8)", async () => {
+    const { scanDependencyLicenses } = await import("../scripts/check-provenance.ts");
+
+    // 1. DECISIONS.md entry with the 4 required facts
+    const decisions = fs.readFileSync(path.join(root, "DECISIONS.md"), "utf8");
+    expect(decisions).toContain("dev/server-only exception: sharp/libvips (LGPL-3.0)");
+    expect(decisions).toMatch(/Next's server-side image optimisation/i);
+    expect(decisions).toMatch(/dynamically linked/i);
+    expect(decisions).toMatch(/not in any registry item,\s*`@frictionborn\/runtime`\s*or\s*`public\/r`/i);
+    expect(decisions).toMatch(/not distributed to library users/i);
+
+    // 2. Allowed under node_modules/@img/sharp-* and node_modules/sharp on clean repo
+    const validLicenseMap = {
+      "Apache-2.0 AND LGPL-3.0-or-later": [
+        {
+          name: "@img/sharp-win32-x64",
+          versions: ["0.35.5"],
+          paths: [path.join(root, "node_modules", ".pnpm", "@img+sharp-win32-x64@0.35.5", "node_modules", "@img", "sharp-win32-x64")],
+        },
+        {
+          name: "sharp",
+          versions: ["0.35.5"],
+          paths: [path.join(root, "node_modules", ".pnpm", "sharp@0.35.5", "node_modules", "sharp")],
+        },
+      ],
+    };
+    expect(scanDependencyLicenses(root, validLicenseMap)).toEqual([]);
+
+    // 3. Disallowed if sharp path is outside node_modules/@img/sharp-* or node_modules/sharp
+    const badPathMap = {
+      "Apache-2.0 AND LGPL-3.0-or-later": [
+        {
+          name: "sharp",
+          versions: ["0.35.5"],
+          paths: [path.join(root, "packages", "runtime", "vendor", "sharp")],
+        },
+      ],
+    };
+    const badPathViolations = scanDependencyLicenses(root, badPathMap);
+    expect(badPathViolations.some((v) => v.reason.includes("only permitted under node_modules/@img/sharp-* and node_modules/sharp"))).toBe(true);
+
+    // 4. Fails if registry item, @frictionborn/runtime, or public/r ever depends on or imports sharp
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-sharp-guard-"));
+    try {
+      const runtimeDir = path.join(tmp, "packages", "runtime", "src");
+      const itemDir = path.join(tmp, "registry", "items", "sample");
+      const publicRDir = path.join(tmp, "public", "r");
+      fs.mkdirSync(runtimeDir, { recursive: true });
+      fs.mkdirSync(itemDir, { recursive: true });
+      fs.mkdirSync(publicRDir, { recursive: true });
+
+      fs.writeFileSync(
+        path.join(tmp, "packages", "runtime", "package.json"),
+        JSON.stringify({ name: "@frictionborn/runtime", dependencies: { sharp: "0.35.5" } })
+      );
+      fs.writeFileSync(
+        path.join(itemDir, "meta.declared.json"),
+        JSON.stringify({ dependencies: { npm: [{ name: "sharp", version: "0.35.5" }] } })
+      );
+      fs.writeFileSync(path.join(itemDir, "sample.tsx"), 'import sharp from "sharp";\nexport const x = sharp;\n');
+      fs.writeFileSync(
+        path.join(publicRDir, "sample.json"),
+        JSON.stringify({ name: "sample", dependencies: ["@frictionborn/runtime", "sharp"], files: [] })
+      );
+
+      const depViolations = scanDependencyLicenses(tmp, {});
+      expect(depViolations.some((v) => v.file.includes("packages") && v.reason.includes("sharp"))).toBe(true);
+      expect(depViolations.some((v) => v.file.includes("registry") && v.reason.includes("sharp"))).toBe(true);
+      expect(depViolations.some((v) => v.file.includes("public") && v.reason.includes("sharp"))).toBe(true);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
 });
