@@ -13,6 +13,22 @@ export default defineConfig({
         find: /^@\/components\/ui\/(.*)$/,
         replacement: path.resolve(__dirname, "registry/items/$1/$1.tsx"),
       },
+      {
+        find: /^@frictionborn\/runtime\/gl$/,
+        replacement: path.resolve(__dirname, "packages/runtime/src/gl/surface.ts"),
+      },
+      {
+        find: /^@frictionborn\/runtime\/canvas$/,
+        replacement: path.resolve(__dirname, "packages/runtime/src/canvas/index.ts"),
+      },
+      {
+        find: /^@frictionborn\/runtime\/server$/,
+        replacement: path.resolve(__dirname, "packages/runtime/src/server.ts"),
+      },
+      {
+        find: /^@frictionborn\/runtime$/,
+        replacement: path.resolve(__dirname, "packages/runtime/src/index.ts"),
+      },
     ],
   },
   test: {

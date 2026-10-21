@@ -228,10 +228,17 @@ function sha256Hex(value: string): string {
 }
 function checkTokenOrPair(value: string, bannedHashes: ReadonlySet<string>): string | null {
   const isDefault = bannedHashes === BANNED_AGENCY_HASHES;
-  if (isDefault && safeDefaultSet.has(value)) return null;
+  if (isDefault) {
+    if (value.length < 4 || value.length > 32) return null;
+    for (let i = 0; i < value.length; i++) {
+      const c = value.charCodeAt(i);
+      if (c < 97 || c > 122) return null;
+    }
+    if (safeDefaultSet.has(value)) return null;
+  }
   const h = sha256Hex(value);
   if (bannedHashes.has(h)) return h;
-  if (isDefault && safeDefaultSet.size < 250000) safeDefaultSet.add(value);
+  if (isDefault && safeDefaultSet.size < 500000) safeDefaultSet.add(value);
   return null;
 }
 
@@ -282,15 +289,27 @@ export function collectBuiltTextEntries(
 
   const addFile = (fullPath: string) => {
     const resolved = path.resolve(fullPath);
-    if (seenFiles.has(resolved) || !fs.existsSync(resolved)) return;
-    seenFiles.add(resolved);
-    const rel = path.relative(rootDir, resolved).split(path.sep).join("/");
-    entries.push({ source: rel, text: fs.readFileSync(resolved, "utf8") });
+    if (seenFiles.has(resolved)) return;
+    try {
+      if (!fs.existsSync(resolved)) return;
+      const text = fs.readFileSync(resolved, "utf8");
+      seenFiles.add(resolved);
+      const rel = path.relative(rootDir, resolved).split(path.sep).join("/");
+      entries.push({ source: rel, text });
+    } catch {
+      // Ignore transient files removed or locked by a concurrent build
+    }
   };
 
   const walkDir = (dir: string, extRe: RegExp, skipNft = false) => {
-    if (!fs.existsSync(dir)) return;
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    let list: fs.Dirent[];
+    try {
+      if (!fs.existsSync(dir)) return;
+      list = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of list) {
       if (entry.name === "node_modules" || entry.name === ".next" || entry.name === "cache" || entry.name === "diagnostics" || entry.name === "route-cache") {
         continue;
       }

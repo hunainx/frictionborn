@@ -1,6 +1,6 @@
 // Original — Frictionborn Motion EmberCore unit tests
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import React, { createRef } from "react";
 import fs from "node:fs";
 import path from "node:path";
@@ -164,6 +164,7 @@ describe("EmberCore (#25)", () => {
     } as typeof HTMLCanvasElement.prototype.getContext;
 
     try {
+      vi.useFakeTimers();
       drawCalls = 0;
       renderedFrames = 0;
       render(
@@ -201,7 +202,7 @@ describe("EmberCore (#25)", () => {
       // Let shared runtime loop tick for ~120ms and verify draw calls per frame <= 20 (exactly 8 idle with bloom)
       drawCalls = 0;
       renderedFrames = 0;
-      await new Promise((r) => setTimeout(r, 120));
+      vi.advanceTimersByTime(120);
       const activeCalls = drawCalls;
       const activeFrames = Math.max(1, renderedFrames);
       const callsPerFrame = activeCalls / activeFrames;
@@ -212,14 +213,15 @@ describe("EmberCore (#25)", () => {
       // Pause shared runtime loop and assert 0 draw calls over 2,000 ms
       pauseAll();
       drawCalls = 0;
-      await new Promise((r) => setTimeout(r, 2000));
+      vi.advanceTimersByTime(2000);
       expect(drawCalls).toBe(0);
 
       // Resume and confirm loop ticks again
       resumeAll();
-      await new Promise((r) => setTimeout(r, 80));
+      vi.advanceTimersByTime(80);
       expect(drawCalls).toBeGreaterThan(0);
     } finally {
+      vi.useRealTimers();
       HTMLCanvasElement.prototype.getContext = origGetContext;
     }
   });
@@ -293,6 +295,7 @@ describe("EmberCore (#25)", () => {
       expect(getByTestId("runtime-paused").textContent).toBe("false");
 
       // 1. Click host "Pause motion"
+      vi.useFakeTimers();
       fireEvent.click(hostPauseBtn);
       expect(hostPauseBtn.textContent).toBe("Resume motion");
       expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("true");
@@ -315,7 +318,7 @@ describe("EmberCore (#25)", () => {
       expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("true");
 
       drawCalls = 0;
-      await new Promise((r) => setTimeout(r, 2000));
+      vi.advanceTimersByTime(2000);
       expect(drawCalls).toBe(0);
 
       // 3. Also verify Playground host button reflects external pauseAll()/resumeAll() via usePaused()
@@ -323,6 +326,7 @@ describe("EmberCore (#25)", () => {
       expect(hostPauseBtn.textContent).toBe("Pause motion");
       expect(hostPauseBtn.getAttribute("aria-pressed")).toBe("false");
     } finally {
+      vi.useRealTimers();
       HTMLCanvasElement.prototype.getContext = origGetContext;
     }
   });

@@ -4,7 +4,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import React from "react";
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import ts from "typescript";
 import { render, cleanup } from "@testing-library/react";
 import { ScrollShowcase } from "../registry/items/scroll-showcase/scroll-showcase";
 import { AmbientHero } from "../registry/items/ambient-hero/ambient-hero";
@@ -16,9 +16,17 @@ afterEach(() => cleanup());
 
 describe("compositions: content props are required in TypeScript (Decision 29)", () => {
   it("tsc fails when a required content prop is omitted, and passes when they are all given", () => {
-    const tsc = path.join(root, "node_modules", "typescript", "bin", "tsc");
-    // exit 0 means: the valid usages compile AND every @ts-expect-error in the fixture is a real error
-    expect(() => execFileSync(process.execPath, [tsc, "-p", "test/types/tsconfig.json"], { cwd: root, stdio: "pipe" })).not.toThrow();
+    const configPath = path.join(root, "test", "types", "tsconfig.json");
+    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+    expect(configFile.error).toBeUndefined();
+    const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, path.dirname(configPath));
+    const program = ts.createProgram(parsed.fileNames, { ...parsed.options, skipLibCheck: true });
+    const fixtureFile = path.resolve(root, "test", "types", "compositions.fixture.tsx");
+    const sf = program.getSourceFile(fixtureFile);
+    expect(sf).toBeDefined();
+    // 0 diagnostics means: the valid usages compile AND every @ts-expect-error in the fixture suppresses a real error
+    const diagnostics = ts.getPreEmitDiagnostics(program, sf);
+    expect(diagnostics.map((d) => `TS${d.code}: ${ts.flattenDiagnosticMessageText(d.messageText, "\n")}`)).toEqual([]);
   });
 });
 

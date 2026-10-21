@@ -1,6 +1,7 @@
 // Original — Frictionborn Motion shadcn registry builder
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { REPO_URL } from "./config.ts";
 
 interface FileEntry {
@@ -240,4 +241,7 @@ export function buildRegistry(): void {
   console.log(`✔ Registry build complete: ${registryItems.length} public items published.`);
 }
 
-buildRegistry();
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) {
+  buildRegistry();
+}

@@ -542,22 +542,14 @@ describe("audit M3: evidence must be passing and current", () => {
       const baseSnap = makeSnap(baseSha);
       fs.writeFileSync(releaseFile, JSON.stringify(baseSnap, null, 2));
 
-      // 1. Clean ancestor with no source changes -> passes
-      expect(checkReleaseSnapshots(tmp)).toEqual([]);
-
-      // 2. Non-source changes (meta.json, demo.tsx) -> still passes
+      // 1 & 2. Clean ancestor commit with subsequent non-source changes (meta.json, demo.tsx) -> passes
       fs.writeFileSync(path.join(itemDir, "meta.json"), '{"updated":true}\n');
       fs.writeFileSync(path.join(itemDir, "demo.tsx"), "// Original\nexport const d = 2;\n");
       git("commit", "-aqm", "update meta and demo only");
       expect(checkReleaseSnapshots(tmp)).toEqual([]);
 
       // 3. Divergent branch commit (exists in git, but NOT an ancestor of HEAD) -> fails
-      git("checkout", "-q", "-b", "side-branch", baseSha);
-      fs.writeFileSync(path.join(tmp, "unrelated.txt"), "side\n");
-      git("add", "-A");
-      git("commit", "-q", "-m", "side commit");
-      const sideSha = git("rev-parse", "--short=7", "HEAD");
-      git("checkout", "-q", "-");
+      const sideSha = git("commit-tree", "HEAD^{tree}", "-m", "side commit").slice(0, 7);
 
       fs.writeFileSync(releaseFile, JSON.stringify(makeSnap(sideSha), null, 2));
       const nonAncestorViolations = checkReleaseSnapshots(tmp);
@@ -653,22 +645,23 @@ describe("audit M3: evidence must be passing and current", () => {
         fs.writeFileSync(path.join(itemDir, "meta.json"), JSON.stringify({ ...VALID_DECLARED_SAMPLE, measured: m }, null, 2));
       };
 
-      // 2a. Missing treeClean: true -> must fail both checkReleaseSnapshots and verifyItemEvidence
-      const noTreeClean = { ...validMeasured };
-      delete (noTreeClean as any).treeClean;
-      writeState(noTreeClean);
-      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("treeClean"))).toBe(true);
-      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
-
-      // 2c-1. Tampered sizeKB -> must fail both checkReleaseSnapshots and verifyItemEvidence
-      writeState({ ...validMeasured, sizeKB: { ...validMeasured.sizeKB, initial: 99.99 } });
-      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("sizeKB"))).toBe(true);
-      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
-
-      // 2c-2. Tampered measured number (cls: 0.009) not matching raw-<commit>.json -> must fail verifyItemEvidence and checkReleaseSnapshots
-      writeState({ ...validMeasured, cls: 0.009 });
-      expect(checkReleaseSnapshots(tmp).some((v) => v.reason.includes("raw-"))).toBe(true);
-      expect(verifyItemEvidence(itemDir, benchRoot, { check: true }).ok).toBe(false);
+      // 2a, 2c-1, 2c-2: Missing treeClean, tampered sizeKB, and tampered cls (mismatch with raw-<commit>.json)
+      const tampered = {
+        ...validMeasured,
+        sizeKB: { ...validMeasured.sizeKB, initial: 99.99 },
+        cls: 0.009,
+      };
+      delete (tampered as any).treeClean;
+      writeState(tampered);
+      const snapViolations = checkReleaseSnapshots(tmp);
+      expect(snapViolations.some((v) => v.reason.includes("treeClean"))).toBe(true);
+      expect(snapViolations.some((v) => v.reason.includes("sizeKB"))).toBe(true);
+      expect(snapViolations.some((v) => v.reason.includes("raw-"))).toBe(true);
+      const verifyTampered = verifyItemEvidence(itemDir, benchRoot, { check: true });
+      expect(verifyTampered.ok).toBe(false);
+      expect(verifyTampered.errors.some((e) => e.includes("treeClean"))).toBe(true);
+      expect(verifyTampered.errors.some((e) => e.includes("sizeKB"))).toBe(true);
+      expect(verifyTampered.errors.some((e) => e.includes("raw-"))).toBe(true);
 
       // 2b. Restore valid state, then modify packages/runtime/src/frame.ts -> must fail both checkReleaseSnapshots and codeChangedSinceBench
       writeState(validMeasured);

@@ -13,6 +13,10 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
+      "@frictionborn/runtime": ["packages/runtime/src/index.ts"],
+      "@frictionborn/runtime/server": ["packages/runtime/src/server.ts"],
+      "@frictionborn/runtime/gl": ["packages/runtime/src/gl/surface.ts"],
+      "@frictionborn/runtime/canvas": ["packages/runtime/src/canvas/index.ts"],
       "@/components/ui/noise-field": ["registry/items/noise-field/noise-field.tsx"],
       "@/components/ui/mesh-gradient": ["registry/items/mesh-gradient/mesh-gradient.tsx"],
       "@/components/ui/particle-field": ["registry/items/particle-field/particle-field.tsx"],

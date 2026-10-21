@@ -42,34 +42,34 @@ function compilerOptions(): ts.CompilerOptions {
 
 const declared = (item: string) => JSON.parse(fs.readFileSync(path.join(itemsDir, item, "meta.declared.json"), "utf8"));
 
+const usageDir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-usage-"));
+const usageFiles = items.map((item) => {
+  const f = path.join(usageDir, `${item}.usage.tsx`);
+  fs.writeFileSync(f, declared(item).agent.usage);
+  return f;
+});
+const itemSourceFiles = items.map((i) => path.join(itemsDir, i, `${i}.tsx`));
+const program = ts.createProgram([...usageFiles, ...itemSourceFiles], compilerOptions());
+const checker = program.getTypeChecker();
+
 describe("spec sheet usage examples compile against the real components", () => {
   it("every agent.usage snippet type-checks", () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fb-usage-"));
-    const files = items.map((item) => {
-      const f = path.join(dir, `${item}.usage.tsx`);
-      fs.writeFileSync(f, declared(item).agent.usage);
-      return f;
-    });
-    const program = ts.createProgram(files, compilerOptions());
-    const norm = (f: string) => path.resolve(f).split(path.sep).join("/").toLowerCase();
-    const mine = new Set(files.map(norm));
-    expect(mine.size).toBe(items.length);
+    expect(usageFiles.length).toBe(items.length);
     const problems: string[] = [];
-    for (const d of ts.getPreEmitDiagnostics(program)) {
-      if (!d.file || !mine.has(norm(d.file.fileName))) continue;
-      const { line } = d.file.getLineAndCharacterOfPosition(d.start ?? 0);
-      problems.push(`${path.basename(d.file.fileName)}:${line + 1} TS${d.code} ${ts.flattenDiagnosticMessageText(d.messageText, "\n").split("\n")[0]}`);
+    for (const f of usageFiles) {
+      const sf = program.getSourceFile(f);
+      expect(sf).toBeDefined();
+      for (const d of ts.getPreEmitDiagnostics(program, sf)) {
+        if (!d.file) continue;
+        const { line } = d.file.getLineAndCharacterOfPosition(d.start ?? 0);
+        problems.push(`${path.basename(d.file.fileName)}:${line + 1} TS${d.code} ${ts.flattenDiagnosticMessageText(d.messageText, "\n").split("\n")[0]}`);
+      }
     }
     expect(problems).toEqual([]);
   });
 });
 
 describe("documented props equal the props the code declares", () => {
-  const program = ts.createProgram(
-    items.map((i) => path.join(itemsDir, i, `${i}.tsx`)),
-    compilerOptions()
-  );
-  const checker = program.getTypeChecker();
 
   for (const item of items) {
     it(`${item}: every prop declared in the item's own source is documented, and every documented prop exists`, () => {
