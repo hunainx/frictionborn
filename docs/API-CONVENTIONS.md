@@ -1,6 +1,6 @@
 # Frictionborn API Conventions
 
-This document establishes the uniform API standards across all 12 Frictionborn registry items and compositions. A test (`test/spec-sheet-truth.test.ts`) checks that every documented prop exists and every declared prop is documented.
+This document establishes the uniform API standards across all 25 Frictionborn registry items and compositions. A test (`test/spec-sheet-truth.test.ts`) checks that every documented prop exists and every declared prop is documented.
 
 ---
 
@@ -13,15 +13,15 @@ This document establishes the uniform API standards across all 12 Frictionborn r
 | **Pixel Velocity** | `pixelsPerSecond` | `number` (px/s) | Physical pixel drift rate (used by `Marquee`, default 40). Never named `speed`. |
 | **Strength / Intensity** | `strength` | `number` (0.0 – 1.0) | Unitless fraction indicating effect magnitude (`DistortionImage`). It is passed to the shader as given and is not clamped. |
 | **Physical Distance** | `pullDistance` | `number` (px) | Physical displacement in pixels (`MagneticButton pullDistance={18}`). Never named `strength`. |
-| **Universal Pause** | `paused` | `boolean` (optional) | Present on all 24 items. What it stops depends on the item: see the table below. It is the item's own switch; only a host calls the runtime's `pauseAll()`. |
-| **CSP Nonce** | `nonce` | `string` (optional) | On every item that renders a `<style>` element (TextReveal, ScrollReveal, Marquee, StickyScrollStory, the twelve canvas items) and on both compositions, which forward it. See `docs/CSP.md`. |
-| **Palette** | `palette` | `"fire" \| "ice" \| "neon" \| "mono" \| "custom"` (optional) | On every item that draws its own colour (DESIGN.md A8). The twelve canvas items default to `fire`; NoiseField, MeshGradient, ParticleField and AmbientHero keep the host's tokens when it is left out. |
+| **Universal Pause** | `paused` | `boolean` (optional) | Present on all 25 items. What it stops depends on the item: see the table below. It is the item's own switch; only a host calls the runtime's `pauseAll()`. |
+| **CSP Nonce** | `nonce` | `string` (optional) | On every item that renders a `<style>` element (TextReveal, ScrollReveal, Marquee, StickyScrollStory, EmberCore, the twelve canvas items) and on both compositions, which forward it. See `docs/CSP.md`. |
+| **Palette** | `palette` | `"fire" \| "ice" \| "neon" \| "mono" \| "custom"` (optional) | On every item that draws its own colour (DESIGN.md A8). EmberCore and the twelve canvas items default to `fire`; NoiseField, MeshGradient, ParticleField and AmbientHero keep the host's tokens when it is left out. |
 
 ### What `paused` does, per item
 
 | Item | While `paused` |
 | :--- | :--- |
-| `noise-field`, `mesh-gradient`, `particle-field` | The frame loop stops (0 requested frames). The WebGL context and its lease are kept; the last frame stays on screen. |
+| `noise-field`, `mesh-gradient`, `particle-field`, `ember-core` | The frame loop stops (0 requested frames; on `ember-core` residual spin momentum is also cleared immediately). The WebGL context and its lease are kept; the last frame stays on screen. |
 | `distortion-image` | Releases the lease and shows the plain image; hover and focus do nothing until un-paused. |
 | `smooth-scroll` | Lenis is destroyed and the page scrolls natively; un-pausing builds a new instance. |
 | `marquee` | CSS `animation-play-state: paused`. |
@@ -48,7 +48,7 @@ Every component forwards `ref` to a DOM element. Nine of them use the React 19 `
 | `magnetic-button` | the wrapper `<div>`, not the child button |
 | `marquee`, `sticky-scroll-story`, `scroll-showcase` | the root `<div>` |
 | `smooth-scroll` | the root `<div>`, which is `display: contents` (its bounding box is empty) |
-| `noise-field`, `mesh-gradient`, `particle-field` | the root `<div>` that holds the poster and the canvas |
+| `noise-field`, `mesh-gradient`, `particle-field`, `ember-core` | the root `<div>` that holds the poster and the canvas |
 | `distortion-image` | the wrapper `<div>` around the `<img>`, not the `<img>` |
 | `ambient-hero` | the root `<header>` |
 | the twelve canvas items | the root `<div>` that carries `data-frictionborn-item`, except `flint-button`, whose root (and `ref`) is the `<button>` itself |
