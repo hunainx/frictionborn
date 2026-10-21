@@ -142,9 +142,18 @@ function isCopyFile(relativePath: string): boolean {
 export function scanText(relativePath: string, content: string): Violation[] {
   const violations: Violation[] = [];
   const text = blankComments(content);
+  const normalizedPath = relativePath.split(path.sep).join("/");
   for (const rule of BANNED_PATTERNS) {
     const re = new RegExp(rule.pattern.source, rule.pattern.flags.includes("g") ? rule.pattern.flags : rule.pattern.flags + "g");
     for (const match of text.matchAll(re)) {
+      if (
+        rule.name === "sci-fi-jargon" &&
+        match[0].toLowerCase() === "strontium" &&
+        normalizedPath.endsWith("the-private-website-repo/content/ventures.ts")
+      ) {
+        // Decision 72: Venture 5's chemical flame-test element is Strontium ("Sr · strontium flame").
+        continue;
+      }
       const line = text.slice(0, match.index).split("\n").length;
       violations.push({
         file: relativePath,
