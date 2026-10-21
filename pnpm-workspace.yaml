@@ -9,6 +9,7 @@ allowBuilds:
 # Pinned exactly for every package that resolves it (@tailwindcss/node pins it, vite takes it as an optional peer).
 overrides:
   lightningcss: 1.32.0
+  vite: 7.3.7
   "@vitest/mocker": ">=4.1.12"
   tinypool: ">=2.1.2"
   tmp: ">=0.2.7"
