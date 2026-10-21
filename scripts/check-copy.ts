@@ -95,8 +95,8 @@ export const BANNED_PATTERNS: BannedPattern[] = [
   // 8. Internal prototype notes, slot instructions, and placeholder captions
   {
     name: "internal-slot-or-preview",
-    pattern: /(?:\bSlot:|\bPlaceholder\b|Concept preview|we discussed|goes here|first-fire-photo\.jpg|first-fire-man\.glb)/,
-    reason: "No internal prototype notes, slot filenames, or placeholder captions may appear in visitor-facing code",
+    pattern: /(?:\bSlot:|\bPlaceholder\b|Concept preview|we discussed|goes here|to be reviewed by|once configured|first-fire-photo\.jpg|first-fire-man\.glb)/,
+    reason: "No internal prototype notes, reviewer notes, slot filenames, or placeholder captions may appear in visitor-facing code",
   },
 ];
 
