@@ -128,8 +128,8 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `fc44db8` (2026-10-20)
-- **Size**: 8.19 KiB initial / 13.84 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `801163e` (2026-10-21)
+- **Size**: 8.19 KiB initial / 13.77 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -140,11 +140,11 @@ export default function Hero() {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-20 | 24 passed, 0 failed, 2 flaky (passed on retry) |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-20 | 17 passed, 0 failed, 1 flaky (passed on retry) |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-20 | 15 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-20 | 15 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-20 | 15 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-21 | 26 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-21 | 18 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-21 | 15 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-21 | 15 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-21 | 15 passed, 0 failed |
 
 ## License & Provenance
 

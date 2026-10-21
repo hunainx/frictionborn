@@ -1,31 +1,31 @@
 {
-  "item": "scroll-reveal",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "text-reveal",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 14,
+        "passed": 15,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 13,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 13,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 13,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 13,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
+        "title": "renders text-reveal item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
+        "title": "renders text-reveal item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
+        "title": "renders text-reveal item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
+        "title": "renders text-reveal item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
+        "title": "renders text-reveal item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -568,6 +568,36 @@
       {
         "file": "stress.spec.ts",
         "title": "correctly mounts with forced tier 3",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "text-reveal-flash.spec.ts",
+        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "text-reveal-flash.spec.ts",
+        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "text-reveal-flash.spec.ts",
+        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "text-reveal-flash.spec.ts",
+        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "text-reveal-flash.spec.ts",
+        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -605,21 +635,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792537492246-1a5f0cf6.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537493173-947a6f0d.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537493203-5ec3e129.json",
+      "file": "measurement-1792621025868-95b974e9.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -628,7 +644,21 @@
       }
     },
     {
-      "file": "measurement-1792537493253-5618458c.json",
+      "file": "measurement-1792621026949-f1eef2d1.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792621027925-8a9dfa3d.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792621028878-9b8d0f22.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -636,7 +666,7 @@
       }
     },
     {
-      "file": "measurement-1792537495343-74505268.json",
+      "file": "measurement-1792621033115-1fdfcdc7.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -644,13 +674,7 @@
       }
     },
     {
-      "file": "measurement-1792537496076-e53c944c.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537496654-69fb3363.json",
+      "file": "measurement-1792621039620-7e37e25b.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -659,7 +683,13 @@
       }
     },
     {
-      "file": "measurement-1792537497144-213d24b7.json",
+      "file": "measurement-1792621040498-639ba439.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792621041652-2b5c25f7.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -667,7 +697,7 @@
       }
     },
     {
-      "file": "measurement-1792537497701-d3e89265.json",
+      "file": "measurement-1792621042313-a4317e1e.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -675,7 +705,7 @@
       }
     },
     {
-      "file": "measurement-1792537498689-1c7d20ba.json",
+      "file": "measurement-1792621044624-1bc213f9.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -683,13 +713,7 @@
       }
     },
     {
-      "file": "measurement-1792537502763-8891dc9e.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537503111-c4e2eb39.json",
+      "file": "measurement-1792621054893-3d76f328.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -698,15 +722,13 @@
       }
     },
     {
-      "file": "measurement-1792537504988-e7328c44.json",
+      "file": "measurement-1792621056143-e0c56fdc.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792537505363-11983663.json",
+      "file": "measurement-1792621057084-73b3a673.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -714,7 +736,15 @@
       }
     },
     {
-      "file": "measurement-1792537506041-14c373cd.json",
+      "file": "measurement-1792621058232-e34f3afc.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792621061093-a047f119.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -722,29 +752,7 @@
       }
     },
     {
-      "file": "measurement-1792537509007-aca6012f.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537509770-4c9c9f38.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537510051-c80071fc.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537510708-74b40502.json",
+      "file": "measurement-1792621066529-696b1022.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -753,7 +761,29 @@
       }
     },
     {
-      "file": "measurement-1792537512957-d007ee80.json",
+      "file": "measurement-1792621067791-df64c79b.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792621071613-b71e92ef.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792621071925-a25e800d.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792621081150-7f286a0f.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -761,13 +791,7 @@
       }
     },
     {
-      "file": "measurement-1792537515040-5397f648.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537515140-b9177378.json",
+      "file": "measurement-1792621091819-a704972a.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -776,7 +800,13 @@
       }
     },
     {
-      "file": "measurement-1792537515986-03b66abd.json",
+      "file": "measurement-1792621093113-b9771a00.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792621094901-9f9010c7.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -784,7 +814,7 @@
       }
     },
     {
-      "file": "measurement-1792537516370-ca204a6b.json",
+      "file": "measurement-1792621097361-6ca60581.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -792,7 +822,7 @@
       }
     },
     {
-      "file": "measurement-1792537519383-39a3cf59.json",
+      "file": "measurement-1792621104965-db3ff697.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

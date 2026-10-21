@@ -181,12 +181,12 @@
       "assets": []
     },
     "measured": {
-      "commit": "538b855",
+      "commit": "801163e",
       "treeClean": true,
-      "resultsHash": "d4986cabde935a51413c7347fc3d859aa2d9857068a8a8969cb6dbe3fd0572e5",
-      "date": "2026-10-20",
+      "resultsHash": "422503fbfdd7c51c46ed724c8216dac68181dc6b294cc2506553cd2451b07c9f",
+      "date": "2026-10-21",
       "sizeKB": {
-        "initial": 2.93,
+        "initial": 2.91,
         "deferred": 0.02,
         "method": "gzip-9"
       },
@@ -206,7 +206,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-20",
+          "date": "2026-10-21",
           "notes": "16 passed, 0 failed"
         },
         {
@@ -214,7 +214,7 @@
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-20",
+          "date": "2026-10-21",
           "notes": "15 passed, 0 failed"
         },
         {
@@ -222,7 +222,7 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-20",
+          "date": "2026-10-21",
           "notes": "14 passed, 0 failed"
         },
         {
@@ -230,16 +230,16 @@
           "via": "playwright",
           "tier": 3,
           "result": "pass",
-          "date": "2026-10-20",
-          "notes": "15 passed, 0 failed"
+          "date": "2026-10-21",
+          "notes": "14 passed, 0 failed, 1 flaky (passed on retry)"
         },
         {
           "env": "WebKit Mobile (iPhone 14 emulation)",
           "via": "playwright",
           "tier": 2,
           "result": "pass",
-          "date": "2026-10-20",
-          "notes": "15 passed, 0 failed"
+          "date": "2026-10-21",
+          "notes": "14 passed, 0 failed, 1 flaky (passed on retry)"
         }
       ]
     }

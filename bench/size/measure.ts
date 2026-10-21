@@ -14,6 +14,11 @@ export interface ItemSizeResult {
   method: string;
 }
 
+function readNormalizedBuffer(filePath: string): Buffer {
+  const text = fs.readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
+  return Buffer.from(text, "utf8");
+}
+
 export function measureItemSize(itemDir: string): ItemSizeResult {
   const itemName = path.basename(itemDir);
 
@@ -23,9 +28,9 @@ export function measureItemSize(itemDir: string): ItemSizeResult {
   const altCss = path.join(itemDir, `${itemName}.css`);
 
   const initialBuffers: Buffer[] = [];
-  if (fs.existsSync(mainTsx)) initialBuffers.push(fs.readFileSync(mainTsx));
-  if (fs.existsSync(mainCss)) initialBuffers.push(fs.readFileSync(mainCss));
-  if (fs.existsSync(altCss)) initialBuffers.push(fs.readFileSync(altCss));
+  if (fs.existsSync(mainTsx)) initialBuffers.push(readNormalizedBuffer(mainTsx));
+  if (fs.existsSync(mainCss)) initialBuffers.push(readNormalizedBuffer(mainCss));
+  if (fs.existsSync(altCss)) initialBuffers.push(readNormalizedBuffer(altCss));
 
   const initialConcat = Buffer.concat(initialBuffers);
   const initialBytes = initialConcat.length;
@@ -36,11 +41,11 @@ export function measureItemSize(itemDir: string): ItemSizeResult {
   const glslTs = path.join(itemDir, `${itemName}.glsl.ts`);
   const shadersDir = path.join(itemDir, "shaders");
 
-  if (fs.existsSync(glTsx)) deferredBuffers.push(fs.readFileSync(glTsx));
-  if (fs.existsSync(glslTs)) deferredBuffers.push(fs.readFileSync(glslTs));
+  if (fs.existsSync(glTsx)) deferredBuffers.push(readNormalizedBuffer(glTsx));
+  if (fs.existsSync(glslTs)) deferredBuffers.push(readNormalizedBuffer(glslTs));
   if (fs.existsSync(shadersDir)) {
-    for (const f of fs.readdirSync(shadersDir)) {
-      deferredBuffers.push(fs.readFileSync(path.join(shadersDir, f)));
+    for (const f of fs.readdirSync(shadersDir).sort()) {
+      deferredBuffers.push(readNormalizedBuffer(path.join(shadersDir, f)));
     }
   }
 

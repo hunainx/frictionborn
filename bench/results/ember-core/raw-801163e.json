@@ -1,31 +1,31 @@
 {
-  "item": "distortion-image",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "ember-core",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 29,
+        "passed": 26,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 26,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 26,
+        "passed": 15,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 24,
+        "passed": 15,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 24,
+        "passed": 15,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders distortion-image item and measures idle frame activity and CLS",
+        "title": "renders ember-core item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -185,25 +185,25 @@
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
@@ -242,512 +242,302 @@
         "status": "skipped"
       },
       {
-        "file": "distortion-image.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "releases lease after 3 seconds of idle when pointer leaves element",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a pointer resting on an image releases its context after about 3 s without movement",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "changing strength or speed does not rebuild the WebGL context",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "releases lease after 3 seconds of idle when pointer leaves element",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a pointer resting on an image releases its context after about 3 s without movement",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "changing strength or speed does not rebuild the WebGL context",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "releases lease after 3 seconds of idle when pointer leaves element",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a pointer resting on an image releases its context after about 3 s without movement",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "changing strength or speed does not rebuild the WebGL context",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "releases lease after 3 seconds of idle when pointer leaves element",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a pointer resting on an image releases its context after about 3 s without movement",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "changing strength or speed does not rebuild the WebGL context",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse) across 30 images",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "releases lease after 3 seconds of idle when pointer leaves element",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "50 mount/unmount cycles with live leases leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "100 hover-in/out cycles across images leave 0 leaked contexts and 0 leaked textures",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a sixth image hovered within 3 s still gets a context at once (idle leases are evicted, LRU first)",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a pointer resting on an image releases its context after about 3 s without movement",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "hovering shows the picture itself: the framebuffer is not blank or flat",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "keyboard focus draws a visible ring inside the box, above the canvas",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a linked image has exactly one tab stop, and the effect starts on that link's focus (Decision 24)",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a hybrid device (pointer: fine but hover: none) gets no hover effect (S9-14)",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a srcset candidate chosen on resize is uploaded to the texture while the canvas is live",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "when WebGL2 is refused despite the tier, no dead canvas stays mounted and it stops retrying",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "changing strength or speed does not rebuild the WebGL context",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "a cross-origin image without CORS headers falls back to the plain image without errors",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "distortion-image.spec.ts",
-        "title": "an oversized image (3000x2000) is capped to tier texture budget (<= 2048px at tier 3, <= 1024px at tier 2)",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "firefox-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "firefox-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
+        "projectName": "webkit-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "hover heats the pixels near the pointer",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "drag changes the frame",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "click raises mean brightness, and hold-then-release raises it more",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "wheel on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "ember-core.spec.ts",
+        "title": "filament contrast passes in dark and light themes and fails on low contrast",
         "projectName": "webkit-mobile",
         "status": "skipped"
       },
@@ -1055,21 +845,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792536388823-de9af1c9.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536389732-36abd639.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536389737-5ad2be42.json",
+      "file": "measurement-1792618386969-687e2008.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1078,7 +854,21 @@
       }
     },
     {
-      "file": "measurement-1792536390018-fe49f7ab.json",
+      "file": "measurement-1792618388135-292bbca5.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792618391068-c87bdc58.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792618392428-407d3fb4.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -1086,7 +876,7 @@
       }
     },
     {
-      "file": "measurement-1792536399534-dbf60a45.json",
+      "file": "measurement-1792618464062-af81d9c3.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -1094,13 +884,7 @@
       }
     },
     {
-      "file": "measurement-1792536402564-493d3537.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536402633-ca03e3c6.json",
+      "file": "measurement-1792618472516-bb4179a0.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1109,7 +893,13 @@
       }
     },
     {
-      "file": "measurement-1792536403484-a39edd26.json",
+      "file": "measurement-1792618475765-a17890d1.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792618478296-fb1aa7f7.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -1117,7 +907,7 @@
       }
     },
     {
-      "file": "measurement-1792536405041-902c8df5.json",
+      "file": "measurement-1792618480194-4abe92b8.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -1125,7 +915,7 @@
       }
     },
     {
-      "file": "measurement-1792536406298-1238f434.json",
+      "file": "measurement-1792618505090-c383ab4b.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -1133,15 +923,7 @@
       }
     },
     {
-      "file": "measurement-1792536411093-df9dc86a.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536411291-5c27cfb4.json",
+      "file": "measurement-1792618518063-d95f009c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1150,7 +932,15 @@
       }
     },
     {
-      "file": "measurement-1792536411746-88fa8c32.json",
+      "file": "measurement-1792618528593-9ed60505.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792618534768-26abd09a.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -1158,13 +948,13 @@
       }
     },
     {
-      "file": "measurement-1792536412087-67dbbee2.json",
+      "file": "measurement-1792618536040-8668bcee.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536427389-d46d6c8f.json",
+      "file": "measurement-1792618559854-299b0b2d.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -1172,13 +962,7 @@
       }
     },
     {
-      "file": "measurement-1792536430901-f7610f9f.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536432535-8a182f39.json",
+      "file": "measurement-1792618578585-6ea31ca3.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1187,15 +971,13 @@
       }
     },
     {
-      "file": "measurement-1792536433067-10f87747.json",
+      "file": "measurement-1792618584293-5952311b.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792536433222-64b9778a.json",
+      "file": "measurement-1792618585684-b7db05a2.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -1203,7 +985,15 @@
       }
     },
     {
-      "file": "measurement-1792536456898-58fd235e.json",
+      "file": "measurement-1792618588441-a4f24984.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792618617404-edb48413.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -1211,13 +1001,7 @@
       }
     },
     {
-      "file": "measurement-1792536463135-9332a64e.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536463594-19a52058.json",
+      "file": "measurement-1792618636953-53974e5b.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1226,7 +1010,13 @@
       }
     },
     {
-      "file": "measurement-1792536464530-14de320c.json",
+      "file": "measurement-1792618643675-9cb85587.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792618647751-93771017.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -1234,7 +1024,7 @@
       }
     },
     {
-      "file": "measurement-1792536464895-21bc0f47.json",
+      "file": "measurement-1792618647885-4a932257.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -1242,7 +1032,7 @@
       }
     },
     {
-      "file": "measurement-1792536477278-f39c6378.json",
+      "file": "measurement-1792618679126-1febda45.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

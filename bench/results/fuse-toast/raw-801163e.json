@@ -1,7 +1,7 @@
 {
-  "item": "sticky-scroll-story",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "fuse-toast",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
@@ -15,7 +15,7 @@
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 15,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders sticky-scroll-story item and measures idle frame activity and CLS",
+        "title": "renders fuse-toast item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders sticky-scroll-story item and measures idle frame activity and CLS",
+        "title": "renders fuse-toast item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders sticky-scroll-story item and measures idle frame activity and CLS",
+        "title": "renders fuse-toast item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders sticky-scroll-story item and measures idle frame activity and CLS",
+        "title": "renders fuse-toast item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders sticky-scroll-story item and measures idle frame activity and CLS",
+        "title": "renders fuse-toast item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -182,62 +182,62 @@
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "suspends all loops and emits 0 frames when tab is hidden",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "combined-page.spec.ts",
-        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
       {
-        "file": "combined-page.spec.ts",
-        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "file": "canvas-items.spec.ts",
+        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -665,29 +665,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792537617155-45b40a96.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537618094-df7a5f3e.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537618183-2a118c22.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537618493-4dde77ff.json",
+      "file": "measurement-1792619044457-a6354fc2.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -696,7 +674,29 @@
       }
     },
     {
-      "file": "measurement-1792537620757-794b7fda.json",
+      "file": "measurement-1792619045337-1ab175bb.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619046295-7b4ca6e1.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619047147-e3436dfc.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619061344-0cc849a8.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -704,13 +704,7 @@
       }
     },
     {
-      "file": "measurement-1792537621839-4ca3ab80.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537622767-e4819851.json",
+      "file": "measurement-1792619065554-2d55c8e8.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -719,7 +713,13 @@
       }
     },
     {
-      "file": "measurement-1792537623585-17e34c4e.json",
+      "file": "measurement-1792619066455-37b04abe.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619068204-47b17e27.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -727,7 +727,7 @@
       }
     },
     {
-      "file": "measurement-1792537623667-4e2a0336.json",
+      "file": "measurement-1792619069136-6bbde717.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -735,7 +735,7 @@
       }
     },
     {
-      "file": "measurement-1792537625928-6cdd1a20.json",
+      "file": "measurement-1792619081444-47efaff3.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -743,13 +743,7 @@
       }
     },
     {
-      "file": "measurement-1792537628879-fee35858.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537633858-24f64449.json",
+      "file": "measurement-1792619086633-3ed17b43.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -758,15 +752,13 @@
       }
     },
     {
-      "file": "measurement-1792537633955-6d5ff82a.json",
+      "file": "measurement-1792619087806-128f6630.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792537634010-eb62dbe7.json",
+      "file": "measurement-1792619089313-630e49e0.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -774,7 +766,15 @@
       }
     },
     {
-      "file": "measurement-1792537637071-bf4c1b6d.json",
+      "file": "measurement-1792619089884-c7d8d07a.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619095933-332be18c.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -782,13 +782,7 @@
       }
     },
     {
-      "file": "measurement-1792537640004-7a6d0023.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537640672-33d91f11.json",
+      "file": "measurement-1792619102996-fa46de7c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -797,7 +791,13 @@
       }
     },
     {
-      "file": "measurement-1792537641452-529a61b9.json",
+      "file": "measurement-1792619104133-8feb7d72.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619107778-269a165c.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -805,7 +805,7 @@
       }
     },
     {
-      "file": "measurement-1792537641687-fbd7fd3f.json",
+      "file": "measurement-1792619108298-cd98b014.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -813,7 +813,7 @@
       }
     },
     {
-      "file": "measurement-1792537645695-6ffc34fe.json",
+      "file": "measurement-1792619130244-cef7f5c4.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -821,13 +821,7 @@
       }
     },
     {
-      "file": "measurement-1792537647681-9cdb8412.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537648791-019dbcff.json",
+      "file": "measurement-1792619138288-7b91c256.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -836,7 +830,13 @@
       }
     },
     {
-      "file": "measurement-1792537649621-d286de84.json",
+      "file": "measurement-1792619139373-fc5ed70f.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619142657-875494a6.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -844,7 +844,7 @@
       }
     },
     {
-      "file": "measurement-1792537650077-f3ad93ce.json",
+      "file": "measurement-1792619143399-67963c34.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -852,7 +852,7 @@
       }
     },
     {
-      "file": "measurement-1792537653762-935833d3.json",
+      "file": "measurement-1792619164552-563dfa8e.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

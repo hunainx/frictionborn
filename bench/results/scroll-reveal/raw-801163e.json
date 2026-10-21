@@ -1,31 +1,31 @@
 {
-  "item": "particle-field",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "scroll-reveal",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 20,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 19,
+        "passed": 13,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 17,
+        "passed": 13,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 17,
+        "passed": 13,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 17,
+        "passed": 13,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders particle-field item and measures idle frame activity and CLS",
+        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders particle-field item and measures idle frame activity and CLS",
+        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders particle-field item and measures idle frame activity and CLS",
+        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders particle-field item and measures idle frame activity and CLS",
+        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders particle-field item and measures idle frame activity and CLS",
+        "title": "renders scroll-reveal item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -185,25 +185,25 @@
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
@@ -245,61 +245,61 @@
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "firefox-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "firefox-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "leak.spec.ts",
@@ -448,66 +448,6 @@
       {
         "file": "ssr.spec.ts",
         "title": "server HTML includes static layout and text without JavaScript execution",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "stress-gl.spec.ts",
-        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -665,21 +605,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792537438968-850dc2ba.json",
-      "data": {
-        "cls": 0.0002
-      }
-    },
-    {
-      "file": "measurement-1792537439781-86b30415.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537439905-e6bed60d.json",
+      "file": "measurement-1792620483557-73865ab3.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -688,7 +614,21 @@
       }
     },
     {
-      "file": "measurement-1792537439931-781a19ca.json",
+      "file": "measurement-1792620484718-3a9249d9.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620485689-ae0bfde3.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620487106-590492ad.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -696,7 +636,7 @@
       }
     },
     {
-      "file": "measurement-1792537442677-b2f2ee9b.json",
+      "file": "measurement-1792620491377-39f9ad69.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -704,13 +644,7 @@
       }
     },
     {
-      "file": "measurement-1792537445517-3962f2b9.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537446530-59e85834.json",
+      "file": "measurement-1792620497833-3e420b49.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -719,7 +653,13 @@
       }
     },
     {
-      "file": "measurement-1792537447545-78df3546.json",
+      "file": "measurement-1792620499046-5d8fefc7.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620501089-696cb12c.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -727,7 +667,7 @@
       }
     },
     {
-      "file": "measurement-1792537447648-696c5945.json",
+      "file": "measurement-1792620501300-d0ef0fe1.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -735,7 +675,7 @@
       }
     },
     {
-      "file": "measurement-1792537450559-cf0c0df0.json",
+      "file": "measurement-1792620504311-61d6d469.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -743,13 +683,7 @@
       }
     },
     {
-      "file": "measurement-1792537455710-f6c16154.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537456471-2018674a.json",
+      "file": "measurement-1792620513195-8f057d67.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -758,7 +692,13 @@
       }
     },
     {
-      "file": "measurement-1792537457247-1a8fea83.json",
+      "file": "measurement-1792620514789-1ac3b69c.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620516387-3d032cb9.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -766,7 +706,7 @@
       }
     },
     {
-      "file": "measurement-1792537457459-9695d469.json",
+      "file": "measurement-1792620517170-b677d731.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -774,7 +714,7 @@
       }
     },
     {
-      "file": "measurement-1792537460270-14ca4e57.json",
+      "file": "measurement-1792620522124-81c36433.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -782,21 +722,7 @@
       }
     },
     {
-      "file": "measurement-1792537463510-08f58bf3.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537464397-eff1b6ba.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537465147-d910c70b.json",
+      "file": "measurement-1792620531188-f49c0fe5.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -805,7 +731,21 @@
       }
     },
     {
-      "file": "measurement-1792537467292-0a59f9d7.json",
+      "file": "measurement-1792620533951-5e3843e8.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620536137-83d79683.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620536872-19089df3.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -813,7 +753,7 @@
       }
     },
     {
-      "file": "measurement-1792537470769-14f34dd6.json",
+      "file": "measurement-1792620546663-ec21e3e2.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -821,13 +761,7 @@
       }
     },
     {
-      "file": "measurement-1792537476849-cc1ced29.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537477389-ec9d2817.json",
+      "file": "measurement-1792620558308-00a8730d.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -836,7 +770,13 @@
       }
     },
     {
-      "file": "measurement-1792537477762-aae245ee.json",
+      "file": "measurement-1792620559848-32fbe815.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620562959-7ff86b3a.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -844,7 +784,7 @@
       }
     },
     {
-      "file": "measurement-1792537479386-703e86b4.json",
+      "file": "measurement-1792620564215-ed633f7b.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -852,7 +792,7 @@
       }
     },
     {
-      "file": "measurement-1792537484411-519bbf5b.json",
+      "file": "measurement-1792620573123-91b069bd.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

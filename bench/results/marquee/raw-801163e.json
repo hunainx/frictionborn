@@ -1,31 +1,31 @@
 {
-  "item": "magnetic-button",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "marquee",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 14,
+        "passed": 19,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 13,
+        "passed": 17,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 13,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 13,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 13,
+        "passed": 17,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "title": "renders marquee item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "title": "renders marquee item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "title": "renders marquee item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "title": "renders marquee item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders magnetic-button item and measures idle frame activity and CLS",
+        "title": "renders marquee item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -178,6 +178,66 @@
       {
         "file": "behaviour.spec.ts",
         "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -328,6 +388,96 @@
       {
         "file": "leak.spec.ts",
         "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "Play resumes while the pointer is still on the button, and the hover pause still works on the track",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "keyboard: Space on the focused Pause button pauses, Space again resumes",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "reduced motion: the hand-scrollable row is keyboard focusable (axe scrollable-region-focusable, WCAG 2.1.1)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "Play resumes while the pointer is still on the button, and the hover pause still works on the track",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "keyboard: Space on the focused Pause button pauses, Space again resumes",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "reduced motion: the hand-scrollable row is keyboard focusable (axe scrollable-region-focusable, WCAG 2.1.1)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "Play resumes while the pointer is still on the button, and the hover pause still works on the track",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "keyboard: Space on the focused Pause button pauses, Space again resumes",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "reduced motion: the hand-scrollable row is keyboard focusable (axe scrollable-region-focusable, WCAG 2.1.1)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "Play resumes while the pointer is still on the button, and the hover pause still works on the track",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "keyboard: Space on the focused Pause button pauses, Space again resumes",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "reduced motion: the hand-scrollable row is keyboard focusable (axe scrollable-region-focusable, WCAG 2.1.1)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "Play resumes while the pointer is still on the button, and the hover pause still works on the track",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "keyboard: Space on the focused Pause button pauses, Space again resumes",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "marquee.spec.ts",
+        "title": "reduced motion: the hand-scrollable row is keyboard focusable (axe scrollable-region-focusable, WCAG 2.1.1)",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -605,21 +755,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792537165829-7a6241c8.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537166724-f4379d10.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537166733-56e06ad6.json",
+      "file": "measurement-1792619636390-8ccdb619.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -628,7 +764,21 @@
       }
     },
     {
-      "file": "measurement-1792537166994-1a5f19b8.json",
+      "file": "measurement-1792619637663-cd0d5bba.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619638625-624a451b.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619639751-ac8a746c.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -636,7 +786,7 @@
       }
     },
     {
-      "file": "measurement-1792537168649-35a90249.json",
+      "file": "measurement-1792619649710-18084d05.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -644,13 +794,7 @@
       }
     },
     {
-      "file": "measurement-1792537168977-3c995681.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537169838-7f40f3ad.json",
+      "file": "measurement-1792619655592-67b53fd9.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -659,7 +803,13 @@
       }
     },
     {
-      "file": "measurement-1792537170562-16b14373.json",
+      "file": "measurement-1792619656652-fb280d20.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619658753-c329ce46.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -667,7 +817,7 @@
       }
     },
     {
-      "file": "measurement-1792537171126-f2b35012.json",
+      "file": "measurement-1792619658889-04c1bbea.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -675,7 +825,7 @@
       }
     },
     {
-      "file": "measurement-1792537171818-bf57c49d.json",
+      "file": "measurement-1792619664623-b3c46bb3.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -683,13 +833,7 @@
       }
     },
     {
-      "file": "measurement-1792537177701-33d3a41f.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537177886-db959266.json",
+      "file": "measurement-1792619671564-bf8faa8c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -698,15 +842,13 @@
       }
     },
     {
-      "file": "measurement-1792537178346-5faed72d.json",
+      "file": "measurement-1792619673170-b498bd46.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792537178614-d1e87044.json",
+      "file": "measurement-1792619674493-3fbcec0c.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -714,7 +856,15 @@
       }
     },
     {
-      "file": "measurement-1792537180399-38a1bac8.json",
+      "file": "measurement-1792619675396-35c389cb.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619685358-29219465.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -722,13 +872,7 @@
       }
     },
     {
-      "file": "measurement-1792537183048-e1cf9359.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537183602-d3caca56.json",
+      "file": "measurement-1792619690409-834a7b8c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -737,7 +881,13 @@
       }
     },
     {
-      "file": "measurement-1792537183886-5537cf62.json",
+      "file": "measurement-1792619691809-250a8292.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619695979-176845ab.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -745,7 +895,7 @@
       }
     },
     {
-      "file": "measurement-1792537184139-3e38b568.json",
+      "file": "measurement-1792619696340-6e5a622f.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -753,7 +903,7 @@
       }
     },
     {
-      "file": "measurement-1792537188005-88dfce73.json",
+      "file": "measurement-1792619717320-369b3273.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -761,29 +911,7 @@
       }
     },
     {
-      "file": "measurement-1792537190504-f29d89ce.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537191309-bf78cb16.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537191476-c7f26c8c.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537191597-289732ce.json",
+      "file": "measurement-1792619726724-785343f4.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -792,7 +920,29 @@
       }
     },
     {
-      "file": "measurement-1792537194021-5c105e07.json",
+      "file": "measurement-1792619727947-963370ae.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619731073-c29ef72d.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619731965-f2c31151.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619748343-a55a0b29.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

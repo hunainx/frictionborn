@@ -228,13 +228,13 @@
     "assets": []
   },
   "measured": {
-    "commit": "fc44db8",
+    "commit": "801163e",
     "treeClean": true,
-    "resultsHash": "0479c41079a0f7ff6dbffed2d43b351460dbdabb1cf615a9b44515c456e7d7cf",
-    "date": "2026-10-20",
+    "resultsHash": "007a6b9b2f7e172a8053827192681018424fc847fc13f66001d48d7643644cf2",
+    "date": "2026-10-21",
     "sizeKB": {
       "initial": 8.19,
-      "deferred": 13.84,
+      "deferred": 13.77,
       "method": "gzip-9"
     },
     "cls": 0,
@@ -253,23 +253,23 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-20",
-        "notes": "24 passed, 0 failed, 2 flaky (passed on retry)"
+        "date": "2026-10-21",
+        "notes": "26 passed, 0 failed"
       },
       {
         "env": "Chromium Mobile (Pixel 7 emulation)",
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-20",
-        "notes": "17 passed, 0 failed, 1 flaky (passed on retry)"
+        "date": "2026-10-21",
+        "notes": "18 passed, 0 failed"
       },
       {
         "env": "Firefox Desktop",
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-20",
+        "date": "2026-10-21",
         "notes": "15 passed, 0 failed"
       },
       {
@@ -277,7 +277,7 @@
         "via": "playwright",
         "tier": 3,
         "result": "pass",
-        "date": "2026-10-20",
+        "date": "2026-10-21",
         "notes": "15 passed, 0 failed"
       },
       {
@@ -285,7 +285,7 @@
         "via": "playwright",
         "tier": 2,
         "result": "pass",
-        "date": "2026-10-20",
+        "date": "2026-10-21",
         "notes": "15 passed, 0 failed"
       }
     ]

@@ -1051,3 +1051,37 @@ describe("step 11: agent layer guarantees", () => {
     }
   });
 });
+
+describe("bench/size/measure — CRLF to LF normalisation", () => {
+  it("produces identical byte and gzip sizes regardless of LF vs CRLF line endings on disk", () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "fb-size-eol-"));
+    try {
+      const lfDir = path.join(tmp, "lf", "sample-item");
+      const crlfDir = path.join(tmp, "crlf", "sample-item");
+      fs.mkdirSync(path.join(lfDir, "shaders"), { recursive: true });
+      fs.mkdirSync(path.join(crlfDir, "shaders"), { recursive: true });
+
+      const tsxLines = Array.from({ length: 60 }, (_, i) => `export const line${i} = "value-${i}";`).join("\n") + "\n";
+      const cssLines = Array.from({ length: 30 }, (_, i) => `.cls-${i} {\n  opacity: ${(i % 10) / 10};\n}`).join("\n") + "\n";
+      const glLines = Array.from({ length: 50 }, (_, i) => `const u${i} = ${i} * 1.5;`).join("\n") + "\n";
+      const shaderLines = "void main() {\n  gl_FragColor = vec4(1.0, 0.5, 0.1, 1.0);\n}\n";
+
+      fs.writeFileSync(path.join(lfDir, "sample-item.tsx"), tsxLines, "utf8");
+      fs.writeFileSync(path.join(lfDir, "sample-item.module.css"), cssLines, "utf8");
+      fs.writeFileSync(path.join(lfDir, "sample-item.gl.tsx"), glLines, "utf8");
+      fs.writeFileSync(path.join(lfDir, "shaders", "frag.glsl"), shaderLines, "utf8");
+
+      fs.writeFileSync(path.join(crlfDir, "sample-item.tsx"), tsxLines.replace(/\n/g, "\r\n"), "utf8");
+      fs.writeFileSync(path.join(crlfDir, "sample-item.module.css"), cssLines.replace(/\n/g, "\r\n"), "utf8");
+      fs.writeFileSync(path.join(crlfDir, "sample-item.gl.tsx"), glLines.replace(/\n/g, "\r\n"), "utf8");
+      fs.writeFileSync(path.join(crlfDir, "shaders", "frag.glsl"), shaderLines.replace(/\n/g, "\r\n"), "utf8");
+
+      const lfRes = measureItemSize(lfDir);
+      const crlfRes = measureItemSize(crlfDir);
+      expect(crlfRes).toEqual(lfRes);
+    } finally {
+      fs.rmSync(tmp, { recursive: true, force: true });
+    }
+  });
+});
+

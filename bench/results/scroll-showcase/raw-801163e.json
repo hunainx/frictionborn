@@ -1,31 +1,31 @@
 {
-  "item": "text-reveal",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "scroll-showcase",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 15,
+        "passed": 19,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 14,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 14,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 14,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 14,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders text-reveal item and measures idle frame activity and CLS",
+        "title": "renders scroll-showcase item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders text-reveal item and measures idle frame activity and CLS",
+        "title": "renders scroll-showcase item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders text-reveal item and measures idle frame activity and CLS",
+        "title": "renders scroll-showcase item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders text-reveal item and measures idle frame activity and CLS",
+        "title": "renders scroll-showcase item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders text-reveal item and measures idle frame activity and CLS",
+        "title": "renders scroll-showcase item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -422,6 +422,156 @@
         "status": "expected"
       },
       {
+        "file": "scroll-showcase.spec.ts",
+        "title": "semantic structure: sections, heading hierarchy, landmark labels",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "sticky scroll steps are accessible and progress cleanly",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "marquee responds to hover and keyboard focus pause",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "mobile viewport has zero horizontal scroll overflow",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "reduced motion: static layout, no marquee autoscroll",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "semantic structure: sections, heading hierarchy, landmark labels",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "sticky scroll steps are accessible and progress cleanly",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "marquee responds to hover and keyboard focus pause",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "mobile viewport has zero horizontal scroll overflow",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "reduced motion: static layout, no marquee autoscroll",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "semantic structure: sections, heading hierarchy, landmark labels",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "sticky scroll steps are accessible and progress cleanly",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "marquee responds to hover and keyboard focus pause",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "mobile viewport has zero horizontal scroll overflow",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "reduced motion: static layout, no marquee autoscroll",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "semantic structure: sections, heading hierarchy, landmark labels",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "sticky scroll steps are accessible and progress cleanly",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "marquee responds to hover and keyboard focus pause",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "mobile viewport has zero horizontal scroll overflow",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "reduced motion: static layout, no marquee autoscroll",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "semantic structure: sections, heading hierarchy, landmark labels",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "sticky scroll steps are accessible and progress cleanly",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "marquee responds to hover and keyboard focus pause",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "mobile viewport has zero horizontal scroll overflow",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "scroll-showcase.spec.ts",
+        "title": "reduced motion: static layout, no marquee autoscroll",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
         "file": "ssr.spec.ts",
         "title": "server HTML includes static layout and text without JavaScript execution",
         "projectName": "chromium-desktop",
@@ -568,36 +718,6 @@
       {
         "file": "stress.spec.ts",
         "title": "correctly mounts with forced tier 3",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "text-reveal-flash.spec.ts",
-        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "text-reveal-flash.spec.ts",
-        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "text-reveal-flash.spec.ts",
-        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "text-reveal-flash.spec.ts",
-        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "text-reveal-flash.spec.ts",
-        "title": "headline never vanishes during SSR hydration (sampled every 16ms)",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -635,13 +755,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792537701263-9cd515ce.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537702199-5c873015.json",
+      "file": "measurement-1792620587111-3347b2b2.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -650,7 +764,13 @@
       }
     },
     {
-      "file": "measurement-1792537702209-84088c63.json",
+      "file": "measurement-1792620588506-9e4e9280.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620589409-0253a463.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -658,7 +778,7 @@
       }
     },
     {
-      "file": "measurement-1792537702350-839b325b.json",
+      "file": "measurement-1792620590769-297b1689.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -666,7 +786,7 @@
       }
     },
     {
-      "file": "measurement-1792537704266-be7603ab.json",
+      "file": "measurement-1792620596275-e367a71b.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -674,13 +794,7 @@
       }
     },
     {
-      "file": "measurement-1792537705357-f686d93f.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537705611-348b9319.json",
+      "file": "measurement-1792620605279-cf6d8747.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -689,7 +803,13 @@
       }
     },
     {
-      "file": "measurement-1792537706856-243a9003.json",
+      "file": "measurement-1792620606592-6becd4a2.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620608123-662c7c20.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -697,7 +817,7 @@
       }
     },
     {
-      "file": "measurement-1792537707000-03573928.json",
+      "file": "measurement-1792620608574-c34c2a58.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -705,7 +825,7 @@
       }
     },
     {
-      "file": "measurement-1792537707845-c3491561.json",
+      "file": "measurement-1792620612689-853e7994.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -713,21 +833,13 @@
       }
     },
     {
-      "file": "measurement-1792537714574-701150a6.json",
+      "file": "measurement-1792620638177-0be6551e.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792537721187-0cbe3b13.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537722024-d5ddb72a.json",
+      "file": "measurement-1792620639986-d69fa1e6.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -736,7 +848,23 @@
       }
     },
     {
-      "file": "measurement-1792537724278-48c50b69.json",
+      "file": "measurement-1792620641498-54858f51.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620644430-c7433825.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620654756-8729065a.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -744,29 +872,7 @@
       }
     },
     {
-      "file": "measurement-1792537725380-f66a3883.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537727849-ae20c5e8.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537728774-d4067423.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537728971-edb1da23.json",
+      "file": "measurement-1792620697947-4fcb8ab2.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -775,7 +881,21 @@
       }
     },
     {
-      "file": "measurement-1792537730196-789fb8db.json",
+      "file": "measurement-1792620700173-fe77dfb8.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620701494-2d0de8f6.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620705974-34d280e3.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -783,7 +903,7 @@
       }
     },
     {
-      "file": "measurement-1792537731390-2deabac7.json",
+      "file": "measurement-1792620721092-e145f4aa.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -791,29 +911,7 @@
       }
     },
     {
-      "file": "measurement-1792537736476-32ad6909.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792537737233-5a8338e1.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537737486-2059d024.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792537737993-917de1bb.json",
+      "file": "measurement-1792620740208-946023d5.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -822,7 +920,29 @@
       }
     },
     {
-      "file": "measurement-1792537739923-64af5498.json",
+      "file": "measurement-1792620741802-f40bfe0a.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620743422-4f0c2758.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620746365-12fb4f0d.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620754175-c38243b2.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

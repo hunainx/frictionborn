@@ -1,7 +1,7 @@
 {
   "item": "ambient-hero",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
@@ -25,9 +25,9 @@
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 17,
+        "passed": 16,
         "failed": 0,
-        "flaky": 0
+        "flaky": 1
       }
     },
     "specs": [
@@ -251,7 +251,7 @@
         "file": "ambient-hero.spec.ts",
         "title": "pause button toggles ambient motion and updates aria-pressed/aria-label",
         "projectName": "webkit-mobile",
-        "status": "expected"
+        "status": "flaky"
       },
       {
         "file": "ambient-hero.spec.ts",
@@ -785,7 +785,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792536271690-32ac7fea.json",
+      "file": "measurement-1792617751971-51a9119a.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -794,13 +794,13 @@
       }
     },
     {
-      "file": "measurement-1792536272710-af9a879b.json",
+      "file": "measurement-1792617752378-a24ba2a6.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536273818-01b4eea2.json",
+      "file": "measurement-1792617753739-f32af318.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -808,7 +808,7 @@
       }
     },
     {
-      "file": "measurement-1792536273928-4c53de27.json",
+      "file": "measurement-1792617754016-facee384.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -816,7 +816,7 @@
       }
     },
     {
-      "file": "measurement-1792536274906-a453ad8d.json",
+      "file": "measurement-1792617754868-6c050449.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -824,7 +824,7 @@
       }
     },
     {
-      "file": "measurement-1792536279326-070656af.json",
+      "file": "measurement-1792617757557-e6ad8e1a.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -833,13 +833,13 @@
       }
     },
     {
-      "file": "measurement-1792536280515-46be0147.json",
+      "file": "measurement-1792617758968-4de27f5e.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536281472-4ace54be.json",
+      "file": "measurement-1792617759916-d4f0c9d9.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -847,7 +847,7 @@
       }
     },
     {
-      "file": "measurement-1792536281796-874ce6d6.json",
+      "file": "measurement-1792617760675-f760dbca.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -855,7 +855,7 @@
       }
     },
     {
-      "file": "measurement-1792536283478-85bd88f8.json",
+      "file": "measurement-1792617763686-01fdd555.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -863,7 +863,7 @@
       }
     },
     {
-      "file": "measurement-1792536291272-ab22b7ea.json",
+      "file": "measurement-1792617773837-5ff2cf03.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -872,13 +872,13 @@
       }
     },
     {
-      "file": "measurement-1792536292898-a94f7236.json",
+      "file": "measurement-1792617775722-aa133875.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536294101-6601e096.json",
+      "file": "measurement-1792617776077-f71b5275.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -886,7 +886,7 @@
       }
     },
     {
-      "file": "measurement-1792536294913-41279c96.json",
+      "file": "measurement-1792617777442-db2bd839.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -894,7 +894,7 @@
       }
     },
     {
-      "file": "measurement-1792536296516-4e004de1.json",
+      "file": "measurement-1792617778807-9e701ff8.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -902,7 +902,7 @@
       }
     },
     {
-      "file": "measurement-1792536300736-7ed6f749.json",
+      "file": "measurement-1792617784281-bf265388.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -911,13 +911,13 @@
       }
     },
     {
-      "file": "measurement-1792536302751-ae3d564b.json",
+      "file": "measurement-1792617785630-4f61b8a6.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536305289-b6d2f155.json",
+      "file": "measurement-1792617786432-a2ad7243.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -925,7 +925,7 @@
       }
     },
     {
-      "file": "measurement-1792536305988-b9958df7.json",
+      "file": "measurement-1792617787762-2f7cb7c3.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -933,7 +933,7 @@
       }
     },
     {
-      "file": "measurement-1792536310515-921115a7.json",
+      "file": "measurement-1792617792484-e7fc36cd.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -941,7 +941,7 @@
       }
     },
     {
-      "file": "measurement-1792536314905-deb4f260.json",
+      "file": "measurement-1792617801719-da08924c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -950,13 +950,13 @@
       }
     },
     {
-      "file": "measurement-1792536316356-ac9000c3.json",
+      "file": "measurement-1792617804433-3c111fe3.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792536317374-03931ea1.json",
+      "file": "measurement-1792617806277-6e84ba20.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -964,7 +964,7 @@
       }
     },
     {
-      "file": "measurement-1792536319477-d015cfac.json",
+      "file": "measurement-1792617806401-ac5cad7e.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -972,7 +972,7 @@
       }
     },
     {
-      "file": "measurement-1792536321653-e00d42e4.json",
+      "file": "measurement-1792617810543-0869d666.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

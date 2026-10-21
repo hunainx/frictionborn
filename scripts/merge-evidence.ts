@@ -2,7 +2,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import { measureItemSize } from "../bench/size/measure.ts";
@@ -330,40 +329,11 @@ export function verifySnapshotIntegrity(
   if (fs.existsSync(mainTsx)) {
     const liveSize = measureItemSize(itemDir);
     const recSize = snapshotMeasured?.sizeKB;
-    let sizeMatches =
+    const sizeMatches =
       Boolean(recSize) &&
       recSize.initial === liveSize.initialGzipKB &&
       recSize.deferred === liveSize.deferredGzipKB &&
       recSize.method === liveSize.method;
-    if (!sizeMatches && recSize && recSize.method === liveSize.method) {
-      // Allow CRLF <-> LF line-ending normalization across git checkouts/worktrees while still hashing exact source content
-      for (const eol of ["\n", "\r\n"] as const) {
-        const files = fs.readdirSync(itemDir);
-        const normBufs = (pred: (f: string) => boolean) => {
-          const matched = files.filter(pred).sort();
-          if (matched.length === 0) return 0;
-          const combined = matched
-            .map((f) => fs.readFileSync(path.join(itemDir, f), "utf8").replace(/\r?\n/g, eol))
-            .join("");
-          return Number((zlib.gzipSync(Buffer.from(combined, "utf8"), { level: 9 }).byteLength / 1024).toFixed(2));
-        };
-        const initKB = normBufs(
-          (f) =>
-            (f.endsWith(".ts") || f.endsWith(".tsx")) &&
-            !f.endsWith(".gl.ts") &&
-            !f.endsWith(".gl.tsx") &&
-            !f.endsWith(".glsl.ts") &&
-            f !== "demo.tsx" &&
-            !f.endsWith(".test.ts") &&
-            !f.endsWith(".test.tsx")
-        );
-        const defKB = normBufs((f) => f.endsWith(".gl.ts") || f.endsWith(".gl.tsx") || f.endsWith(".glsl.ts"));
-        if (recSize.initial === initKB && recSize.deferred === defKB) {
-          sizeMatches = true;
-          break;
-        }
-      }
-    }
     if (!sizeMatches) {
       errors.push(
         `[${itemName}] Release snapshot sizeKB (${recSize?.initial}/${recSize?.deferred} KB ${recSize?.method}) does not match live deterministic measurement (${liveSize.initialGzipKB}/${liveSize.deferredGzipKB} KB ${liveSize.method}).`

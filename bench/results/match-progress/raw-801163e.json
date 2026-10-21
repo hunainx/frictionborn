@@ -1,21 +1,21 @@
 {
-  "item": "ember-core",
-  "commit": "fc44db8",
-  "date": "2026-10-20",
+  "item": "match-progress",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 24,
+        "passed": 16,
         "failed": 0,
-        "flaky": 2
+        "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 17,
+        "passed": 15,
         "failed": 0,
-        "flaky": 1
+        "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 15,
+        "passed": 14,
         "failed": 0,
         "flaky": 0
       },
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "title": "renders match-progress item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "title": "renders match-progress item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "title": "renders match-progress item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "title": "renders match-progress item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders ember-core item and measures idle frame activity and CLS",
+        "title": "renders match-progress item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -178,6 +178,66 @@
       {
         "file": "behaviour.spec.ts",
         "title": "suspends animation and emits 0 frames when tab is hidden",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: reduced motion still answers the keyboard and stops drawing",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: reduced motion still answers the keyboard and stops drawing",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "firefox-desktop",
+        "status": "skipped"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: reduced motion still answers the keyboard and stops drawing",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: reduced motion still answers the keyboard and stops drawing",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: idle after load, draws on the keyboard path, idle again once settled",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "canvas-items.spec.ts",
+        "title": "match-progress: reduced motion still answers the keyboard and stops drawing",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -185,25 +245,25 @@
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "context-loss.spec.ts",
@@ -245,299 +305,59 @@
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-desktop",
-        "status": "flaky"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-mobile",
-        "status": "flaky"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "firefox-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "firefox-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-desktop",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-mobile",
-        "status": "expected"
+        "status": "skipped"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "hover heats the pixels near the pointer",
-        "projectName": "chromium-desktop",
-        "status": "flaky"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "drag changes the frame",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "click raises mean brightness, and hold-then-release raises it more",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "wheel on /studio (hero mode) still scrolls the page",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "filament contrast passes in dark and light themes and fails on low contrast",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "hover heats the pixels near the pointer",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "drag changes the frame",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "click raises mean brightness, and hold-then-release raises it more",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "wheel on /studio (hero mode) still scrolls the page",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "filament contrast passes in dark and light themes and fails on low contrast",
-        "projectName": "chromium-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "hover heats the pixels near the pointer",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "drag changes the frame",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "click raises mean brightness, and hold-then-release raises it more",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "wheel on /studio (hero mode) still scrolls the page",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "filament contrast passes in dark and light themes and fails on low contrast",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "hover heats the pixels near the pointer",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "drag changes the frame",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "click raises mean brightness, and hold-then-release raises it more",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "wheel on /studio (hero mode) still scrolls the page",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "filament contrast passes in dark and light themes and fails on low contrast",
-        "projectName": "webkit-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "hover heats the pixels near the pointer",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "drag changes the frame",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "click raises mean brightness, and hold-then-release raises it more",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "wheel on /studio (hero mode) still scrolls the page",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "a vertical touch swipe on /studio (hero mode) still scrolls the page",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "pauseAll() stops the shared runtime loop with 0 draw calls over 2 s and <= 20 draw calls per frame when active",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion",
-        "projectName": "webkit-mobile",
-        "status": "skipped"
-      },
-      {
-        "file": "ember-core.spec.ts",
-        "title": "filament contrast passes in dark and light themes and fails on low contrast",
         "projectName": "webkit-mobile",
         "status": "skipped"
       },
@@ -845,29 +665,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792539174006-0017ac59.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792539174422-4e9d1d7c.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792539174956-dc2ec11f.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792539175229-61e7c362.json",
+      "file": "measurement-1792619758038-a20c5dc0.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -876,7 +674,29 @@
       }
     },
     {
-      "file": "measurement-1792539190164-90db6fad.json",
+      "file": "measurement-1792619759290-e4f5ec85.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619760206-c4241978.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619761152-0d531698.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619781446-2c2a1eed.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -884,7 +704,7 @@
       }
     },
     {
-      "file": "measurement-1792539198864-b3e4dcc3.json",
+      "file": "measurement-1792619785817-6390e546.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -893,21 +713,13 @@
       }
     },
     {
-      "file": "measurement-1792539200279-b11cb40a.json",
+      "file": "measurement-1792619786843-54fb0ccb.json",
       "data": {
         "cls": 0
       }
     },
     {
-      "file": "measurement-1792539201588-51299880.json",
-      "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792539202449-eddabd49.json",
+      "file": "measurement-1792619787771-f9040036.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -915,7 +727,15 @@
       }
     },
     {
-      "file": "measurement-1792539222746-7eb6450c.json",
+      "file": "measurement-1792619788851-1d3bcff5.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619802862-03c3766d.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -923,7 +743,7 @@
       }
     },
     {
-      "file": "measurement-1792539237984-8077f8f5.json",
+      "file": "measurement-1792619810246-1881ed3c.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -932,7 +752,13 @@
       }
     },
     {
-      "file": "measurement-1792539238183-d21c2540.json",
+      "file": "measurement-1792619811683-f69ead95.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619813939-9ba94cfb.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -940,13 +766,7 @@
       }
     },
     {
-      "file": "measurement-1792539238776-8d5aa0c0.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792539240111-eb3c5382.json",
+      "file": "measurement-1792619815179-06190a28.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -954,7 +774,7 @@
       }
     },
     {
-      "file": "measurement-1792539245015-e14be156.json",
+      "file": "measurement-1792619823048-4413d7b1.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -962,13 +782,7 @@
       }
     },
     {
-      "file": "measurement-1792539247949-a44b602a.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792539248205-277c8bce.json",
+      "file": "measurement-1792619829899-674894db.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -977,7 +791,13 @@
       }
     },
     {
-      "file": "measurement-1792539248826-8b539546.json",
+      "file": "measurement-1792619831270-626f928e.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619834432-959ab790.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -985,7 +805,7 @@
       }
     },
     {
-      "file": "measurement-1792539250481-6a15ae3b.json",
+      "file": "measurement-1792619835741-9408f374.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -993,7 +813,7 @@
       }
     },
     {
-      "file": "measurement-1792539258200-f53d52cb.json",
+      "file": "measurement-1792619862596-81113caf.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -1001,13 +821,7 @@
       }
     },
     {
-      "file": "measurement-1792539266140-bb42d471.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792539268109-7ec1d2a2.json",
+      "file": "measurement-1792619871340-80512f37.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -1016,15 +830,13 @@
       }
     },
     {
-      "file": "measurement-1792539268595-69f7209b.json",
+      "file": "measurement-1792619872576-15c5e23c.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792539269074-c68a2c12.json",
+      "file": "measurement-1792619875893-1880847f.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -1032,7 +844,15 @@
       }
     },
     {
-      "file": "measurement-1792539276450-acf90406.json",
+      "file": "measurement-1792619876640-05873865.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619902490-01f9b581.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

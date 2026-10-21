@@ -111,8 +111,8 @@ export function Upload({ percent }: { percent: number }) {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `538b855` (2026-10-20)
-- **Size**: 2.91 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
+- **Bench Commit**: `801163e` (2026-10-21)
+- **Size**: 2.89 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:
   - Off-screen: 0 frames
@@ -123,11 +123,11 @@ export function Upload({ percent }: { percent: number }) {
 ### Verified Devices
 | Environment | Via | Tier | Result | Date | Notes |
 |---|---|---|---|---|---|
-| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-20 | 16 passed, 0 failed |
-| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-20 | 15 passed, 0 failed |
-| Firefox Desktop | playwright | 3 | pass | 2026-10-20 | 14 passed, 0 failed |
-| WebKit Desktop | playwright | 3 | pass | 2026-10-20 | 15 passed, 0 failed |
-| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-20 | 15 passed, 0 failed |
+| Chromium Desktop (SwiftShader) | playwright | 3 | pass | 2026-10-21 | 16 passed, 0 failed |
+| Chromium Mobile (Pixel 7 emulation) | playwright | 2 | pass | 2026-10-21 | 15 passed, 0 failed |
+| Firefox Desktop | playwright | 3 | pass | 2026-10-21 | 14 passed, 0 failed |
+| WebKit Desktop | playwright | 3 | pass | 2026-10-21 | 15 passed, 0 failed |
+| WebKit Mobile (iPhone 14 emulation) | playwright | 2 | pass | 2026-10-21 | 15 passed, 0 failed |
 
 ## License & Provenance
 

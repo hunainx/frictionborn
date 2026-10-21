@@ -1,11 +1,11 @@
 {
-  "item": "fuse-toast",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "smooth-scroll",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 16,
+        "passed": 21,
         "failed": 0,
         "flaky": 0
       },
@@ -15,12 +15,12 @@
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 14,
+        "passed": 20,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 15,
+        "passed": 20,
         "failed": 0,
         "flaky": 0
       },
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders fuse-toast item and measures idle frame activity and CLS",
+        "title": "renders smooth-scroll item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders fuse-toast item and measures idle frame activity and CLS",
+        "title": "renders smooth-scroll item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders fuse-toast item and measures idle frame activity and CLS",
+        "title": "renders smooth-scroll item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders fuse-toast item and measures idle frame activity and CLS",
+        "title": "renders smooth-scroll item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders fuse-toast item and measures idle frame activity and CLS",
+        "title": "renders smooth-scroll item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -182,62 +182,62 @@
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: idle after load, draws on the keyboard path, idle again once settled",
+        "file": "combined-page.spec.ts",
+        "title": "maintains <= 1 rAF loop, <= 1 scroll engine, and <= 1 WebGL context",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
       {
-        "file": "canvas-items.spec.ts",
-        "title": "fuse-toast: reduced motion still answers the keyboard and stops drawing",
+        "file": "combined-page.spec.ts",
+        "title": "suspends all loops and emits 0 frames when tab is hidden",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -480,6 +480,156 @@
         "title": "enforces reduced motion mode without leaked motion frames",
         "projectName": "webkit-mobile",
         "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "mouse wheel scrolls, eases (not instant) and lands on the target",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "zero rAF frames once scrolling has settled",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "keyboard scrolling stays native (PageDown, End, Home)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "anchor links still jump to their target",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "nested scroll areas keep their own wheel scrolling",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "mouse wheel scrolls, eases (not instant) and lands on the target",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "zero rAF frames once scrolling has settled",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "keyboard scrolling stays native (PageDown, End, Home)",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "anchor links still jump to their target",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "nested scroll areas keep their own wheel scrolling",
+        "projectName": "chromium-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "mouse wheel scrolls, eases (not instant) and lands on the target",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "zero rAF frames once scrolling has settled",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "keyboard scrolling stays native (PageDown, End, Home)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "anchor links still jump to their target",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "nested scroll areas keep their own wheel scrolling",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "mouse wheel scrolls, eases (not instant) and lands on the target",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "zero rAF frames once scrolling has settled",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "keyboard scrolling stays native (PageDown, End, Home)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "anchor links still jump to their target",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "nested scroll areas keep their own wheel scrolling",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "mouse wheel scrolls, eases (not instant) and lands on the target",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "zero rAF frames once scrolling has settled",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "keyboard scrolling stays native (PageDown, End, Home)",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "anchor links still jump to their target",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
+      },
+      {
+        "file": "smooth-scroll.spec.ts",
+        "title": "nested scroll areas keep their own wheel scrolling",
+        "projectName": "webkit-mobile",
+        "status": "skipped"
       },
       {
         "file": "ssr.spec.ts",
@@ -665,21 +815,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792536959964-4988770e.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536960888-2754b303.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536960892-54965083.json",
+      "file": "measurement-1792620773882-82152dd3.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -688,7 +824,21 @@
       }
     },
     {
-      "file": "measurement-1792536960955-c94f3ab3.json",
+      "file": "measurement-1792620774845-6e42e9ce.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620775815-4d4b979e.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620776785-1d58d225.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -696,7 +846,7 @@
       }
     },
     {
-      "file": "measurement-1792536963037-31693932.json",
+      "file": "measurement-1792620783058-1ee26548.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -704,13 +854,7 @@
       }
     },
     {
-      "file": "measurement-1792536965927-60c106a0.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536966387-6f6813f5.json",
+      "file": "measurement-1792620795931-3e58c79f.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -719,7 +863,13 @@
       }
     },
     {
-      "file": "measurement-1792536967936-acbebe88.json",
+      "file": "measurement-1792620797305-28a0fc9e.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620798466-7058548e.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -727,7 +877,7 @@
       }
     },
     {
-      "file": "measurement-1792536968371-1afa1eaf.json",
+      "file": "measurement-1792620799406-9b1daa3b.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -735,7 +885,7 @@
       }
     },
     {
-      "file": "measurement-1792536973273-f5b75043.json",
+      "file": "measurement-1792620805035-f16d92c3.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -743,13 +893,7 @@
       }
     },
     {
-      "file": "measurement-1792536976159-4c8a9a9a.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536977011-f171f75b.json",
+      "file": "measurement-1792620812422-8845b9c7.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -758,15 +902,13 @@
       }
     },
     {
-      "file": "measurement-1792536978624-a376fda9.json",
+      "file": "measurement-1792620814272-2bfc12a9.json",
       "data": {
-        "framesWhenIdle": {
-          "hiddenTab": 0
-        }
+        "cls": 0
       }
     },
     {
-      "file": "measurement-1792536979627-d243284f.json",
+      "file": "measurement-1792620815241-5f327d61.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -774,7 +916,15 @@
       }
     },
     {
-      "file": "measurement-1792536981300-1a559f35.json",
+      "file": "measurement-1792620817078-4b142bd8.json",
+      "data": {
+        "framesWhenIdle": {
+          "hiddenTab": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620823662-2b0d7ff4.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -782,21 +932,7 @@
       }
     },
     {
-      "file": "measurement-1792536985284-85b41f25.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536986124-c1076a12.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536986552-82b56c84.json",
+      "file": "measurement-1792620839110-8450e4bb.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -805,7 +941,21 @@
       }
     },
     {
-      "file": "measurement-1792536987926-3a0dfdc8.json",
+      "file": "measurement-1792620840843-0f3b0292.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620844927-3d806848.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620845532-0a08275c.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -813,7 +963,7 @@
       }
     },
     {
-      "file": "measurement-1792536993985-7626defc.json",
+      "file": "measurement-1792620859279-12399f02.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -821,13 +971,7 @@
       }
     },
     {
-      "file": "measurement-1792536995900-ab9a049d.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536996428-b3ff2d7e.json",
+      "file": "measurement-1792620886174-e39cd739.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -836,7 +980,13 @@
       }
     },
     {
-      "file": "measurement-1792536996884-a78d46d7.json",
+      "file": "measurement-1792620888116-1c284796.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620891291-8445999f.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -844,7 +994,7 @@
       }
     },
     {
-      "file": "measurement-1792536998034-da20fd4e.json",
+      "file": "measurement-1792620892504-bdf24033.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -852,7 +1002,7 @@
       }
     },
     {
-      "file": "measurement-1792537002002-c8f15d37.json",
+      "file": "measurement-1792620904333-d0fbf3ed.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0

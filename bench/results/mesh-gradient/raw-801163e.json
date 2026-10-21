@@ -1,31 +1,31 @@
 {
-  "item": "firework-rating",
-  "commit": "538b855",
-  "date": "2026-10-20",
+  "item": "mesh-gradient",
+  "commit": "801163e",
+  "date": "2026-10-21",
   "playwright": {
     "projects": {
       "chromium-desktop": {
-        "passed": 16,
+        "passed": 21,
         "failed": 0,
         "flaky": 0
       },
       "chromium-mobile": {
-        "passed": 15,
+        "passed": 20,
         "failed": 0,
         "flaky": 0
       },
       "firefox-desktop": {
-        "passed": 14,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-desktop": {
-        "passed": 15,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       },
       "webkit-mobile": {
-        "passed": 15,
+        "passed": 18,
         "failed": 0,
         "flaky": 0
       }
@@ -93,7 +93,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders firework-rating item and measures idle frame activity and CLS",
+        "title": "renders mesh-gradient item and measures idle frame activity and CLS",
         "projectName": "chromium-desktop",
         "status": "expected"
       },
@@ -111,7 +111,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders firework-rating item and measures idle frame activity and CLS",
+        "title": "renders mesh-gradient item and measures idle frame activity and CLS",
         "projectName": "chromium-mobile",
         "status": "expected"
       },
@@ -129,7 +129,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders firework-rating item and measures idle frame activity and CLS",
+        "title": "renders mesh-gradient item and measures idle frame activity and CLS",
         "projectName": "firefox-desktop",
         "status": "expected"
       },
@@ -147,7 +147,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders firework-rating item and measures idle frame activity and CLS",
+        "title": "renders mesh-gradient item and measures idle frame activity and CLS",
         "projectName": "webkit-desktop",
         "status": "expected"
       },
@@ -165,7 +165,7 @@
       },
       {
         "file": "behaviour.spec.ts",
-        "title": "renders firework-rating item and measures idle frame activity and CLS",
+        "title": "renders mesh-gradient item and measures idle frame activity and CLS",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -178,66 +178,6 @@
       {
         "file": "behaviour.spec.ts",
         "title": "suspends animation and emits 0 frames when tab is hidden",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: reduced motion still answers the keyboard and stops drawing",
-        "projectName": "chromium-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: reduced motion still answers the keyboard and stops drawing",
-        "projectName": "chromium-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "firefox-desktop",
-        "status": "skipped"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: reduced motion still answers the keyboard and stops drawing",
-        "projectName": "firefox-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: reduced motion still answers the keyboard and stops drawing",
-        "projectName": "webkit-desktop",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: idle after load, draws on the keyboard path, idle again once settled",
-        "projectName": "webkit-mobile",
-        "status": "expected"
-      },
-      {
-        "file": "canvas-items.spec.ts",
-        "title": "firework-rating: reduced motion still answers the keyboard and stops drawing",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -245,25 +185,25 @@
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "context loss falls back to the poster; restore resumes the canvas",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
         "title": "a context lost for good, then scrolled away and back, gets a fresh working canvas (lease re-acquire after loss)",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "context-loss.spec.ts",
@@ -305,61 +245,61 @@
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "chromium-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "firefox-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "firefox-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-desktop",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 2 renders at <= 1.5x device pixels",
         "projectName": "webkit-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "dpr-cap.spec.ts",
         "title": "tier 3 renders at <= 2x device pixels",
         "projectName": "webkit-mobile",
-        "status": "skipped"
+        "status": "expected"
       },
       {
         "file": "leak.spec.ts",
@@ -388,6 +328,36 @@
       {
         "file": "leak.spec.ts",
         "title": "mount and unmount cycling leaves 0 leaked contexts and no listener growth",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mesh-speed.spec.ts",
+        "title": "with no props the shader clock runs at 0.35 s per real second",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mesh-speed.spec.ts",
+        "title": "with no props the shader clock runs at 0.35 s per real second",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "mesh-speed.spec.ts",
+        "title": "with no props the shader clock runs at 0.35 s per real second",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mesh-speed.spec.ts",
+        "title": "with no props the shader clock runs at 0.35 s per real second",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "mesh-speed.spec.ts",
+        "title": "with no props the shader clock runs at 0.35 s per real second",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -508,6 +478,66 @@
       {
         "file": "ssr.spec.ts",
         "title": "server HTML includes static layout and text without JavaScript execution",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
+        "projectName": "chromium-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
+        "projectName": "chromium-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
+        "projectName": "firefox-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
+        "projectName": "webkit-desktop",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "strictly enforces glBudget ceiling <= 4 on desktop (fine) and <= 2 on mobile (coarse)",
+        "projectName": "webkit-mobile",
+        "status": "expected"
+      },
+      {
+        "file": "stress-gl.spec.ts",
+        "title": "leases follow visibility during scroll-through top-to-bottom and back (S8-8)",
         "projectName": "webkit-mobile",
         "status": "expected"
       },
@@ -665,21 +695,7 @@
   },
   "probes": [
     {
-      "file": "measurement-1792536810739-3bc71493.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536811653-3bea5fdc.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536811690-c580be76.json",
+      "file": "measurement-1792619913054-9a7fcf6b.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -688,7 +704,21 @@
       }
     },
     {
-      "file": "measurement-1792536811747-b6193476.json",
+      "file": "measurement-1792619914051-88fc1e66.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619915160-27f80fbb.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792619915997-dbd24b58.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -696,7 +726,7 @@
       }
     },
     {
-      "file": "measurement-1792536814376-8f3d77ab.json",
+      "file": "measurement-1792619930512-721aed59.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -704,13 +734,7 @@
       }
     },
     {
-      "file": "measurement-1792536818741-cb65cd47.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536818754-6f015924.json",
+      "file": "measurement-1792619940100-aec24677.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -719,7 +743,13 @@
       }
     },
     {
-      "file": "measurement-1792536819653-9e115031.json",
+      "file": "measurement-1792619941549-3c2790a0.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619943329-879fcd7a.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -727,7 +757,7 @@
       }
     },
     {
-      "file": "measurement-1792536821340-58b0c275.json",
+      "file": "measurement-1792619943978-f1c4d2d6.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -735,7 +765,7 @@
       }
     },
     {
-      "file": "measurement-1792536822767-ce803929.json",
+      "file": "measurement-1792619956436-ddadce0c.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -743,7 +773,7 @@
       }
     },
     {
-      "file": "measurement-1792536829191-bcb136d8.json",
+      "file": "measurement-1792619968268-f9f560c4.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -752,7 +782,13 @@
       }
     },
     {
-      "file": "measurement-1792536829602-0e4452db.json",
+      "file": "measurement-1792619970907-60c34af0.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792619972060-27f1650c.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -760,13 +796,7 @@
       }
     },
     {
-      "file": "measurement-1792536830545-8228ee78.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536831440-55ba6633.json",
+      "file": "measurement-1792619974057-6a8fad4e.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -774,7 +804,7 @@
       }
     },
     {
-      "file": "measurement-1792536833871-da6a4e56.json",
+      "file": "measurement-1792619986263-89bb071f.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -782,21 +812,7 @@
       }
     },
     {
-      "file": "measurement-1792536837403-7f79e6e7.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536837659-65b293a1.json",
-      "data": {
-        "framesWhenIdle": {
-          "offscreen": 0
-        }
-      }
-    },
-    {
-      "file": "measurement-1792536837760-12d914b9.json",
+      "file": "measurement-1792620000422-865c7564.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -805,7 +821,21 @@
       }
     },
     {
-      "file": "measurement-1792536838414-0151fcfc.json",
+      "file": "measurement-1792620001866-eb0ccd35.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620002924-d82a1ab9.json",
+      "data": {
+        "framesWhenIdle": {
+          "offscreen": 0
+        }
+      }
+    },
+    {
+      "file": "measurement-1792620006060-c7927f67.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -813,7 +843,7 @@
       }
     },
     {
-      "file": "measurement-1792536842786-1a8872ef.json",
+      "file": "measurement-1792620032366-3a25b788.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
@@ -821,13 +851,7 @@
       }
     },
     {
-      "file": "measurement-1792536847215-c264e20d.json",
-      "data": {
-        "cls": 0
-      }
-    },
-    {
-      "file": "measurement-1792536848314-df209a1e.json",
+      "file": "measurement-1792620062354-5c4c2abe.json",
       "data": {
         "axe": {
           "serious": 0,
@@ -836,7 +860,13 @@
       }
     },
     {
-      "file": "measurement-1792536848439-cb5f5baf.json",
+      "file": "measurement-1792620063080-c10de785.json",
+      "data": {
+        "cls": 0
+      }
+    },
+    {
+      "file": "measurement-1792620064488-bd5697b2.json",
       "data": {
         "framesWhenIdle": {
           "offscreen": 0
@@ -844,7 +874,7 @@
       }
     },
     {
-      "file": "measurement-1792536849101-c03149b8.json",
+      "file": "measurement-1792620067419-eb298d4b.json",
       "data": {
         "framesWhenIdle": {
           "hiddenTab": 0
@@ -852,7 +882,7 @@
       }
     },
     {
-      "file": "measurement-1792536851782-de2d430a.json",
+      "file": "measurement-1792620089225-c6eaecf5.json",
       "data": {
         "framesWhenIdle": {
           "reducedMotion": 0
