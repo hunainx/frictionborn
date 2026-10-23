@@ -223,9 +223,8 @@ export function buildRegistry(): void {
     fs.mkdirSync(path.join(docsPublicDir, "r"), { recursive: true });
     fs.cpSync(publicRDir, path.join(docsPublicDir, "r"), { recursive: true });
     fs.copyFileSync(path.join(publicDir, "registry.json"), path.join(docsPublicDir, "registry.json"));
-    if (fs.existsSync(llmsPath)) {
-      fs.copyFileSync(llmsPath, path.join(docsPublicDir, "llms.txt"));
-    }
+    // Website-owned the-private-website-repo/public/llms.txt and llms-full.txt are never overwritten by the library's llms.txt;
+    // the library's spec index remains at the-private-website-repo/public/r/llms.txt.
     // The docs previews load demo images from /assets (DistortionImage); without them the docs site 404s on the images.
     // oversized.webp is a bench fixture, not a demo asset.
     const assetsDir = path.join(publicDir, "assets");
