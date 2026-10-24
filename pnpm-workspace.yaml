@@ -33,3 +33,5 @@ overrides:
   "ip-address": ">=10.7.4"
   zod: ">=4.6.6"
   js-yaml: ">=4.1.1"
+  body-parser: ">=1.20.9"
+  fast-uri: ">=3.1.9"
