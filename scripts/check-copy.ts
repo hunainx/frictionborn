@@ -143,7 +143,8 @@ export function scanText(relativePath: string, content: string): Violation[] {
       if (
         rule.name === "sci-fi-jargon" &&
         match[0].toLowerCase() === "strontium" &&
-        normalizedPath.endsWith("the-private-website-repo/content/ventures.ts")
+        (normalizedPath.endsWith("the-private-website-repo/content/ventures.ts") ||
+          normalizedPath.endsWith("the-private-website-repo/content/i18n/kn.ts"))
       ) {
         // Decision 72: Venture 5's chemical flame-test element is Strontium ("Sr · strontium flame").
         continue;
