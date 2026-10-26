@@ -64,7 +64,7 @@ export default function SmoothScrollDemo() {
               textTransform: "uppercase",
             }}
           >
-            Frictionborn Studio · Field Notes
+            Frictionborn · Field Notes
           </span>
         </div>
 

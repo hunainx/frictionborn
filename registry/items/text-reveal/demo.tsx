@@ -154,7 +154,7 @@ export default function TextRevealDemo() {
       >
         <span>shadcn CLI</span>
         <span>Bench-measured</span>
-        <span>Frictionborn Studio</span>
+        <span>Frictionborn</span>
       </footer>
     </section>
   );
