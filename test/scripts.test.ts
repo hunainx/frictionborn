@@ -416,7 +416,9 @@ describe("audit M3: generators tell the truth", () => {
   });
 });
 
-describe("audit M3: evidence must be passing and current", () => {
+// these build their own temp git repos (~0.5 s each on an idle machine); under load the default 5 s timed out (audit 2026-10-26, split
+// dry run 3: 5040 ms at 54 % CPU), so the group gets 30 s
+describe("audit M3: evidence must be passing and current", { timeout: 30_000 }, () => {
   const base = {
     commit: "abc1234",
     date: "2026-10-05",
