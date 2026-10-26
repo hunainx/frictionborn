@@ -217,14 +217,11 @@ export function buildRegistry(): void {
     fs.writeFileSync(path.join(publicRDir, "llms.txt"), llmsContent, "utf8");
   }
 
-  // Sync to the-private-website-repo/public if the-private-website-repo exists
   const docsPublicDir = path.join(root, "apps", "docs", "public");
   if (fs.existsSync(path.join(root, "apps", "docs"))) {
     fs.mkdirSync(path.join(docsPublicDir, "r"), { recursive: true });
     fs.cpSync(publicRDir, path.join(docsPublicDir, "r"), { recursive: true });
     fs.copyFileSync(path.join(publicDir, "registry.json"), path.join(docsPublicDir, "registry.json"));
-    // Website-owned the-private-website-repo/public/llms.txt and llms-full.txt are never overwritten by the library's llms.txt;
-    // the library's spec index remains at the-private-website-repo/public/r/llms.txt.
     // The docs previews load demo images from /assets (DistortionImage); without them the docs site 404s on the images.
     // oversized.webp is a bench fixture, not a demo asset.
     const assetsDir = path.join(publicDir, "assets");
@@ -234,7 +231,6 @@ export function buildRegistry(): void {
         filter: (src) => !src.endsWith("oversized.webp"),
       });
     }
-    console.log(`✔ Synced registry, llms.txt and demo assets to the-private-website-repo/public for docs site deployment.`);
   }
 
   console.log(`✔ Registry build complete: ${registryItems.length} public items published.`);

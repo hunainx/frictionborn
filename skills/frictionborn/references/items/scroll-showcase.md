@@ -131,7 +131,7 @@ export default function Story() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `801163e` (2026-10-21)
+- **Bench Commit**: `ffd0225` (2026-10-21)
 - **Size**: 2.57 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:

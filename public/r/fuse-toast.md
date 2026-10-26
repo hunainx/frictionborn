@@ -122,7 +122,7 @@ export function ArchiveRow({ onArchive, onRestore }: { onArchive: () => void; on
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `801163e` (2026-10-21)
+- **Bench Commit**: `ffd0225` (2026-10-21)
 - **Size**: 3.1 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0`
 - **Frames When Idle**:

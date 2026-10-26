@@ -1,0 +1,58 @@
+name: Feature request
+description: Suggest a change to an existing item, the runtime or the docs.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The scope of this library is deliberately narrow. New items and new runtime APIs need an agreed issue before anyone builds them, so please describe the problem first. A request for a change to an existing item is the easiest to act on.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - An existing item
+        - "@frictionborn/runtime"
+        - A new item
+        - Documentation site
+        - Agent skill or AGENTS snippet
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: item
+    attributes:
+      label: Item name
+      description: If this is about an existing item, which one?
+      placeholder: marquee
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do, and what gets in the way today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+      description: The change you have in mind. For a prop, include its name, type and unit.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you tried
+      description: Other approaches, including editing the source in your own project (the items are source-copied, so that is always an option).
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Anything it must keep working, such as reduced motion, server rendering, touch devices or a size budget.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I looked for an existing issue that asks for the same thing.
+          required: true

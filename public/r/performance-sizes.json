@@ -1,0 +1,26 @@
+[
+  {
+    "name": "@frictionborn/runtime (core)",
+    "budgetLimit": "≤ 5.0 KB gzip",
+    "measuredSize": "4.10 KB gzip",
+    "passed": true,
+    "size": 4100,
+    "sizeLimit": 5000
+  },
+  {
+    "name": "@frictionborn/runtime/gl",
+    "budgetLimit": "≤ 3.0 KB gzip",
+    "measuredSize": "1.46 KB gzip",
+    "passed": true,
+    "size": 1464,
+    "sizeLimit": 3000
+  },
+  {
+    "name": "@frictionborn/runtime/canvas",
+    "budgetLimit": "≤ 3.5 KB gzip",
+    "measuredSize": "3.38 KB gzip",
+    "passed": true,
+    "size": 3376,
+    "sizeLimit": 3500
+  }
+]

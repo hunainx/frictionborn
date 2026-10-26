@@ -129,7 +129,6 @@ function isCopyFile(relativePath: string): boolean {
   const base = path.basename(p);
   if (base === "demo.tsx" || base === "ambient-hero.tsx" || base === "scroll-showcase.tsx") return true;
   if (p.startsWith("bench/harness/app/")) return /\.tsx$/.test(p);
-  if (p.startsWith("the-private-website-repo/")) return !/^apps\/docs\/(\.next|node_modules)\//.test(p);
   return false;
 }
 
@@ -140,15 +139,6 @@ export function scanText(relativePath: string, content: string): Violation[] {
   for (const rule of BANNED_PATTERNS) {
     const re = new RegExp(rule.pattern.source, rule.pattern.flags.includes("g") ? rule.pattern.flags : rule.pattern.flags + "g");
     for (const match of text.matchAll(re)) {
-      if (
-        rule.name === "sci-fi-jargon" &&
-        match[0].toLowerCase() === "strontium" &&
-        (normalizedPath.endsWith("the-private-website-repo/content/ventures.ts") ||
-          normalizedPath.endsWith("the-private-website-repo/content/i18n/kn.ts"))
-      ) {
-        // Decision 72: Venture 5's chemical flame-test element is Strontium ("Sr · strontium flame").
-        continue;
-      }
       const line = text.slice(0, match.index).split("\n").length;
       violations.push({
         file: relativePath,
@@ -332,7 +322,7 @@ export function collectBuiltTextEntries(
   walkDir(path.join(rootDir, "apps", "docs", ".next", "static"), /\.(html|js|mjs|json|txt)$/i, true);
 
   // llms.txt files
-  for (const rel of ["llms.txt", "public/llms.txt", "public/r/llms.txt", "the-private-website-repo/public/llms.txt", "the-private-website-repo/public/r/llms.txt"]) {
+  for (const rel of ["llms.txt", "public/llms.txt", "public/r/llms.txt"]) {
     addFile(path.join(rootDir, rel));
   }
 

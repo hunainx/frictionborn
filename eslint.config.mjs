@@ -37,9 +37,6 @@ export default [
     // already broke two of those rules before the approval (196 findings, listed with counts per file in docs/audit/v3/round-2.md); they
     // stay at warning level until they are fixed one by one. Every other file, and every new file, gets the rules as errors.
     files: [
-      "the-private-website-repo/app/brand-lab/v2/gate-engine.ts",
-      "the-private-website-repo/components/item-preview.tsx",
-      "the-private-website-repo/lib/registry-data.ts",
       "bench/harness/app/items/\\[name\\]/page.tsx",
       "bench/lighthouse/run.ts",
       "bench/probes/context-counter.ts",
@@ -83,17 +80,6 @@ export default [
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-this-alias": "warn"
-    }
-  },
-  {
-    // Ported owner prototype code. It is kept line-for-line so it can be diffed against _reference/prototypes (see
-    // the-private-website-repo/lib/fire-engine/PORTING.md). Only these three rules are relaxed, only for these .js files: the
-    // prototype writes `a && a()`, has unused callback parameters and empty catch blocks. Everything else still applies.
-    files: ["the-private-website-repo/lib/fire-engine/**/*.js"],
-    rules: {
-      "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "no-empty": "off"
     }
   },
   {

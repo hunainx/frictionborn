@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const ROOT = process.cwd();
-const OUTPUT_FILE = path.join(ROOT, "apps", "docs", "lib", "performance-sizes.json");
+const OUTPUT_FILE = path.join(ROOT, "public", "r", "performance-sizes.json");
 
 export interface SizeLimitEntry {
   name: string;
@@ -50,7 +50,7 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPat
 if (isMain) {
   try {
     const rows = generatePerformanceSizes();
-    console.log("✔ Generated the-private-website-repo/lib/performance-sizes.json from size-limit output:");
+    console.log("✔ Generated public/r/performance-sizes.json from size-limit output:");
     for (const r of rows) {
       console.log(`  ${r.name}: ${r.measuredSize} (${r.budgetLimit}) -> ${r.passed ? "PASS" : "FAIL"}`);
     }

@@ -126,7 +126,7 @@ export default function Hero() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `801163e` (2026-10-21)
+- **Bench Commit**: `ffd0225` (2026-10-21)
 - **Size**: 2.76 KiB initial / 3.45 KiB deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0.0017`
 - **Frames When Idle**:

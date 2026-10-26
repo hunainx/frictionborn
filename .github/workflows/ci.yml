@@ -1,0 +1,260 @@
+name: CI
+
+# Jobs run in parallel. The bench is sharded by browser project and, for the slow browsers, by half of the item list
+# (every spec still runs for every item on every project), so a push takes about as long as the slowest shard.
+# The single "CI gate" job is the one required check.
+
+on:
+  push:
+    branches: [master, main]
+    tags: ["v*"]
+  pull_request:
+    branches: [master, main]
+  schedule:
+    - cron: '0 2 * * *' # Nightly at 02:00 UTC (runs full browser matrix)
+    - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC (for lenis compatibility)
+  workflow_dispatch:
+
+env:
+  # Single config switch: set to 'true' to run full browser matrix on every push (e.g. once public).
+  # When 'false', pushes run cheap mode (static checks + smoke install + 1 chromium-desktop shard).
+  FULL_MATRIX: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static checks (lint, unit tests, size, metadata, registry)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # meta:check compares each item's code with the commit its evidence was measured on
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Lint and Provenance Check
+        run: pnpm lint
+
+      - name: Unit Tests
+        run: pnpm test
+
+      - name: Size Limit Check
+        run: pnpm size
+
+      # Drift check runs against COMMITTED data only: validate + catalog + registry build,
+      # no bench evidence merge, no screenshots. Anything that changes is out of date in git.
+      - name: Validate metadata, build catalog and registry (committed data only)
+        run: |
+          pnpm meta:check
+          pnpm registry:build
+
+      - name: Fail on generated-file drift
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain)" || { git status --porcelain; echo "Generated spec sheets, catalog or registry are out of date. Run 'pnpm meta' and 'pnpm registry:build' locally and commit."; exit 1; }
+
+  bench:
+    name: Bench (${{ matrix.project }} ${{ matrix.shard }})
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || env.FULL_MATRIX == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # The three slowest browsers are split in two halves of the item list (bench --shard i/n).
+        include:
+          - { project: chromium-desktop, browser: chromium, shard: "1/2", shardName: "1of2" }
+          - { project: chromium-desktop, browser: chromium, shard: "2/2", shardName: "2of2" }
+          - { project: chromium-mobile, browser: chromium, shard: "1/1", shardName: "1of1" }
+          - { project: firefox-desktop, browser: firefox, shard: "1/2", shardName: "1of2" }
+          - { project: firefox-desktop, browser: firefox, shard: "2/2", shardName: "2of2" }
+          - { project: webkit-desktop, browser: webkit, shard: "1/2", shardName: "1of2" }
+          - { project: webkit-desktop, browser: webkit, shard: "2/2", shardName: "2of2" }
+          - { project: webkit-mobile, browser: webkit, shard: "1/1", shardName: "1of1" }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Install Playwright browser and OS dependencies
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      # Bench output is evidence, not source: it is uploaded as an artifact and never merged in CI.
+      # Canonical `measured` data = CI Linux artifacts merged locally with `pnpm meta` before a release.
+      - name: Playwright benchmark suite (this project and item shard only)
+        run: pnpm bench --project ${{ matrix.project }} --shard ${{ matrix.shard }}
+
+      - name: Upload bench results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bench-results-${{ matrix.project }}-${{ matrix.shardName }}
+          path: bench/results
+          if-no-files-found: warn
+          retention-days: 30
+
+  bench-cheap:
+    name: Bench Cheap (chromium-desktop 1/2)
+    if: !(github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || env.FULL_MATRIX == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Install Playwright browser and OS dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright benchmark suite (chromium-desktop shard 1/2 only)
+        run: pnpm bench --project chromium-desktop --shard 1/2
+
+      - name: Upload bench results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bench-results-chromium-desktop-1of2
+          path: bench/results
+          if-no-files-found: warn
+          retention-days: 30
+
+  smoke-install:
+    name: Registry install smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run Registry Install Smoke Test
+        run: pnpm smoke:install
+
+  gate:
+    name: CI gate
+    if: always()
+    needs: [static, bench, bench-cheap, smoke-install]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every required job must have succeeded
+        run: |
+          echo "static=${{ needs.static.result }} bench=${{ needs.bench.result }} bench-cheap=${{ needs.bench-cheap.result }} smoke-install=${{ needs.smoke-install.result }}"
+          test "${{ needs.static.result }}" = "success" || exit 1
+          test "${{ needs.smoke-install.result }}" = "success" || exit 1
+          if [ "${{ needs.bench.result }}" != "success" ] && [ "${{ needs.bench-cheap.result }}" != "success" ]; then
+            echo "Neither full bench matrix nor cheap bench shard succeeded"
+            exit 1
+          fi
+
+  lenis-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 3 * * 0') || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 11.24.0
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Install Playwright Browsers & OS Dependencies
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build bench harness
+        run: pnpm exec next build bench/harness
+
+      - name: Install latest lenis@1.x and test SmoothScroll
+        run: |
+          pnpm add -D "lenis@^1"
+          pnpm test test/smooth-scroll.test.tsx
+          pnpm bench --item smooth-scroll

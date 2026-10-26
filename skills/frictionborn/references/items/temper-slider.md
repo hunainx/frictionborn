@@ -115,7 +115,7 @@ export function Tempering() {
 
 ## Measured Bench Evidence
 
-- **Bench Commit**: `538b855` (2026-10-20)
+- **Bench Commit**: `99012b7` (2026-10-20)
 - **Size**: 3.31 KiB initial / none deferred. Gzip of this item's own source files only (method: gzip-9); excludes the runtime, third-party packages and any registry items it pulls in.
 - **Cumulative Layout Shift (CLS)**: `0.0001`
 - **Frames When Idle**:
