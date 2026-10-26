@@ -128,7 +128,7 @@ export default function MarqueeDemo() {
                     color: "var(--muted-foreground, #9AA1AF)",
                     padding: "1px 5px",
                     borderRadius: "3px",
-                    backgroundColor: "rgba(0, 0, 0, 0.3)",
+                    backgroundColor: "color-mix(in srgb, var(--foreground, CanvasText) 8%, transparent)",
                   }}
                 >
                   {inst.category}

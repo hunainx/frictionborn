@@ -21,9 +21,9 @@ export default function MatchProgressDemo() {
     }, 120);
   };
   return (
-    <section aria-label="MatchProgress demo" style={{ maxWidth: 520, margin: "0 auto", padding: "24px 16px", background: "#0c0b0a", color: "#E9E5DF", borderRadius: 18, display: "grid", gap: 14, justifyItems: "center" }}>
+    <section aria-label="MatchProgress demo" style={{ maxWidth: 520, margin: "0 auto", padding: "24px 16px", background: "var(--card, Canvas)", color: "var(--foreground, CanvasText)", border: "1px solid var(--border, GrayText)", borderRadius: 18, display: "grid", gap: 14, justifyItems: "center" }}>
       <MatchProgress value={v} label="Running the bench" style={{ width: "100%" }} />
-      <button type="button" onClick={run} disabled={running} style={{ minHeight: 34, padding: "0 14px", borderRadius: 999, border: "1px solid rgba(233,229,223,.18)", background: "#1d1a18", color: "#E9E5DF", fontSize: 13, cursor: "pointer" }}>
+      <button type="button" onClick={run} disabled={running} style={{ minHeight: 34, padding: "0 14px", borderRadius: 999, border: "1px solid var(--border, GrayText)", background: "var(--background, Canvas)", color: "var(--foreground, CanvasText)", fontSize: 13, cursor: "pointer" }}>
         {v >= 100 ? "Run the bench again" : "Run the bench"}
       </button>
     </section>

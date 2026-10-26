@@ -244,7 +244,7 @@ export default function MeshGradientDemo() {
                   borderRadius: "6px",
                   border: `1px solid ${selectedPalette === idx ? "var(--primary, #38BDF8)" : isLight ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.12)"}`,
                   backgroundColor: selectedPalette === idx ? "var(--primary, #38BDF8)" : "transparent",
-                  color: selectedPalette === idx ? "#080A0E" : isLight ? "#0F172A" : "var(--foreground, #F1F5F9)",
+                  color: selectedPalette === idx ? "var(--primary-foreground, #080A0E)" : isLight ? "#0F172A" : "var(--foreground, #F1F5F9)",
                   cursor: "pointer",
                   display: "inline-flex",
                   alignItems: "center",
