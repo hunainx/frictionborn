@@ -49,3 +49,6 @@ the-private-website-repo/the-private-photo-dir/*.jpg
 # round 4 (Part 8): the final reviewer's screenshots and full reports
 docs/audit/v4/final/media/
 docs/audit/v4/final/tools/node_modules/
+
+# local agent outbox alerts and bundles
+social/outbox/
