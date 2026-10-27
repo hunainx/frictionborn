@@ -31,6 +31,21 @@ describe("GitHub Actions workflows", () => {
     }
   });
 
+  // the cheap bench ran out of its 20 minutes when `playwright install --with-deps` hit a stalled apt mirror (12 minutes); the bench
+  // jobs run in the official Playwright image instead, which must be the same version as @playwright/test (its browser builds)
+  it("runs the bench jobs in the Playwright image of the installed @playwright/test version, with no apt browser install", () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+    const version = pkg.devDependencies?.["@playwright/test"] ?? pkg.dependencies?.["@playwright/test"];
+    expect(version).toMatch(/^\d+\.\d+\.\d+$/);
+    const ci = fs.readFileSync(path.join(workflowDir, "ci.yml"), "utf8");
+    for (const job of ["bench", "bench-cheap"]) {
+      const body = new RegExp(`^ {2}${job}:\\n((?: {4}.*\\n|\\n)*)`, "m").exec(ci)?.[1] ?? "";
+      expect(body, job).toContain(`image: mcr.microsoft.com/playwright:v${version}-noble`);
+      expect(body, job).not.toMatch(/playwright install --with-deps/);
+      expect(body, job).toContain('git config --global --add safe.directory "$GITHUB_WORKSPACE"');
+    }
+  });
+
   it("keeps the FULL_MATRIX switch working: full bench and cheap bench are opposite conditions on vars.FULL_MATRIX", () => {
     for (const file of files.filter((f) => f.endsWith("ci.yml"))) {
       const text = fs.readFileSync(file, "utf8");

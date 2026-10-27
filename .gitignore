@@ -45,3 +45,6 @@ docs/audit/v4/final/tools/node_modules/
 
 # local agent outbox alerts and bundles
 social/outbox/
+# bench demo pictures, drawn at test time by bench/demo-images.ts (the repo ships no media)
+public/assets/distortion/
+bench/harness/public/assets/

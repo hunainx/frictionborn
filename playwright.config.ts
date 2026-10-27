@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./bench/specs",
+  // draws the DistortionImage demo pictures (the repo ships no media); see bench/demo-images.ts
+  globalSetup: "./bench/global-setup.ts",
   timeout: 45000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
