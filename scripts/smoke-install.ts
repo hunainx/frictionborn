@@ -6,6 +6,7 @@ import os from "node:os";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import { buildRegistry } from "./build-registry.ts";
+import { registryItemFiles } from "./registry-items.ts";
 
 const execAsync = promisify(exec);
 
@@ -29,9 +30,7 @@ export async function runSmokeTest(): Promise<void> {
     throw new Error(`Registry output directory not found: ${publicRDir}`);
   }
 
-  const jsonFiles = fs
-    .readdirSync(publicRDir)
-    .filter((f) => f.endsWith(".json") && f !== "index.json");
+  const jsonFiles = registryItemFiles(publicRDir);
 
   if (jsonFiles.length === 0) {
     throw new Error("No registry items found to test.");
@@ -99,7 +98,10 @@ export async function runSmokeTest(): Promise<void> {
     );
 
     // Enforce exact save in npm for installed registry dependencies (Audit N17)
-    fs.writeFileSync(path.join(tempDir, ".npmrc"), "save-exact=true\n", "utf8");
+    // install-links: every npm install in the consumer copies the file: runtime, including the ones `shadcn add` runs. A symlink
+    // into this repo would make TypeScript resolve the runtime's React types from the repo's node_modules (a second @types/react
+    // copy: "Two different types with this name exist") on Linux.
+    fs.writeFileSync(path.join(tempDir, ".npmrc"), "save-exact=true\ninstall-links=true\n", "utf8");
 
     const eslintConfig = `import js from "@eslint/js";
 import tseslint from "typescript-eslint";

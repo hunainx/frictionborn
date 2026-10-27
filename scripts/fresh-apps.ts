@@ -22,6 +22,7 @@ import { exec, spawn, type ChildProcess } from "node:child_process";
 import { promisify } from "node:util";
 import { chromium, type Browser, type BrowserContext, type Page } from "@playwright/test";
 import { buildRegistry } from "./build-registry.ts";
+import { registryItemFiles } from "./registry-items.ts";
 
 const execAsync = promisify(exec);
 
@@ -945,10 +946,7 @@ export async function runFreshAppsCheck(): Promise<void> {
   const runtimeTarball = path.join(tempRoot, tgzFile).replace(/\\/g, "/");
 
   const publicRDir = path.join(root, "public", "r");
-  const allItems = fs
-    .readdirSync(publicRDir)
-    .filter((f) => f.endsWith(".json") && f !== "index.json")
-    .map((f) => f.replace(/\.json$/, ""));
+  const allItems = registryItemFiles(publicRDir).map((f) => f.replace(/\.json$/, ""));
   for (const name of FRESH_ONLY) if (!allItems.includes(name)) throw new Error(`FRESH_ONLY: unknown item "${name}"`);
   const items = FRESH_ONLY.length ? [...FRESH_ONLY] : allItems;
 
