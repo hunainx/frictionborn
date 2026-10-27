@@ -1,5 +1,6 @@
 // Original — Frictionborn Motion EmberCore pixel-reading interaction & hero scroll spec
 import { test, expect, type Page } from "@playwright/test";
+import { expectAtTier3 } from "../tier-guard.ts";
 
 const item = process.env.BENCH_ITEM || "ember-core";
 const STUDIO_URL = process.env.STUDIO_URL || "";
@@ -127,37 +128,39 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     await page.goto("/items/ember-core?tier=3");
     const canvas = page.locator("[data-frictionborn-item='ember-core'] canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(500);
+    await expectAtTier3(page, "ember-core", async () => {
+      await page.waitForTimeout(500);
 
-    // Pause idle spin via keyboard so the pointer never crosses the canvas before baseline measurement
-    await canvas.focus();
-    await page.keyboard.press("p");
-    await page.waitForTimeout(300);
+      // Pause idle spin via keyboard so the pointer never crosses the canvas before baseline measurement
+      await canvas.focus();
+      await page.keyboard.press("p");
+      await page.waitForTimeout(300);
 
-    const box = (await canvas.boundingBox())!;
-    const targetNormX = 0.44;
-    const targetNormY = 0.36;
-    const before = await readPatchMetrics(page, targetNormX, targetNormY, 96);
+      const box = (await canvas.boundingBox())!;
+      const targetNormX = 0.44;
+      const targetNormY = 0.36;
+      const before = await readPatchMetrics(page, targetNormX, targetNormY, 96);
 
-    await page.mouse.move(box.x + box.width * targetNormX, box.y + box.height * targetNormY, { steps: 6 });
+      await page.mouse.move(box.x + box.width * targetNormX, box.y + box.height * targetNormY, { steps: 6 });
 
-    await expect
-      .poll(
-        async () => {
-          const cur = await readPatchMetrics(page, targetNormX, targetNormY, 96);
-          return cur.meanBrightness - before.meanBrightness;
-        },
-        {
-          timeout: 5000,
-          message: `hover should heat and brighten pixels near pointer (baseline brightness=${before.meanBrightness.toFixed(2)})`,
-        }
-      )
-      .toBeGreaterThan(3.0);
+      await expect
+        .poll(
+          async () => {
+            const cur = await readPatchMetrics(page, targetNormX, targetNormY, 96);
+            return cur.meanBrightness - before.meanBrightness;
+          },
+          {
+            timeout: 5000,
+            message: `hover should heat and brighten pixels near pointer (baseline brightness=${before.meanBrightness.toFixed(2)})`,
+          }
+        )
+        .toBeGreaterThan(3.0);
 
-    const during = await readPatchMetrics(page, targetNormX, targetNormY, 96);
-    expect(during.redHeat, `hover redHeat ${during.redHeat.toFixed(2)} vs before ${before.redHeat.toFixed(2)}`).toBeGreaterThan(
-      before.redHeat + 4.5
-    );
+      const during = await readPatchMetrics(page, targetNormX, targetNormY, 96);
+      expect(during.redHeat, `hover redHeat ${during.redHeat.toFixed(2)} vs before ${before.redHeat.toFixed(2)}`).toBeGreaterThan(
+        before.redHeat + 4.5
+      );
+    });
   });
 
   test("drag changes the frame", async ({ page }, testInfo) => {
@@ -167,47 +170,49 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     const root = page.locator("[data-frictionborn-item='ember-core']").first();
     const canvas = root.locator("canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
+    await expectAtTier3(page, "ember-core", async () => {
 
-    // Pause idle spin via keyboard immediately so the cloud is stationary unless dragged
-    await canvas.focus();
-    await page.keyboard.press("p");
+      // Pause idle spin via keyboard immediately so the cloud is stationary unless dragged
+      await canvas.focus();
+      await page.keyboard.press("p");
 
-    const box = (await canvas.boundingBox())!;
-    const cx = box.x + box.width * 0.5;
-    const cy = box.y + box.height * 0.5;
+      const box = (await canvas.boundingBox())!;
+      const cx = box.x + box.width * 0.5;
+      const cy = box.y + box.height * 0.5;
 
-    // Baseline with pointer centred at (cx, cy)
-    await page.mouse.move(cx, cy);
-    await page.waitForTimeout(150);
-    const beforeFrame = await readFullFrameStats(page);
-    const upperBefore = await readPatchMetrics(page, 0.5, 0.35, 96);
-    const lowerBefore = await readPatchMetrics(page, 0.5, 0.65, 96);
-    const tiltBefore = upperBefore.meanBrightness - lowerBefore.meanBrightness;
+      // Baseline with pointer centred at (cx, cy)
+      await page.mouse.move(cx, cy);
+      await page.waitForTimeout(150);
+      const beforeFrame = await readFullFrameStats(page);
+      const upperBefore = await readPatchMetrics(page, 0.5, 0.35, 96);
+      const lowerBefore = await readPatchMetrics(page, 0.5, 0.65, 96);
+      const tiltBefore = upperBefore.meanBrightness - lowerBefore.meanBrightness;
 
-    // Drag vertically upward (-300 px -> ~ -1.65 rad around X axis, rotating the hot lower hemisphere to the top)
-    await page.mouse.move(cx, cy + 150);
-    await page.mouse.down();
-    await page.mouse.move(cx, cy - 150, { steps: 14 });
-    await page.mouse.up();
-    await page.mouse.move(cx, cy);
-    await page.waitForTimeout(400);
+      // Drag vertically upward (-300 px -> ~ -1.65 rad around X axis, rotating the hot lower hemisphere to the top)
+      await page.mouse.move(cx, cy + 150);
+      await page.mouse.down();
+      await page.mouse.move(cx, cy - 150, { steps: 14 });
+      await page.mouse.up();
+      await page.mouse.move(cx, cy);
+      await page.waitForTimeout(400);
 
-    const afterFrame = await readFullFrameStats(page);
-    const upperAfter = await readPatchMetrics(page, 0.5, 0.35, 96);
-    const lowerAfter = await readPatchMetrics(page, 0.5, 0.65, 96);
-    const tiltAfter = upperAfter.meanBrightness - lowerAfter.meanBrightness;
+      const afterFrame = await readFullFrameStats(page);
+      const upperAfter = await readPatchMetrics(page, 0.5, 0.35, 96);
+      const lowerAfter = await readPatchMetrics(page, 0.5, 0.65, 96);
+      const tiltAfter = upperAfter.meanBrightness - lowerAfter.meanBrightness;
 
-    let diffSum = 0;
-    const len = Math.min(beforeFrame.samples.length, afterFrame.samples.length);
-    for (let i = 0; i < len; i++) {
-      diffSum += Math.abs(beforeFrame.samples[i] - afterFrame.samples[i]);
-    }
-    const meanAbsDiff = diffSum / Math.max(1, len);
-    expect(meanAbsDiff, `mean absolute pixel difference after drag (${meanAbsDiff.toFixed(2)})`).toBeGreaterThan(1.2);
-    expect(
-      tiltAfter - tiltBefore,
-      `vertical drag should rotate lower-hemisphere heat upward (tiltAfter=${tiltAfter.toFixed(2)}, tiltBefore=${tiltBefore.toFixed(2)})`
-    ).toBeGreaterThan(3.0);
+      let diffSum = 0;
+      const len = Math.min(beforeFrame.samples.length, afterFrame.samples.length);
+      for (let i = 0; i < len; i++) {
+        diffSum += Math.abs(beforeFrame.samples[i] - afterFrame.samples[i]);
+      }
+      const meanAbsDiff = diffSum / Math.max(1, len);
+      expect(meanAbsDiff, `mean absolute pixel difference after drag (${meanAbsDiff.toFixed(2)})`).toBeGreaterThan(1.2);
+      expect(
+        tiltAfter - tiltBefore,
+        `vertical drag should rotate lower-hemisphere heat upward (tiltAfter=${tiltAfter.toFixed(2)}, tiltBefore=${tiltBefore.toFixed(2)})`
+      ).toBeGreaterThan(3.0);
+    });
   });
 
   test("click raises mean brightness, and hold-then-release raises it more", async ({ page }, testInfo) => {
@@ -217,47 +222,49 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     const root = page.locator("[data-frictionborn-item='ember-core']").first();
     const canvas = root.locator("canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(400);
+    await expectAtTier3(page, "ember-core", async () => {
+      await page.waitForTimeout(400);
 
-    await root.getByRole("button", { name: "Pause" }).click();
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(500);
+      await root.getByRole("button", { name: "Pause" }).click();
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(500);
 
-    const base = await readFullFrameStats(page);
-    const box = (await canvas.boundingBox())!;
-    const cx = box.x + box.width * 0.5;
-    const cy = box.y + box.height * 0.5;
+      const base = await readFullFrameStats(page);
+      const box = (await canvas.boundingBox())!;
+      const cx = box.x + box.width * 0.5;
+      const cy = box.y + box.height * 0.5;
 
-    // 1. Quick click (< 280 ms) -> strike flare
-    await page.mouse.click(cx, cy, { delay: 20 });
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(180);
-    const clicked = await readFullFrameStats(page);
+      // 1. Quick click (< 280 ms) -> strike flare
+      await page.mouse.click(cx, cy, { delay: 20 });
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(180);
+      const clicked = await readFullFrameStats(page);
 
-    // Fresh mount for step 2 so the 2 s frame-guard window does not carry over from step 1 in software GL
-    await page.goto("/items/ember-core?tier=3");
-    await expect(canvas).toBeVisible({ timeout: 10000 });
-    await root.getByRole("button", { name: "Pause" }).click();
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(150);
+      // Fresh mount for step 2 so the 2 s frame-guard window does not carry over from step 1 in software GL
+      await page.goto("/items/ember-core?tier=3");
+      await expect(canvas).toBeVisible({ timeout: 10000 });
+      await root.getByRole("button", { name: "Pause" }).click();
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(150);
 
-    // 2. Hold (>= 280 ms) to charge, then release to burst + strike
-    await page.mouse.move(cx, cy);
-    await page.mouse.down();
-    await page.waitForTimeout(1500);
-    await page.mouse.up();
-    await page.mouse.move(5, 5);
-    await page.waitForTimeout(160);
-    const burst = await readFullFrameStats(page);
+      // 2. Hold (>= 280 ms) to charge, then release to burst + strike
+      await page.mouse.move(cx, cy);
+      await page.mouse.down();
+      await page.waitForTimeout(1500);
+      await page.mouse.up();
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(160);
+      const burst = await readFullFrameStats(page);
 
-    expect(
-      clicked.meanBrightness,
-      `click meanBrightness (${clicked.meanBrightness.toFixed(2)}) must exceed baseline (${base.meanBrightness.toFixed(2)})`
-    ).toBeGreaterThan(base.meanBrightness + 2.0);
-    expect(
-      burst.meanBrightness,
-      `hold-release meanBrightness (${burst.meanBrightness.toFixed(2)}) must exceed click (${clicked.meanBrightness.toFixed(2)})`
-    ).toBeGreaterThan(clicked.meanBrightness + 1.0);
+      expect(
+        clicked.meanBrightness,
+        `click meanBrightness (${clicked.meanBrightness.toFixed(2)}) must exceed baseline (${base.meanBrightness.toFixed(2)})`
+      ).toBeGreaterThan(base.meanBrightness + 2.0);
+      expect(
+        burst.meanBrightness,
+        `hold-release meanBrightness (${burst.meanBrightness.toFixed(2)}) must exceed click (${clicked.meanBrightness.toFixed(2)})`
+      ).toBeGreaterThan(clicked.meanBrightness + 1.0);
+    });
   });
 
   test("wheel on /studio (hero mode) still scrolls the page", async ({ page }, testInfo) => {
@@ -351,66 +358,68 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     await page.goto("/items/ember-core?tier=3");
     const canvas = page.locator("[data-frictionborn-item='ember-core'] canvas").first();
     await expect(canvas).toBeVisible({ timeout: 10000 });
-    await page.waitForTimeout(400);
+    await expectAtTier3(page, "ember-core", async () => {
+      await page.waitForTimeout(400);
 
-    // 1. Measure active draw calls per frame over 700 ms (with bloom enabled: 1 screen composite draw per frame)
-    await page.evaluate(() => {
-      const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
-      w.__ecDrawCalls = 0;
-      w.__ecScreenPassDraws = 0;
-    });
-    await page.waitForTimeout(700);
-    const activeStats = await page.evaluate(() => {
-      const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
-      const frames = Math.max(1, w.__ecScreenPassDraws);
-      return {
-        totalDraws: w.__ecDrawCalls,
-        frames: w.__ecScreenPassDraws,
-        drawsPerFrame: w.__ecDrawCalls / frames,
-      };
-    });
+      // 1. Measure active draw calls per frame over 700 ms (with bloom enabled: 1 screen composite draw per frame)
+      await page.evaluate(() => {
+        const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
+        w.__ecDrawCalls = 0;
+        w.__ecScreenPassDraws = 0;
+      });
+      await page.waitForTimeout(700);
+      const activeStats = await page.evaluate(() => {
+        const w = window as unknown as { __ecDrawCalls: number; __ecScreenPassDraws: number };
+        const frames = Math.max(1, w.__ecScreenPassDraws);
+        return {
+          totalDraws: w.__ecDrawCalls,
+          frames: w.__ecScreenPassDraws,
+          drawsPerFrame: w.__ecDrawCalls / frames,
+        };
+      });
 
-    expect(activeStats.frames, "active EmberCore must render frames before pauseAll()").toBeGreaterThan(5);
-    expect(
-      activeStats.drawsPerFrame,
-      `EmberCore draw calls per frame (${activeStats.drawsPerFrame.toFixed(2)}) must be <= 20 (expected 8 idle, 9 with pointer torch)`
-    ).toBeLessThanOrEqual(20);
-    expect(activeStats.drawsPerFrame).toBeGreaterThanOrEqual(6);
+      expect(activeStats.frames, "active EmberCore must render frames before pauseAll()").toBeGreaterThan(5);
+      expect(
+        activeStats.drawsPerFrame,
+        `EmberCore draw calls per frame (${activeStats.drawsPerFrame.toFixed(2)}) must be <= 20 (expected 8 idle, 9 with pointer torch)`
+      ).toBeLessThanOrEqual(20);
+      expect(activeStats.drawsPerFrame).toBeGreaterThanOrEqual(6);
 
-    // 2. Call pauseAll() from @frictionborn/runtime and measure 0 draw calls over a full 2,000 ms window
-    await page.evaluate(() => {
-      const w = window as unknown as {
-        __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
-        __ecDrawCalls: number;
-        __ecScreenPassDraws: number;
-      };
-      if (!w.__fbRuntime?.pauseAll) throw new Error("__fbRuntime.pauseAll not available on harness window");
-      w.__fbRuntime.pauseAll();
-      w.__ecDrawCalls = 0;
-      w.__ecScreenPassDraws = 0;
-    });
-    await page.waitForTimeout(2000);
-    const pausedDraws = await page.evaluate(() => {
-      const w = window as unknown as { __ecDrawCalls: number };
-      return w.__ecDrawCalls;
-    });
-    expect(pausedDraws, "EmberCore must issue 0 WebGL draw calls over 2 s while pauseAll() is active").toBe(0);
+      // 2. Call pauseAll() from @frictionborn/runtime and measure 0 draw calls over a full 2,000 ms window
+      await page.evaluate(() => {
+        const w = window as unknown as {
+          __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
+          __ecDrawCalls: number;
+          __ecScreenPassDraws: number;
+        };
+        if (!w.__fbRuntime?.pauseAll) throw new Error("__fbRuntime.pauseAll not available on harness window");
+        w.__fbRuntime.pauseAll();
+        w.__ecDrawCalls = 0;
+        w.__ecScreenPassDraws = 0;
+      });
+      await page.waitForTimeout(2000);
+      const pausedDraws = await page.evaluate(() => {
+        const w = window as unknown as { __ecDrawCalls: number };
+        return w.__ecDrawCalls;
+      });
+      expect(pausedDraws, "EmberCore must issue 0 WebGL draw calls over 2 s while pauseAll() is active").toBe(0);
 
-    // 3. Resume via resumeAll() and verify draw calls resume
-    await page.evaluate(() => {
-      const w = window as unknown as {
-        __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
-        __ecDrawCalls: number;
-      };
-      w.__fbRuntime?.resumeAll();
-      w.__ecDrawCalls = 0;
+      // 3. Resume via resumeAll() and verify draw calls resume
+      await page.evaluate(() => {
+        const w = window as unknown as {
+          __fbRuntime?: { pauseAll: () => void; resumeAll: () => void };
+          __ecDrawCalls: number;
+        };
+        w.__fbRuntime?.resumeAll();
+        w.__ecDrawCalls = 0;
+      });
+      await page.waitForTimeout(400);
+      const resumedDraws = await page.evaluate(() => {
+        const w = window as unknown as { __ecDrawCalls: number };
+        return w.__ecDrawCalls;
+      });
+      expect(resumedDraws, "EmberCore must resume drawing after resumeAll()").toBeGreaterThan(16);
     });
-    await page.waitForTimeout(400);
-    const resumedDraws = await page.evaluate(() => {
-      const w = window as unknown as { __ecDrawCalls: number };
-      return w.__ecDrawCalls;
-    });
-    expect(resumedDraws, "EmberCore must resume drawing after resumeAll()").toBeGreaterThan(16);
   });
 
   test("host pause -> click EmberCore Play and Reset -> 0 draws from page loop over 2 s and host button still reads Resume motion", async ({

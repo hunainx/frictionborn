@@ -5,6 +5,12 @@
   --primary: #FB923C;
   --primary-foreground: #0D0F12;
   --accent: #3B82F6;
+  /* the rest of the shadcn host tokens the demos read (AGENTS lesson 4). Without them a demo fell back to a system colour that
+     does not follow the harness theme: white Canvas behind light text (1.19:1, Linux) or GrayText on dark (3.43:1, Windows) */
+  --card: #15181D;
+  --card-foreground: #E9EBF0;
+  --muted-foreground: #9AA1AF;
+  --border: #262B33;
 
   --bg: #0D0F12;
   --surface: #15181D;
@@ -29,6 +35,10 @@ html.light, html[data-theme="light"] {
   --primary: #C2410C;
   --primary-foreground: #FFFFFF;
   --accent: #2563EB;
+  --card: #FFFFFF;
+  --card-foreground: #111318;
+  --muted-foreground: #5B6272;
+  --border: #DCDFE5;
 
   --bg: #F4F5F7;
   --surface: #FFFFFF;
