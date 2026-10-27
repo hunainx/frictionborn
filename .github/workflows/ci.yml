@@ -15,10 +15,10 @@ on:
     - cron: '0 3 * * 0' # Weekly on Sunday at 03:00 UTC (for lenis compatibility)
   workflow_dispatch:
 
-env:
-  # Single config switch: set to 'true' to run full browser matrix on every push (e.g. once public).
-  # When 'false', pushes run cheap mode (static checks + smoke install + 1 chromium-desktop shard).
-  FULL_MATRIX: "false"
+# Single config switch: the repository variable FULL_MATRIX (Settings > Secrets and variables > Actions > Variables).
+# Set it to 'true' to run the full browser matrix on every push (e.g. once public). Unset or anything else, pushes run
+# cheap mode (static checks + smoke install + 1 chromium-desktop shard). A job-level `if` cannot read `env`, so the
+# switch is `vars.FULL_MATRIX`, and both conditions sit inside ${{ }} (an unquoted value starting with `!` is a YAML tag).
 
 permissions:
   contents: read
@@ -75,7 +75,7 @@ jobs:
 
   bench:
     name: Bench (${{ matrix.project }} ${{ matrix.shard }})
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || env.FULL_MATRIX == 'true'
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || vars.FULL_MATRIX == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -133,7 +133,7 @@ jobs:
 
   bench-cheap:
     name: Bench Cheap (chromium-desktop 1/2)
-    if: !(github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || env.FULL_MATRIX == 'true')
+    if: ${{ !(github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') || vars.FULL_MATRIX == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
