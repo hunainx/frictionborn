@@ -83,6 +83,11 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble
       options: --ipc=host
+    # The container runs as root, but Actions mounts HOME=/github/home owned by the image's pwuser, and Firefox refuses to start
+    # as root in another user's HOME ("Running Nightly as root in a regular user's session is not supported"). Playwright's
+    # documented fix: point HOME at root's own home for every step (git's safe.directory below then lands there too).
+    env:
+      HOME: /root
     strategy:
       fail-fast: false
       matrix:
