@@ -32,7 +32,11 @@ test.describe("MeshGradient default speed", () => {
     await page.goto("/mesh-default");
     const canvas = page.locator("[data-frictionborn-item='mesh-gradient'] canvas").first();
     const hasCanvas = await canvas.waitFor({ state: "attached", timeout: 8000 }).then(() => true, () => false);
-    test.skip(!hasCanvas, "no WebGL canvas in this browser");
+    // The item mounts its <canvas> before it asks for a context and keeps it when WebGL2 fails (it falls back to the
+    // poster), so an attached canvas alone does not mean there is a shader clock to read. Check WebGL2 itself: Firefox in
+    // the CI container has none (see the FB_WEBGL2 line that webgl-support.spec.ts records).
+    const hasWebGL2 = await page.evaluate(() => !!document.createElement("canvas").getContext("webgl2"));
+    test.skip(!hasCanvas || !hasWebGL2, "no WebGL2 in this browser");
     await page.waitForFunction(() => (window as any).__meshTime.length > 30, null, { timeout: 15000 });
     await page.waitForTimeout(2500);
     const samples: [number, number][] = await page.evaluate(() => (window as any).__meshTime);
