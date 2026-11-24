@@ -265,8 +265,9 @@ jobs:
       - name: Build packages
         run: pnpm build
 
+      # `pnpm bench --item` below runs every browser project, so all three browsers are needed, not just Chromium.
       - name: Install Playwright Browsers & OS Dependencies
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
 
       - name: Build bench harness
         run: pnpm exec next build bench/harness
