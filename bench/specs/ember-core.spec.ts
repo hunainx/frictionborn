@@ -332,6 +332,9 @@ test.describe("EmberCore pixel-reading interactions and hero page scroll safety"
     // A real touch swipe through the browser's input pipeline (CDP), so touch-action and any preventDefault() on touchmove decide
     // whether the page scrolls. The spec never scrolls the page itself.
     const cdp = await page.context().newCDPSession(page);
+    // chromium-desktop has no touch screen (hasTouch: false), and Chromium never acknowledges a CDP touchMove on such a page, so
+    // the swipe hung until the 45 s test timeout. Turn touch input on first, like a touch-screen laptop (chromium-mobile has it already).
+    await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
     await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: cx, y: cy }] });
     for (let i = 1; i <= 12; i++) {
       await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: cx, y: cy - i * 30 }] });
