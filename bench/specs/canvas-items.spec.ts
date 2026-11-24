@@ -109,6 +109,33 @@ const RECIPES: Record<string, Recipe> = {
       await page.keyboard.press("Enter");
       await page.waitForTimeout(320);
       await page.keyboard.press("Enter");
+      // TEMP-DIAG (removed before review): how fast frames come and what the heat does after two strikes
+      await page.evaluate(() => {
+        const w = window as any;
+        w.__diagT = [];
+        const f = (t: number) => { w.__diagT.push(Math.round(t)); if (w.__diagT.length < 400) requestAnimationFrame(f); };
+        requestAnimationFrame(f);
+      });
+      for (let i = 0; i < 16; i++) {
+        const s = await page.evaluate(() => {
+          const b = document.querySelector("[data-frictionborn-item='flint-button']") as HTMLElement;
+          const fx = b?.parentElement?.querySelector(".fb-fl-fx") as HTMLElement | null;
+          const r = fx?.getBoundingClientRect();
+          const T: number[] = (window as any).__diagT;
+          return {
+            t: Math.round(performance.now()),
+            text: b?.textContent,
+            h: b?.style.getPropertyValue("--fb-fb-h"),
+            st: b?.parentElement?.querySelector(".fb-fl-status")?.textContent,
+            fx: r ? [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)] : null,
+            vp: [innerWidth, innerHeight, Math.round(scrollY), devicePixelRatio],
+            raf: T.length,
+            gaps: T.slice(-6).map((v, k, a) => (k ? v - a[k - 1] : 0)),
+          };
+        });
+        console.log("FLINT-DIAG", JSON.stringify(s));
+        await page.waitForTimeout(200);
+      }
     },
     state: async (page) => expect(root(page)).toHaveText("Lit"),
     // reduced motion: a plain button; the click still reaches the page (the demo counts strikes)
