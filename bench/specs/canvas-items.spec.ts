@@ -107,6 +107,21 @@ const RECIPES: Record<string, Recipe> = {
       // the item's root is the <button> itself
       await root(page).focus();
       await page.keyboard.press("Enter");
+      // Two full strikes light the stone. A strike is 0.26 s on the item's frame clock and a new press restarts the stroke, so
+      // press again only once the steel has finished its rake (the item then sets it to `visibility: hidden` inline). A fixed
+      // 320 ms was not enough in WebKit: it can hold back the first frames after the press for about half a second, both
+      // presses then landed inside one stroke, the heat peaked near 0.86 and the button never read "Lit".
+      await page.waitForFunction(
+        () => document.querySelector<HTMLElement>("[data-frictionborn-item='flint-button'] .fb-fl-steel")?.style.visibility === "hidden",
+        null,
+        { timeout: 5000 },
+      );
+      await page.keyboard.press("Enter");
+    },
+    // reduced motion: no frame loop and no steel, so the two presses only need to reach the page
+    reducedAct: async (page) => {
+      await root(page).focus();
+      await page.keyboard.press("Enter");
       await page.waitForTimeout(320);
       await page.keyboard.press("Enter");
     },
