@@ -152,11 +152,15 @@ export function DistortionImage({
     }
   }
 
-  let clampedStrength = strength;
   const isOutOfRange = Number.isNaN(strength) || strength < 0 || strength > 1;
+  const clampedStrength = !isOutOfRange ? strength : Number.isNaN(strength) ? 0 : Math.max(0, Math.min(1, strength));
   const warnedStrengthRef = useRef<number | null>(null);
 
-  if (isOutOfRange) {
+  // The development warning runs in an effect, not during render: React's rules (react-hooks/refs, on by default in Next 16's
+  // ESLint config) forbid reading or writing a ref while rendering. The ref keeps it to one warning per out-of-range value, also
+  // under StrictMode's double effect run.
+  useEffect(() => {
+    if (!isOutOfRange) return;
     let isDev = false;
     try {
       if (typeof process !== "undefined" && process.env?.NODE_ENV) {
@@ -175,8 +179,7 @@ export function DistortionImage({
       warnedStrengthRef.current = strength;
       console.warn(`[frictionborn/distortion-image] strength must be between 0 and 1, got ${strength}. Clamping.`);
     }
-    clampedStrength = Number.isNaN(strength) ? 0 : Math.max(0, Math.min(1, strength));
-  }
+  }, [isOutOfRange, strength]);
 
   const setImgRef = useCallback((node: HTMLImageElement | null) => {
     imgRef.current = node;
